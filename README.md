@@ -170,7 +170,7 @@ Feel free to fork this repository and submit pull requests.
 
 # License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. For more information, see the [LICENSE](https://github.com/ardaltunel/omni-tools/blob/main/LICENSE) file.
 
 ---
 
