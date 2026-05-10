@@ -21,7 +21,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>14 uygulama, tek panel</small>
+                    <small>15 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -67,6 +67,9 @@
                 </button>
                 <button class="nav-item" data-tool="wordle" type="button">
                     <span>Wordle</span>
+                </button>
+                <button class="nav-item" data-tool="wordle-finder" type="button">
+                    <span>Wordle Finder</span>
                 </button>
             </nav>
         </aside>
@@ -579,6 +582,37 @@
                 </div>
             </section>
 
+            <section id="wordle-finder" class="tool-panel" aria-labelledby="wordle-finder-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="wordle-finder-title">Wordle Finder</h2>
+                        <p>WordleTR için yeşil, sarı ve gri ipuçlarıyla 5 harfli Türkçe kelime bul.</p>
+                    </div>
+                    <button id="wordle-finder-clear" class="secondary-button" type="button">Filtreleri Temizle</button>
+                </div>
+                <div class="wordle-finder-layout">
+                    <div class="wordle-finder-card">
+                        <div class="wordle-finder-topline">
+                            <span>Canlı filtre</span>
+                            <strong><span id="wordle-finder-count">0</span> sonuç</strong>
+                        </div>
+                        <div id="wordle-finder-grid" class="wordle-finder-grid" aria-label="Wordle Finder harf filtreleri"></div>
+                        <div class="wordle-finder-key">
+                            <span><b class="legend-dot exact"></b>Yeşil: doğru yer</span>
+                            <span><b class="legend-dot present"></b>Sarı: kelimede var, bu yerde değil</span>
+                            <span><b class="legend-dot absent"></b>Gri: kelimede yok</span>
+                        </div>
+                    </div>
+                    <aside class="wordle-finder-results">
+                        <div class="wordle-finder-results-head">
+                            <strong>Uygun Kelimeler</strong>
+                            <span id="wordle-finder-source">Words listesi</span>
+                        </div>
+                        <div id="wordle-finder-list" class="wordle-finder-list" aria-live="polite"></div>
+                    </aside>
+                </div>
+            </section>
+
             <section id="weather" class="tool-panel" aria-labelledby="weather-title">
                 <div class="panel-heading">
                     <div>
@@ -847,7 +881,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="index.js?v=11"></script>
-    <script src="wordle/script.js?v=6"></script>
+    <script src="wordle/script.js?v=7"></script>
+    <script src="wordle-finder/script.js?v=1"></script>
     <script src="weather/script.js?v=3"></script>
     <script src="translate/script.js?v=1"></script>
     <script src="chess/script.js?v=3"></script>
