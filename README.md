@@ -8,7 +8,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/stars/ardaltunel/omni-tools?style=flat-square" />
   <img src="https://img.shields.io/github/forks/ardaltunel/omni-tools?style=flat-square" />
-  <img src="https://img.shields.io/github/license/ardaltunel/omni-tools?style=flat-square" />
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
   <img src="https://img.shields.io/github/last-commit/ardaltunel/omni-tools?style=flat-square" />
 </p>
 
