@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-labelledby="title desc">
+    <title id="title">Bulutlu hava</title>
+    <desc id="desc">Acik mavi ve beyaz tonlarda bulutlu hava ikonu.</desc>
+    <defs>
+        <linearGradient id="cloud" x1="42" x2="198" y1="58" y2="148" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#d9eef4"/>
+        </linearGradient>
+        <linearGradient id="sun" x1="41" x2="107" y1="26" y2="98" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ffd36a"/>
+            <stop offset="1" stop-color="#f08a24"/>
+        </linearGradient>
+        <filter id="shadow" x="20" y="20" width="200" height="140" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="10" flood-color="#103442" flood-opacity=".18" stdDeviation="8"/>
+        </filter>
+    </defs>
+    <circle cx="82" cy="66" r="34" fill="url(#sun)"/>
+    <g fill="none" stroke="#ffd36a" stroke-linecap="round" stroke-width="9">
+        <path d="M82 16v-4"/>
+        <path d="M82 120v-4"/>
+        <path d="m30 66-4 0"/>
+        <path d="m138 66-4 0"/>
+        <path d="m45 29-3-3"/>
+        <path d="m119 103-3-3"/>
+        <path d="m119 29 3-3"/>
+        <path d="m45 103-3 3"/>
+    </g>
+    <path fill="url(#cloud)" d="M70 145c-24 0-43-18-43-40s19-40 43-40c4 0 8 1 12 2 11-24 35-40 64-40 38 0 69 29 72 66 18 5 31 21 31 40 0 23-20 42-45 42H70Z" filter="url(#shadow)" transform="translate(-18 -5)"/>
+    <path fill="#ffffff" fill-opacity=".5" d="M57 101c8-19 27-31 49-31 10 0 19 2 27 7 7-6 17-10 28-10 20 0 37 14 41 33" stroke="#ffffff" stroke-linecap="round" stroke-width="5"/>
+</svg>

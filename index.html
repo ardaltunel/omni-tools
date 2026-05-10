@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omni Tools | Arda Altunel</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-icon-180x180.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="coach/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="style.css?v=22">
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-mark">A</span>
+                <div>
+                    <strong>Arda Tools</strong>
+                    <small>14 uygulama, tek panel</small>
+                </div>
+            </div>
+
+            <nav class="tool-nav" aria-label="Uygulamalar">
+                <button class="nav-item" data-tool="advanced-xox" type="button">
+                    <span>Advanced XOX</span>
+                </button>
+                <button class="nav-item" data-tool="chess" type="button">
+                    <span>Chess</span>
+                </button>
+                <button class="nav-item" data-tool="chess-coach" type="button">
+                    <span>Chess Coach</span>
+                </button>
+                <button class="nav-item" data-tool="crypto" type="button">
+                    <span>Crypto Price</span>
+                </button>
+                <button class="nav-item" data-tool="github-user" type="button">
+                    <span>GitHub User</span>
+                </button>
+                <button class="nav-item" data-tool="gradient" type="button">
+                    <span>Gradient Generator</span>
+                </button>
+                <button class="nav-item" data-tool="numble" type="button">
+                    <span>Numble</span>
+                </button>
+                <button class="nav-item" data-tool="password" type="button">
+                    <span>Pass Generator</span>
+                </button>
+                <button class="nav-item" data-tool="qr" type="button">
+                    <span>QR Code Generator</span>
+                </button>
+                <button class="nav-item" data-tool="speech" type="button">
+                    <span>Text To Speech</span>
+                </button>
+                <button class="nav-item" data-tool="typing" type="button">
+                    <span>Type Test</span>
+                </button>
+                <button class="nav-item" data-tool="translate" type="button">
+                    <span>Translate</span>
+                </button>
+                <button class="nav-item" data-tool="weather" type="button">
+                    <span>Weather App</span>
+                </button>
+                <button class="nav-item" data-tool="wordle" type="button">
+                    <span>Wordle</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main class="workspace">
+            <section id="crypto" class="tool-panel" aria-labelledby="crypto-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="crypto-title">Crypto Price</h2>
+                        <p>Popüler coin fiyatları ve 24 saatlik değişim.</p>
+                    </div>
+                    <button id="refresh-crypto" class="primary-button" type="button">Fiyatları Yenile</button>
+                </div>
+                <div class="crypto-layout">
+                    <div id="crypto-list" class="crypto-list">
+                        <div class="empty-state crypto-empty">
+                            <strong>Fiyatlar hazır değil</strong>
+                            <span>Güncel fiyatları görmek için yenile butonuna bas.</span>
+                        </div>
+                    </div>
+                    <aside class="crypto-side">
+                        <strong>Piyasa Özeti</strong>
+                        <p>Popüler coinlerin USD fiyatı ve 24 saatlik değişimi tek listede gösterilir.</p>
+                        <div class="crypto-side-list">
+                            <span>CoinGecko API</span>
+                            <span>24 saatlik değişim</span>
+                            <span>Manuel yenileme</span>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="qr" class="tool-panel" aria-labelledby="qr-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="qr-title">QR Code Generator</h2>
+                        <p>Metin veya bağlantı için renkli QR kod üret.</p>
+                    </div>
+                </div>
+                <div class="qr-grid">
+                    <div class="control-card">
+                        <div class="field-group">
+                            <label for="qr-text">QR metni</label>
+                            <input id="qr-text" class="text-input" type="text" placeholder="Metin veya URL girin" value="https://ardaltunel.github.io">
+                        </div>
+                        <div class="qr-controls">
+                            <label>
+                                Açık renk
+                                <input id="qr-light" type="color" value="#ffffff">
+                            </label>
+                            <label>
+                                Koyu renk
+                                <input id="qr-dark" type="color" value="#111827">
+                            </label>
+                            <label>
+                                Boyut
+                                <select id="qr-size">
+                                    <option value="160">160x160</option>
+                                    <option value="240">240x240</option>
+                                    <option value="320">320x320</option>
+                                    <option value="480">480x480</option>
+                                    <option selected value="640">640x640</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="button-row qr-actions">
+                            <a id="qr-download" class="primary-button" href="#" download="QRCode.png">İndir</a>
+                            <button id="qr-share" class="secondary-button" type="button">Paylaş</button>
+                        </div>
+                    </div>
+                    <div class="qr-preview-card">
+                        <div class="qr-preview-top">
+                            <span>Önizleme</span>
+                            <strong id="qr-size-label">640x640</strong>
+                        </div>
+                        <div id="qr-code" class="qr-output"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="speech" class="tool-panel" aria-labelledby="speech-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="speech-title">Text To Speech</h2>
+                        <p>Yazıyı tarayıcının konuşma motoruyla seslendir.</p>
+                    </div>
+                </div>
+                <div class="speech-layout">
+                    <form id="speech-form" class="speech-form">
+                        <div class="field-group">
+                            <label for="speech-text">Metin</label>
+                            <textarea id="speech-text" rows="8" placeholder="Seslendirmek istediğiniz metni yazın.">Merhaba, Arda Tools uygulamasına hoş geldiniz.</textarea>
+                        </div>
+                        <div class="field-group">
+                            <label for="voice-list">Ses</label>
+                            <select id="voice-list"></select>
+                        </div>
+                        <div class="button-row speech-actions">
+                            <button id="speech-button" class="primary-button" type="submit">Seslendir</button>
+                            <button id="speech-stop" class="secondary-button" type="button">Durdur</button>
+                        </div>
+                    </form>
+                    <aside class="speech-side">
+                        <strong>Seslendirme</strong>
+                        <p>Tarayıcının yerel konuşma motorunu kullanır. Ses seçenekleri cihazına ve tarayıcına göre değişebilir.</p>
+                        <div class="speech-state">
+                            <span>Durum</span>
+                            <strong id="speech-status">Hazır</strong>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="gradient" class="tool-panel gradient-panel" aria-labelledby="gradient-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="gradient-title">Gradient Generator</h2>
+                        <p>CSS linear-gradient kodu oluştur ve kopyala.</p>
+                    </div>
+                </div>
+                <div class="gradient-grid">
+                    <div class="gradient-controls">
+                        <div class="gradient-color-row">
+                            <label>
+                                İlk renk
+                                <input id="gradient-color-a" type="color" value="#18a999">
+                            </label>
+                            <label>
+                                İkinci renk
+                                <input id="gradient-color-b" type="color" value="#f4d35e">
+                            </label>
+                        </div>
+                        <div class="field-group">
+                            <span class="control-label">Yön</span>
+                            <div id="direction-buttons" class="direction-grid">
+                                <button class="active" data-direction="to bottom" type="button" title="Aşağı">↓</button>
+                                <button data-direction="to top" type="button" title="Yukarı">↑</button>
+                                <button data-direction="to right" type="button" title="Sağa">→</button>
+                                <button data-direction="to left" type="button" title="Sola">←</button>
+                                <button data-direction="to top right" type="button" title="Sağ üst">↗</button>
+                                <button data-direction="to bottom right" type="button" title="Sağ alt">↘</button>
+                                <button data-direction="to bottom left" type="button" title="Sol alt">↙</button>
+                                <button data-direction="to top left" type="button" title="Sol üst">↖</button>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label for="gradient-code">CSS çıktısı</label>
+                            <div class="gradient-code-card">
+                                <textarea id="gradient-code" rows="4" readonly></textarea>
+                                <button id="copy-gradient" class="primary-button" type="button">Kopyala</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gradient-preview-card">
+                        <div class="gradient-preview-top">
+                            <span>Canlı önizleme</span>
+                            <strong id="gradient-direction-label">to bottom</strong>
+                        </div>
+                        <div id="gradient-preview" class="gradient-preview"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="typing" class="tool-panel" aria-labelledby="typing-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="typing-title">Type Test</h2>
+                        <p>Yazmaya başladığında otomatik başlayan Türkçe yazma testi.</p>
+                    </div>
+                    <button id="new-quote" class="secondary-button" type="button">Yeni Deneme</button>
+                </div>
+                <div class="typing-grid">
+                    <div class="typing-card">
+                        <div class="typing-status">
+                            <span id="typing-state">Hazır</span>
+                            <strong id="timer">0s</strong>
+                        </div>
+                        <div id="quote" class="quote-box" onmousedown="return false" onselectstart="return false"></div>
+                        <textarea id="quote-input" rows="5" placeholder="Metni buraya yazmaya başla; Enter ile bitirebilirsin."></textarea>
+                    </div>
+                    <aside class="typing-side">
+                        <div class="typing-stats">
+                            <p>Hata <span id="mistakes">0</span></p>
+                            <p>Doğruluk <span id="accuracy">-</span></p>
+                            <p>Hız <span id="wpm">-</span></p>
+                        </div>
+                        <div id="typing-result" class="result-card">
+                            <strong>Sonuç</strong>
+                            <p id="typing-summary">İlk harfi yazdığında test başlayacak. Enter ile erken bitirebilirsin.</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="translate" class="tool-panel" aria-labelledby="translate-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="translate-title">Translate</h2>
+                        <p>Metni kaynak dilden hedef dile statik Google Translate endpoint'i ile çevir.</p>
+                    </div>
+                </div>
+                <div class="translate-layout">
+                    <div class="translate-panel">
+                        <div class="translate-language-grid">
+                            <div class="field-group">
+                                <label for="translate-lang-one">From</label>
+                                <div class="translate-select-wrap">
+                                    <select id="translate-lang-one" name="translate-lang-one">
+                                        <option value="auto">Auto Detect</option>
+                                        <option value="af">Afrikaans</option>
+                                        <option value="sq">Albanian</option>
+                                        <option value="ar">Arabic</option>
+                                        <option value="hy">Armenian</option>
+                                        <option value="eu">Basque</option>
+                                        <option value="bn">Bengali</option>
+                                        <option value="bg">Bulgarian</option>
+                                        <option value="ca">Catalan</option>
+                                        <option value="km">Cambodian</option>
+                                        <option value="zh-CN">Chinese (Mandarin)</option>
+                                        <option value="hr">Croatian</option>
+                                        <option value="cs">Czech</option>
+                                        <option value="da">Danish</option>
+                                        <option value="nl">Dutch</option>
+                                        <option value="en">English</option>
+                                        <option value="et">Estonian</option>
+                                        <option value="fi">Finnish</option>
+                                        <option value="fr">French</option>
+                                        <option value="ka">Georgian</option>
+                                        <option value="de">German</option>
+                                        <option value="el">Greek</option>
+                                        <option value="gu">Gujarati</option>
+                                        <option value="he">Hebrew</option>
+                                        <option value="hi">Hindi</option>
+                                        <option value="hu">Hungarian</option>
+                                        <option value="is">Icelandic</option>
+                                        <option value="id">Indonesian</option>
+                                        <option value="ga">Irish</option>
+                                        <option value="it">Italian</option>
+                                        <option value="ja">Japanese</option>
+                                        <option value="jw">Javanese</option>
+                                        <option value="ko">Korean</option>
+                                        <option value="la">Latin</option>
+                                        <option value="lv">Latvian</option>
+                                        <option value="lt">Lithuanian</option>
+                                        <option value="mk">Macedonian</option>
+                                        <option value="ms">Malay</option>
+                                        <option value="ml">Malayalam</option>
+                                        <option value="mt">Maltese</option>
+                                        <option value="mi">Maori</option>
+                                        <option value="mr">Marathi</option>
+                                        <option value="mn">Mongolian</option>
+                                        <option value="ne">Nepali</option>
+                                        <option value="no">Norwegian</option>
+                                        <option value="fa">Persian</option>
+                                        <option value="pl">Polish</option>
+                                        <option value="pt">Portuguese</option>
+                                        <option value="pa">Punjabi</option>
+                                        <option value="ro">Romanian</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="sm">Samoan</option>
+                                        <option value="sr">Serbian</option>
+                                        <option value="sk">Slovak</option>
+                                        <option value="sl">Slovenian</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="sw">Swahili</option>
+                                        <option value="sv">Swedish</option>
+                                        <option value="ta">Tamil</option>
+                                        <option value="tt">Tatar</option>
+                                        <option value="te">Telugu</option>
+                                        <option value="th">Thai</option>
+                                        <option value="bo">Tibetan</option>
+                                        <option value="to">Tonga</option>
+                                        <option value="tr">Turkish</option>
+                                        <option value="uk">Ukrainian</option>
+                                        <option value="ur">Urdu</option>
+                                        <option value="uz">Uzbek</option>
+                                        <option value="vi">Vietnamese</option>
+                                        <option value="cy">Welsh</option>
+                                        <option value="xh">Xhosa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field-group">
+                                <label for="translate-lang-two">To</label>
+                                <div class="translate-select-wrap">
+                                    <select id="translate-lang-two" name="translate-lang-two">
+                                        <option value="af">Afrikaans</option>
+                                        <option value="sq">Albanian</option>
+                                        <option value="ar">Arabic</option>
+                                        <option value="hy">Armenian</option>
+                                        <option value="eu">Basque</option>
+                                        <option value="bn">Bengali</option>
+                                        <option value="bg">Bulgarian</option>
+                                        <option value="ca">Catalan</option>
+                                        <option value="km">Cambodian</option>
+                                        <option value="zh-CN">Chinese (Mandarin)</option>
+                                        <option value="hr">Croatian</option>
+                                        <option value="cs">Czech</option>
+                                        <option value="da">Danish</option>
+                                        <option value="nl">Dutch</option>
+                                        <option value="en" selected>English</option>
+                                        <option value="et">Estonian</option>
+                                        <option value="fi">Finnish</option>
+                                        <option value="fr">French</option>
+                                        <option value="ka">Georgian</option>
+                                        <option value="de">German</option>
+                                        <option value="el">Greek</option>
+                                        <option value="gu">Gujarati</option>
+                                        <option value="he">Hebrew</option>
+                                        <option value="hi">Hindi</option>
+                                        <option value="hu">Hungarian</option>
+                                        <option value="is">Icelandic</option>
+                                        <option value="id">Indonesian</option>
+                                        <option value="ga">Irish</option>
+                                        <option value="it">Italian</option>
+                                        <option value="ja">Japanese</option>
+                                        <option value="jw">Javanese</option>
+                                        <option value="ko">Korean</option>
+                                        <option value="la">Latin</option>
+                                        <option value="lv">Latvian</option>
+                                        <option value="lt">Lithuanian</option>
+                                        <option value="mk">Macedonian</option>
+                                        <option value="ms">Malay</option>
+                                        <option value="ml">Malayalam</option>
+                                        <option value="mt">Maltese</option>
+                                        <option value="mi">Maori</option>
+                                        <option value="mr">Marathi</option>
+                                        <option value="mn">Mongolian</option>
+                                        <option value="ne">Nepali</option>
+                                        <option value="no">Norwegian</option>
+                                        <option value="fa">Persian</option>
+                                        <option value="pl">Polish</option>
+                                        <option value="pt">Portuguese</option>
+                                        <option value="pa">Punjabi</option>
+                                        <option value="ro">Romanian</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="sm">Samoan</option>
+                                        <option value="sr">Serbian</option>
+                                        <option value="sk">Slovak</option>
+                                        <option value="sl">Slovenian</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="sw">Swahili</option>
+                                        <option value="sv">Swedish</option>
+                                        <option value="ta">Tamil</option>
+                                        <option value="tt">Tatar</option>
+                                        <option value="te">Telugu</option>
+                                        <option value="th">Thai</option>
+                                        <option value="bo">Tibetan</option>
+                                        <option value="to">Tonga</option>
+                                        <option value="tr">Turkish</option>
+                                        <option value="uk">Ukrainian</option>
+                                        <option value="ur">Urdu</option>
+                                        <option value="uz">Uzbek</option>
+                                        <option value="vi">Vietnamese</option>
+                                        <option value="cy">Welsh</option>
+                                        <option value="xh">Xhosa</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field-group translate-text-field">
+                            <label for="translate-text">Text</label>
+                            <textarea id="translate-text" name="translate-text" placeholder="Çevirmek istediğin metni yaz..."></textarea>
+                        </div>
+
+                        <div class="translate-actions">
+                            <button id="translate-convert" class="primary-button" type="button">
+                                <span>Çevir</span>
+                                <span class="translate-convert-icon" aria-hidden="true"></span>
+                            </button>
+                            <p id="translate-status" aria-live="polite"></p>
+                        </div>
+                    </div>
+                    <aside class="translate-side">
+                        <strong>Çeviri Akışı</strong>
+                        <p>Kaynak dili otomatik algılayabilir veya elle seçebilirsin. Sonuç aynı metin alanında gösterilir.</p>
+                        <div class="translate-side-list">
+                            <span>Auto Detect</span>
+                            <span>Google endpoint</span>
+                            <span>Statik yapı</span>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="password" class="tool-panel" aria-labelledby="password-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="password-title">Pass Generator</h2>
+                        <p>Güvenli, özelleştirilebilir parola üretici.</p>
+                    </div>
+                    <button id="generate-password" class="primary-button" type="button">Yeni Parola</button>
+                </div>
+                <div class="password-grid">
+                    <div class="password-card">
+                        <label for="password-output">Oluşturulan parola</label>
+                        <div class="password-output-row">
+                            <input id="password-output" class="text-input" type="text" readonly>
+                            <button id="copy-password" class="secondary-button" type="button">Kopyala</button>
+                        </div>
+                        <div class="password-meter">
+                            <span id="password-meter-bar"></span>
+                        </div>
+                        <div class="password-meta">
+                            <span id="password-strength">Güçlü</span>
+                            <span id="password-entropy">0 bit</span>
+                        </div>
+                        <div class="field-group">
+                            <div class="range-header">
+                                <label for="password-length">Uzunluk</label>
+                                <strong id="password-length-value">18</strong>
+                            </div>
+                            <input id="password-length" type="range" min="8" max="64" value="18" step="1">
+                        </div>
+                    </div>
+                    <div class="password-card">
+                        <span class="control-label">Karakter seçenekleri</span>
+                        <div class="password-options">
+                            <label><input id="pass-lowercase" type="checkbox" checked> Küçük harf</label>
+                            <label><input id="pass-uppercase" type="checkbox" checked> Büyük harf</label>
+                            <label><input id="pass-numbers" type="checkbox" checked> Sayı</label>
+                            <label><input id="pass-symbols" type="checkbox" checked> Sembol</label>
+                            <label><input id="pass-no-duplicate" type="checkbox"> Tekrarsız karakter</label>
+                            <label><input id="pass-no-ambiguous" type="checkbox" checked> Benzer karakterleri çıkar</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="numble" class="tool-panel" aria-labelledby="numble-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="numble-title">Numble</h2>
+                        <p>5 haneli gizli sayıyı 6 tahminde bul.</p>
+                    </div>
+                    <div class="button-row panel-actions">
+                        <button id="numble-hard" class="secondary-button" type="button">Zor Mod: Kapalı</button>
+                        <button id="numble-new" class="primary-button" type="button">Yeni Oyun</button>
+                    </div>
+                </div>
+                <div class="numble-grid">
+                    <div class="numble-card">
+                        <div class="numble-status">
+                            <span id="numble-message">Tahminini gir.</span>
+                            <strong id="numble-round">0/6</strong>
+                        </div>
+                        <div id="numble-board" class="numble-board" aria-label="Numble oyun tahtası"></div>
+                        <div id="numble-keypad" class="numble-keypad" aria-label="Numble sayı klavyesi"></div>
+                    </div>
+                    <aside class="numble-side">
+                        <div class="numble-rule">
+                            <strong>Nasıl oynanır?</strong>
+                            <p>Yeşil doğru rakam ve doğru yer demek. Sarı doğru rakam ama yanlış yer demek. Boş kalan rakam gizli sayıda yok.</p>
+                        </div>
+                        <div class="feedback-legend" aria-label="Numble renk açıklaması">
+                            <span><b class="legend-dot exact"></b>Doğru yer</span>
+                            <span><b class="legend-dot present"></b>Yanlış yer</span>
+                            <span><b class="legend-dot absent"></b>Yok</span>
+                        </div>
+                        <div class="numble-stats">
+                            <p>Oyun <span id="numble-games">0</span></p>
+                            <p>Galibiyet <span id="numble-wins">0</span></p>
+                            <p>Seri <span id="numble-streak">0</span></p>
+                        </div>
+                        <div id="numble-result" class="result-card">
+                            <strong>Sonuç</strong>
+                            <p id="numble-summary">Klavye ile de oynayabilirsin.</p>
+                            <button id="numble-copy" class="secondary-button" type="button">Sonucu Kopyala</button>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="wordle" class="tool-panel" aria-labelledby="wordle-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="wordle-title">Wordle</h2>
+                        <p>Türkçe harf destekli 5 harfli kelime oyunu.</p>
+                    </div>
+                </div>
+                <div class="wordle-shell">
+                    <div class="wordle-card">
+                        <div class="wordle-topline">
+                            <span id="score">Skor: 0</span>
+                            <span id="message" class="message">&nbsp;</span>
+                        </div>
+                        <div id="game" class="wordle-game">
+                            <div id="grid" class="wordle-board" aria-label="Wordle oyun tahtası"></div>
+                        </div>
+                    </div>
+                    <aside class="wordle-side">
+                        <strong>Nasıl oynanır?</strong>
+                        <p>5 harfli kelimeyi 6 tahminde bul. Yeşil doğru harf ve doğru yer, sarı doğru harf ama yanlış yer demek.</p>
+                        <div class="feedback-legend" aria-label="Wordle renk açıklaması">
+                            <span><b class="legend-dot exact"></b>Doğru yer</span>
+                            <span><b class="legend-dot present"></b>Yanlış yer</span>
+                            <span><b class="legend-dot absent"></b>Yok</span>
+                        </div>
+                        <div class="wordle-stats">
+                            <p>Oyun <span id="wordle-games">0</span></p>
+                            <p>Galibiyet <span id="wordle-wins">0</span></p>
+                            <p>Seri <span id="wordle-streak">0</span></p>
+                        </div>
+                        <div class="result-card wordle-result-card">
+                            <strong>Sonuç</strong>
+                            <p id="wordle-summary">Klavye ile de oynayabilirsin.</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="weather" class="tool-panel" aria-labelledby="weather-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="weather-title">Weather App</h2>
+                        <p>Şehir veya mevcut konuma göre anlık hava durumunu göster.</p>
+                    </div>
+                </div>
+                <div class="weather-layout">
+                    <div class="weather-app">
+                        <div class="app-header">
+                            <div>
+                                <p class="eyebrow">Weather Now</p>
+                                <h3>Hava Durumu</h3>
+                            </div>
+                            <button class="location-button" type="button" aria-label="Mevcut konumu kullan">Konumum</button>
+                        </div>
+
+                        <div class="search-box">
+                            <input type="text" placeholder="Konum ara" autocomplete="off" spellcheck="false">
+                            <button type="button" aria-label="Hava durumunu ara">Ara</button>
+                        </div>
+
+                        <p class="status-message"></p>
+
+                        <div class="not-found">
+                            <img src="weather/images/404.png" alt="">
+                            <p>Konum bulunamadı</p>
+                        </div>
+
+                        <div class="weather-box">
+                            <img src="" alt="">
+                            <p class="location-name"></p>
+                            <p class="temperature"></p>
+                            <p class="description"></p>
+                        </div>
+
+                        <div class="weather-details">
+                            <div class="feels-like">
+                                <svg class="detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M14 14.76V5a4 4 0 0 0-8 0v9.76a6 6 0 1 0 8 0Z" />
+                                    <path d="M10 5v10" />
+                                    <path d="M10 18h.01" />
+                                </svg>
+                                <div class="text">
+                                    <span></span>
+                                    <p>Hissedilen</p>
+                                </div>
+                            </div>
+                            <div class="humidity">
+                                <svg class="detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M12 3.5S6 10 6 14a6 6 0 0 0 12 0c0-4-6-10.5-6-10.5Z" />
+                                    <path d="M9 14a3 3 0 0 0 3 3" />
+                                </svg>
+                                <div class="text">
+                                    <span></span>
+                                    <p>Nem</p>
+                                </div>
+                            </div>
+                            <div class="wind">
+                                <svg class="detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M3 8h12a3 3 0 1 0-3-3" />
+                                    <path d="M3 13h16" />
+                                    <path d="M3 18h10a3 3 0 1 1-3 3" />
+                                </svg>
+                                <div class="text">
+                                    <span></span>
+                                    <p>Rüzgar</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="weather-side">
+                        <div class="weather-side-head">
+                            <span>Anlık hava</span>
+                            <strong>Konum veya şehir adıyla sorgula.</strong>
+                        </div>
+                        <div class="weather-flow" aria-label="Weather App işlem akışı">
+                            <div>
+                                <span>01</span>
+                                <p>Panel açılınca arama için hazır bekler.</p>
+                            </div>
+                            <div>
+                                <span>02</span>
+                                <p>Şehir adı yazarak manuel arama yapabilirsin.</p>
+                            </div>
+                            <div>
+                                <span>03</span>
+                                <p>Sıcaklık, hissedilen değer, nem ve rüzgar tek kartta güncellenir.</p>
+                            </div>
+                        </div>
+                        <p class="weather-source">Veriler OpenWeather API üzerinden alınır.</p>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="github-user" class="tool-panel" aria-labelledby="github-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="github-title">GitHub User</h2>
+                        <p>GitHub kullanıcı profilini API üzerinden getir.</p>
+                    </div>
+                </div>
+                <div class="github-grid">
+                    <div class="github-command">
+                        <form id="github-form" class="github-search">
+                            <label for="github-username">Kullanıcı adı</label>
+                            <div class="github-search-row">
+                                <input id="github-username" class="text-input" type="text" placeholder="GitHub kullanıcı adı" autocomplete="off">
+                                <button class="primary-button" type="submit">Ara</button>
+                            </div>
+                        </form>
+                        <div class="github-hints">
+                            <div>
+                                <strong>Profil</strong>
+                                <span>Avatar, bio ve bağlantılar</span>
+                            </div>
+                            <div>
+                                <strong>İstatistik</strong>
+                                <span>Repo, takipçi ve gist sayıları</span>
+                            </div>
+                            <div>
+                                <strong>Son repolar</strong>
+                                <span>Güncel public projeler</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="github-result" class="github-result empty-state">
+                        <strong>Henüz profil aranmadı</strong>
+                        <span>Kullanıcı adını yazıp Ara butonuna bastığında profil özeti burada görünecek.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="chess" class="tool-panel" aria-labelledby="chess-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="chess-title">Chess</h2>
+                        <p>Beyaz taşlarla oyna, siyah bot zorluk seviyesine göre cevap versin.</p>
+                    </div>
+                    <div class="button-row panel-actions">
+                        <button id="chess-new" class="primary-button" type="button">Yeni Oyun</button>
+                    </div>
+                </div>
+                <div class="chess-layout">
+                    <div class="chess-card">
+                        <div class="chess-topline">
+                            <span id="chess-status">Sıra sende. Beyaz taşları oynat.</span>
+                            <strong id="chess-turn">Beyaz</strong>
+                        </div>
+                        <div id="chess-board" class="chess-board-shell" aria-label="Satranç tahtası"></div>
+                    </div>
+                    <aside class="chess-side">
+                        <strong>Zorluk</strong>
+                        <div class="chess-levels" aria-label="Bot zorluğu">
+                            <button class="chess-level" data-level="easy" type="button">Kolay</button>
+                            <button class="chess-level active" data-level="normal" type="button">Normal</button>
+                            <button class="chess-level" data-level="hard" type="button">Zor</button>
+                        </div>
+                        <div class="chess-stats">
+                            <p>Hamle <span id="chess-moves">0</span></p>
+                            <p>Bot <span id="chess-bot-text">Siyah</span></p>
+                            <p>Mod <span id="chess-level-text">Normal</span></p>
+                        </div>
+                        <div class="result-card">
+                            <strong>Bot mantığı</strong>
+                            <p>Kolay daha serbest oynar, normal iyi hamleleri karıştırır, zor taş değeri ve güvenli kareleri daha fazla önemser.</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="chess-coach" class="tool-panel" aria-labelledby="coach-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="coach-title">Chess Coach</h2>
+                        <p>Satranç oynarken anlık değerlendirme, aday hamle ve sade koç notları al.</p>
+                    </div>
+                    <div class="button-row panel-actions">
+                        <button id="coach-reset" class="secondary-button" type="button">Yeni Pozisyon</button>
+                        <button id="coach-undo" class="secondary-button" type="button">Geri Al</button>
+                    </div>
+                </div>
+                <div class="coach-layout">
+                    <div class="coach-card">
+                        <div class="coach-topline">
+                            <span id="coach-status">Beyaz oynar.</span>
+                            <strong id="coach-eval">0.00</strong>
+                        </div>
+                        <div id="coach-board" class="coach-board" aria-label="Chess Coach tahtası"></div>
+                    </div>
+                    <aside class="coach-side">
+                        <strong>Koç Önerisi</strong>
+                        <div class="coach-best">
+                            <span id="coach-best-label">Hazır</span>
+                            <strong id="coach-best-move">-</strong>
+                            <p id="coach-best-reason">Tahtadan bir taş seçip hamle yap veya öneriyi oynat.</p>
+                        </div>
+                        <div class="button-row coach-actions">
+                            <button id="coach-suggest" class="primary-button" type="button">Öneriyi Yenile</button>
+                            <button id="coach-play" class="secondary-button" type="button">Öneriyi Oyna</button>
+                        </div>
+                        <div class="coach-stats">
+                            <p>Sıra <span id="coach-turn">Beyaz</span></p>
+                            <p>Hamle <span id="coach-move-count">0</span></p>
+                            <p>Durum <span id="coach-state">Oyun sürüyor</span></p>
+                        </div>
+                        <div class="coach-lines" id="coach-lines" aria-label="Aday hamleler"></div>
+                        <div class="result-card">
+                            <strong>Hamle Geçmişi</strong>
+                            <p id="coach-history">Henüz hamle yok.</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="advanced-xox" class="tool-panel" aria-labelledby="xox-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="xox-title">Advanced XOX</h2>
+                        <p>Botlu, akan tahtalı XOX oyunu. Her tarafın 4. hamlesinde kendi en eski taşı silinir.</p>
+                    </div>
+                    <div class="button-row panel-actions">
+                        <button id="xox-restart" class="primary-button" type="button">Yeniden Başlat</button>
+                    </div>
+                </div>
+                <div class="xox-layout">
+                    <div class="xox-card">
+                        <div class="xox-topline">
+                            <span id="xox-status">Sıra sende.</span>
+                            <strong id="xox-turn">Oyuncu</strong>
+                        </div>
+                        <div class="xox-board" aria-label="Advanced XOX tahtası">
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="1. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="2. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="3. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="4. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="5. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="6. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="7. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="8. kare"></button>
+                            <button class="xox-cell" data-xox-cell type="button" aria-label="9. kare"></button>
+                        </div>
+                    </div>
+                    <aside class="xox-side">
+                        <strong>Zorluk</strong>
+                        <div class="xox-levels" aria-label="Bot zorluğu">
+                            <button class="xox-level" data-level="easy" type="button">Kolay</button>
+                            <button class="xox-level active" data-level="normal" type="button">Normal</button>
+                            <button class="xox-level" data-level="hard" type="button">Zor</button>
+                        </div>
+                        <div class="xox-stats">
+                            <p>Hamle <span id="xox-moves">0</span></p>
+                            <p>Oyuncu <span id="xox-player-wins">0</span></p>
+                            <p>Bot <span id="xox-bot-wins">0</span></p>
+                            <p>Mod <span id="xox-level-text">Normal</span></p>
+                        </div>
+                        <div class="result-card">
+                            <strong>Sonuç</strong>
+                            <p id="xox-result">Oyuncu ve bot üçer taşa kadar kalır; kazanan çıkana kadar tahta akmaya devam eder.</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="index.js?v=11"></script>
+    <script src="wordle/script.js?v=6"></script>
+    <script src="weather/script.js?v=3"></script>
+    <script src="translate/script.js?v=1"></script>
+    <script src="chess/script.js?v=3"></script>
+    <script src="advanced-xox/script.js?v=3"></script>
+    <script src="coach/jquery-1.12.4.min.js"></script>
+    <script src="coach/chessboard-1.0.0.min.js"></script>
+    <script src="coach/chess.js?v=1"></script>
+    <script src="coach/stockfish.js"></script>
+    <script src="coach/stockfish.asm.js"></script>
+    <script src="coach/script.js?v=5"></script>
+</body>
+
+</html>
