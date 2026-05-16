@@ -11,16 +11,6 @@
   <img src="https://img.shields.io/github/last-commit/ardaltunel/omni-tools?style=flat-square" />
 </p>
 
-<p align="center">
-  <a href="#özellikler">Özellikler</a>
-  •
-  <a href="#teknoloji-yığını">Teknoloji</a>
-  •
-  <a href="#kurulum">Kurulum</a>
-  •
-  <a href="#yol-haritasi">Yol Haritası</a>
-</p>
-
 </div>
 
 ---
