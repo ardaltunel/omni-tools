@@ -1349,6 +1349,201 @@ input[type="color"] {
     color: var(--success);
 }
 
+.game-2048-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 560px) minmax(260px, 340px);
+    gap: 18px;
+    align-items: start;
+}
+
+.game-2048-card,
+.game-2048-side {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #1c2028;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+}
+
+.game-2048-card {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.game-2048-topline {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.game-2048-topline div,
+.game-2048-state,
+.game-2048-stats p {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.game-2048-topline div {
+    display: grid;
+    gap: 5px;
+    min-height: 68px;
+    align-content: center;
+    padding: 12px;
+}
+
+.game-2048-topline span,
+.game-2048-stats p {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.game-2048-topline strong {
+    color: var(--accent-2);
+    font-size: 26px;
+}
+
+.game-2048-board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    width: min(100%, 520px);
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #11141a;
+    padding: 10px;
+    outline: none;
+    touch-action: none;
+    user-select: none;
+}
+
+.game-2048-board:focus {
+    border-color: rgba(24, 169, 153, 0.62);
+    box-shadow: 0 0 0 4px rgba(24, 169, 153, 0.12);
+}
+
+.game-2048-cell {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    background: #222733;
+    color: var(--text);
+    font-size: clamp(22px, 6vw, 42px);
+    font-weight: 900;
+    line-height: 1;
+}
+
+.game-2048-cell.tile-empty {
+    background: #252933;
+}
+
+.game-2048-cell.tile-2 {
+    background: #eee4da;
+    color: #776e65;
+}
+
+.game-2048-cell.tile-4 {
+    background: #ede0c8;
+    color: #776e65;
+}
+
+.game-2048-cell.tile-8 {
+    background: #f2b179;
+    color: #f9f6f2;
+}
+
+.game-2048-cell.tile-16 {
+    background: #f59563;
+    color: #f9f6f2;
+}
+
+.game-2048-cell.tile-32 {
+    background: #f67c5f;
+    color: #f9f6f2;
+}
+
+.game-2048-cell.tile-64 {
+    background: #f65e3b;
+    color: #f9f6f2;
+}
+
+.game-2048-cell.tile-128 {
+    background: #edcf72;
+    color: #f9f6f2;
+    font-size: clamp(20px, 5vw, 36px);
+}
+
+.game-2048-cell.tile-256 {
+    background: #edcc61;
+    color: #f9f6f2;
+    font-size: clamp(20px, 5vw, 36px);
+}
+
+.game-2048-cell.tile-512 {
+    background: #edc850;
+    color: #f9f6f2;
+    font-size: clamp(20px, 5vw, 36px);
+}
+
+.game-2048-cell.tile-1024 {
+    background: #edc53f;
+    color: #f9f6f2;
+    font-size: clamp(17px, 4.4vw, 32px);
+}
+
+.game-2048-cell.tile-2048 {
+    background: #edc22e;
+    color: #f9f6f2;
+    font-size: clamp(17px, 4.4vw, 32px);
+}
+
+.game-2048-side {
+    display: grid;
+    gap: 12px;
+}
+
+.game-2048-state {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+}
+
+.game-2048-state strong {
+    color: var(--accent-strong);
+    font-size: 22px;
+}
+
+.game-2048-state p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.game-2048-stats {
+    display: grid;
+    gap: 8px;
+}
+
+.game-2048-stats p {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 11px 12px;
+}
+
+.game-2048-stats span {
+    color: var(--text);
+}
+
 .valorant-crosshair-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
@@ -2890,6 +3085,7 @@ input[type="color"] {
     .wordle-finder-layout,
     .github-grid,
     .weather-layout,
+    .game-2048-layout,
     .valorant-crosshair-layout,
     .coach-layout,
     .chess-layout,
@@ -3160,6 +3356,8 @@ input[type="color"] {
     .chess-side,
     .coach-card,
     .coach-side,
+    .game-2048-card,
+    .game-2048-side,
     .xox-card,
     .xox-side {
         padding: 12px;
@@ -3182,6 +3380,11 @@ input[type="color"] {
 
     .chess-board-shell {
         --diameter-board: min(75vw, 520px);
+    }
+
+    .game-2048-board {
+        gap: 7px;
+        padding: 7px;
     }
 }
 
@@ -3224,6 +3427,10 @@ input[type="color"] {
 
     .chess-levels,
     .xox-levels {
+        grid-template-columns: 1fr;
+    }
+
+    .game-2048-topline {
         grid-template-columns: 1fr;
     }
 

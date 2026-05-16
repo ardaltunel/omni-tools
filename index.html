@@ -21,11 +21,14 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>16 uygulama, tek panel</small>
+                    <small>17 uygulama, tek panel</small>
                 </div>
             </div>
 
             <nav class="tool-nav" aria-label="Uygulamalar">
+                <button class="nav-item" data-tool="game-2048" type="button">
+                    <span>2048</span>
+                </button>
                 <button class="nav-item" data-tool="advanced-xox" type="button">
                     <span>Advanced XOX</span>
                 </button>
@@ -78,6 +81,46 @@
         </aside>
 
         <main class="workspace">
+            <section id="game-2048" class="tool-panel" aria-labelledby="game-2048-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="game-2048-title">2048</h2>
+                        <p>Aynı sayıları birleştir, 2048 taşına ulaş.</p>
+                    </div>
+                    <button id="game-2048-new" class="primary-button" type="button">Yeniden Başlat</button>
+                </div>
+                <div class="game-2048-layout">
+                    <div class="game-2048-card">
+                        <div class="game-2048-topline">
+                            <div>
+                                <span>Skor</span>
+                                <strong id="game-2048-score">0</strong>
+                            </div>
+                            <div>
+                                <span>En İyi</span>
+                                <strong id="game-2048-best">0</strong>
+                            </div>
+                        </div>
+                        <div id="game-2048-board" class="game-2048-board" aria-label="2048 oyun tahtası" tabindex="0"></div>
+                    </div>
+                    <aside class="game-2048-side">
+                        <div class="game-2048-state">
+                            <strong id="game-2048-status">Hazır</strong>
+                            <p id="game-2048-message">Ok tuşlarıyla veya mobilde kaydırarak oynayabilirsin.</p>
+                        </div>
+                        <div class="game-2048-stats">
+                            <p>Hamle <span id="game-2048-moves">0</span></p>
+                            <p>Hedef <span>2048</span></p>
+                            <p>Tahta <span>4x4</span></p>
+                        </div>
+                        <div class="result-card">
+                            <strong>Nasıl oynanır?</strong>
+                            <p>Aynı değerdeki iki taş çarpıştığında birleşir. Her hamleden sonra boş bir karede yeni taş oluşur.</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
             <section id="crypto" class="tool-panel" aria-labelledby="crypto-title">
                 <div class="panel-heading">
                     <div>
@@ -918,6 +961,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="index.js?v=11"></script>
+    <script src="2048/script.js?v=1"></script>
     <script src="wordle/script.js?v=7"></script>
     <script src="wordle-finder/script.js?v=1"></script>
     <script src="weather/script.js?v=3"></script>
