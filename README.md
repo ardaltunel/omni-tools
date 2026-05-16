@@ -1,9 +1,8 @@
-
 <div align="center">
 
 # Omni Tools
 
-### A modern all-in-one utility platform built for speed, simplicity and clean user experience.
+### Modern, hızlı ve kullanıcı dostu hepsi bir arada utility platformu.
 
 <p align="center">
   <img src="https://img.shields.io/github/stars/ardaltunel/omni-tools?style=flat-square" />
@@ -13,20 +12,20 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a>
+  <a href="#özellikler">Özellikler</a>
   •
-  <a href="#tech-stack">Tech Stack</a>
+  <a href="#teknoloji-yığını">Teknoloji</a>
   •
-  <a href="#installation">Installation</a>
+  <a href="#kurulum">Kurulum</a>
   •
-  <a href="#roadmap">Roadmap</a>
+  <a href="#yol-haritasi">Yol Haritası</a>
 </p>
 
 </div>
 
 ---
 
-## Preview
+# 📸 Önizleme
 
 <p align="center">
   <img width="1891" height="900" alt="image" src="https://github.com/user-attachments/assets/6e31098f-b01e-496b-93cc-223ef917a25c" />
@@ -34,26 +33,26 @@
 
 ---
 
-## About
+# 🚀 Hakkında
 
-Omni Tools is a modern multi-tool web application that combines useful daily utilities into a single clean platform.
+Omni Tools, günlük hayatta kullanılan faydalı araçları tek bir platform altında birleştiren modern bir web uygulamasıdır.
 
-Instead of using dozens of different websites, Omni Tools provides everything in one place with a fast, responsive and visually consistent experience.
+Birden fazla farklı website kullanmak yerine; hızlı, responsive ve tutarlı kullanıcı deneyimi sunan merkezi bir utility platformu oluşturmayı hedefler.
 
-The project focuses heavily on:
+Proje özellikle şu konulara odaklanmaktadır:
 
-- Clean modern UI
-- Responsive layouts
-- Smooth UX
-- Minimal design language
-- Fast performance
-- Modular architecture
+- Modern kullanıcı arayüzü
+- Responsive tasarım
+- Hızlı performans
+- Minimal tasarım dili
+- Modüler yapı
+- Tutarlı kullanıcı deneyimi
 
 ---
 
-# Features
+# ✨ Özellikler
 
-### Available Tools
+## Mevcut Araçlar
 
 - QR Code Generator
 - Weather Application
@@ -65,23 +64,26 @@ The project focuses heavily on:
 
 ---
 
-## Design Philosophy
+# 🎨 Tasarım Yaklaşımı
 
-Omni Tools was designed with a modern dark UI approach.
+Omni Tools modern dark UI yaklaşımıyla tasarlanmıştır.
 
-The goal was to create a platform that feels:
+Platformun hissiyatı:
 
-- minimal
-- futuristic
-- responsive
-- visually balanced
-- easy to use
+- Minimal
+- Modern
+- Hızlı
+- Responsive
+- Dengeli
+- Kullanımı kolay
 
-Every tool follows the same design system to keep the user experience consistent across the entire application.
+olacak şekilde planlanmıştır.
+
+Tüm araçlar aynı tasarım sistemini kullanır ve böylece uygulama genelinde tutarlı bir kullanıcı deneyimi sağlanır.
 
 ---
 
-# Tech Stack
+# 🛠️ Teknoloji Yığını
 
 <div align="center">
 
@@ -95,37 +97,37 @@ Every tool follows the same design system to keep the user experience consistent
 
 ---
 
-# Installation
+# ⚙️ Kurulum
 
-## Clone repository
+## Repository Klonlama
 
-```bash id="clone"
+```bash
 git clone https://github.com/ardaltunel/omni-tools.git
-````
+```
 
-## Enter project folder
+## Proje Klasörüne Gir
 
-```bash id="cd"
+```bash
 cd omni-tools
 ```
 
-## Install dependencies
+## Bağımlılıkları Kur
 
-```bash id="install"
+```bash
 npm install
 ```
 
-## Start development server
+## Geliştirme Sunucusunu Başlat
 
-```bash id="dev"
+```bash
 npm run dev
 ```
 
 ---
 
-# Project Structure
+# 📂 Proje Yapısı
 
-```bash id="structure"
+```bash
 src/
 ├── assets/
 ├── components/
@@ -137,40 +139,43 @@ src/
 
 ---
 
-# Roadmap
+# 🗺️ Yol Haritası
 
-* [ ] AI powered tools
-* [ ] Save favorite tools
-* [ ] Authentication system
-* [ ] Multi-language support
-* [ ] PWA support
-* [ ] Better animations
-* [ ] More utility integrations
-
----
-
-# Performance Goals
-
-* Optimized loading speed
-* Mobile-first responsiveness
-* Reusable component system
-* Consistent spacing and UI
-* Smooth animations
-* Scalable project architecture
+- [ ] AI destekli araçlar
+- [ ] Favori araç sistemi
+- [ ] Authentication sistemi
+- [ ] Çoklu dil desteği
+- [ ] PWA desteği
+- [ ] Daha gelişmiş animasyonlar
+- [ ] Yeni utility araçları
 
 ---
 
-# Contributing
+# ⚡ Performans Hedefleri
 
-Contributions, issues and feature requests are welcome.
-
-Feel free to fork this repository and submit pull requests.
+- Optimize edilmiş yükleme süresi
+- Mobile-first responsive yapı
+- Yeniden kullanılabilir component sistemi
+- Tutarlı spacing sistemi
+- Akıcı animasyonlar
+- Ölçeklenebilir proje mimarisi
 
 ---
 
-# License
+# 🤝 Katkıda Bulunma
 
-This project is licensed under the MIT License. For more information, see the [LICENSE](https://github.com/ardaltunel/omni-tools/blob/main/LICENSE) file.
+Katkılar, feature önerileri ve pull request'ler her zaman memnuniyetle karşılanır.
+
+Repository’yi fork ederek geliştirmelerde bulunabilirsiniz.
+
+---
+
+# 📄 Lisans
+
+Bu proje MIT lisansı ile lisanslanmıştır.
+
+Detaylı bilgi için:
+<a href="LICENSE">LICENSE</a>
 
 ---
 
