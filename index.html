@@ -21,7 +21,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>15 uygulama, tek panel</small>
+                    <small>16 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -61,6 +61,9 @@
                 </button>
                 <button class="nav-item" data-tool="translate" type="button">
                     <span>Translate</span>
+                </button>
+                <button class="nav-item" data-tool="valorant-crosshair" type="button">
+                    <span>Valorant Crosshair</span>
                 </button>
                 <button class="nav-item" data-tool="weather" type="button">
                     <span>Weather App</span>
@@ -451,6 +454,40 @@
                             <span>Auto Detect</span>
                             <span>Google endpoint</span>
                             <span>Statik yapı</span>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="valorant-crosshair" class="tool-panel" aria-labelledby="valorant-crosshair-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="valorant-crosshair-title">Valorant Crosshair</h2>
+                        <p>Valorant crosshair görsellerinden istediğin kodu tek tıkla kopyala.</p>
+                    </div>
+                </div>
+                <div class="valorant-crosshair-layout">
+                    <div class="valorant-crosshair-main">
+                        <div id="valorant-crosshair-grid" class="valorant-crosshair-grid" aria-live="polite"></div>
+                    </div>
+                    <aside class="valorant-crosshair-side">
+                        <div class="valorant-crosshair-preview-card">
+                            <div class="valorant-crosshair-preview-head">
+                                <span>Önizleme</span>
+                                <strong id="valorant-crosshair-preview-name">Hazır</strong>
+                            </div>
+                            <div id="valorant-crosshair-preview" class="valorant-crosshair-preview" aria-label="Crosshair önizlemesi"></div>
+                        </div>
+                        <div class="valorant-crosshair-code-card">
+                            <div class="field-group">
+                                <label for="valorant-crosshair-code">Crosshair kodu</label>
+                                <textarea id="valorant-crosshair-code" rows="6" placeholder="Valorant crosshair kodunu yapıştır"></textarea>
+                            </div>
+                            <div class="button-row valorant-crosshair-actions">
+                                <button id="valorant-crosshair-copy" class="primary-button" type="button">Kodu Kopyala</button>
+                                <button id="valorant-crosshair-clear" class="secondary-button" type="button">Temizle</button>
+                            </div>
+                            <p id="valorant-crosshair-feedback" class="valorant-crosshair-feedback" aria-live="polite"></p>
                         </div>
                     </aside>
                 </div>
@@ -885,6 +922,7 @@
     <script src="wordle-finder/script.js?v=1"></script>
     <script src="weather/script.js?v=3"></script>
     <script src="translate/script.js?v=1"></script>
+    <script src="valorant-crosshair/script.js?v=1"></script>
     <script src="chess/script.js?v=3"></script>
     <script src="advanced-xox/script.js?v=3"></script>
     <script src="coach/jquery-1.12.4.min.js"></script>

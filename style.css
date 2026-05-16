@@ -1349,6 +1349,277 @@ input[type="color"] {
     color: var(--success);
 }
 
+.valorant-crosshair-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+    gap: 18px;
+    align-items: start;
+}
+
+.valorant-crosshair-main,
+.valorant-crosshair-side,
+.valorant-crosshair-preview-card,
+.valorant-crosshair-code-card {
+    min-width: 0;
+}
+
+.valorant-crosshair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px;
+}
+
+.valorant-crosshair-card,
+.valorant-crosshair-preview-card,
+.valorant-crosshair-code-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #1c2028;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+}
+
+.valorant-crosshair-card {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+}
+
+.valorant-crosshair-card-preview {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        radial-gradient(circle at center, rgba(24, 169, 153, 0.12), transparent 56%),
+        #111318;
+    background-size: 28px 28px, 28px 28px, auto, auto;
+    cursor: pointer;
+}
+
+.valorant-crosshair-card-preview img,
+.valorant-crosshair-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.valorant-crosshair-card-body {
+    display: grid;
+    gap: 8px;
+}
+
+.valorant-crosshair-card h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+}
+
+.valorant-crosshair-card p {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.valorant-crosshair-card-copy {
+    width: 100%;
+}
+
+.valorant-crosshair-side {
+    display: grid;
+    gap: 14px;
+    position: sticky;
+    top: 24px;
+}
+
+.valorant-crosshair-preview-card,
+.valorant-crosshair-code-card {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+}
+
+.valorant-crosshair-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.valorant-crosshair-preview-head span {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.valorant-crosshair-preview-head strong {
+    color: var(--text);
+    text-align: right;
+}
+
+.valorant-crosshair-preview {
+    display: grid;
+    place-items: center;
+    min-height: 260px;
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        radial-gradient(circle at 50% 42%, rgba(24, 169, 153, 0.18), transparent 34%),
+        linear-gradient(180deg, #18202a, #101318);
+    background-size: 34px 34px, 34px 34px, auto, auto;
+}
+
+.valorant-crosshair-preview-empty,
+.valorant-crosshair-feedback {
+    color: var(--muted);
+}
+
+.valorant-crosshair-code-card textarea {
+    min-height: 130px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.valorant-crosshair-actions {
+    margin-top: 0;
+}
+
+.valorant-crosshair-feedback {
+    min-height: 20px;
+    margin: 0;
+    opacity: 0;
+    transition: opacity 160ms ease;
+    font-weight: 700;
+}
+
+.valorant-crosshair-feedback.is-visible {
+    opacity: 1;
+    color: var(--success);
+}
+
+.valorant-crosshair-render {
+    position: relative;
+    width: 170px;
+    height: 170px;
+}
+
+.vc-line,
+.vc-dot,
+.vc-axis {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+}
+
+.vc-axis {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.vc-axis-x {
+    width: 100%;
+    height: 1px;
+    transform: translate(-50%, -50%);
+}
+
+.vc-axis-y {
+    width: 1px;
+    height: 100%;
+    transform: translate(-50%, -50%);
+}
+
+.vc-line {
+    background: var(--vc-color);
+    box-shadow: 0 0 10px var(--vc-color);
+}
+
+.vc-inner {
+    opacity: var(--vc-inner-opacity);
+}
+
+.vc-outer {
+    opacity: var(--vc-outer-opacity);
+}
+
+.vc-inner.vc-top,
+.vc-inner.vc-bottom {
+    width: var(--vc-inner-thickness);
+    height: var(--vc-inner-vertical);
+}
+
+.vc-inner.vc-left,
+.vc-inner.vc-right {
+    width: var(--vc-inner-length);
+    height: var(--vc-inner-thickness);
+}
+
+.vc-outer.vc-top,
+.vc-outer.vc-bottom {
+    width: var(--vc-outer-thickness);
+    height: var(--vc-outer-vertical);
+}
+
+.vc-outer.vc-left,
+.vc-outer.vc-right {
+    width: var(--vc-outer-length);
+    height: var(--vc-outer-thickness);
+}
+
+.vc-top {
+    transform: translate(-50%, calc(-100% - var(--vc-inner-offset)));
+}
+
+.vc-right {
+    transform: translate(var(--vc-inner-offset), -50%);
+}
+
+.vc-bottom {
+    transform: translate(-50%, var(--vc-inner-offset));
+}
+
+.vc-left {
+    transform: translate(calc(-100% - var(--vc-inner-offset)), -50%);
+}
+
+.vc-outer.vc-top {
+    transform: translate(-50%, calc(-100% - var(--vc-outer-offset)));
+}
+
+.vc-outer.vc-right {
+    transform: translate(var(--vc-outer-offset), -50%);
+}
+
+.vc-outer.vc-bottom {
+    transform: translate(-50%, var(--vc-outer-offset));
+}
+
+.vc-outer.vc-left {
+    transform: translate(calc(-100% - var(--vc-outer-offset)), -50%);
+}
+
+.vc-dot {
+    width: var(--vc-dot-size);
+    height: var(--vc-dot-size);
+    border-radius: 2px;
+    background: var(--vc-color);
+    box-shadow: 0 0 10px var(--vc-color);
+    transform: translate(-50%, -50%);
+}
+
 .github-grid {
     grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
     width: min(100%, 1120px);
@@ -2619,6 +2890,7 @@ input[type="color"] {
     .wordle-finder-layout,
     .github-grid,
     .weather-layout,
+    .valorant-crosshair-layout,
     .coach-layout,
     .chess-layout,
     .xox-layout {
@@ -2649,6 +2921,10 @@ input[type="color"] {
 
     .wordle-finder-list {
         max-height: 460px;
+    }
+
+    .valorant-crosshair-side {
+        position: static;
     }
 
     .wordle-game,
@@ -2834,8 +3110,19 @@ input[type="color"] {
     }
 
     .translate-panel,
-    .translate-side {
+    .translate-side,
+    .valorant-crosshair-preview-card,
+    .valorant-crosshair-code-card {
         padding: 14px;
+    }
+
+    .valorant-crosshair-preview {
+        min-height: 220px;
+    }
+
+    .valorant-crosshair-render {
+        width: 145px;
+        height: 145px;
     }
 
     .weather-app,
@@ -2902,7 +3189,8 @@ input[type="color"] {
     .wordle-card,
     .wordle-side,
     .wordle-finder-card,
-    .wordle-finder-results {
+    .wordle-finder-results,
+    .valorant-crosshair-card {
         padding: 12px;
     }
 
@@ -2928,6 +3216,10 @@ input[type="color"] {
 
     .wordle-finder-list {
         grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    }
+
+    .valorant-crosshair-grid {
+        grid-template-columns: 1fr;
     }
 
     .chess-levels,
