@@ -169,8 +169,4 @@ Detaylı bilgi için:
 
 ---
 
-<div align="center">
-
 Made with ❤️ by Arda Altunel
-
-</div>
