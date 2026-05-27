@@ -181,7 +181,7 @@ function passParollaQuestion() {
         status: "passed",
         points: 0,
     });
-    showParollaFeedback("Pas geçildi.", "muted");
+    showParollaFeedback("Pas geçildi", "muted");
     moveCurrentParollaQuestionToEnd();
     renderParollaHud();
     renderParollaLetterList();
