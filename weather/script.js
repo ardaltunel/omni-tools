@@ -203,7 +203,7 @@ const initWeatherApp = () => {
     weatherInitialized = true;
     localStorage.removeItem('lastWeatherLocation');
     searchInput.value = '';
-    setStatus('Şehir adı yazabilir veya Konumum butonunu kullanabilirsin.');
+    searchByBrowserLocation();
 };
 
 document.addEventListener('tool-activated', (event) => {

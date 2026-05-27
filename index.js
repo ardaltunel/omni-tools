@@ -524,7 +524,7 @@ async function generateQRCode() {
     qrSizeLabel.textContent = `${size}x${size}`;
     qrContainer.innerHTML = "";
     new QRCode(qrContainer, {
-        text: qrText.value.trim() || "https://ardaltunel.github.io",
+        text: qrText.value.trim() || "https://ardaltunel.vercel.app",
         height: size,
         width: size,
         colorLight: qrLight.value,
@@ -668,12 +668,12 @@ function generateGradient() {
 }
 
 const turkishTypingTexts = [
-    "Küçük araçlar sade bir arayüzde birleştiğinde günlük işler daha hızlı ve keyifli hale gelir.",
-    "Başarılı bir yazma testi, kullanıcıyı bekletmeden başlar ve metin tamamlandığında sonucu açıkça gösterir.",
-    "Temiz bir tasarım, gereksiz dikkat dağıtıcıları azaltır ve yapılan işe odaklanmayı kolaylaştırır.",
-    "Türkçe karakterleri doğru kullanmak, hem yazma hızını hem de metin doğruluğunu daha gerçekçi ölçer.",
-    "Bir uygulamanın iyi hissettirmesi için yalnızca çalışması yetmez; akışı da doğal ve anlaşılır olmalıdır.",
-    "Hızlı yazmak kadar sakin kalmak da önemlidir, çünkü dikkatli ilerleyen kullanıcı daha az hata yapar.",
+    "küçük araçlar sade bir arayüzde birleştiğinde günlük işler daha hızlı ve keyifli hale gelir",
+    "başarılı bir yazma testi kullanıcıyı bekletmeden başlar ve metin tamamlandığında sonucu açıkça gösterir",
+    "temiz bir tasarım gereksiz dikkat dağıtıcıları azaltır ve yapılan işe odaklanmayı kolaylaştırır",
+    "türkçe karakterleri doğru kullanmak hem yazma hızını hem de metin doğruluğunu daha gerçekçi ölçer",
+    "bir uygulamanın iyi hissettirmesi için yalnızca çalışması yetmez akışı da doğal ve anlaşılır olmalıdır",
+    "hızlı yazmak kadar sakin kalmak da önemlidir çünkü dikkatli ilerleyen kullanıcı daha az hata yapar",
 ];
 const quoteSection = document.getElementById("quote");
 const userInput = document.getElementById("quote-input");

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Omni Tools | Arda Altunel</title>
+    <meta name="description" content="Omni Tools; kelime oyunları, mini oyunlar ve günlük web araçlarını tek modern panelde birleştirir.">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-icon-180x180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +22,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>17 uygulama, tek panel</small>
+                    <small>18 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -52,6 +53,9 @@
                 </button>
                 <button class="nav-item" data-tool="password" type="button">
                     <span>Pass Generator</span>
+                </button>
+                <button class="nav-item" data-tool="parolla" type="button">
+                    <span>Parolla</span>
                 </button>
                 <button class="nav-item" data-tool="qr" type="button">
                     <span>QR Code Generator</span>
@@ -159,7 +163,7 @@
                     <div class="control-card">
                         <div class="field-group">
                             <label for="qr-text">QR metni</label>
-                            <input id="qr-text" class="text-input" type="text" placeholder="Metin veya URL girin" value="https://ardaltunel.github.io">
+                            <input id="qr-text" class="text-input" type="text" placeholder="Metin veya URL girin" value="https://ardaltunel.vercel.app">
                         </div>
                         <div class="qr-controls">
                             <label>
@@ -294,7 +298,7 @@
                             <strong id="timer">0s</strong>
                         </div>
                         <div id="quote" class="quote-box" onmousedown="return false" onselectstart="return false"></div>
-                        <textarea id="quote-input" rows="5" placeholder="Metni buraya yazmaya başla; Enter ile bitirebilirsin."></textarea>
+                        <textarea id="quote-input" rows="5" placeholder="metni buraya yazmaya başla enter ile bitirebilirsin"></textarea>
                     </div>
                     <aside class="typing-side">
                         <div class="typing-stats">
@@ -580,6 +584,89 @@
                 </div>
             </section>
 
+            <section id="parolla" class="tool-panel" aria-labelledby="parolla-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="parolla-title">Parolla</h2>
+                        <p>5 dakikalık kelime ve genel kültür turu.</p>
+                    </div>
+                    <div class="button-row panel-actions">
+                        <button id="parolla-start" class="primary-button" type="button">Yeniden Başlat</button>
+                        <button id="parolla-end" class="secondary-button" type="button" disabled>Oyunu Bitir</button>
+                    </div>
+                </div>
+                <div class="parolla-layout">
+                    <div class="parolla-card">
+                        <div class="parolla-topline">
+                            <div>
+                                <span>Süre</span>
+                                <strong id="parolla-time">05:00</strong>
+                            </div>
+                            <div>
+                                <span>Skor</span>
+                                <strong id="parolla-score">0</strong>
+                            </div>
+                            <div>
+                                <span>Harf</span>
+                                <strong id="parolla-progress">0/28</strong>
+                            </div>
+                        </div>
+
+                        <div id="parolla-intro" class="parolla-intro">
+                            <strong>Parolla</strong>
+                            <p>Her harf için gelen soruya tek kelimelik cevabı yaz. Doğru cevap puan kazandırır, Pas geçilenler finalde ayrı gösterilir.</p>
+                        </div>
+
+                        <div id="parolla-play" class="parolla-play" hidden>
+                            <div class="parolla-letter" id="parolla-letter">A</div>
+                            <p id="parolla-question" class="parolla-question"></p>
+                            <form id="parolla-form" class="parolla-form">
+                                <input id="parolla-answer" class="text-input" type="text" autocomplete="off" spellcheck="false" placeholder="Cevabını yaz">
+                                <div class="button-row parolla-answer-actions">
+                                    <button class="primary-button" type="submit">Cevapla</button>
+                                    <button id="parolla-pass" class="secondary-button" type="button">Pas</button>
+                                </div>
+                            </form>
+                            <p id="parolla-feedback" class="parolla-feedback" aria-live="polite"></p>
+                        </div>
+
+                        <div id="parolla-final" class="parolla-final" hidden>
+                            <div class="parolla-final-grid">
+                                <div><span>Doğru</span><strong id="parolla-final-correct">0</strong></div>
+                                <div><span>Yanlış</span><strong id="parolla-final-wrong">0</strong></div>
+                                <div><span>Pas</span><strong id="parolla-final-passed">0</strong></div>
+                                <div><span>Skor</span><strong id="parolla-final-score">0</strong></div>
+                            </div>
+                            <div class="parolla-final-lists">
+                                <div>
+                                    <span>Cevaplanan Harfler</span>
+                                    <div id="parolla-final-answered" class="parolla-final-list-content">-</div>
+                                </div>
+                                <div>
+                                    <span>Yanlış Cevaplar</span>
+                                    <div id="parolla-final-wrong-answers" class="parolla-final-list-content">-</div>
+                                </div>
+                                <div>
+                                    <span>Pas Geçilen Harfler</span>
+                                    <div id="parolla-final-passed-letters" class="parolla-final-list-content">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="parolla-side">
+                        <strong>Kısa Tanıtım</strong>
+                        <p>Parolla, harf harf ilerleyen orta seviye bir Türkçe soru oyunudur. Her yeni oyunda her harf için farklı soru seçilir.</p>
+                        <div class="parolla-stats">
+                            <p>Doğru <span id="parolla-correct">0</span></p>
+                            <p>Yanlış <span id="parolla-wrong">0</span></p>
+                            <p>Pas <span id="parolla-passed">0</span></p>
+                        </div>
+                        <div id="parolla-letter-list" class="parolla-letter-list" aria-label="Parolla harf durumu"></div>
+                    </aside>
+                </div>
+            </section>
+
             <section id="numble" class="tool-panel" aria-labelledby="numble-title">
                 <div class="panel-heading">
                     <div>
@@ -630,6 +717,9 @@
                         <h2 id="wordle-title">Wordle</h2>
                         <p>Türkçe harf destekli 5 harfli kelime oyunu.</p>
                     </div>
+                    <div class="button-row panel-actions">
+                        <button id="wordle-hard" class="secondary-button" type="button">Zor Mod: Kapalı</button>
+                    </div>
                 </div>
                 <div class="wordle-shell">
                     <div class="wordle-card">
@@ -676,7 +766,10 @@
                             <span>Canlı filtre</span>
                             <strong><span id="wordle-finder-count">0</span> sonuç</strong>
                         </div>
-                        <div id="wordle-finder-grid" class="wordle-finder-grid" aria-label="Wordle Finder harf filtreleri"></div>
+                        <div id="wordle-finder-grid" class="wordle-finder-grid" aria-label="Wordle Finder denemeleri"></div>
+                        <div class="button-row wordle-finder-actions">
+                            <button id="wordle-finder-add" class="primary-button" type="button">Denemeyi Ekle</button>
+                        </div>
                         <div class="wordle-finder-key">
                             <span><b class="legend-dot exact"></b>Yeşil: doğru yer</span>
                             <span><b class="legend-dot present"></b>Sarı: kelimede var, bu yerde değil</span>
@@ -960,12 +1053,14 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=11"></script>
+    <script src="index.js?v=12"></script>
     <script src="2048/script.js?v=1"></script>
-    <script src="wordle/script.js?v=7"></script>
+    <script src="wordle/script.js?v=8"></script>
     <script src="wordle-finder/script.js?v=1"></script>
-    <script src="weather/script.js?v=3"></script>
+    <script src="weather/script.js?v=4"></script>
     <script src="translate/script.js?v=1"></script>
+    <script src="parolla/questions.js?v=2"></script>
+    <script src="parolla/script.js?v=2"></script>
     <script src="valorant-crosshair/script.js?v=1"></script>
     <script src="chess/script.js?v=3"></script>
     <script src="advanced-xox/script.js?v=3"></script>

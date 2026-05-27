@@ -173,6 +173,12 @@ h2 {
     color: var(--text);
 }
 
+.secondary-button.active {
+    border-color: rgba(24, 169, 153, 0.7);
+    background: rgba(24, 169, 153, 0.18);
+    color: var(--accent-strong);
+}
+
 .button-row {
     display: flex;
     flex-wrap: wrap;
@@ -798,6 +804,359 @@ input[type="color"] {
     margin-top: 0;
 }
 
+.parolla-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 680px) minmax(280px, 360px);
+    gap: 18px;
+    align-items: start;
+}
+
+.parolla-card,
+.parolla-side {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #1c2028;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+}
+
+.parolla-card {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+
+.parolla-topline,
+.parolla-final-grid,
+.parolla-stats {
+    display: grid;
+    gap: 10px;
+}
+
+.parolla-topline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.parolla-topline div,
+.parolla-final-grid div,
+.parolla-stats p,
+.parolla-intro,
+.parolla-final-lists > div {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.parolla-topline div,
+.parolla-final-grid div {
+    display: grid;
+    gap: 5px;
+    min-height: 68px;
+    align-content: center;
+    padding: 12px;
+}
+
+.parolla-topline span,
+.parolla-final-grid span,
+.parolla-final-lists span,
+.parolla-stats p {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.parolla-topline strong,
+.parolla-final-grid strong {
+    color: var(--accent-2);
+    font-size: 26px;
+}
+
+.parolla-intro {
+    display: grid;
+    gap: 10px;
+    min-height: 260px;
+    align-content: center;
+    padding: 24px;
+}
+
+.parolla-intro strong {
+    color: var(--accent-strong);
+    font-size: clamp(34px, 7vw, 64px);
+}
+
+.parolla-intro p,
+.parolla-side p,
+.parolla-final-list-content {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.parolla-play {
+    display: grid;
+    gap: 16px;
+}
+
+.parolla-letter {
+    display: grid;
+    width: 100%;
+    min-height: 108px;
+    place-items: center;
+    border: 1px solid rgba(24, 169, 153, 0.45);
+    border-radius: 8px;
+    background: radial-gradient(circle at 35% 28%, rgba(244, 211, 94, 0.1), transparent 36%), #11141a;
+    color: var(--accent-strong);
+    font-size: clamp(46px, 12vw, 82px);
+    font-weight: 900;
+}
+
+.parolla-question {
+    display: grid;
+    place-items: center;
+    min-height: 108px;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    padding: 18px;
+    text-align: center;
+    font-size: clamp(18px, 3vw, 26px);
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.parolla-form {
+    display: grid;
+    gap: 12px;
+}
+
+.parolla-answer-actions {
+    margin-top: 0;
+}
+
+.parolla-answer-actions button {
+    flex: 1;
+}
+
+.parolla-feedback {
+    min-height: 22px;
+    margin: 0;
+    color: var(--muted);
+    text-align: center;
+    font-weight: 800;
+}
+
+.parolla-feedback.success {
+    color: var(--success);
+}
+
+.parolla-feedback.error {
+    color: var(--danger);
+}
+
+.parolla-side {
+    display: grid;
+    gap: 12px;
+}
+
+.parolla-side strong {
+    color: var(--text);
+    font-size: 20px;
+}
+
+.parolla-stats p {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 11px 12px;
+}
+
+.parolla-stats span {
+    color: var(--text);
+}
+
+.parolla-letter-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 8px;
+}
+
+.parolla-letter-list span {
+    display: grid;
+    min-height: 38px;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    font-weight: 900;
+}
+
+.parolla-letter-list span.active {
+    border-color: rgba(24, 169, 153, 0.72);
+    color: var(--accent-strong);
+}
+
+.parolla-letter-list span.correct {
+    border-color: transparent;
+    background: #22a06b;
+    color: #06110f;
+}
+
+.parolla-letter-list span.wrong {
+    border-color: transparent;
+    background: #4c2430;
+    color: #ffb1b8;
+}
+
+.parolla-letter-list span.passed {
+    border-color: transparent;
+    background: #343842;
+    color: #cbd5e1;
+}
+
+.parolla-final {
+    display: grid;
+    gap: 16px;
+}
+
+.parolla-final[hidden],
+.parolla-play[hidden],
+.parolla-intro[hidden] {
+    display: none;
+}
+
+.parolla-final-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.parolla-final-lists {
+    display: grid;
+    gap: 10px;
+}
+
+.parolla-final-lists > div {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+}
+
+.parolla-final-lists > div:nth-child(2) {
+    border-color: rgba(255, 115, 128, 0.28);
+    background: linear-gradient(180deg, rgba(255, 115, 128, 0.08), rgba(17, 20, 26, 0.58)), var(--surface);
+}
+
+.parolla-final-list-content {
+    display: flex;
+    min-height: 42px;
+    align-items: center;
+}
+
+.parolla-final-chip-list {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.parolla-result-chip {
+    display: inline-grid;
+    width: 34px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #262b34;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.parolla-result-chip.correct {
+    border-color: rgba(125, 181, 142, 0.35);
+    background: #7db58e;
+    color: #101712;
+}
+
+.parolla-result-chip.wrong {
+    border-color: rgba(229, 84, 95, 0.45);
+    background: #e5545f;
+    color: #fff7f8;
+}
+
+.parolla-result-chip.passed {
+    border-color: rgba(203, 213, 225, 0.22);
+    background: #303540;
+    color: #cbd5e1;
+}
+
+.parolla-wrong-answer-list {
+    display: grid;
+    gap: 8px;
+}
+
+.parolla-wrong-answer-row {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    border: 1px solid rgba(255, 115, 128, 0.18);
+    border-radius: 8px;
+    background: rgba(14, 17, 23, 0.42);
+    padding: 9px;
+}
+
+.parolla-wrong-letter {
+    display: grid;
+    min-height: 38px;
+    place-items: center;
+    border-radius: 999px;
+    background: #e5545f;
+    color: #fff7f8;
+    font-weight: 900;
+}
+
+.parolla-wrong-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.parolla-wrong-details p {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    min-width: 0;
+}
+
+.parolla-wrong-details span {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.parolla-wrong-details strong {
+    overflow-wrap: anywhere;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.parolla-wrong-details p:last-child strong {
+    color: #9de2ad;
+}
+
+.parolla-final-empty {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    border: 1px dashed rgba(148, 163, 184, 0.25);
+    border-radius: 999px;
+    padding: 0 12px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
 .numble-grid {
     display: grid;
     grid-template-columns: minmax(380px, 1fr) 320px;
@@ -1184,8 +1543,21 @@ input[type="color"] {
 
 .wordle-finder-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(58px, 1fr));
+    gap: 10px;
+}
+
+.wordle-finder-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(48px, 1fr));
     gap: 8px;
+    align-items: end;
+}
+
+.wordle-finder-row.is-draft {
+    border: 1px solid rgba(24, 169, 153, 0.28);
+    border-radius: 8px;
+    background: rgba(24, 169, 153, 0.06);
+    padding: 10px;
 }
 
 .wordle-finder-cell {
@@ -1209,6 +1581,19 @@ input[type="color"] {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
+.wordle-finder-letter {
+    display: grid;
+    width: 100%;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #0f1218;
+    color: var(--text);
+    font-size: 30px;
+    font-weight: 800;
+}
+
 .wordle-finder-cell input:focus {
     border-color: #5a6476;
 }
@@ -1225,6 +1610,7 @@ input[type="color"] {
 }
 
 .wordle-finder-cell.correct input,
+.wordle-finder-cell.correct .wordle-finder-letter,
 .wordle-finder-cell.correct button {
     border-color: transparent;
     background: #22a06b;
@@ -1232,6 +1618,7 @@ input[type="color"] {
 }
 
 .wordle-finder-cell.present input,
+.wordle-finder-cell.present .wordle-finder-letter,
 .wordle-finder-cell.present button {
     border-color: transparent;
     background: #f4d35e;
@@ -1239,20 +1626,19 @@ input[type="color"] {
 }
 
 .wordle-finder-cell.wrong input,
+.wordle-finder-cell.wrong .wordle-finder-letter,
 .wordle-finder-cell.wrong button {
     border-color: transparent;
     background: #343842;
     color: #cbd5e1;
 }
 
-.wordle-finder-absent {
-    display: grid;
-    gap: 8px;
+.wordle-finder-actions {
+    margin-top: 0;
 }
 
-.wordle-finder-absent span {
-    color: var(--muted);
-    font-weight: 700;
+.wordle-finder-actions button {
+    width: 100%;
 }
 
 .wordle-finder-key {
@@ -3093,6 +3479,7 @@ input[type="color"] {
     .github-grid,
     .weather-layout,
     .game-2048-layout,
+    .parolla-layout,
     .valorant-crosshair-layout,
     .coach-layout,
     .chess-layout,
@@ -3234,9 +3621,13 @@ input[type="color"] {
         gap: 6px;
     }
 
-    .wordle-finder-grid {
-        grid-template-columns: repeat(5, minmax(42px, 1fr));
+    .wordle-finder-row {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 6px;
+    }
+
+    .wordle-finder-row.is-draft {
+        padding: 8px;
     }
 
     .wordle-finder-cell input {
@@ -3247,6 +3638,10 @@ input[type="color"] {
         min-height: 32px;
         padding: 0 4px;
         font-size: 11px;
+    }
+
+    .wordle-finder-letter {
+        font-size: clamp(22px, 7vw, 30px);
     }
 
     .wordle-board .element {
@@ -3314,6 +3709,8 @@ input[type="color"] {
 
     .translate-panel,
     .translate-side,
+    .parolla-card,
+    .parolla-side,
     .valorant-crosshair-preview-card,
     .valorant-crosshair-code-card {
         padding: 14px;
@@ -3393,6 +3790,20 @@ input[type="color"] {
         gap: 7px;
         padding: 7px;
     }
+
+    .parolla-topline,
+    .parolla-final-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .parolla-wrong-answer-row,
+    .parolla-wrong-details {
+        grid-template-columns: 1fr;
+    }
+
+    .parolla-wrong-letter {
+        width: 38px;
+    }
 }
 
 @media (max-width: 420px) {
@@ -3400,6 +3811,8 @@ input[type="color"] {
     .wordle-side,
     .wordle-finder-card,
     .wordle-finder-results,
+    .parolla-card,
+    .parolla-side,
     .valorant-crosshair-card {
         padding: 12px;
     }

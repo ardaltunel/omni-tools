@@ -3,9 +3,10 @@ const wordleFinderGrid = document.getElementById("wordle-finder-grid");
 const wordleFinderList = document.getElementById("wordle-finder-list");
 const wordleFinderCount = document.getElementById("wordle-finder-count");
 const wordleFinderClear = document.getElementById("wordle-finder-clear");
+const wordleFinderAdd = document.getElementById("wordle-finder-add");
 const wordleFinderSource = document.getElementById("wordle-finder-source");
 
-const wordleFinderStatuses = ["correct", "present", "wrong"];
+const wordleFinderStatuses = ["wrong", "present", "correct"];
 const wordleFinderLabels = {
     correct: "Yeşil",
     present: "Sarı",
@@ -13,9 +14,11 @@ const wordleFinderLabels = {
 };
 
 const wordleFinderState = {
-    letters: Array(5).fill(""),
-    statuses: Array(5).fill("correct"),
-    absentLetters: "",
+    attempts: [],
+    draft: {
+        letters: Array(5).fill(""),
+        statuses: Array(5).fill("wrong"),
+    },
 };
 
 const wordleFinderWords = prepareWordleFinderWords(window.Words || []);
@@ -52,29 +55,11 @@ function displayWordleFinderWord(value) {
 
 function renderWordleFinderControls() {
     if (!wordleFinderGrid) return;
-    document.getElementById("wordle-finder-absent")?.closest(".wordle-finder-absent")?.remove();
 
-    wordleFinderGrid.innerHTML = Array.from({ length: 5 }, (_, index) => `
-        <div class="wordle-finder-cell ${wordleFinderState.statuses[index]}" data-index="${index}">
-            <input
-                type="text"
-                inputmode="text"
-                maxlength="1"
-                aria-label="${index + 1}. harf"
-                value="${wordleFinderState.letters[index]}"
-            >
-            <button type="button" data-status-toggle aria-label="${index + 1}. harf durumunu değiştir">
-                ${wordleFinderLabels[wordleFinderState.statuses[index]]}
-            </button>
-        </div>
-    `).join("");
-
-    wordleFinderGrid.insertAdjacentHTML("afterend", `
-        <label class="wordle-finder-absent" for="wordle-finder-absent">
-            <span>Gri harfler</span>
-            <input id="wordle-finder-absent" class="text-input" type="text" autocomplete="off" spellcheck="false" placeholder="Örn. rtk" value="${wordleFinderState.absentLetters}">
-        </label>
-    `);
+    wordleFinderGrid.innerHTML = [
+        ...wordleFinderState.attempts.map((attempt, index) => renderWordleFinderAttemptRow(attempt, index, false)),
+        renderWordleFinderAttemptRow(wordleFinderState.draft, "draft", true),
+    ].join("");
 
     wordleFinderGrid.querySelectorAll("input").forEach((input) => {
         input.addEventListener("input", handleWordleFinderLetterInput);
@@ -85,55 +70,96 @@ function renderWordleFinderControls() {
         button.addEventListener("click", handleWordleFinderStatusToggle);
     });
 
-    document.getElementById("wordle-finder-absent")?.addEventListener("input", handleWordleFinderAbsentInput);
 }
 
-function refreshWordleFinderControls() {
-    const cells = wordleFinderGrid.querySelectorAll(".wordle-finder-cell");
-    cells.forEach((cell, index) => {
-        const status = wordleFinderState.statuses[index];
-        cell.className = `wordle-finder-cell ${status}`;
-        cell.querySelector("input").value = wordleFinderState.letters[index];
-        cell.querySelector("button").textContent = wordleFinderLabels[status];
-    });
+function renderWordleFinderAttemptRow(attempt, rowIndex, isDraft) {
+    return `
+        <div class="wordle-finder-row ${isDraft ? "is-draft" : ""}" data-row="${rowIndex}">
+            ${attempt.letters.map((letter, index) => `
+                <div class="wordle-finder-cell ${attempt.statuses[index]}" data-index="${index}">
+                    ${isDraft ? `
+                        <input
+                            type="text"
+                            inputmode="text"
+                            maxlength="1"
+                            aria-label="${index + 1}. harf"
+                            value="${displayWordleFinderWord(letter)}"
+                        >
+                    ` : `<span class="wordle-finder-letter">${displayWordleFinderWord(letter)}</span>`}
+                    <button type="button" data-status-toggle aria-label="${index + 1}. harf durumunu değiştir">
+                        ${wordleFinderLabels[attempt.statuses[index]]}
+                    </button>
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
+function getWordleFinderAttempt(rowIndex) {
+    return rowIndex === "draft" ? wordleFinderState.draft : wordleFinderState.attempts[Number(rowIndex)];
 }
 
 function handleWordleFinderLetterInput(event) {
+    const row = event.target.closest(".wordle-finder-row");
     const cell = event.target.closest(".wordle-finder-cell");
+    const attempt = getWordleFinderAttempt(row.dataset.row);
     const index = Number(cell.dataset.index);
     const value = normalizeWordleFinderWord(event.target.value).slice(-1);
 
-    wordleFinderState.letters[index] = value;
+    attempt.letters[index] = value;
     event.target.value = value ? displayWordleFinderWord(value) : "";
-    scheduleWordleFinderFilter();
 
     if (value && index < 4) {
-        wordleFinderGrid.querySelector(`[data-index="${index + 1}"] input`)?.focus();
+        row.querySelector(`[data-index="${index + 1}"] input`)?.focus();
     }
 }
 
 function handleWordleFinderCellKeydown(event) {
+    const row = event.target.closest(".wordle-finder-row");
     const cell = event.target.closest(".wordle-finder-cell");
     const index = Number(cell.dataset.index);
 
     if (event.key === "Backspace" && !event.target.value && index > 0) {
-        wordleFinderGrid.querySelector(`[data-index="${index - 1}"] input`)?.focus();
+        row.querySelector(`[data-index="${index - 1}"] input`)?.focus();
+        return;
+    }
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        addWordleFinderDraft();
     }
 }
 
 function handleWordleFinderStatusToggle(event) {
+    const row = event.target.closest(".wordle-finder-row");
     const cell = event.target.closest(".wordle-finder-cell");
+    const attempt = getWordleFinderAttempt(row.dataset.row);
     const index = Number(cell.dataset.index);
-    const currentIndex = wordleFinderStatuses.indexOf(wordleFinderState.statuses[index]);
-    wordleFinderState.statuses[index] = wordleFinderStatuses[(currentIndex + 1) % wordleFinderStatuses.length];
-    refreshWordleFinderControls();
+    const currentIndex = wordleFinderStatuses.indexOf(attempt.statuses[index]);
+
+    attempt.statuses[index] = wordleFinderStatuses[(currentIndex + 1) % wordleFinderStatuses.length];
+    renderWordleFinderControls();
     scheduleWordleFinderFilter();
 }
 
-function handleWordleFinderAbsentInput(event) {
-    wordleFinderState.absentLetters = normalizeWordleFinderWord(event.target.value);
-    event.target.value = wordleFinderState.absentLetters;
+function addWordleFinderDraft() {
+    const word = wordleFinderState.draft.letters.join("");
+
+    if (Array.from(word).length < 5) {
+        return;
+    }
+
+    wordleFinderState.attempts.push({
+        letters: [...wordleFinderState.draft.letters],
+        statuses: [...wordleFinderState.draft.statuses],
+    });
+    wordleFinderState.draft = {
+        letters: Array(5).fill(""),
+        statuses: Array(5).fill("wrong"),
+    };
+    renderWordleFinderControls();
     scheduleWordleFinderFilter();
+    wordleFinderGrid.querySelector('.wordle-finder-row.is-draft input')?.focus();
 }
 
 function scheduleWordleFinderFilter() {
@@ -143,7 +169,7 @@ function scheduleWordleFinderFilter() {
 
 function updateWordleFinderResults() {
     wordleFinderRenderFrame = null;
-    const signature = JSON.stringify(wordleFinderState);
+    const signature = JSON.stringify(wordleFinderState.attempts);
 
     if (signature !== wordleFinderLastSignature) {
         wordleFinderLastResults = filterWordleFinderWords();
@@ -154,47 +180,36 @@ function updateWordleFinderResults() {
 }
 
 function filterWordleFinderWords() {
-    const fixedLetters = new Map();
-    const presentRules = [];
-    const absentLetters = new Set(Array.from(wordleFinderState.absentLetters));
-    const knownLetters = new Set();
+    return wordleFinderWords.filter((candidate) => (
+        wordleFinderState.attempts.every((attempt) => {
+            const expectedMarks = scoreWordleFinderGuess(attempt.letters, candidate.letters);
+            return expectedMarks.every((mark, index) => mark === attempt.statuses[index]);
+        })
+    ));
+}
 
-    wordleFinderState.letters.forEach((letter, index) => {
-        if (!letter) return;
-        const status = wordleFinderState.statuses[index];
+function scoreWordleFinderGuess(guessLetters, targetLetters) {
+    const marks = Array(5).fill("wrong");
+    const remaining = {};
 
-        if (status === "correct") {
-            fixedLetters.set(index, letter);
-            knownLetters.add(letter);
-            return;
+    for (let index = 0; index < 5; index += 1) {
+        if (guessLetters[index] === targetLetters[index]) {
+            marks[index] = "correct";
+        } else {
+            remaining[targetLetters[index]] = (remaining[targetLetters[index]] || 0) + 1;
         }
+    }
 
-        if (status === "present") {
-            presentRules.push({ letter, index });
-            knownLetters.add(letter);
-            return;
+    for (let index = 0; index < 5; index += 1) {
+        if (marks[index] === "correct") continue;
+        const letter = guessLetters[index];
+        if (remaining[letter] > 0) {
+            marks[index] = "present";
+            remaining[letter] -= 1;
         }
+    }
 
-        absentLetters.add(letter);
-    });
-
-    knownLetters.forEach((letter) => absentLetters.delete(letter));
-
-    return wordleFinderWords.filter(({ letters }) => {
-        for (const [index, letter] of fixedLetters) {
-            if (letters[index] !== letter) return false;
-        }
-
-        for (const { letter, index } of presentRules) {
-            if (letters[index] === letter || !letters.includes(letter)) return false;
-        }
-
-        for (const letter of absentLetters) {
-            if (letters.includes(letter)) return false;
-        }
-
-        return true;
-    });
+    return marks;
 }
 
 function renderWordleFinderResults(results) {
@@ -203,7 +218,7 @@ function renderWordleFinderResults(results) {
     wordleFinderList.innerHTML = "";
 
     if (!results.length) {
-        wordleFinderList.innerHTML = '<div class="empty-state wordle-finder-empty"><strong>Uygun kelime bulunamadı</strong><span>Harfleri veya renk durumlarını gevşetmeyi dene.</span></div>';
+        wordleFinderList.innerHTML = '<div class="empty-state wordle-finder-empty"><strong>Uygun kelime bulunamadı</strong><span>Deneme renklerini kontrol et.</span></div>';
         return;
     }
 
@@ -218,11 +233,11 @@ function renderWordleFinderResults(results) {
 }
 
 function clearWordleFinderFilters() {
-    wordleFinderState.letters = Array(5).fill("");
-    wordleFinderState.statuses = Array(5).fill("correct");
-    wordleFinderState.absentLetters = "";
-    wordleFinderGrid.nextElementSibling?.classList.contains("wordle-finder-absent")
-        && wordleFinderGrid.nextElementSibling.remove();
+    wordleFinderState.attempts = [];
+    wordleFinderState.draft = {
+        letters: Array(5).fill(""),
+        statuses: Array(5).fill("wrong"),
+    };
     renderWordleFinderControls();
     scheduleWordleFinderFilter();
 }
@@ -230,5 +245,6 @@ function clearWordleFinderFilters() {
 if (wordleFinderRoot) {
     renderWordleFinderControls();
     wordleFinderClear.addEventListener("click", clearWordleFinderFilters);
+    wordleFinderAdd.addEventListener("click", addWordleFinderDraft);
     updateWordleFinderResults();
 }

@@ -10,6 +10,52 @@ const normalizeLetter = (letter) => letter.toLocaleLowerCase("tr-TR");
 const isTurkishLetter = (value) => /^[abcçdefgğhıijklmnoöprsştuüvyzqwx]$/i.test(value);
 const normalizeWord = (word) => Array.from(word).map(normalizeLetter).join("");
 const isWordleActive = () => document.querySelector(".tool-panel.active")?.id === "wordle";
+const wordleWordSet = new Set(Words.map(normalizeWord));
+const commonWordleWords = new Set([
+    "akşam", "alarm", "alıcı", "altın", "anlam", "araba", "aracı", "arife", "armut", "artık",
+    "aşağı", "badem", "bakım", "bakır", "balık", "balon", "banka", "barış", "basın", "basit",
+    "başak", "başta", "bazen", "bebek", "belki", "beyaz", "biber", "bilgi", "biraz", "birey",
+    "bitki", "bozuk", "bugün", "bulut", "burun", "büyük", "cadde", "canlı", "cevap", "ceviz",
+    "çadır", "çanta", "çayır", "çekim", "çelik", "çeşit", "çeşme", "çevre", "çiçek", "çilek",
+    "çizgi", "çocuk", "çorba", "çubuk", "çukur", "değer", "değil", "denet", "deniz", "dergi",
+    "devam", "diğer", "diken", "dilim", "doğal", "dokuz", "dolar", "dolay", "dosya", "durum",
+    "düğme", "düşük", "düzey", "düzen", "ekmek", "elmas", "emlak", "engel", "erdem", "ergin",
+    "evlat", "evrak", "eylem", "fayda", "final", "fikir", "fizik", "forma", "forum", "garaj",
+    "garip", "gelen", "gelir", "genel", "gerek", "girdi", "giriş", "gizli", "görev", "güven",
+    "güzel", "haber", "haklı", "halat", "hamur", "hasar", "hayal", "hayat", "hedef", "helva",
+    "henüz", "hesap", "hızlı", "hukuk", "huzur", "ırmak", "içeri", "idare", "ihbar", "ileri",
+    "ilham", "imkan", "inanç", "insan", "istek", "işlev", "işlek", "kalem", "kalın", "kalıp",
+    "kanal", "kapak", "kaput", "karar", "karne", "karşı", "kasım", "kayıt", "kazak", "kazan",
+    "kelam", "kendi", "kesin", "kesim", "kitap", "komik", "komşu", "konak", "konuk", "konut",
+    "konuş", "korku", "koşul", "koyun", "kuzey", "küçük", "kürek", "lamba", "liste", "lokal",
+    "madde", "maden", "mahal", "maket", "masal", "medya", "melek", "merak", "metal", "metin",
+    "meyve", "mobil", "motor", "mutlu", "müzik", "nasıl", "neden", "nefes", "neler", "nesne",
+    "neyse", "niçin", "noter", "orman", "ortak", "paket", "palto", "pazar", "pembe", "pense",
+    "pizza", "polis", "radyo", "raket", "resim", "resmi", "robot", "sabah", "sabit", "sahte",
+    "sakal", "salça", "saray", "sayfa", "saygı", "sayın", "sekiz", "selam", "sence", "serin",
+    "serum", "sesli", "sıcak", "sınıf", "sınav", "sınır", "siyah", "sofra", "soğan", "soğuk",
+    "sonra", "sonuç", "sorun", "sosis", "sözlü", "sprey", "stres", "sucuk", "süreç", "sürat",
+    "sütlü", "şafak", "şahin", "şahıs", "şarkı", "şehir", "şeker", "şekil", "şifre", "şimdi",
+    "şirin", "tabak", "taban", "tablo", "takım", "takip", "talep", "talih", "tamam", "tamir",
+    "tanık", "tanım", "tanıt", "taraf", "tarif", "tarih", "tatil", "tavuk", "teker", "tekir",
+    "temel", "temiz", "teori", "tepsi", "tesis", "tetik", "teyze", "tıbbi", "tıraş", "tilki",
+    "titiz", "tohum", "tokat", "toplu", "torba", "torun", "tuhaf", "turta", "tutku", "tütün",
+    "türkü", "türlü", "ucube", "ücret", "ülker", "ünite", "üzgün", "vakit", "vakıf", "vapur",
+    "video", "virüs", "vites", "yakın", "yakıt", "yalan", "yanak", "yanıt", "yapay", "yarar",
+    "yarım", "yarın", "yarış", "yasal", "yaşam", "yaşlı", "yatak", "yavaş", "yavru", "yazar",
+    "yazık", "yazım", "yazma", "yedek", "yelek", "yemek", "yemin", "yemiş", "yerel", "yerli",
+    "yeşil", "yeter", "yetim", "yetki", "yığın", "yıkım", "yılan", "yiğit", "yirmi", "yitik",
+    "yolcu", "yorum", "yufka", "yumak", "yürek", "yüzey", "zaten", "zayıf", "zehir", "zemin",
+    "zirve", "zorlu"
+]);
+const weightedWordleAnswers = Words.map((word) => {
+    const normalized = normalizeWord(word);
+    return {
+        word: normalized,
+        weight: commonWordleWords.has(normalized) ? 8 : 1,
+    };
+});
+const weightedWordleTotal = weightedWordleAnswers.reduce((sum, item) => sum + item.weight, 0);
 
 const keys = [
     ["e", "r", "t", "y", "u", "ı", "o", "p", "ğ", "ü"],
@@ -25,19 +71,37 @@ let currentCol = 0;
 let wordleStats = { games: 0, wins: 0, streak: 0 };
 const wordLength = 5;
 const maxGuesses = 6;
+let wordleHardMode = false;
+let wordleRequiredExact = Array(wordLength).fill(null);
+let wordleRequiredCounts = {};
+let wordleBlockedPositions = Array.from({ length: wordLength }, () => new Set());
+let wordleMessageTimer = null;
 const wordleGames = document.getElementById("wordle-games");
 const wordleWins = document.getElementById("wordle-wins");
 const wordleStreak = document.getElementById("wordle-streak");
 const wordleSummary = document.getElementById("wordle-summary");
+const wordleHardButton = document.getElementById("wordle-hard");
 
 function pickWord() {
-    answer = normalizeWord(Words[Math.floor(Math.random() * Words.length)]);
+    answer = pickWeightedWordleAnswer();
     answerLetters = Array.from(answer);
+}
+
+function pickWeightedWordleAnswer() {
+    let roll = Math.random() * weightedWordleTotal;
+
+    for (const item of weightedWordleAnswers) {
+        roll -= item.weight;
+        if (roll < 0) return item.word;
+    }
+
+    return weightedWordleAnswers[weightedWordleAnswers.length - 1].word;
 }
 
 function startGame() {
     currentRow = 0;
     currentCol = 0;
+    resetWordleHardRules();
     pickWord();
     document.getElementById("score").textContent = `Skor: ${score}`;
     document.getElementById("grid").innerHTML = "";
@@ -47,6 +111,12 @@ function startGame() {
     updateWordleStats();
     buildGrid();
     buildKeyboard();
+}
+
+function resetWordleHardRules() {
+    wordleRequiredExact = Array(wordLength).fill(null);
+    wordleRequiredCounts = {};
+    wordleBlockedPositions = Array.from({ length: wordLength }, () => new Set());
 }
 
 function buildGrid() {
@@ -119,12 +189,24 @@ async function submitGuess() {
         return;
     }
 
+    if (!wordleWordSet.has(guess)) {
+        sendMessage("error", "Kelime listede yok");
+        return;
+    }
+
+    const hardModeError = validateWordleHardGuess(guessLetters);
+    if (hardModeError) {
+        sendMessage("error", hardModeError);
+        return;
+    }
+
     const marks = scoreGuess(guessLetters, answerLetters);
     for (let index = 0; index < wordLength; index++) {
         row.children[index].className = `element flipped ${marks[index]}`;
         updateKeyState(guessLetters[index], marks[index]);
         await delay(90);
     }
+    updateWordleHardRules(guessLetters, marks);
 
     if (guess === answer) {
         score += Math.round(1000 / (currentRow + 1));
@@ -167,6 +249,62 @@ function updateWordleStats() {
     wordleStreak.textContent = wordleStats.streak;
 }
 
+function validateWordleHardGuess(guessLetters) {
+    if (!wordleHardMode || currentRow === 0) return "";
+
+    for (let index = 0; index < wordLength; index++) {
+        const requiredLetter = wordleRequiredExact[index];
+        if (requiredLetter && guessLetters[index] !== requiredLetter) {
+            return `Zor mod: ${index + 1}. harfte ${displayLetter(requiredLetter)} kullanılmalı.`;
+        }
+    }
+
+    for (let index = 0; index < wordLength; index++) {
+        const blocked = wordleBlockedPositions[index];
+        if (blocked.has(guessLetters[index]) && wordleRequiredExact[index] !== guessLetters[index]) {
+            return `Zor mod: ${displayLetter(guessLetters[index])} bu konumda olamaz.`;
+        }
+    }
+
+    const guessCounts = countWordleLetters(guessLetters);
+    for (const [letter, requiredCount] of Object.entries(wordleRequiredCounts)) {
+        if ((guessCounts[letter] || 0) < requiredCount) {
+            const label = displayLetter(letter);
+            return requiredCount > 1
+                ? `Zor mod: ${label} harfinden ${requiredCount} tane kullanmalısın.`
+                : `Zor mod: ${label} harfini kullanmalısın.`;
+        }
+    }
+
+    return "";
+}
+
+function updateWordleHardRules(guessLetters, marks) {
+    const revealedCounts = {};
+
+    for (let index = 0; index < wordLength; index++) {
+        const letter = guessLetters[index];
+        if (marks[index] === "correct") {
+            wordleRequiredExact[index] = letter;
+            revealedCounts[letter] = (revealedCounts[letter] || 0) + 1;
+        } else if (marks[index] === "invalid") {
+            wordleBlockedPositions[index].add(letter);
+            revealedCounts[letter] = (revealedCounts[letter] || 0) + 1;
+        }
+    }
+
+    for (const [letter, count] of Object.entries(revealedCounts)) {
+        wordleRequiredCounts[letter] = Math.max(wordleRequiredCounts[letter] || 0, count);
+    }
+}
+
+function countWordleLetters(letters) {
+    return letters.reduce((counts, letter) => {
+        counts[letter] = (counts[letter] || 0) + 1;
+        return counts;
+    }, {});
+}
+
 function scoreGuess(guessLetters, targetLetters) {
     const marks = Array(wordLength).fill("wrong");
     const remaining = {};
@@ -204,13 +342,33 @@ function updateKeyState(letter, state) {
 
 function sendMessage(type, message) {
     const messageContainer = document.getElementById("message");
+    clearTimeout(wordleMessageTimer);
     messageContainer.className = type === "message" ? "message" : `message ${type}`;
     if (message === "&nbsp;") {
         messageContainer.innerHTML = "&nbsp;";
     } else {
         messageContainer.textContent = message;
     }
+
+    if (type === "error") {
+        wordleMessageTimer = setTimeout(() => {
+            messageContainer.className = "message";
+            messageContainer.innerHTML = "&nbsp;";
+        }, 3000);
+    }
 }
+
+function updateWordleHardButton() {
+    if (!wordleHardButton) return;
+    wordleHardButton.textContent = `Zor Mod: ${wordleHardMode ? "Açık" : "Kapalı"}`;
+    wordleHardButton.classList.toggle("active", wordleHardMode);
+}
+
+wordleHardButton?.addEventListener("click", () => {
+    wordleHardMode = !wordleHardMode;
+    updateWordleHardButton();
+    sendMessage("message", wordleHardMode ? "Zor mod açık." : "Zor mod kapalı.");
+});
 
 document.addEventListener("keydown", (event) => {
     if (!isWordleActive()) return;
@@ -244,4 +402,5 @@ document.addEventListener("click", (event) => {
     else typeLetter(key);
 });
 
+updateWordleHardButton();
 startGame();

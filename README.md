@@ -50,6 +50,7 @@ Proje özellikle şu konulara odaklanmaktadır:
 - GitHub User Finder
 - Text To Speech
 - Translator
+- Parolla
 - Utility Calculators
 
 ---
