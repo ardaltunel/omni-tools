@@ -210,7 +210,7 @@ class Shape {
         const filename = `${color}${pieces[piece]}.png`;
         return `
             <span class="chess-symbol ${player}" aria-hidden="true">
-                <img src="coach/img/chesspieces/wikipedia/${filename}" alt="">
+                <img src="tools/coach/img/chesspieces/wikipedia/${filename}" alt="">
             </span>
         `;
     }

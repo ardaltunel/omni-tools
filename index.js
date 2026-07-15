@@ -1,4 +1,6 @@
 const toolNav = document.querySelector(".tool-nav");
+const workspace = document.querySelector(".workspace");
+const brand = document.querySelector(".brand");
 sortToolNavigation();
 
 const panels = document.querySelectorAll(".tool-panel");
@@ -10,14 +12,38 @@ navItems.forEach((item) => {
     item.addEventListener("click", () => activateTool(item.dataset.tool));
 });
 
+brand?.addEventListener("click", clearActiveTool);
+brand?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    clearActiveTool();
+});
+
 function activateTool(tool) {
     navItems.forEach((item) => item.classList.toggle("active", item.dataset.tool === tool));
     panels.forEach((panel) => panel.classList.toggle("active", panel.id === tool));
+    resetToolScroll();
     document.dispatchEvent(new CustomEvent("tool-activated", { detail: { tool } }));
 
     if (tool === "crypto" && !cryptoPricesLoaded) {
         fetchCryptoPrices();
     }
+}
+
+function clearActiveTool() {
+    navItems.forEach((item) => item.classList.remove("active"));
+    panels.forEach((panel) => panel.classList.remove("active"));
+    resetToolScroll();
+}
+
+function resetToolScroll() {
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+
+    if (workspace) {
+        workspace.scrollTo({ top: 0, left: 0, behavior });
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior });
 }
 
 function sortToolNavigation() {
@@ -475,7 +501,7 @@ async function fetchCryptoPrices() {
             const change = Number(coinInfo.usd_24h_change || 0);
             return `
                 <article class="coin ${change < 0 ? "falling" : "rising"}">
-                    <img src="assets/crypto/${coin}.png" alt="${coin}">
+                    <img src="tools/assets/crypto/${coin}.png" alt="${coin}">
                     <div class="coin-name">
                         <h3>${cryptoNames[coin] || coin}</h3>
                         <span>/USD</span>

@@ -12,21 +12,21 @@ let weatherInitialized = false;
 const APIKey = 'ae478550c05405047fe1265293b32522';
 
 const weatherImages = {
-    Clear: 'weather/images/clear.png',
-    Rain: 'weather/images/rain.png',
-    Drizzle: 'weather/images/rain.png',
-    Thunderstorm: 'weather/images/rain.png',
-    Snow: 'weather/images/snow.png',
-    Clouds: 'weather/images/cloud.svg',
-    Mist: 'weather/images/mist.png',
-    Smoke: 'weather/images/mist.png',
-    Haze: 'weather/images/mist.png',
-    Dust: 'weather/images/mist.png',
-    Fog: 'weather/images/mist.png',
-    Sand: 'weather/images/mist.png',
-    Ash: 'weather/images/mist.png',
-    Squall: 'weather/images/mist.png',
-    Tornado: 'weather/images/mist.png'
+    Clear: 'tools/weather/images/clear.png',
+    Rain: 'tools/weather/images/rain.png',
+    Drizzle: 'tools/weather/images/rain.png',
+    Thunderstorm: 'tools/weather/images/rain.png',
+    Snow: 'tools/weather/images/snow.png',
+    Clouds: 'tools/weather/images/cloud.svg',
+    Mist: 'tools/weather/images/mist.png',
+    Smoke: 'tools/weather/images/mist.png',
+    Haze: 'tools/weather/images/mist.png',
+    Dust: 'tools/weather/images/mist.png',
+    Fog: 'tools/weather/images/mist.png',
+    Sand: 'tools/weather/images/mist.png',
+    Ash: 'tools/weather/images/mist.png',
+    Squall: 'tools/weather/images/mist.png',
+    Tornado: 'tools/weather/images/mist.png'
 };
 
 const setStatus = (message = '', isError = false) => {
@@ -78,7 +78,7 @@ const showWeather = (json, geoLocation) => {
     const wind = weatherPanel.querySelector('.weather-details .wind span');
     const weatherMain = json.weather[0].main;
 
-    image.src = weatherImages[weatherMain] || 'weather/images/cloud.svg';
+    image.src = weatherImages[weatherMain] || 'tools/weather/images/cloud.svg';
     image.alt = json.weather[0].description;
     locationName.textContent = getDisplayLocation(json, geoLocation);
     temperature.innerHTML = `${Math.round(json.main.temp)}<span>&deg;C</span>`;
