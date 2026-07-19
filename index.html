@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omni Tools | Sudoku ve Web Araçları</title>
-    <meta name="description" content="Omni Tools; Sudoku, kelime oyunları, mini oyunlar ve günlük web araçlarını tek modern panelde birleştirir.">
+    <title>Omni Tools | Tabu, Sudoku ve Web Araçları</title>
+    <meta name="description" content="Omni Tools; Tabu, Sudoku, kelime oyunları, mini oyunlar ve günlük web araçlarını tek modern panelde birleştirir.">
     <link rel="icon" type="image/png" sizes="32x32" href="tools/assets/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="tools/assets/favicon/apple-icon-180x180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=26">
+    <link rel="stylesheet" href="style.css?v=29">
 </head>
 
 <body>
@@ -22,7 +22,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>19 uygulama, tek panel</small>
+                    <small>20 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -65,6 +65,9 @@
                 </button>
                 <button class="nav-item" data-tool="sudoku" type="button">
                     <span>Sudoku</span>
+                </button>
+                <button class="nav-item" data-tool="tabu" type="button">
+                    <span>Tabu</span>
                 </button>
                 <button class="nav-item" data-tool="typing" type="button">
                     <span>Type Test</span>
@@ -1118,6 +1121,293 @@
                 </div>
             </section>
 
+            <section id="tabu" class="tool-panel tabu-panel" aria-labelledby="tabu-title">
+                <div class="panel-heading tabu-panel-heading">
+                    <div>
+                        <h2 id="tabu-title">Tabu</h2>
+                        <p>Takımını kur, yasak kelimelere takılmadan hedef puana ulaş.</p>
+                    </div>
+                    <div class="tabu-panel-actions">
+                        <div id="tabu-setup-header-actions" class="tabu-setup-header-actions">
+                            <button id="tabu-start-game" class="primary-button" type="submit" form="tabu-setup-form">Oyuna Başla</button>
+                        </div>
+                        <button id="tabu-sound" class="secondary-button tabu-sound-button" type="button" aria-label="Oyun seslerini kapat" aria-pressed="true">
+                            <span aria-hidden="true">♪</span><span>Ses Açık</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tabu-app" class="tabu-app">
+                    <section id="tabu-setup-screen" class="tabu-screen" aria-labelledby="tabu-setup-title">
+                        <div class="tabu-section-heading">
+                            <div>
+                                <h3 id="tabu-setup-title">Oyun Kurulumu</h3>
+                                <p>Takımları ve tur ayarlarını belirle.</p>
+                            </div>
+                        </div>
+
+                        <form id="tabu-setup-form" novalidate>
+                            <div class="tabu-team-setup-grid">
+                                <section class="tabu-setup-team team-one" aria-labelledby="tabu-team-one-title">
+                                    <div class="tabu-team-label">
+                                        <span class="tabu-team-symbol" aria-hidden="true">1</span>
+                                        <h4 id="tabu-team-one-title">1. Takım</h4>
+                                    </div>
+                                    <label class="tabu-field" for="tabu-team-name-0">
+                                        <span>Takım adı</span>
+                                        <input id="tabu-team-name-0" type="text" value="1. Takım" maxlength="36" autocomplete="off" required>
+                                    </label>
+                                    <div class="tabu-player-heading">
+                                        <strong>Oyuncular</strong>
+                                        <span id="tabu-player-count-0">1 oyuncu</span>
+                                    </div>
+                                    <div id="tabu-player-list-0" class="tabu-player-list" data-team="0"></div>
+                                    <button class="secondary-button tabu-add-player" data-team="0" type="button" aria-label="1. Takıma oyuncu ekle">
+                                        <span aria-hidden="true">+</span><span>Oyuncu Ekle</span>
+                                    </button>
+                                </section>
+
+                                <section class="tabu-setup-team team-two" aria-labelledby="tabu-team-two-title">
+                                    <div class="tabu-team-label">
+                                        <span class="tabu-team-symbol" aria-hidden="true">2</span>
+                                        <h4 id="tabu-team-two-title">2. Takım</h4>
+                                    </div>
+                                    <label class="tabu-field" for="tabu-team-name-1">
+                                        <span>Takım adı</span>
+                                        <input id="tabu-team-name-1" type="text" value="2. Takım" maxlength="36" autocomplete="off" required>
+                                    </label>
+                                    <div class="tabu-player-heading">
+                                        <strong>Oyuncular</strong>
+                                        <span id="tabu-player-count-1">1 oyuncu</span>
+                                    </div>
+                                    <div id="tabu-player-list-1" class="tabu-player-list" data-team="1"></div>
+                                    <button class="secondary-button tabu-add-player" data-team="1" type="button" aria-label="2. Takıma oyuncu ekle">
+                                        <span aria-hidden="true">+</span><span>Oyuncu Ekle</span>
+                                    </button>
+                                </section>
+                            </div>
+
+                            <section class="tabu-settings" aria-labelledby="tabu-settings-title">
+                                <div class="tabu-section-heading compact">
+                                    <div>
+                                        <h3 id="tabu-settings-title">Oyun Ayarları</h3>
+                                        <p>Tur akışını grubuna göre düzenle.</p>
+                                    </div>
+                                </div>
+                                <div class="tabu-settings-grid">
+                                    <label class="tabu-field" for="tabu-duration">
+                                        <span>Tur süresi</span>
+                                        <select id="tabu-duration">
+                                            <option value="30">30 saniye</option>
+                                            <option value="45">45 saniye</option>
+                                            <option value="60" selected>60 saniye</option>
+                                            <option value="90">90 saniye</option>
+                                            <option value="custom">Özel süre</option>
+                                        </select>
+                                    </label>
+                                    <label id="tabu-duration-custom-wrap" class="tabu-field tabu-custom-field" for="tabu-duration-custom" hidden>
+                                        <span>Özel süre (saniye)</span>
+                                        <input id="tabu-duration-custom" type="number" min="10" max="600" value="60" inputmode="numeric">
+                                    </label>
+                                    <label class="tabu-field" for="tabu-target">
+                                        <span>Hedef puan</span>
+                                        <select id="tabu-target">
+                                            <option value="20">20</option>
+                                            <option value="30" selected>30</option>
+                                            <option value="40">40</option>
+                                            <option value="50">50</option>
+                                            <option value="custom">Özel hedef</option>
+                                        </select>
+                                    </label>
+                                    <label id="tabu-target-custom-wrap" class="tabu-field tabu-custom-field" for="tabu-target-custom" hidden>
+                                        <span>Özel hedef</span>
+                                        <input id="tabu-target-custom" type="number" min="1" max="500" value="30" inputmode="numeric">
+                                    </label>
+                                    <label class="tabu-field" for="tabu-passes">
+                                        <span>Pas hakkı</span>
+                                        <select id="tabu-passes">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3" selected>3</option>
+                                            <option value="5">5</option>
+                                            <option value="unlimited">Sınırsız</option>
+                                        </select>
+                                    </label>
+                                    <label class="tabu-field" for="tabu-penalty-amount">
+                                        <span>Ceza miktarı</span>
+                                        <input id="tabu-penalty-amount" type="number" min="1" max="10" value="1" inputmode="numeric">
+                                    </label>
+                                </div>
+
+                                <div class="tabu-toggle-grid">
+                                    <label class="tabu-toggle">
+                                        <input id="tabu-penalty-enabled" type="checkbox" checked>
+                                        <span><strong>Ceza puanı</strong><small>Tabu denince puan azalt.</small></span>
+                                    </label>
+                                    <label class="tabu-toggle">
+                                        <input id="tabu-allow-negative" type="checkbox">
+                                        <span><strong>Negatif skor</strong><small>Puan sıfırın altına inebilsin.</small></span>
+                                    </label>
+                                    <label class="tabu-toggle">
+                                        <input id="tabu-countdown-enabled" type="checkbox" checked>
+                                        <span><strong>3 saniye geri sayım</strong><small>Tur başlamadan hazırlan.</small></span>
+                                    </label>
+                                </div>
+                            </section>
+
+                            <p id="tabu-setup-error" class="tabu-form-message" role="alert" aria-live="assertive"></p>
+                        </form>
+
+                    </section>
+
+                    <section id="tabu-ready-screen" class="tabu-screen tabu-centered-screen" aria-labelledby="tabu-ready-title" hidden>
+                        <p id="tabu-ready-round" class="tabu-eyebrow">1. Tur</p>
+                        <h3 id="tabu-ready-title">Sıradaki Takım</h3>
+                        <strong id="tabu-ready-team" class="tabu-ready-team"></strong>
+                        <p>Anlatıcı: <strong id="tabu-ready-player"></strong></p>
+                        <div class="tabu-ready-facts">
+                            <div><span>Takım skoru</span><strong id="tabu-ready-score">0</strong></div>
+                            <div><span>Kalan hedef</span><strong id="tabu-ready-target">30</strong></div>
+                            <div><span>Tur süresi</span><strong id="tabu-ready-duration">60 sn</strong></div>
+                            <div><span>Pas hakkı</span><strong id="tabu-ready-passes">3</strong></div>
+                        </div>
+                        <button id="tabu-ready-start" class="primary-button tabu-wide-button" type="button">Hazırsanız Başlat</button>
+                    </section>
+
+                    <section id="tabu-countdown-screen" class="tabu-screen tabu-centered-screen" aria-labelledby="tabu-countdown-label" hidden>
+                        <p id="tabu-countdown-label">Tur başlıyor</p>
+                        <strong id="tabu-countdown-value" class="tabu-countdown-value" aria-live="assertive">3</strong>
+                    </section>
+
+                    <section id="tabu-game-screen" class="tabu-screen" aria-labelledby="tabu-game-team" hidden>
+                        <div class="tabu-scoreboard" aria-label="Takım skorları" aria-live="polite">
+                            <div id="tabu-score-team-0" class="tabu-score-team team-one">
+                                <span id="tabu-score-name-0">1. Takım</span><strong id="tabu-score-value-0">0</strong>
+                            </div>
+                            <div class="tabu-turn-clock" aria-live="polite">
+                                <span>Kalan süre</span><strong id="tabu-timer">60</strong>
+                            </div>
+                            <div id="tabu-score-team-1" class="tabu-score-team team-two">
+                                <span id="tabu-score-name-1">2. Takım</span><strong id="tabu-score-value-1">0</strong>
+                            </div>
+                        </div>
+
+                        <div class="tabu-play-layout">
+                            <div class="tabu-play-main">
+                                <div class="tabu-game-meta">
+                                    <div><span>Aktif takım</span><strong id="tabu-game-team"></strong></div>
+                                    <div><span>Anlatıcı</span><strong id="tabu-game-player"></strong></div>
+                                    <div><span>Hedef</span><strong id="tabu-game-target">30</strong></div>
+                                    <div><span>Kalan pas</span><strong id="tabu-game-passes">3</strong></div>
+                                </div>
+
+                                <div class="tabu-card-wrap">
+                                    <article id="tabu-word-card" class="tabu-word-card" aria-live="polite">
+                                        <header class="tabu-card-header">
+                                            <span class="tabu-card-kicker">Ana kelime</span>
+                                            <span id="tabu-card-category" class="tabu-card-category">Genel</span>
+                                        </header>
+                                        <div class="tabu-main-word-block">
+                                            <h3 id="tabu-main-word">KELİME</h3>
+                                        </div>
+                                        <div class="tabu-forbidden-block">
+                                            <span class="tabu-forbidden-title">Yasak kelimeler</span>
+                                            <ul id="tabu-forbidden-words"></ul>
+                                        </div>
+                                    </article>
+                                    <div id="tabu-pause-cover" class="tabu-pause-cover" hidden>
+                                        <strong>Oyun duraklatıldı</strong>
+                                        <p>Kart, oyun devam edene kadar gizli.</p>
+                                        <button id="tabu-resume-overlay" class="primary-button" type="button">Devam Et</button>
+                                    </div>
+                                </div>
+                                <p id="tabu-feedback" class="tabu-feedback" aria-live="assertive"></p>
+                            </div>
+
+                            <aside class="tabu-round-side">
+                                <div class="tabu-round-counts">
+                                    <div><span>Doğru</span><strong id="tabu-round-correct">0</strong></div>
+                                    <div><span>Tabu</span><strong id="tabu-round-taboo">0</strong></div>
+                                    <div><span>Pas</span><strong id="tabu-round-pass">0</strong></div>
+                                </div>
+                                <div class="tabu-secondary-controls">
+                                    <button id="tabu-pause" class="secondary-button" type="button" aria-label="Oyunu duraklat"><span aria-hidden="true">Ⅱ</span><span>Duraklat</span></button>
+                                    <button id="tabu-end-round" class="secondary-button" type="button" aria-label="Turu erken bitir"><span aria-hidden="true">■</span><span>Turu Bitir</span></button>
+                                </div>
+                            </aside>
+                        </div>
+
+                        <div class="tabu-primary-controls" aria-label="Kart kontrolleri">
+                            <button id="tabu-correct" class="tabu-control-correct" type="button" aria-label="Kelime doğru bilindi"><span aria-hidden="true">✓</span><strong>Doğru</strong></button>
+                            <button id="tabu-taboo" class="tabu-control-taboo" type="button" aria-label="Yasak kelime söylendi"><span aria-hidden="true">!</span><strong>Tabu</strong></button>
+                            <button id="tabu-pass" class="tabu-control-pass" type="button" aria-label="Bu kartı pas geç"><span aria-hidden="true">→</span><strong>Pas</strong></button>
+                        </div>
+                    </section>
+
+                    <section id="tabu-round-screen" class="tabu-screen tabu-centered-screen" aria-labelledby="tabu-round-title" hidden>
+                        <p id="tabu-round-number" class="tabu-eyebrow">Tur tamamlandı</p>
+                        <h3 id="tabu-round-title">Tur Özeti</h3>
+                        <p><strong id="tabu-round-team"></strong> · Anlatıcı: <strong id="tabu-round-player"></strong></p>
+                        <div class="tabu-summary-grid">
+                            <div><span>Doğru</span><strong id="tabu-summary-correct">0</strong></div>
+                            <div><span>Tabu</span><strong id="tabu-summary-taboo">0</strong></div>
+                            <div><span>Pas</span><strong id="tabu-summary-pass">0</strong></div>
+                            <div><span>Net puan</span><strong id="tabu-summary-net">+0</strong></div>
+                        </div>
+                        <div class="tabu-current-scores">
+                            <div><span id="tabu-summary-name-0"></span><strong id="tabu-summary-score-0">0</strong></div>
+                            <div><span id="tabu-summary-name-1"></span><strong id="tabu-summary-score-1">0</strong></div>
+                        </div>
+                        <div class="tabu-summary-actions">
+                            <button id="tabu-next-round" class="primary-button" type="button">Sonraki Tura Geç</button>
+                            <button id="tabu-back-setup" class="secondary-button" type="button">Oyun Ana Ekranına Dön</button>
+                            <button id="tabu-finish-game" class="secondary-button" type="button">Oyunu Bitir</button>
+                        </div>
+                    </section>
+
+                    <section id="tabu-end-screen" class="tabu-screen tabu-centered-screen" aria-labelledby="tabu-end-title" hidden>
+                        <p class="tabu-eyebrow">Oyun tamamlandı</p>
+                        <h3 id="tabu-end-title">Kazanan</h3>
+                        <strong id="tabu-winner" class="tabu-ready-team"></strong>
+                        <p id="tabu-end-message"></p>
+                        <div class="tabu-final-scores">
+                            <div><span id="tabu-final-name-0"></span><strong id="tabu-final-score-0">0</strong></div>
+                            <div><span id="tabu-final-name-1"></span><strong id="tabu-final-score-1">0</strong></div>
+                        </div>
+                        <div class="tabu-end-highlights">
+                            <div><span>Toplam tur</span><strong id="tabu-final-rounds">0</strong></div>
+                            <div><span>En çok doğru</span><strong id="tabu-final-most-correct">-</strong></div>
+                            <div><span>En az tabu</span><strong id="tabu-final-least-taboo">-</strong></div>
+                        </div>
+                        <div class="tabu-player-stats-wrap">
+                            <h4>Oyuncu İstatistikleri</h4>
+                            <div class="tabu-player-stats-table" role="region" aria-label="Oyuncu istatistikleri" tabindex="0">
+                                <table>
+                                    <thead><tr><th>Oyuncu</th><th>Tur</th><th>Doğru</th><th>Tabu</th><th>Pas</th></tr></thead>
+                                    <tbody id="tabu-player-stats-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tabu-summary-actions">
+                            <button id="tabu-replay-teams" class="primary-button" type="button">Aynı Takımlarla Tekrar Oyna</button>
+                            <button id="tabu-new-setup" class="secondary-button" type="button">Yeni Oyun Kur</button>
+                            <button id="tabu-go-home" class="secondary-button" type="button">Ana Sayfaya Dön</button>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="tabu-modal" class="tabu-modal" role="dialog" aria-modal="true" aria-labelledby="tabu-modal-title" hidden>
+                    <div class="tabu-modal-card">
+                        <h3 id="tabu-modal-title">Tabu</h3>
+                        <p id="tabu-modal-message"></p>
+                        <div class="tabu-modal-actions">
+                            <button id="tabu-modal-primary" class="primary-button" type="button">Devam Et</button>
+                            <button id="tabu-modal-secondary" class="secondary-button" type="button">Vazgeç</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="advanced-xox" class="tool-panel" aria-labelledby="xox-title">
                 <div class="panel-heading">
                     <div>
@@ -1183,6 +1473,8 @@
     <script src="tools/advanced-xox/script.js?v=3"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
     <script src="tools/sudoku/script.js?v=4"></script>
+    <script src="tools/tabu/cards.js?v=1"></script>
+    <script src="tools/tabu/script.js?v=10"></script>
     <script src="tools/coach/jquery-1.12.4.min.js"></script>
     <script src="tools/coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/coach/chess.js?v=1"></script>

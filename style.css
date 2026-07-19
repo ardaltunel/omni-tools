@@ -4440,3 +4440,1103 @@ input[type="color"] {
         grid-template-columns: 1fr;
     }
 }
+
+/* Tabu */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.tabu-panel-heading {
+    align-items: flex-start;
+}
+
+.tabu-panel-actions,
+.tabu-setup-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.tabu-panel-actions {
+    align-items: center;
+}
+
+.tabu-setup-header-actions[hidden] {
+    display: none;
+}
+
+.tabu-sound-button {
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.tabu-app {
+    width: min(100%, 1180px);
+    margin-inline: auto;
+}
+
+.tabu-panel.is-setup-screen {
+    min-height: 0;
+}
+
+.tabu-screen[hidden],
+.tabu-modal[hidden],
+.tabu-pause-cover[hidden],
+.tabu-custom-field[hidden] {
+    display: none;
+}
+
+.tabu-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.tabu-section-heading.compact {
+    margin-bottom: 16px;
+}
+
+.tabu-section-heading h3,
+.tabu-centered-screen h3,
+.tabu-modal-card h3 {
+    margin: 0 0 5px;
+    font-size: 21px;
+    letter-spacing: 0;
+}
+
+.tabu-section-heading p,
+.tabu-centered-screen > p,
+.tabu-modal-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.tabu-team-setup-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.tabu-setup-team {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 8px;
+    background: var(--panel-2);
+    padding: 18px;
+}
+
+.tabu-setup-team.team-two {
+    border-top-color: var(--accent-2);
+}
+
+.tabu-team-label,
+.tabu-player-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tabu-team-label {
+    justify-content: flex-start;
+    margin-bottom: 16px;
+}
+
+.tabu-team-label h4,
+.tabu-player-stats-wrap h4 {
+    margin: 0;
+    font-size: 17px;
+    letter-spacing: 0;
+}
+
+.tabu-team-symbol {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    color: var(--accent-strong);
+    font-weight: 800;
+}
+
+.team-two .tabu-team-symbol {
+    border-color: var(--accent-2);
+    color: var(--accent-2);
+}
+
+.tabu-field {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tabu-field input,
+.tabu-field select,
+.tabu-player-input input {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    background: var(--surface);
+    color: var(--text);
+    padding: 0 12px;
+}
+
+.tabu-field input:focus-visible,
+.tabu-field select:focus-visible,
+.tabu-player-input input:focus-visible,
+.tabu-remove-player:focus-visible,
+.tabu-primary-controls button:focus-visible,
+.tabu-player-stats-table:focus-visible,
+.tabu-modal button:focus-visible,
+.tabu-panel button:focus-visible {
+    outline: 3px solid rgba(24, 169, 153, 0.34);
+    outline-offset: 2px;
+}
+
+.tabu-field input:disabled,
+.tabu-field select:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.tabu-player-heading {
+    margin: 18px 0 10px;
+}
+
+.tabu-player-heading span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.tabu-player-list {
+    display: grid;
+    gap: 8px;
+    max-height: 224px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 2px;
+}
+
+.tabu-player-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 8px;
+}
+
+.tabu-player-input {
+    min-width: 0;
+}
+
+.tabu-remove-player {
+    width: 44px;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 22px;
+}
+
+.tabu-remove-player:hover:not(:disabled) {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.tabu-remove-player:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+}
+
+.tabu-add-player {
+    width: 100%;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tabu-settings {
+    margin-top: 16px;
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+}
+
+.tabu-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.tabu-toggle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.tabu-toggle {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 12px;
+    cursor: pointer;
+}
+
+.tabu-toggle input {
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--accent);
+}
+
+.tabu-toggle span,
+.tabu-toggle strong,
+.tabu-toggle small {
+    display: block;
+    min-width: 0;
+}
+
+.tabu-toggle small {
+    margin-top: 4px;
+    color: var(--muted);
+    font-weight: 400;
+    line-height: 1.35;
+}
+
+.tabu-form-message {
+    min-height: 22px;
+    margin: 14px 0 0;
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.tabu-form-message:empty {
+    display: none;
+}
+
+.tabu-form-message:not(:empty)::before {
+    content: "!";
+    display: inline-grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    margin-right: 7px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+.tabu-summary-actions,
+.tabu-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.tabu-ready-facts > div,
+.tabu-summary-grid > div,
+.tabu-end-highlights > div {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 12px;
+}
+
+.tabu-ready-facts span,
+.tabu-summary-grid span,
+.tabu-end-highlights span,
+.tabu-game-meta span,
+.tabu-round-counts span,
+.tabu-final-scores span,
+.tabu-current-scores span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.tabu-centered-screen {
+    width: min(100%, 760px);
+    margin-inline: auto;
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+    padding: clamp(22px, 5vw, 48px);
+}
+
+.tabu-eyebrow {
+    margin-bottom: 7px !important;
+    color: var(--accent) !important;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.tabu-ready-team {
+    display: block;
+    margin: 12px 0 7px;
+    overflow-wrap: anywhere;
+    color: var(--text);
+    font-size: clamp(24px, 5vw, 36px);
+    letter-spacing: 0;
+}
+
+.tabu-ready-facts,
+.tabu-summary-grid,
+.tabu-end-highlights {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 22px;
+    text-align: left;
+}
+
+.tabu-wide-button {
+    width: min(100%, 360px);
+    margin-top: 22px;
+}
+
+.tabu-countdown-value {
+    display: block;
+    margin-top: 14px;
+    color: var(--accent-strong);
+    font-size: clamp(58px, 15vw, 110px);
+    line-height: 1;
+    letter-spacing: 0;
+    animation: tabu-countdown-pop 600ms ease-out;
+}
+
+.tabu-scoreboard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 130px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.tabu-score-team,
+.tabu-turn-clock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 58px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    background: var(--panel-2);
+    padding: 10px 14px;
+}
+
+.tabu-score-team.team-two {
+    border-left-color: var(--accent-2);
+}
+
+.tabu-score-team.is-active {
+    background: rgba(24, 169, 153, 0.12);
+}
+
+.tabu-score-team.team-two.is-active {
+    background: rgba(244, 211, 94, 0.09);
+}
+
+.tabu-score-team span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 700;
+}
+
+.tabu-score-team strong,
+.tabu-turn-clock strong {
+    font-size: 24px;
+}
+
+.tabu-turn-clock {
+    grid-template-columns: 1fr;
+    place-items: center;
+    border-left-width: 1px;
+    text-align: center;
+}
+
+.tabu-turn-clock span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.tabu-turn-clock.is-warning {
+    border-color: var(--danger);
+    color: var(--danger);
+    animation: tabu-timer-pulse 900ms ease-in-out infinite;
+}
+
+.tabu-play-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 14px;
+    align-items: start;
+}
+
+.tabu-play-main,
+.tabu-round-side {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+    padding: 16px;
+}
+
+.tabu-game-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.tabu-game-meta > div {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.tabu-game-meta strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.tabu-card-wrap {
+    position: relative;
+    width: min(100%, 540px);
+    margin-inline: auto;
+}
+
+.tabu-word-card {
+    display: grid;
+    grid-template-rows: auto minmax(140px, 1fr) auto;
+    min-height: 440px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    text-align: center;
+    transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.tabu-word-card.is-correct {
+    border-color: var(--success);
+    transform: translateY(-3px);
+}
+
+.tabu-word-card.is-taboo {
+    border-color: var(--danger);
+    transform: translateX(3px);
+}
+
+.tabu-word-card.is-pass {
+    border-color: var(--accent-2);
+}
+
+.tabu-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 16px;
+    text-align: left;
+}
+
+.tabu-card-kicker {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.tabu-card-category {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--muted);
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tabu-main-word-block {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px 34px;
+}
+
+.tabu-main-word-block::after {
+    content: "";
+    position: absolute;
+    bottom: 20px;
+    width: 48px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--accent);
+}
+
+.tabu-word-card h3 {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--text);
+    font-size: clamp(28px, 5vw, 46px);
+    line-height: 1.05;
+    letter-spacing: 0;
+}
+
+.tabu-forbidden-block {
+    border-top: 1px solid var(--line);
+    background: var(--panel-2);
+    padding: 15px 16px 16px;
+    text-align: left;
+}
+
+.tabu-forbidden-title {
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.tabu-forbidden-block ul {
+    counter-reset: tabu-forbidden;
+    display: grid;
+    gap: 6px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tabu-forbidden-block li {
+    counter-increment: tabu-forbidden;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    min-height: 38px;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: anywhere;
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 700;
+}
+
+.tabu-forbidden-block li:last-child {
+    border-bottom: 0;
+}
+
+.tabu-forbidden-block li::before {
+    content: counter(tabu-forbidden, decimal-leading-zero);
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.tabu-pause-cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 20px;
+    text-align: center;
+}
+
+.tabu-pause-cover p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.tabu-feedback {
+    min-height: 23px;
+    margin: 11px 0 0;
+    text-align: center;
+    font-weight: 800;
+}
+
+.tabu-feedback[data-type="success"] {
+    color: var(--success);
+}
+
+.tabu-feedback[data-type="danger"] {
+    color: var(--danger);
+}
+
+.tabu-feedback[data-type="pass"] {
+    color: var(--accent-2);
+}
+
+.tabu-round-side,
+.tabu-round-counts,
+.tabu-secondary-controls {
+    display: grid;
+    gap: 10px;
+}
+
+.tabu-round-counts > div {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.tabu-round-counts strong {
+    font-size: 21px;
+}
+
+.tabu-secondary-controls {
+    margin-top: 10px;
+}
+
+.tabu-secondary-controls button {
+    gap: 8px;
+}
+
+.tabu-primary-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.tabu-primary-controls button {
+    display: grid;
+    grid-template-columns: 28px minmax(0, auto);
+    place-content: center;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 62px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--panel-2);
+    color: var(--text);
+}
+
+.tabu-primary-controls button span {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-weight: 800;
+}
+
+.tabu-control-correct {
+    color: var(--success) !important;
+}
+
+.tabu-control-taboo {
+    color: var(--danger) !important;
+}
+
+.tabu-control-pass {
+    color: var(--accent-2) !important;
+}
+
+.tabu-primary-controls button:hover:not(:disabled) {
+    background: var(--surface);
+}
+
+.tabu-primary-controls button:disabled,
+.tabu-secondary-controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
+
+.tabu-summary-grid {
+    width: 100%;
+}
+
+.tabu-summary-grid > div {
+    text-align: center;
+}
+
+.tabu-summary-grid strong {
+    font-size: 22px;
+}
+
+.tabu-summary-net.is-negative,
+.is-negative {
+    color: var(--danger);
+}
+
+.tabu-summary-net.is-positive,
+.is-positive {
+    color: var(--success);
+}
+
+.tabu-current-scores,
+.tabu-final-scores {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.tabu-current-scores > div,
+.tabu-final-scores > div {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 12px;
+}
+
+.tabu-current-scores > div:nth-child(2),
+.tabu-final-scores > div:nth-child(2) {
+    border-left-color: var(--accent-2);
+}
+
+.tabu-current-scores span,
+.tabu-final-scores span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.tabu-final-scores {
+    margin-top: 22px;
+}
+
+.tabu-end-highlights {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+}
+
+.tabu-player-stats-wrap {
+    width: 100%;
+    margin-top: 22px;
+    text-align: left;
+}
+
+.tabu-player-stats-wrap h4 {
+    margin-bottom: 10px;
+}
+
+.tabu-player-stats-table {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.tabu-player-stats-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    font-size: 14px;
+}
+
+.tabu-player-stats-table th,
+.tabu-player-stats-table td {
+    padding: 11px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tabu-player-stats-table th {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.tabu-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    background: rgba(5, 7, 10, 0.78);
+    padding: 20px;
+}
+
+.tabu-modal-card {
+    width: min(100%, 460px);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    padding: 24px;
+    animation: tabu-modal-enter 170ms ease-out;
+}
+
+.tabu-modal-actions button {
+    flex: 1 1 160px;
+}
+
+@keyframes tabu-countdown-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.82);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes tabu-timer-pulse {
+    50% {
+        background: rgba(255, 95, 109, 0.1);
+    }
+}
+
+@keyframes tabu-modal-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tabu-countdown-value,
+    .tabu-turn-clock.is-warning,
+    .tabu-modal-card {
+        animation: none;
+    }
+
+    .tabu-word-card {
+        transition: none;
+    }
+}
+
+@media (max-width: 1000px) {
+    .tabu-settings-grid,
+    .tabu-toggle-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tabu-play-layout {
+        grid-template-columns: minmax(0, 1fr) 190px;
+    }
+}
+
+@media (max-width: 760px) {
+    .tabu-team-setup-grid,
+    .tabu-play-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .tabu-scoreboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tabu-turn-clock {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        min-height: 54px;
+    }
+
+    .tabu-round-side {
+        grid-template-columns: minmax(0, 1fr) minmax(150px, 0.5fr);
+    }
+
+    .tabu-round-counts {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .tabu-round-counts > div {
+        display: grid;
+        justify-items: center;
+        border-bottom: 0;
+    }
+
+    .tabu-secondary-controls {
+        margin-top: 0;
+    }
+
+}
+
+@media (max-width: 620px) {
+    .tabu-panel-heading {
+        align-items: stretch;
+    }
+
+    .tabu-panel-actions {
+        justify-content: flex-start;
+    }
+
+    .tabu-sound-button {
+        align-self: flex-start;
+    }
+
+    .tabu-settings-grid,
+    .tabu-toggle-grid,
+    .tabu-ready-facts,
+    .tabu-summary-grid,
+    .tabu-end-highlights,
+    .tabu-game-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #tabu-game-screen {
+        padding-bottom: 88px;
+    }
+
+    .tabu-primary-controls {
+        position: sticky;
+        z-index: 8;
+        bottom: 8px;
+        margin-inline: -4px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    .tabu-word-card {
+        min-height: 390px;
+    }
+
+    .tabu-summary-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .tabu-panel-actions,
+    .tabu-setup-header-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .tabu-panel-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .tabu-panel-heading {
+        gap: 10px;
+    }
+
+    .tabu-setup-team,
+    .tabu-play-main,
+    .tabu-round-side,
+    .tabu-centered-screen,
+    .tabu-modal-card {
+        padding: 12px;
+    }
+
+    .tabu-settings-grid,
+    .tabu-toggle-grid,
+    .tabu-end-highlights {
+        grid-template-columns: 1fr;
+    }
+
+    .tabu-scoreboard {
+        gap: 6px;
+    }
+
+    .tabu-score-team,
+    .tabu-turn-clock {
+        padding: 8px;
+    }
+
+    .tabu-score-team {
+        grid-template-columns: 1fr;
+    }
+
+    .tabu-score-team strong,
+    .tabu-turn-clock strong {
+        font-size: 20px;
+    }
+
+    .tabu-game-meta {
+        gap: 6px;
+    }
+
+    .tabu-word-card {
+        min-height: 360px;
+    }
+
+    .tabu-word-card h3 {
+        margin-inline: 8px;
+    }
+
+    .tabu-round-side {
+        grid-template-columns: 1fr;
+    }
+
+    .tabu-primary-controls {
+        gap: 5px;
+        padding: 5px;
+    }
+
+    .tabu-primary-controls button {
+        grid-template-columns: 1fr;
+        gap: 3px;
+        min-height: 66px;
+        padding: 5px;
+        font-size: 13px;
+    }
+
+    .tabu-primary-controls button span {
+        width: 24px;
+        height: 24px;
+        margin-inline: auto;
+    }
+
+    .tabu-current-scores,
+    .tabu-final-scores {
+        grid-template-columns: 1fr;
+    }
+}

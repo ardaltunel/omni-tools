@@ -52,6 +52,7 @@ Proje özellikle şu konulara odaklanmaktadır:
 - Translator
 - Parolla
 - Sudoku
+- Tabu
 - Utility Calculators
 
 ---
