@@ -51,6 +51,7 @@ Proje özellikle şu konulara odaklanmaktadır:
 - Text To Speech
 - Translator
 - Parolla
+- Sudoku
 - Utility Calculators
 
 ---

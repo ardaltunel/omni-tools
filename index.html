@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omni Tools | Arda Altunel</title>
-    <meta name="description" content="Omni Tools; kelime oyunları, mini oyunlar ve günlük web araçlarını tek modern panelde birleştirir.">
+    <title>Omni Tools | Sudoku ve Web Araçları</title>
+    <meta name="description" content="Omni Tools; Sudoku, kelime oyunları, mini oyunlar ve günlük web araçlarını tek modern panelde birleştirir.">
     <link rel="icon" type="image/png" sizes="32x32" href="tools/assets/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="tools/assets/favicon/apple-icon-180x180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=24">
+    <link rel="stylesheet" href="style.css?v=26">
 </head>
 
 <body>
@@ -22,7 +22,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>18 uygulama, tek panel</small>
+                    <small>19 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -62,6 +62,9 @@
                 </button>
                 <button class="nav-item" data-tool="speech" type="button">
                     <span>Text To Speech</span>
+                </button>
+                <button class="nav-item" data-tool="sudoku" type="button">
+                    <span>Sudoku</span>
                 </button>
                 <button class="nav-item" data-tool="typing" type="button">
                     <span>Type Test</span>
@@ -1001,6 +1004,120 @@
                 </div>
             </section>
 
+            <section id="sudoku" class="tool-panel sudoku-panel" aria-labelledby="sudoku-title">
+                <div class="panel-heading sudoku-panel-heading">
+                    <div>
+                        <h2 id="sudoku-title">Sudoku</h2>
+                        <p>Kolay, orta ve zor seviyelerde klasik 9x9 sayı bulmacası.</p>
+                    </div>
+                    <div class="sudoku-live-stats" aria-label="Oyun durumu">
+                        <div>
+                            <span>Süre</span>
+                            <strong id="sudoku-timer">00:00</strong>
+                        </div>
+                        <div>
+                            <span>Hata</span>
+                            <strong id="sudoku-errors">Hatalar 0/3</strong>
+                        </div>
+                        <div>
+                            <span>İpucu</span>
+                            <strong id="sudoku-hints-left">3/3</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sudoku-layout">
+                    <div class="sudoku-game-card">
+                        <div class="sudoku-game-topline">
+                            <span id="sudoku-status" aria-live="polite">Sudoku hazır.</span>
+                            <strong id="sudoku-difficulty-label">Orta</strong>
+                        </div>
+                        <div class="sudoku-board-wrap">
+                            <div id="sudoku-board" class="sudoku-board" role="grid" aria-label="9x9 Sudoku tahtası" aria-rowcount="9" aria-colcount="9"></div>
+                            <div id="sudoku-pause-cover" class="sudoku-pause-cover" hidden>
+                                <strong>Oyun duraklatıldı</strong>
+                                <button id="sudoku-resume-overlay" class="primary-button" type="button" aria-label="Oyuna devam et">Devam Et</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="sudoku-side">
+                        <div class="sudoku-control-section">
+                            <strong>Zorluk</strong>
+                            <div class="sudoku-difficulties" aria-label="Sudoku zorluğu">
+                                <button data-sudoku-difficulty="easy" type="button" aria-label="Kolay seviyede yeni oyun">Kolay</button>
+                                <button class="active" data-sudoku-difficulty="medium" type="button" aria-label="Orta seviyede yeni oyun">Orta</button>
+                                <button data-sudoku-difficulty="hard" type="button" aria-label="Zor seviyede yeni oyun">Zor</button>
+                            </div>
+                        </div>
+
+                        <div class="sudoku-control-section">
+                            <strong>Rakamlar</strong>
+                            <div class="sudoku-number-pad" aria-label="Sayı kontrol paneli">
+                                <button data-sudoku-number="1" type="button" aria-label="1 rakamını gir">1</button>
+                                <button data-sudoku-number="2" type="button" aria-label="2 rakamını gir">2</button>
+                                <button data-sudoku-number="3" type="button" aria-label="3 rakamını gir">3</button>
+                                <button data-sudoku-number="4" type="button" aria-label="4 rakamını gir">4</button>
+                                <button data-sudoku-number="5" type="button" aria-label="5 rakamını gir">5</button>
+                                <button data-sudoku-number="6" type="button" aria-label="6 rakamını gir">6</button>
+                                <button data-sudoku-number="7" type="button" aria-label="7 rakamını gir">7</button>
+                                <button data-sudoku-number="8" type="button" aria-label="8 rakamını gir">8</button>
+                                <button data-sudoku-number="9" type="button" aria-label="9 rakamını gir">9</button>
+                            </div>
+                        </div>
+
+                        <div class="sudoku-actions" aria-label="Oyun kontrolleri">
+                            <button id="sudoku-undo" class="secondary-button" type="button" aria-label="Son işlemi geri al">
+                                <span class="sudoku-action-mark" aria-hidden="true">↶</span><span>Geri Al</span>
+                            </button>
+                            <button id="sudoku-erase" class="secondary-button" type="button" aria-label="Seçili hücreyi sil">
+                                <span class="sudoku-action-mark" aria-hidden="true">⌫</span><span>Sil</span>
+                            </button>
+                            <button id="sudoku-notes" class="secondary-button" type="button" aria-label="Not modunu aç veya kapat" aria-pressed="false">
+                                <span class="sudoku-action-mark" aria-hidden="true">N</span><span>Not Modu</span>
+                            </button>
+                            <button id="sudoku-hint" class="secondary-button" type="button" aria-label="Seçili hücre için ipucu kullan">
+                                <span class="sudoku-action-mark" aria-hidden="true">?</span><span>İpucu (3)</span>
+                            </button>
+                            <button id="sudoku-pause" class="secondary-button" type="button" aria-label="Oyunu duraklat">
+                                <span class="sudoku-action-mark" aria-hidden="true">Ⅱ</span><span>Duraklat</span>
+                            </button>
+                            <button id="sudoku-new" class="primary-button" type="button" aria-label="Yeni Sudoku oyunu başlat">
+                                <span class="sudoku-action-mark" aria-hidden="true">+</span><span>Yeni Oyun</span>
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+
+                <details class="sudoku-statistics">
+                    <summary>İstatistikler</summary>
+                    <div class="sudoku-stat-grid">
+                        <div><span>Toplam oyun</span><strong id="sudoku-stat-games">0</strong></div>
+                        <div><span>Galibiyet</span><strong id="sudoku-stat-wins">0</strong></div>
+                        <div><span>Kolay galibiyet</span><strong id="sudoku-stat-easy-wins">0</strong></div>
+                        <div><span>Orta galibiyet</span><strong id="sudoku-stat-medium-wins">0</strong></div>
+                        <div><span>Zor galibiyet</span><strong id="sudoku-stat-hard-wins">0</strong></div>
+                        <div><span>Kolay en iyi</span><strong id="sudoku-stat-easy-best">--:--</strong></div>
+                        <div><span>Orta en iyi</span><strong id="sudoku-stat-medium-best">--:--</strong></div>
+                        <div><span>Zor en iyi</span><strong id="sudoku-stat-hard-best">--:--</strong></div>
+                        <div><span>Seri</span><strong id="sudoku-stat-streak">0</strong></div>
+                        <div><span>En uzun seri</span><strong id="sudoku-stat-longest-streak">0</strong></div>
+                        <div><span>Toplam hata</span><strong id="sudoku-stat-errors">0</strong></div>
+                    </div>
+                </details>
+
+                <div id="sudoku-modal" class="sudoku-modal" role="dialog" aria-modal="true" aria-labelledby="sudoku-modal-title" hidden>
+                    <div class="sudoku-modal-card">
+                        <h3 id="sudoku-modal-title">Sudoku</h3>
+                        <p id="sudoku-modal-message"></p>
+                        <div id="sudoku-modal-summary" class="sudoku-result-summary" hidden></div>
+                        <div class="sudoku-modal-actions">
+                            <button id="sudoku-modal-primary" class="primary-button" type="button">Yeni Oyun</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="advanced-xox" class="tool-panel" aria-labelledby="xox-title">
                 <div class="panel-heading">
                     <div>
@@ -1064,6 +1181,8 @@
     <script src="tools/valorant-crosshair/script.js?v=1"></script>
     <script src="tools/chess/script.js?v=3"></script>
     <script src="tools/advanced-xox/script.js?v=3"></script>
+    <script src="tools/sudoku/engine.js?v=1"></script>
+    <script src="tools/sudoku/script.js?v=4"></script>
     <script src="tools/coach/jquery-1.12.4.min.js"></script>
     <script src="tools/coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/coach/chess.js?v=1"></script>
