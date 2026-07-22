@@ -1,0 +1,24 @@
+{
+  "name": "Omni Tools | Arda Altunel",
+  "short_name": "Omni Tools",
+  "description": "Oyunları ve günlük web araçlarını tek panelde birleştiren tarayıcı uygulaması.",
+  "lang": "tr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101114",
+  "theme_color": "#101114",
+  "icons": [
+    {
+      "src": "tools/assets/favicon/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "tools/assets/favicon/apple-icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

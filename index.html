@@ -12,13 +12,15 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Dönüştürücü">
     <meta property="og:description" content="Sekiz dosya kategorisini tek bir tarayıcı tabanlı dönüştürme merkezinde yönetin.">
+    <meta name="theme-color" content="#101114">
+    <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/png" sizes="32x32" href="tools/assets/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="tools/assets/favicon/apple-icon-180x180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=43">
+    <link rel="stylesheet" href="style.css?v=55">
 </head>
 
 <body>
@@ -28,7 +30,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>21 uygulama, tek panel</small>
+                    <small>22 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -83,6 +85,9 @@
                 </button>
                 <button class="nav-item" data-tool="translate" type="button">
                     <span>Translate</span>
+                </button>
+                <button class="nav-item" data-tool="deal-game" type="button">
+                    <span>Var Mısın Yok Musun</span>
                 </button>
                 <button class="nav-item" data-tool="valorant-crosshair" type="button">
                     <span>Valorant Crosshair</span>
@@ -1153,6 +1158,152 @@
                 </div>
             </section>
 
+            <section id="deal-game" class="tool-panel deal-panel" aria-labelledby="deal-title">
+                <div class="panel-heading deal-panel-heading">
+                    <div>
+                        <h2 id="deal-title">Var Mısın Yok Musun</h2>
+                        <p>Kasaları aç, bankanın tekliflerini değerlendir ve büyük ödülü kazanmaya çalış.</p>
+                    </div>
+                    <div class="deal-toolbar" aria-label="Oyun seçenekleri">
+                        <button id="deal-sound" class="secondary-button" type="button" aria-label="Oyun seslerini kapat" aria-pressed="true">
+                            <span aria-hidden="true">♪</span><span>Ses Açık</span>
+                        </button>
+                        <button id="deal-help" class="secondary-button" type="button">Nasıl Oynanır?</button>
+                    </div>
+                </div>
+
+                <div id="deal-app" class="deal-app" data-theme="stage">
+                    <section id="deal-home-screen" class="deal-screen deal-home-screen" aria-labelledby="deal-home-title">
+                        <div class="deal-landing-logo" aria-hidden="true">
+                            <span class="deal-logo-handle"></span>
+                            <span class="deal-logo-face">?</span>
+                        </div>
+                        <h3 id="deal-home-title">Var Mısın Yok Musun</h3>
+                        <p>Kasaları aç, bankanın tekliflerini değerlendir ve büyük ödülü kazanmaya çalış.</p>
+                        <div class="deal-landing-actions">
+                            <button id="deal-start" class="primary-button deal-start-button" type="button">
+                                <span aria-hidden="true">▶</span><span>Oyuna Başla</span>
+                            </button>
+                            <button id="deal-resume" class="secondary-button" type="button" hidden>Oyuna Devam Et</button>
+                        </div>
+                    </section>
+
+                    <section id="deal-game-screen" class="deal-screen deal-game-screen" aria-labelledby="deal-instruction" hidden>
+                        <div class="deal-round-bar" aria-label="Oyun durumu">
+                            <div><span>Tur</span><strong id="deal-round">1</strong></div>
+                            <div><span>Bu tur</span><strong id="deal-to-open">6 kasa</strong></div>
+                            <div><span>Kalan</span><strong id="deal-remaining">24 kasa</strong></div>
+                            <div><span>Son teklif</span><strong id="deal-last-offer">-</strong></div>
+                        </div>
+
+                        <div class="deal-game-layout">
+                            <aside class="deal-money-board deal-money-low" aria-label="Düşük para değerleri">
+                                <div id="deal-values-low" class="deal-money-list"></div>
+                            </aside>
+
+                            <main class="deal-board-main">
+                                <div class="deal-instruction-wrap">
+                                    <span id="deal-phase-label">Başlangıç</span>
+                                    <h3 id="deal-instruction" aria-live="polite">Kendi kasanı seç</h3>
+                                </div>
+
+                                <div id="deal-owned-station" class="deal-owned-station" hidden>
+                                    <span>Senin Kasan</span>
+                                    <div id="deal-owned-case" class="deal-owned-case" aria-live="polite"></div>
+                                </div>
+
+                                <div id="deal-case-grid" class="deal-case-grid" aria-label="24 numaralı kasa"></div>
+                            </main>
+
+                            <aside class="deal-money-board deal-money-right" aria-label="Sarı ve kırmızı para değerleri">
+                                <div class="deal-money-list">
+                                    <div id="deal-values-medium" class="deal-money-segment deal-money-medium"></div>
+                                    <div id="deal-values-high" class="deal-money-segment deal-money-high"></div>
+                                </div>
+                            </aside>
+                        </div>
+
+                        <div id="deal-reveal" class="deal-reveal" role="status" aria-live="assertive" hidden>
+                            <span id="deal-reveal-case">Kasa</span>
+                            <strong id="deal-reveal-value">0 TL</strong>
+                        </div>
+                    </section>
+
+                    <section id="deal-result-screen" class="deal-screen deal-result-screen" aria-labelledby="deal-result-title" hidden>
+                        <div id="deal-result-emblem" class="deal-result-emblem" aria-hidden="true">₺</div>
+                        <span id="deal-result-kicker">Oyun tamamlandı</span>
+                        <h3 id="deal-result-title">Sonuç</h3>
+                        <p id="deal-result-message"></p>
+                        <div class="deal-result-grid">
+                            <div><span>Kazancın</span><strong id="deal-result-win">0 TL</strong></div>
+                            <div><span>Kasandaki</span><strong id="deal-result-own">0 TL</strong></div>
+                            <div><span>En büyük teklif</span><strong id="deal-result-best-offer">0 TL</strong></div>
+                        </div>
+                        <div class="deal-result-actions">
+                            <button id="deal-replay" class="primary-button" type="button">Tekrar Oyna</button>
+                            <button id="deal-result-home" class="secondary-button" type="button">Oyun Ana Ekranı</button>
+                        </div>
+                        <div id="deal-confetti" class="deal-confetti" aria-hidden="true"></div>
+                    </section>
+
+                    <div id="deal-offer-modal" class="deal-modal deal-offer-modal" role="dialog" aria-modal="true" aria-labelledby="deal-offer-title" hidden>
+                        <div class="deal-modal-backdrop"></div>
+                        <div class="deal-modal-card deal-offer-card">
+                            <div class="deal-crt-scan" aria-hidden="true"></div>
+                            <span class="deal-bank-label">BANKA ARIYOR</span>
+                            <h3 id="deal-offer-title">Banka Teklifi</h3>
+                            <strong id="deal-offer-amount" class="deal-offer-amount">0 TL</strong>
+                            <div class="deal-offer-analysis" aria-label="Teklif analizi">
+                                <div><span>Kalan ortalama</span><strong id="deal-offer-mean">0 TL</strong></div>
+                                <div><span>Medyan</span><strong id="deal-offer-median">0 TL</strong></div>
+                                <div><span>Risk</span><strong id="deal-offer-risk">-</strong></div>
+                                <div><span>Yüksek ödül şansı</span><strong id="deal-offer-high">%0</strong></div>
+                            </div>
+                            <div class="deal-offer-actions">
+                                <button id="deal-accept" class="deal-answer deal-answer-accept" type="button">VARIM</button>
+                                <button id="deal-reject" class="deal-answer deal-answer-reject" type="button">YOKUM</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="deal-final-modal" class="deal-modal deal-final-modal" role="dialog" aria-modal="true" aria-labelledby="deal-final-title" hidden>
+                        <div class="deal-modal-backdrop"></div>
+                        <div class="deal-modal-card">
+                            <span class="deal-bank-label">SİNEMATİK FİNAL</span>
+                            <h3 id="deal-final-title">Son iki kasa</h3>
+                            <p>Karar senin. Kasanı değiştirebilir veya ilk seçimine güvenebilirsin.</p>
+                            <div id="deal-final-cases" class="deal-final-cases"></div>
+                            <div class="deal-final-actions">
+                                <button id="deal-swap" class="secondary-button" type="button">Kasayı Değiştir</button>
+                                <button id="deal-keep" class="primary-button" type="button">Kasamı Koru</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="deal-info-modal" class="deal-modal deal-info-modal" role="dialog" aria-modal="true" aria-labelledby="deal-info-title" hidden>
+                        <div class="deal-modal-backdrop" data-deal-close></div>
+                        <div class="deal-modal-card deal-info-card">
+                            <div class="deal-info-heading">
+                                <h3 id="deal-info-title">Bilgi</h3>
+                                <button id="deal-info-close" type="button" aria-label="Pencereyi kapat">×</button>
+                            </div>
+
+                            <section id="deal-help-content" class="deal-info-content" hidden>
+                                <ol class="deal-rules">
+                                    <li>Önce 24 kasadan birini kendi kasan olarak seç.</li>
+                                    <li>Her turda belirtilen sayıda kasayı aç ve elenen ödülleri takip et.</li>
+                                    <li>Banka aradığında teklifi kabul etmek için VARIM, devam etmek için YOKUM seç.</li>
+                                    <li>Son iki kasada kendi kasanı koruyabilir veya diğer kasayla değiştirebilirsin.</li>
+                                </ol>
+                            </section>
+
+                        </div>
+                    </div>
+
+                    <p id="deal-live" class="sr-only" aria-live="assertive"></p>
+                </div>
+            </section>
+
             <section id="converter" class="tool-panel converter-panel" aria-labelledby="converter-title">
                 <div class="panel-heading converter-heading">
                     <div>
@@ -1621,6 +1772,9 @@
     <script src="tools/advanced-xox/script.js?v=3"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
     <script src="tools/sudoku/script.js?v=4"></script>
+    <script src="tools/var-misin-yok-musun/engine.js?v=2"></script>
+    <script src="tools/var-misin-yok-musun/audio.js?v=2"></script>
+    <script src="tools/var-misin-yok-musun/script.js?v=7"></script>
     <script src="tools/tabu/cards.js?v=1"></script>
     <script src="tools/tabu/script.js?v=10"></script>
     <script src="tools/converter/registry.js?v=7"></script>
