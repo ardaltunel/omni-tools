@@ -5,6 +5,10 @@ sortToolNavigation();
 
 const panels = document.querySelectorAll(".tool-panel");
 const navItems = document.querySelectorAll(".nav-item");
+const appHome = document.getElementById("app-home");
+document.body.classList.add("is-app-home");
+const homeAppCards = createAppHomeCards();
+initializeAppSearch(homeAppCards);
 
 navItems.forEach((item) => item.classList.remove("active"));
 
@@ -22,6 +26,9 @@ brand?.addEventListener("keydown", (event) => {
 function activateTool(tool) {
     navItems.forEach((item) => item.classList.toggle("active", item.dataset.tool === tool));
     panels.forEach((panel) => panel.classList.toggle("active", panel.id === tool));
+    if (appHome) appHome.hidden = true;
+    document.body.classList.remove("is-app-home");
+    document.body.classList.add("is-tool-active");
     resetToolScroll();
     document.dispatchEvent(new CustomEvent("tool-activated", { detail: { tool } }));
 
@@ -33,6 +40,9 @@ function activateTool(tool) {
 function clearActiveTool() {
     navItems.forEach((item) => item.classList.remove("active"));
     panels.forEach((panel) => panel.classList.remove("active"));
+    if (appHome) appHome.hidden = false;
+    document.body.classList.remove("is-tool-active");
+    document.body.classList.add("is-app-home");
     resetToolScroll();
 }
 
@@ -51,6 +61,143 @@ function sortToolNavigation() {
     Array.from(toolNav.querySelectorAll(".nav-item"))
         .sort((a, b) => a.textContent.trim().localeCompare(b.textContent.trim(), "tr", { sensitivity: "base" }))
         .forEach((item) => toolNav.appendChild(item));
+}
+
+function createAppHomeCards() {
+    const grid = document.getElementById("app-home-grid");
+    if (!grid) return [];
+
+    const fragment = document.createDocumentFragment();
+    const cards = Array.from(navItems, (item, index) => {
+        const toolName = item.querySelector("span")?.textContent.trim() || item.textContent.trim();
+        const card = document.createElement("button");
+        const number = document.createElement("span");
+        const label = document.createElement("span");
+        const arrow = document.createElement("span");
+
+        card.className = "app-home-card";
+        card.type = "button";
+        card.dataset.tool = item.dataset.tool;
+        card.setAttribute("aria-label", `${toolName} uygulamasını aç`);
+        number.className = "app-home-card-number";
+        number.setAttribute("aria-hidden", "true");
+        number.textContent = String(index + 1).padStart(2, "0");
+        label.className = "app-home-card-name";
+        label.textContent = toolName;
+        arrow.className = "app-home-card-arrow";
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = "\u2192";
+
+        card.append(number, label, arrow);
+        card.addEventListener("click", () => activateTool(item.dataset.tool));
+        fragment.appendChild(card);
+        return card;
+    });
+
+    grid.replaceChildren(fragment);
+    return cards;
+}
+
+function initializeAppSearch(cards) {
+    const searchControls = Array.from(document.querySelectorAll("[data-app-search]"), (container) => {
+        const input = container.querySelector("[data-app-search-input]");
+        const clearButton = container.querySelector("[data-app-search-clear]");
+        const shortcut = container.querySelector(".app-search-shortcut");
+        const status = document.getElementById(input?.getAttribute("aria-describedby"));
+        return { container, input, clearButton, shortcut, status };
+    }).filter(({ input, clearButton, shortcut, status }) => input && clearButton && shortcut && status);
+    const homeEmpty = document.getElementById("app-home-empty");
+    const homeGrid = document.getElementById("app-home-grid");
+    const homeListTitle = document.getElementById("app-home-list-title");
+    const brandSummary = brand?.querySelector("small");
+
+    if (!searchControls.length || !homeEmpty || !homeGrid || !homeListTitle) return;
+
+    const searchableItems = Array.from(navItems, (item, index) => ({
+        navItem: item,
+        homeCard: cards[index],
+        name: normalizeAppSearchText(item.querySelector("span")?.textContent || item.textContent),
+    }));
+    const totalAppCount = searchableItems.length;
+
+    if (brandSummary) brandSummary.textContent = `${totalAppCount} uygulama, tek panel`;
+
+    const filterApps = (value = "") => {
+        const rawValue = String(value);
+        const query = normalizeAppSearchText(rawValue.trim());
+        let visibleCount = 0;
+
+        searchableItems.forEach(({ homeCard, name }) => {
+            const isMatch = !query || name.includes(query);
+            if (homeCard) homeCard.hidden = !isMatch;
+            if (isMatch) {
+                visibleCount += 1;
+                const number = homeCard?.querySelector(".app-home-card-number");
+                if (number) number.textContent = String(visibleCount).padStart(2, "0");
+            }
+        });
+
+        const hasQuery = query.length > 0;
+        const hasResults = visibleCount > 0;
+        searchControls.forEach(({ input, clearButton, shortcut, status }) => {
+            if (input.value !== rawValue) input.value = rawValue;
+            clearButton.hidden = !hasQuery;
+            shortcut.hidden = hasQuery;
+
+            if (!hasQuery) {
+                status.textContent = "Tüm uygulamalar gösteriliyor.";
+            } else if (!hasResults) {
+                status.textContent = "Uygulama bulunamadı.";
+            } else {
+                status.textContent = `${visibleCount} uygulama bulundu.`;
+            }
+        });
+
+        homeEmpty.hidden = !hasQuery || hasResults;
+        homeGrid.hidden = hasQuery && !hasResults;
+        homeListTitle.textContent = hasQuery ? "Arama sonuçları" : "Tüm uygulamalar";
+    };
+
+    const clearSearch = (input) => {
+        filterApps("");
+        input.focus();
+    };
+
+    searchControls.forEach(({ input, clearButton }) => {
+        const handleSearchChange = () => filterApps(input.value);
+        input.addEventListener("input", handleSearchChange);
+        input.addEventListener("search", handleSearchChange);
+        input.addEventListener("keydown", (event) => {
+            if (event.key !== "Escape") return;
+            event.preventDefault();
+            clearSearch(input);
+        });
+        clearButton.addEventListener("click", () => clearSearch(input));
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
+
+        const target = event.target;
+        const isEditable = target instanceof HTMLElement
+            && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+        if (isEditable) return;
+
+        event.preventDefault();
+        if (appHome?.hidden) clearActiveTool();
+        const preferredSearch = searchControls.find(({ container }) => container.classList.contains("app-home-search"));
+        preferredSearch?.input.focus();
+    });
+
+    filterApps("");
+}
+
+function normalizeAppSearchText(value) {
+    return String(value)
+        .toLocaleLowerCase("tr-TR")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ı/g, "i");
 }
 
 const githubForm = document.getElementById("github-form");

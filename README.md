@@ -48,6 +48,7 @@ Proje özellikle şu konulara odaklanmaktadır:
 - Weather Application
 - Crypto Price Tracker
 - GitHub User Finder
+- Dönüştürücü
 - Text To Speech
 - Translator
 - Parolla

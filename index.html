@@ -3,30 +3,36 @@
 
 <head>
     <meta charset="UTF-8">
+    <script>window.coi = { quiet: true };</script>
+    <script src="coi-serviceworker.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omni Tools | Tabu, Sudoku ve Web Araçları</title>
-    <meta name="description" content="Omni Tools; Tabu, Sudoku, kelime oyunları, mini oyunlar ve günlük web araçlarını tek modern panelde birleştirir.">
+    <title>Dönüştürücü</title>
+    <meta name="description" content="Görsel, ses, video, belge, arşiv, sunum, yazı tipi ve e-kitap dosyaları için tarayıcı tabanlı dönüştürme merkezi.">
+    <meta name="keywords" content="dosya dönüştürücü, görsel dönüştürücü, ses dönüştürücü, video dönüştürücü, belge dönüştürücü, ücretsiz dönüştürme aracı">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Dönüştürücü">
+    <meta property="og:description" content="Sekiz dosya kategorisini tek bir tarayıcı tabanlı dönüştürme merkezinde yönetin.">
     <link rel="icon" type="image/png" sizes="32x32" href="tools/assets/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="tools/assets/favicon/apple-icon-180x180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=29">
+    <link rel="stylesheet" href="style.css?v=43">
 </head>
 
 <body>
     <div class="app-shell">
         <aside class="sidebar">
-            <div class="brand" role="button" tabindex="0" aria-label="Seçili uygulamayı kapat">
+            <div class="brand" role="button" tabindex="0" aria-label="Uygulamalar ekranına dön">
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>20 uygulama, tek panel</small>
+                    <small>21 uygulama, tek panel</small>
                 </div>
             </div>
 
-            <nav class="tool-nav" aria-label="Uygulamalar">
+            <nav id="tool-nav" class="tool-nav" aria-label="Uygulamalar">
                 <button class="nav-item" data-tool="game-2048" type="button">
                     <span>2048</span>
                 </button>
@@ -47,6 +53,9 @@
                 </button>
                 <button class="nav-item" data-tool="gradient" type="button">
                     <span>Gradient Generator</span>
+                </button>
+                <button class="nav-item" data-tool="converter" type="button">
+                    <span>Dönüştürücü</span>
                 </button>
                 <button class="nav-item" data-tool="numble" type="button">
                     <span>Numble</span>
@@ -91,6 +100,29 @@
         </aside>
 
         <main class="workspace">
+            <section id="app-home" class="app-home" aria-label="Uygulamalar">
+                <header class="app-home-header">
+                    <div class="app-search app-home-search" role="search" data-app-search>
+                        <label class="sr-only" for="home-app-search">Uygulama ara</label>
+                        <span class="app-search-icon" aria-hidden="true"></span>
+                        <input id="home-app-search" class="app-search-input" type="search" placeholder="Uygulama ara…"
+                            autocomplete="off" spellcheck="false" aria-controls="app-home-grid"
+                            aria-describedby="home-app-search-status" data-app-search-input>
+                        <kbd class="app-search-shortcut" aria-hidden="true">/</kbd>
+                        <button class="app-search-clear" type="button" aria-label="Uygulama aramasını temizle"
+                            data-app-search-clear hidden>&times;</button>
+                    </div>
+                </header>
+                <p id="home-app-search-status" class="sr-only" aria-live="polite" data-app-search-status></p>
+
+                <h2 id="app-home-list-title" class="sr-only">Tüm uygulamalar</h2>
+                <div id="app-home-grid" class="app-home-grid" aria-labelledby="app-home-list-title"></div>
+                <div id="app-home-empty" class="app-home-empty" hidden>
+                    <strong>Uygulama bulunamadı</strong>
+                    <span>Farklı bir arama yapmayı deneyin.</span>
+                </div>
+            </section>
+
             <section id="game-2048" class="tool-panel" aria-labelledby="game-2048-title">
                 <div class="panel-heading">
                     <div>
@@ -1121,6 +1153,122 @@
                 </div>
             </section>
 
+            <section id="converter" class="tool-panel converter-panel" aria-labelledby="converter-title">
+                <div class="panel-heading converter-heading">
+                    <div>
+                        <h2 id="converter-title">Dönüştürücü</h2>
+                        <p>Dosya türünü seç, ayarlarını belirle ve desteklenen işlemleri tamamen tarayıcıda tamamla.</p>
+                    </div>
+                </div>
+
+                <nav id="converter-category-tabs" class="converter-category-tabs" aria-label="Dönüştürme kategorileri"></nav>
+
+                <div class="converter-shell">
+                    <header class="converter-category-heading">
+                        <div>
+                            <h3 id="converter-category-title">Görsel Dönüştürücü</h3>
+                            <p id="converter-category-description">Görselleri kalite ve şeffaflık seçenekleriyle tarayıcıda dönüştür.</p>
+                        </div>
+                    </header>
+
+                    <div class="converter-main-grid">
+                        <section id="converter-drop-zone" class="converter-drop-zone" aria-labelledby="converter-drop-title">
+                            <input id="converter-file-input" type="file" multiple hidden>
+                            <input id="converter-folder-input" type="file" multiple webkitdirectory hidden>
+                            <div class="converter-drop-mark" aria-hidden="true">↑</div>
+                            <div>
+                                <h3 id="converter-drop-title">Dosyaları Sürükleyin</h3>
+                                <p>Dosyaları buraya bırakın, Ctrl+V ile yapıştırın veya cihazınızdan seçin.</p>
+                            </div>
+                            <div class="converter-upload-actions">
+                                <button id="converter-browse-button" class="primary-button" type="button">Dosya Seç</button>
+                                <button id="converter-folder-button" class="secondary-button" type="button">Klasör Seç</button>
+                            </div>
+                            <small id="converter-supported-formats">Giriş biçimleri hazırlanıyor...</small>
+                            <p id="converter-upload-status" class="converter-upload-status" aria-live="polite"></p>
+                        </section>
+
+                        <aside class="converter-options" aria-labelledby="converter-options-title">
+                            <div>
+                                <h3 id="converter-options-title">Dönüştürme Ayarları</h3>
+                                <p>Seçili kategorideki tüm dosyalara uygulanır.</p>
+                            </div>
+                            <div id="converter-capability" class="converter-capability" role="status">
+                                <strong id="converter-capability-title">Tarayıcıda hazır</strong>
+                                <span id="converter-capability-text"></span>
+                            </div>
+                            <div id="converter-settings" class="converter-settings"></div>
+                            <p id="converter-output-note" class="converter-output-note"></p>
+                            <div class="converter-batch-actions">
+                                <button id="converter-convert-all" class="primary-button" type="button" disabled>Tümünü Dönüştür</button>
+                                <button id="converter-download-all" class="secondary-button" type="button" disabled>Tümünü İndir</button>
+                                <button id="converter-download-zip" class="secondary-button" type="button" disabled>ZIP Olarak İndir</button>
+                                <button id="converter-cancel-all" class="secondary-button" type="button" disabled>İptal Et</button>
+                                <button id="converter-clear-list" class="secondary-button converter-clear-button" type="button" disabled>Listeyi Temizle</button>
+                            </div>
+                            <div class="converter-batch-progress" aria-live="polite">
+                                <div class="converter-progress-track" aria-hidden="true"><span id="converter-progress-bar"></span></div>
+                                <span id="converter-progress-text">Dosya bekleniyor</span>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <section class="converter-files-section" aria-labelledby="converter-files-title">
+                        <div class="converter-section-heading">
+                            <div>
+                                <h3 id="converter-files-title">Dosyalar</h3>
+                                <p id="converter-file-count">Henüz dosya eklenmedi.</p>
+                            </div>
+                        </div>
+                        <div id="converter-file-list" class="converter-file-list"></div>
+                    </section>
+
+                    <section id="converter-preview-section" class="converter-preview-section" aria-labelledby="converter-preview-title">
+                        <div class="converter-preview-toolbar">
+                            <div>
+                                <h3 id="converter-preview-title">Önizleme</h3>
+                                <p id="converter-preview-name">Bir dosya seçin.</p>
+                            </div>
+                            <div class="converter-preview-controls">
+                                <div class="converter-view-modes" aria-label="Önizleme düzeni">
+                                    <button class="active" data-converter-view="side" type="button" aria-pressed="true">Yan Yana</button>
+                                    <button data-converter-view="before" type="button" aria-pressed="false">Önce</button>
+                                    <button data-converter-view="after" type="button" aria-pressed="false">Sonra</button>
+                                </div>
+                                <div id="converter-image-preview-controls" class="converter-image-preview-controls">
+                                    <label class="converter-fit-control" for="converter-fit-mode">
+                                        <span class="sr-only">Görsel yerleşimi</span>
+                                        <select id="converter-fit-mode" aria-label="Görsel yerleşimi">
+                                            <option value="contain">Sığdır</option>
+                                            <option value="cover">Kapla</option>
+                                            <option value="original">Özgün Boyut</option>
+                                        </select>
+                                    </label>
+                                    <label class="converter-zoom-control" for="converter-preview-zoom">
+                                        <span>Yakınlaştır</span>
+                                        <input id="converter-preview-zoom" type="range" min="25" max="200" value="100" step="5">
+                                        <output id="converter-preview-zoom-value" for="converter-preview-zoom">%100</output>
+                                    </label>
+                                </div>
+                                <button id="converter-preview-fullscreen" class="secondary-button converter-icon-command" type="button" aria-label="Önizlemeyi tam ekran aç" title="Tam Ekran">⛶</button>
+                            </div>
+                        </div>
+                        <div id="converter-preview-grid" class="converter-preview-grid" data-view="side" data-fit="contain">
+                            <figure class="converter-preview-pane converter-preview-before">
+                                <figcaption>Önce</figcaption>
+                                <div id="converter-preview-before" class="converter-preview-stage"></div>
+                            </figure>
+                            <figure class="converter-preview-pane converter-preview-after">
+                                <figcaption>Sonra</figcaption>
+                                <div id="converter-preview-after" class="converter-preview-stage"></div>
+                            </figure>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="converter-live" class="sr-only" aria-live="assertive"></div>
+            </section>
+
             <section id="tabu" class="tool-panel tabu-panel" aria-labelledby="tabu-title">
                 <div class="panel-heading tabu-panel-heading">
                     <div>
@@ -1460,7 +1608,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=15"></script>
+    <script src="index.js?v=26"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
@@ -1475,6 +1623,16 @@
     <script src="tools/sudoku/script.js?v=4"></script>
     <script src="tools/tabu/cards.js?v=1"></script>
     <script src="tools/tabu/script.js?v=10"></script>
+    <script src="tools/converter/registry.js?v=7"></script>
+    <script src="tools/converter/services.js?v=2"></script>
+    <script src="tools/converter/adapters.js?v=3"></script>
+    <script src="tools/converter/ffmpeg-adapter.js?v=7"></script>
+    <script src="tools/converter/libreoffice-adapter.js?v=1"></script>
+    <script src="tools/converter/archive-adapter.js?v=11"></script>
+    <script src="tools/converter/font-adapter.js?v=7"></script>
+    <script src="tools/converter/ebook-adapter.js?v=2"></script>
+    <script src="tools/converter/engine.js?v=3"></script>
+    <script src="tools/converter/app.js?v=5"></script>
     <script src="tools/coach/jquery-1.12.4.min.js"></script>
     <script src="tools/coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/coach/chess.js?v=1"></script>
