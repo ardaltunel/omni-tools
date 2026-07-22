@@ -20,5 +20,20 @@
       "type": "image/png",
       "purpose": "any"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Milyoner Bilgi Yarışması",
+      "short_name": "Milyoner",
+      "description": "15 soruyu geç ve büyük ödüle ulaş.",
+      "url": "./?tool=milyoner",
+      "icons": [
+        {
+          "src": "tools/assets/favicon/apple-icon-180x180.png",
+          "sizes": "180x180",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

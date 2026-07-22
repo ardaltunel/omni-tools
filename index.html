@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=55">
+    <link rel="stylesheet" href="style.css?v=68">
 </head>
 
 <body>
@@ -30,75 +30,79 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>22 uygulama, tek panel</small>
+                    <small>23 uygulama, tek panel</small>
                 </div>
             </div>
 
             <nav id="tool-nav" class="tool-nav" aria-label="Uygulamalar">
-                <button class="nav-item" data-tool="game-2048" type="button">
+                <button class="nav-item" data-tool="game-2048" data-description="Aynı sayıları birleştir, 2048 taşına ulaş." type="button">
                     <span>2048</span>
                 </button>
-                <button class="nav-item" data-tool="advanced-xox" type="button">
+                <button class="nav-item" data-tool="advanced-xox" data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
                     <span>Advanced XOX</span>
                 </button>
-                <button class="nav-item" data-tool="chess" type="button">
+                <button class="nav-item" data-tool="chess" data-description="Farklı zorluklardaki bota karşı satranç oyna." type="button">
                     <span>Chess</span>
                 </button>
-                <button class="nav-item" data-tool="chess-coach" type="button">
+                <button class="nav-item" data-tool="chess-coach" data-description="Hamlelerini analiz et, aday hamlelerle oyununu geliştir." type="button">
                     <span>Chess Coach</span>
                 </button>
-                <button class="nav-item" data-tool="crypto" type="button">
+                <button class="nav-item" data-tool="crypto" data-description="Popüler kripto para fiyatlarını ve değişimleri takip et." type="button">
                     <span>Crypto Price</span>
                 </button>
-                <button class="nav-item" data-tool="github-user" type="button">
+                <button class="nav-item" data-tool="github-user" data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
                     <span>GitHub User</span>
                 </button>
-                <button class="nav-item" data-tool="gradient" type="button">
+                <button class="nav-item" data-tool="gradient" data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
                     <span>Gradient Generator</span>
                 </button>
-                <button class="nav-item" data-tool="converter" type="button">
+                <button class="nav-item" data-tool="converter" data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
                     <span>Dönüştürücü</span>
                 </button>
-                <button class="nav-item" data-tool="numble" type="button">
+                <button class="nav-item" data-tool="numble" data-description="Beş haneli gizli sayıyı altı tahminde bul." type="button">
                     <span>Numble</span>
                 </button>
-                <button class="nav-item" data-tool="password" type="button">
+                <button class="nav-item" data-tool="password" data-description="Güçlü ve özelleştirilebilir parolalar oluştur." type="button">
                     <span>Pass Generator</span>
                 </button>
-                <button class="nav-item" data-tool="parolla" type="button">
+                <button class="nav-item" data-tool="parolla" data-description="Kelime ve genel kültür sorularını süre dolmadan çöz." type="button">
                     <span>Parolla</span>
                 </button>
-                <button class="nav-item" data-tool="qr" type="button">
+                <button class="nav-item" data-tool="qr" data-description="Metin ve bağlantılar için renkli QR kodlar oluştur." type="button">
                     <span>QR Code Generator</span>
                 </button>
-                <button class="nav-item" data-tool="speech" type="button">
+                <button class="nav-item" data-tool="speech" data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
                     <span>Text To Speech</span>
                 </button>
-                <button class="nav-item" data-tool="sudoku" type="button">
+                <button class="nav-item" data-tool="sudoku" data-description="Kolay, orta ve zor seviyelerde klasik Sudoku çöz." type="button">
                     <span>Sudoku</span>
                 </button>
-                <button class="nav-item" data-tool="tabu" type="button">
+                <button class="nav-item" data-tool="tabu" data-description="Takımını kur, yasak kelimelere takılmadan puan topla." type="button">
                     <span>Tabu</span>
                 </button>
-                <button class="nav-item" data-tool="typing" type="button">
+                <button class="nav-item" data-tool="typing" data-description="Türkçe metinlerle yazma hızını ve doğruluğunu ölç." type="button">
                     <span>Type Test</span>
                 </button>
-                <button class="nav-item" data-tool="translate" type="button">
+                <button class="nav-item" data-tool="translate" data-description="Metinleri farklı diller arasında hızlıca çevir." type="button">
                     <span>Translate</span>
                 </button>
-                <button class="nav-item" data-tool="deal-game" type="button">
+                <button class="nav-item" data-tool="deal-game" data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
                     <span>Var Mısın Yok Musun</span>
                 </button>
-                <button class="nav-item" data-tool="valorant-crosshair" type="button">
+                <button class="nav-item" data-tool="milyoner" data-search="milyoner bilgi yarışma quiz soru genel kültür millionaire"
+                    data-description="15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş." type="button">
+                    <span>Milyoner Bilgi Yarışması</span>
+                </button>
+                <button class="nav-item" data-tool="valorant-crosshair" data-description="Valorant nişangâhlarını incele ve kodunu kopyala." type="button">
                     <span>Valorant Crosshair</span>
                 </button>
-                <button class="nav-item" data-tool="weather" type="button">
+                <button class="nav-item" data-tool="weather" data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
                     <span>Weather App</span>
                 </button>
-                <button class="nav-item" data-tool="wordle" type="button">
+                <button class="nav-item" data-tool="wordle" data-description="Beş harfli Türkçe kelimeyi altı denemede tahmin et." type="button">
                     <span>Wordle</span>
                 </button>
-                <button class="nav-item" data-tool="wordle-finder" type="button">
+                <button class="nav-item" data-tool="wordle-finder" data-description="Wordle ipuçlarına uyan olası Türkçe kelimeleri bul." type="button">
                     <span>Wordle Finder</span>
                 </button>
             </nav>
@@ -1158,6 +1162,137 @@
                 </div>
             </section>
 
+            <section id="milyoner" class="tool-panel millionaire-panel" aria-labelledby="millionaire-title">
+                <div class="panel-heading millionaire-panel-heading">
+                    <div>
+                        <h2 id="millionaire-title">Milyoner Bilgi Yarışması</h2>
+                        <p>15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş.</p>
+                    </div>
+                    <div class="millionaire-toolbar" aria-label="Yarışma kontrolleri">
+                        <button id="millionaire-sound" class="secondary-button" type="button" aria-pressed="true" aria-label="Sesi kapat">
+                            <span aria-hidden="true">♪</span><span>Ses Açık</span>
+                        </button>
+                        <button id="millionaire-settings" class="secondary-button" type="button" aria-haspopup="dialog">Ayarlar</button>
+                    </div>
+                </div>
+
+                <div id="millionaire-app" class="millionaire-app">
+                    <section id="millionaire-home" class="millionaire-screen millionaire-home" aria-labelledby="millionaire-home-title">
+                        <div class="millionaire-emblem" aria-hidden="true"><span>15</span></div>
+                        <span class="millionaire-kicker">Bilgi, strateji ve cesaret</span>
+                        <h3 id="millionaire-home-title">Milyoner Bilgi Yarışması</h3>
+                        <p>Doğru cevapları bul, jokerlerini akıllıca kullan ve 1.000.000 TL'ye ulaş.</p>
+
+                        <div id="millionaire-resume-card" class="millionaire-resume-card" hidden>
+                            <div>
+                                <strong>Devam eden yarışma bulundu</strong>
+                                <span id="millionaire-resume-summary">Kaldığın sorudan devam edebilirsin.</span>
+                            </div>
+                            <div class="millionaire-resume-actions">
+                                <button id="millionaire-resume" class="primary-button" type="button">Oyuna Devam Et</button>
+                                <button id="millionaire-new-from-save" class="secondary-button" type="button">Yeni Oyun Başlat</button>
+                            </div>
+                        </div>
+
+                        <div class="millionaire-home-actions">
+                            <button id="millionaire-start" class="primary-button millionaire-start" type="button">Oyuna Başla</button>
+                            <button id="millionaire-rules" class="secondary-button" type="button" aria-haspopup="dialog">Nasıl Oynanır?</button>
+                            <button id="millionaire-stats" class="secondary-button" type="button" aria-haspopup="dialog">İstatistikler</button>
+                        </div>
+                    </section>
+
+                    <section id="millionaire-game" class="millionaire-screen millionaire-game" aria-labelledby="millionaire-question" hidden>
+                        <div class="millionaire-actionsbar" aria-label="Jokerler ve oyun kontrolleri">
+                            <button id="millionaire-fifty" class="millionaire-lifeline" type="button" aria-label="Yarı yarıya jokerini kullan">
+                                <span aria-hidden="true">50:50</span><strong>Yarı Yarıya</strong>
+                            </button>
+                            <button id="millionaire-audience" class="millionaire-lifeline" type="button" aria-label="Seyirciye sor jokerini kullan">
+                                <span aria-hidden="true">%</span><strong>Seyirciye Sor</strong>
+                            </button>
+                            <button id="millionaire-phone" class="millionaire-lifeline" type="button" aria-label="Telefon jokerini kullan">
+                                <span aria-hidden="true">☎</span><strong>Telefon</strong>
+                            </button>
+                            <button id="millionaire-ladder-toggle" class="secondary-button millionaire-ladder-toggle" type="button"
+                                aria-controls="millionaire-ladder" aria-expanded="false">Ödüller</button>
+                            <button id="millionaire-withdraw" class="secondary-button millionaire-withdraw" type="button">Yarışmadan Çekil</button>
+                        </div>
+
+                        <div class="millionaire-game-layout">
+                            <main class="millionaire-question-area">
+                                <article id="millionaire-question-card" class="millionaire-question-card">
+                                    <div class="millionaire-question-meta">
+                                        <div id="millionaire-timer-card" class="millionaire-question-timer" aria-label="Kalan süre: 30 saniye" hidden>
+                                            <span class="sr-only">Kalan süre</span>
+                                            <strong id="millionaire-timer" aria-live="polite">30</strong>
+                                        </div>
+                                    </div>
+                                    <h3 id="millionaire-question">Soru hazırlanıyor…</h3>
+                                </article>
+
+                                <div id="millionaire-answers" class="millionaire-answers" aria-label="Cevap seçenekleri"></div>
+
+                                <div id="millionaire-decision" class="millionaire-decision" hidden>
+                                    <p id="millionaire-selection-text">Seçimin hazır.</p>
+                                    <div>
+                                        <button id="millionaire-confirm" class="primary-button" type="button">Son Kararım</button>
+                                        <button id="millionaire-change" class="secondary-button" type="button">Seçimi Değiştir</button>
+                                    </div>
+                                </div>
+
+                                <div id="millionaire-feedback" class="millionaire-feedback" role="status" aria-live="polite" hidden>
+                                    <strong id="millionaire-feedback-title">Doğru cevap</strong>
+                                    <p id="millionaire-explanation"></p>
+                                    <button id="millionaire-next" class="primary-button" type="button">Sonraki Soru</button>
+                                </div>
+                            </main>
+
+                            <aside id="millionaire-ladder" class="millionaire-ladder" aria-label="Ödül merdiveni">
+                                <div class="millionaire-ladder-heading">
+                                    <button id="millionaire-ladder-close" type="button" aria-label="Ödül merdivenini kapat">×</button>
+                                </div>
+                                <ol id="millionaire-ladder-list" reversed></ol>
+                            </aside>
+                        </div>
+                        <button id="millionaire-ladder-backdrop" class="millionaire-ladder-backdrop" type="button" aria-label="Ödül merdivenini kapat" hidden></button>
+                    </section>
+
+                    <section id="millionaire-result" class="millionaire-screen millionaire-result" aria-labelledby="millionaire-result-title" hidden>
+                        <div id="millionaire-result-emblem" class="millionaire-result-emblem" aria-hidden="true">★</div>
+                        <span id="millionaire-result-kicker">Yarışma tamamlandı</span>
+                        <h3 id="millionaire-result-title">Tebrikler</h3>
+                        <p id="millionaire-result-message"></p>
+                        <div class="millionaire-result-grid">
+                            <div><span>Kazanılan ödül</span><strong id="millionaire-result-prize">0 TL</strong></div>
+                            <div><span>Ulaşılan soru</span><strong id="millionaire-result-question">1</strong></div>
+                            <div><span>Doğru cevap</span><strong id="millionaire-result-correct">0</strong></div>
+                            <div><span>Kullanılan joker</span><strong id="millionaire-result-lifelines">0</strong></div>
+                            <div><span>Ortalama cevap</span><strong id="millionaire-result-average">0 sn</strong></div>
+                            <div><span>Toplam süre</span><strong id="millionaire-result-duration">0 sn</strong></div>
+                        </div>
+                        <div class="millionaire-result-actions">
+                            <button id="millionaire-replay" class="primary-button" type="button">Tekrar Oyna</button>
+                            <button id="millionaire-result-home" class="secondary-button" type="button">Ana Menü</button>
+                            <button id="millionaire-review" class="secondary-button" type="button">Cevapları İncele</button>
+                        </div>
+                        <div id="millionaire-confetti" class="millionaire-confetti" aria-hidden="true"></div>
+                    </section>
+
+                    <div id="millionaire-modal" class="millionaire-modal" role="dialog" aria-modal="true" aria-labelledby="millionaire-modal-title" hidden>
+                        <button class="millionaire-modal-backdrop" type="button" data-millionaire-modal-close tabindex="-1" aria-label="Pencereyi kapat"></button>
+                        <div class="millionaire-modal-card" role="document">
+                            <div class="millionaire-modal-heading">
+                                <h3 id="millionaire-modal-title">Bilgi</h3>
+                                <button id="millionaire-modal-close" type="button" aria-label="Pencereyi kapat">×</button>
+                            </div>
+                            <div id="millionaire-modal-body" class="millionaire-modal-body"></div>
+                            <div id="millionaire-modal-actions" class="millionaire-modal-actions"></div>
+                        </div>
+                    </div>
+
+                    <p id="millionaire-live" class="sr-only" aria-live="assertive"></p>
+                </div>
+            </section>
+
             <section id="deal-game" class="tool-panel deal-panel" aria-labelledby="deal-title">
                 <div class="panel-heading deal-panel-heading">
                     <div>
@@ -1759,7 +1894,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=26"></script>
+    <script src="index.js?v=28"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
@@ -1772,6 +1907,10 @@
     <script src="tools/advanced-xox/script.js?v=3"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
     <script src="tools/sudoku/script.js?v=4"></script>
+    <script src="tools/milyoner/questions.js?v=1"></script>
+    <script src="tools/milyoner/engine.js?v=2"></script>
+    <script src="tools/milyoner/audio.js?v=1"></script>
+    <script src="tools/milyoner/script.js?v=11"></script>
     <script src="tools/var-misin-yok-musun/engine.js?v=2"></script>
     <script src="tools/var-misin-yok-musun/audio.js?v=2"></script>
     <script src="tools/var-misin-yok-musun/script.js?v=7"></script>

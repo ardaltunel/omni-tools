@@ -6,6 +6,9 @@ sortToolNavigation();
 const panels = document.querySelectorAll(".tool-panel");
 const navItems = document.querySelectorAll(".nav-item");
 const appHome = document.getElementById("app-home");
+const defaultPageTitle = "Omni Tools | Arda Altunel";
+const defaultPageDescription = document.querySelector('meta[name="description"]')?.content || "";
+const defaultPageKeywords = document.querySelector('meta[name="keywords"]')?.content || "";
 document.body.classList.add("is-app-home");
 const homeAppCards = createAppHomeCards();
 initializeAppSearch(homeAppCards);
@@ -13,37 +16,48 @@ initializeAppSearch(homeAppCards);
 navItems.forEach((item) => item.classList.remove("active"));
 
 navItems.forEach((item) => {
-    item.addEventListener("click", () => activateTool(item.dataset.tool));
+    item.addEventListener("click", () => activateTool(item.dataset.tool, { historyMode: "push" }));
 });
 
-brand?.addEventListener("click", clearActiveTool);
+brand?.addEventListener("click", () => clearActiveTool({ historyMode: "push" }));
 brand?.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
-    clearActiveTool();
+    clearActiveTool({ historyMode: "push" });
 });
 
-function activateTool(tool) {
+initializeToolRouting();
+
+function activateTool(tool, options = {}) {
+    const matchingPanel = document.getElementById(tool);
+    const matchingNavItem = Array.from(navItems).find((item) => item.dataset.tool === tool);
+    if (!matchingPanel || !matchingNavItem) return false;
+
     navItems.forEach((item) => item.classList.toggle("active", item.dataset.tool === tool));
     panels.forEach((panel) => panel.classList.toggle("active", panel.id === tool));
     if (appHome) appHome.hidden = true;
     document.body.classList.remove("is-app-home");
     document.body.classList.add("is-tool-active");
     resetToolScroll();
+    updateToolHistory(tool, options.historyMode);
+    updatePageMetadata(tool);
     document.dispatchEvent(new CustomEvent("tool-activated", { detail: { tool } }));
 
     if (tool === "crypto" && !cryptoPricesLoaded) {
         fetchCryptoPrices();
     }
+    return true;
 }
 
-function clearActiveTool() {
+function clearActiveTool(options = {}) {
     navItems.forEach((item) => item.classList.remove("active"));
     panels.forEach((panel) => panel.classList.remove("active"));
     if (appHome) appHome.hidden = false;
     document.body.classList.remove("is-tool-active");
     document.body.classList.add("is-app-home");
     resetToolScroll();
+    updateToolHistory(null, options.historyMode);
+    updatePageMetadata(null);
 }
 
 function resetToolScroll() {
@@ -72,6 +86,7 @@ function createAppHomeCards() {
         const toolName = item.querySelector("span")?.textContent.trim() || item.textContent.trim();
         const card = document.createElement("button");
         const number = document.createElement("span");
+        const copy = document.createElement("span");
         const label = document.createElement("span");
         const arrow = document.createElement("span");
 
@@ -82,14 +97,23 @@ function createAppHomeCards() {
         number.className = "app-home-card-number";
         number.setAttribute("aria-hidden", "true");
         number.textContent = String(index + 1).padStart(2, "0");
+        copy.className = "app-home-card-copy";
         label.className = "app-home-card-name";
         label.textContent = toolName;
         arrow.className = "app-home-card-arrow";
         arrow.setAttribute("aria-hidden", "true");
         arrow.textContent = "\u2192";
 
-        card.append(number, label, arrow);
-        card.addEventListener("click", () => activateTool(item.dataset.tool));
+        copy.appendChild(label);
+        if (item.dataset.description) {
+            const description = document.createElement("small");
+            description.className = "app-home-card-description";
+            description.textContent = item.dataset.description;
+            copy.appendChild(description);
+        }
+
+        card.append(number, copy, arrow);
+        card.addEventListener("click", () => activateTool(item.dataset.tool, { historyMode: "push" }));
         fragment.appendChild(card);
         return card;
     });
@@ -116,7 +140,7 @@ function initializeAppSearch(cards) {
     const searchableItems = Array.from(navItems, (item, index) => ({
         navItem: item,
         homeCard: cards[index],
-        name: normalizeAppSearchText(item.querySelector("span")?.textContent || item.textContent),
+        name: normalizeAppSearchText(`${item.querySelector("span")?.textContent || item.textContent} ${item.dataset.search || ""} ${item.dataset.description || ""}`),
     }));
     const totalAppCount = searchableItems.length;
 
@@ -184,12 +208,54 @@ function initializeAppSearch(cards) {
         if (isEditable) return;
 
         event.preventDefault();
-        if (appHome?.hidden) clearActiveTool();
+        if (appHome?.hidden) clearActiveTool({ historyMode: "push" });
         const preferredSearch = searchControls.find(({ container }) => container.classList.contains("app-home-search"));
         preferredSearch?.input.focus();
     });
 
     filterApps("");
+}
+
+function initializeToolRouting() {
+    window.addEventListener("popstate", () => {
+        const requestedTool = new URL(window.location.href).searchParams.get("tool");
+        if (requestedTool && activateTool(requestedTool)) return;
+        clearActiveTool();
+    });
+
+    window.setTimeout(() => {
+        const requestedTool = new URL(window.location.href).searchParams.get("tool");
+        if (requestedTool && activateTool(requestedTool, { historyMode: "replace" })) return;
+        updatePageMetadata(null);
+    }, 0);
+}
+
+function updateToolHistory(tool, historyMode) {
+    if (!historyMode || !["push", "replace"].includes(historyMode)) return;
+    const url = new URL(window.location.href);
+    if (tool) url.searchParams.set("tool", tool);
+    else url.searchParams.delete("tool");
+    const method = historyMode === "replace" ? "replaceState" : "pushState";
+    window.history[method]({ tool: tool || null }, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+function updatePageMetadata(tool) {
+    const descriptionMeta = document.querySelector('meta[name="description"]');
+    const keywordsMeta = document.querySelector('meta[name="keywords"]');
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    const millionaireDescription = "15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş.";
+    const title = tool === "milyoner" ? "Milyoner Bilgi Yarışması | Omni Tools" : defaultPageTitle;
+    const description = tool === "milyoner" ? millionaireDescription : defaultPageDescription;
+    const keywords = tool === "milyoner"
+        ? "milyoner bilgi yarışması, bilgi yarışması, quiz, genel kültür, soru oyunu, millionaire"
+        : defaultPageKeywords;
+
+    document.title = title;
+    if (descriptionMeta) descriptionMeta.content = description;
+    if (keywordsMeta) keywordsMeta.content = keywords;
+    if (ogTitle) ogTitle.content = title;
+    if (ogDescription) ogDescription.content = description;
 }
 
 function normalizeAppSearchText(value) {

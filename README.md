@@ -55,6 +55,7 @@ Proje özellikle şu konulara odaklanmaktadır:
 - Sudoku
 - Tabu
 - Var Mısın Yok Musun
+- Milyoner Bilgi Yarışması
 - Utility Calculators
 
 ---
