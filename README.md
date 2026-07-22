@@ -18,7 +18,7 @@
 # 📸 Önizleme
 
 <p align="center">
-  <img width="1891" height="900" alt="image" src="https://github.com/user-attachments/assets/6e31098f-b01e-496b-93cc-223ef917a25c" />
+  <img width="1891" height="900" alt="image" src="https://github.com/user-attachments/assets/73e3c687-054a-44e9-8ae8-5122cc57e464" />
 </p>
 
 ---
