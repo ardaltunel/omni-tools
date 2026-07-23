@@ -20,218 +20,259 @@
         6: "Zor",
         7: "Final",
     });
-    const PACK_DIFFICULTIES = Object.freeze([
-        [1, 1, 1, 2],
-        [2, 3, 3, 3],
-        [4, 4, 5, 5],
-        [6, 6, 7, 7],
-    ]);
 
-    const packs = [
-        pack("Genel Kültür", "{subject} ülkesinin para birimi hangisidir?", "{subject} ülkesinin resmi para birimi {answer} olarak kullanılır.", [
-            ["Japonya", "Yen"], ["Birleşik Krallık", "Sterlin"], ["İsviçre", "İsviçre frangı"], ["Güney Kore", "Won"],
-        ]),
-        pack("Genel Kültür", "{subject} hangi şehirde bulunur?", "{subject}, {answer} şehrinin en tanınan yapılarından biridir.", [
-            ["Eyfel Kulesi", "Paris"], ["Kolezyum", "Roma"], ["Big Ben", "Londra"], ["Sagrada Familia", "Barselona"],
-        ]),
-        pack("Genel Kültür", "{subject} kısaltmasının açılımı hangisidir?", "{subject}, “{answer}” adının uluslararası kısaltmasıdır.", [
-            ["UNESCO", "BM Eğitim, Bilim ve Kültür Örgütü"], ["UNICEF", "BM Çocuklara Yardım Fonu"], ["WHO", "Dünya Sağlık Örgütü"], ["NATO", "Kuzey Atlantik Antlaşması Örgütü"],
-        ]),
-        pack("Genel Kültür", "{subject} geleneği en çok hangi ülkeyle özdeşleşir?", "{subject} geleneği {answer} kültürüyle güçlü biçimde özdeşleşmiştir.", [
-            ["Hanami", "Japonya"], ["Oktoberfest", "Almanya"], ["Rio Karnavalı", "Brezilya"], ["Ölüler Günü", "Meksika"],
-        ]),
+    const entries = [
+        // 1. seviye: gündelik ve yaygın bilgiler
+        q(1, "Coğrafya", "Türkiye'nin başkenti hangi şehirdir?", "Ankara", ["İstanbul", "İzmir", "Bursa"], "Türkiye'nin başkenti Ankara'dır."),
+        q(1, "Bilim", "Güneş Sistemi'nin en büyük gezegeni hangisidir?", "Jüpiter", ["Mars", "Venüs", "Merkür"], "Jüpiter, Güneş Sistemi'nin en büyük gezegenidir."),
+        q(1, "Günlük Yaşam", "Su, deniz seviyesinde kaç santigrat derecede donar?", "0", ["10", "50", "100"], "Saf su, deniz seviyesinde 0 °C'de donar."),
+        q(1, "Matematik", "5 ile 7'nin toplamı kaçtır?", "12", ["10", "11", "13"], "5 + 7 işleminin sonucu 12'dir."),
+        q(1, "Bilim", "“Kızıl Gezegen” adıyla bilinen gezegen hangisidir?", "Mars", ["Dünya", "Satürn", "Neptün"], "Mars, yüzeyindeki demir oksit nedeniyle kızılımsı görünür."),
+        q(1, "Sanat ve Edebiyat", "Mona Lisa tablosunu yapan sanatçı kimdir?", "Leonardo da Vinci", ["Pablo Picasso", "Claude Monet", "Vincent van Gogh"], "Mona Lisa, Leonardo da Vinci'nin eseridir."),
+        q(1, "Spor", "Bir futbol takımında sahada aynı anda kaç oyuncu bulunur?", "11", ["5", "6", "9"], "Bir futbol takımı sahada kaleci dahil 11 oyuncuyla yer alır."),
+        q(1, "Genel Kültür", "Türk bayrağında hangi iki simge bulunur?", "Ay ve yıldız", ["Güneş ve dağ", "Kartal ve yıldız", "Ay ve ağaç"], "Türk bayrağında beyaz ay ve yıldız yer alır."),
+        q(1, "Sanat ve Edebiyat", "Küçük Prens adlı kitabın yazarı kimdir?", "Antoine de Saint-Exupéry", ["Jules Verne", "Victor Hugo", "Albert Camus"], "Küçük Prens'i Antoine de Saint-Exupéry yazmıştır."),
+        q(1, "Coğrafya", "Dünyanın en büyük okyanusu hangisidir?", "Pasifik Okyanusu", ["Atlas Okyanusu", "Hint Okyanusu", "Arktik Okyanusu"], "Pasifik Okyanusu, yüz ölçümü bakımından en büyük okyanustur."),
+        q(1, "Doğa", "Bitkiler fotosentez sırasında atmosfere hangi gazı verir?", "Oksijen", ["Azot", "Hidrojen", "Metan"], "Fotosentez sırasında yan ürün olarak oksijen açığa çıkar."),
+        q(1, "Teknoloji", "Hangisi bir internet tarayıcısıdır?", "Firefox", ["Excel", "Photoshop", "Spotify"], "Firefox, web sayfalarını görüntülemek için kullanılan bir internet tarayıcısıdır."),
+        q(1, "Günlük Yaşam", "Yılın ilk ayı hangisidir?", "Ocak", ["Mart", "Haziran", "Aralık"], "Miladi takvimde yıl Ocak ayıyla başlar."),
+        q(1, "Matematik", "Bir üçgenin kaç kenarı vardır?", "3", ["4", "5", "6"], "Üçgen, üç kenarlı bir çokgendir."),
+        q(1, "Tarih", "Türkiye Cumhuriyeti hangi yılda ilan edilmiştir?", "1923", ["1919", "1938", "1950"], "Türkiye Cumhuriyeti 29 Ekim 1923'te ilan edilmiştir."),
+        q(1, "Müzik", "Keman hangi çalgı ailesinde yer alır?", "Yaylı çalgılar", ["Vurmalı çalgılar", "Üflemeli çalgılar", "Bakır çalgılar"], "Keman, yayla çalınan telli bir çalgıdır."),
+        q(1, "Doğa", "Arılar tarafından üretilen besin hangisidir?", "Bal", ["Peynir", "Yoğurt", "Sirke"], "Arılar çiçeklerden topladıkları nektarı işleyerek bal üretir."),
+        q(1, "Bilim", "Dünya'nın doğal uydusunun adı nedir?", "Ay", ["Güneş", "Mars", "Venüs"], "Ay, Dünya'nın tek doğal uydusudur."),
+        q(1, "Günlük Yaşam", "Bir saat kaç dakikadır?", "60", ["30", "90", "100"], "Bir saat 60 dakikadan oluşur."),
+        q(1, "Coğrafya", "İstanbul Boğazı hangi iki kıtayı ayırır?", "Avrupa ve Asya", ["Asya ve Afrika", "Avrupa ve Afrika", "Amerika ve Avrupa"], "İstanbul Boğazı'nın iki yakası Avrupa ve Asya kıtalarındadır."),
+        q(1, "Teknoloji", "Web sayfalarının temel yapısını oluşturmak için hangi dil kullanılır?", "HTML", ["MP3", "JPEG", "PDF"], "HTML, web sayfalarının içerik ve yapı işaretleme dilidir."),
+        q(1, "Genel Kültür", "Ramazan ayının sonunda kutlanan bayram hangisidir?", "Ramazan Bayramı", ["Zafer Bayramı", "Cumhuriyet Bayramı", "Nevruz Bayramı"], "Ramazan ayının bitiminde Ramazan Bayramı kutlanır."),
+        q(1, "Sanat ve Edebiyat", "İstiklal Marşı'nın şairi kimdir?", "Mehmet Akif Ersoy", ["Namık Kemal", "Yahya Kemal Beyatlı", "Tevfik Fikret"], "İstiklal Marşı'nı Mehmet Akif Ersoy yazmıştır."),
+        q(1, "Bilim", "Su, deniz seviyesinde kaç santigrat derecede kaynar?", "100", ["0", "50", "200"], "Saf su, deniz seviyesinde 100 °C'de kaynar."),
+        q(1, "Spor", "Basketbolda üç sayı çizgisinin içinden atılan normal bir basket kaç sayıdır?", "2", ["1", "3", "4"], "Üç sayı çizgisinin içinden atılan normal bir basket 2 sayı değerindedir."),
+        q(1, "Günlük Yaşam", "Trafik ışığında kırmızı renk ne anlama gelir?", "Dur", ["Hazırlan", "Geç", "Hızlan"], "Kırmızı trafik ışığı sürücü ve yayalar için dur anlamına gelir."),
+        q(1, "Matematik", "1 kilometre kaç metredir?", "1.000", ["100", "500", "10.000"], "Bir kilometre 1.000 metredir."),
+        q(1, "Doğa", "Hangisi bir memelidir?", "Yunus", ["Köpek balığı", "Ahtapot", "Alabalık"], "Yunuslar akciğerle solunum yapan deniz memelileridir."),
+        q(1, "Teknoloji", "Klavyedeki Backspace tuşu genellikle ne yapar?", "İmlecin solundaki karakteri siler", ["Bilgisayarı kapatır", "Yeni pencere açar", "Metni kalınlaştırır"], "Backspace tuşu çoğu uygulamada imlecin solundaki karakteri siler."),
+        q(1, "Sinema", "Pamuk Prenses masalında kaç cüce vardır?", "7", ["3", "5", "9"], "Pamuk Prenses masalında yedi cüce bulunur."),
 
-        pack("Tarih", "{subject} hangi yılda gerçekleşmiştir?", "{subject}, {answer} yılında gerçekleşmiştir.", [
-            ["Türkiye Cumhuriyeti'nin ilanı", "1923"], ["İstanbul'un fethi", "1453"], ["Fransız Devrimi'nin başlaması", "1789"], ["İlk insanlı Ay yolculuğu", "1969"],
-        ]),
-        pack("Tarih", "{subject} en çok hangi uygarlıkla ilişkilendirilir?", "{subject}, {answer} uygarlığının tarihsel mirasında önemli yer tutar.", [
-            ["Hiyeroglif yazısı", "Antik Mısır"], ["Çivi yazısı", "Sümerler"], ["İlk fonetik alfabelerden biri", "Fenikeliler"], ["On İki Levha Kanunları", "Romalılar"],
-        ]),
-        pack("Tarih", "{subject} hangi tarihsel mücadeleyle tanınır?", "{subject}, “{answer}” sürecindeki rolüyle dünya tarihine geçmiştir.", [
-            ["Mahatma Gandhi", "Hindistan'ın bağımsızlık hareketi"], ["Nelson Mandela", "Güney Afrika'da apartheid karşıtlığı"], ["Abraham Lincoln", "ABD'de köleliğin kaldırılması süreci"], ["Mustafa Kemal Atatürk", "Türk Kurtuluş Savaşı"],
-        ]),
-        pack("Tarih", "{subject} hangi başarıyla tarihe geçmiştir?", "{subject}, “{answer}” başarısıyla tanınır.", [
-            ["Roald Amundsen", "Güney Kutbu'na ilk ulaşan ekip"], ["Yuri Gagarin", "Uzaya çıkan ilk insan"], ["Macellan seferi", "Dünyanın çevresini dolaşan ilk sefer"], ["İbn Battuta", "Geniş coğrafyaları anlatan seyahatname"],
-        ]),
+        // 2. seviye: temel genel kültür
+        q(2, "Coğrafya", "Avustralya'nın başkenti hangisidir?", "Canberra", ["Sidney", "Melbourne", "Perth"], "Avustralya'nın başkenti Canberra'dır."),
+        q(2, "Bilim", "Altın elementinin kimyasal sembolü hangisidir?", "Au", ["Ag", "Fe", "Al"], "Altının periyodik tablodaki sembolü Au'dur."),
+        q(2, "Tarih", "Osmanlı Devleti'nin kurucusu olarak kabul edilen kişi kimdir?", "Osman Gazi", ["Orhan Gazi", "Yıldırım Bayezid", "Fatih Sultan Mehmet"], "Osmanlı Beyliği, adını kurucusu Osman Gazi'den alır."),
+        q(2, "Bilim", "İnsan vücudunun en büyük organı hangisidir?", "Deri", ["Kalp", "Akciğer", "Karaciğer"], "Deri, yüzey alanı bakımından insan vücudunun en büyük organıdır."),
+        q(2, "Genel Kültür", "Sagrada Família hangi şehirdedir?", "Barselona", ["Madrid", "Lizbon", "Roma"], "Antoni Gaudí'nin tasarladığı Sagrada Família Barselona'dadır."),
+        q(2, "Matematik", "Bir kenarı 6 cm olan karenin çevresi kaç santimetredir?", "24", ["12", "18", "36"], "Karenin çevresi dört kenarın toplamıdır: 4 × 6 = 24."),
+        q(2, "Müzik", "Dört Mevsim adlı eserin bestecisi kimdir?", "Antonio Vivaldi", ["Johann Sebastian Bach", "Ludwig van Beethoven", "Frédéric Chopin"], "Dört Mevsim, Antonio Vivaldi'nin dört keman konçertosundan oluşan eseridir."),
+        q(2, "Coğrafya", "Brezilya'nın resmî dili hangisidir?", "Portekizce", ["İspanyolca", "Fransızca", "İngilizce"], "Brezilya'nın resmî dili Portekizcedir."),
+        q(2, "Teknoloji", "Bilgisayardaki CPU'nun temel görevi nedir?", "Komutları işlemek", ["Sesi yükseltmek", "Ekranı temizlemek", "İnterneti depolamak"], "CPU, program komutlarını işler ve hesaplamaları yürütür."),
+        q(2, "Tarih", "Hiyeroglif yazısı en çok hangi uygarlıkla özdeşleşir?", "Antik Mısır", ["Hititler", "Romalılar", "Vikingler"], "Hiyeroglif, Antik Mısır'ın anıtsal yazı sistemidir."),
+        q(2, "Bilim", "Belirgin halkalarıyla tanınan gezegen hangisidir?", "Satürn", ["Venüs", "Mars", "Merkür"], "Diğer dev gezegenlerin de halkaları olsa da en belirgin halka sistemi Satürn'dedir."),
+        q(2, "Spor", "Golfte bir çukuru par sayısından bir eksik vuruşla tamamlamaya ne denir?", "Birdie", ["Ace", "Bogey", "Set"], "Bir çukuru par değerinden bir eksik vuruşla bitirmek birdie olarak adlandırılır."),
+        q(2, "Sanat ve Edebiyat", "1984 adlı romanın yazarı kimdir?", "George Orwell", ["Aldous Huxley", "Franz Kafka", "Ernest Hemingway"], "1984 romanını George Orwell yazmıştır."),
+        q(2, "Coğrafya", "İstanbul Boğazı hangi iki denizi birbirine bağlar?", "Karadeniz ve Marmara Denizi", ["Ege Denizi ve Akdeniz", "Marmara Denizi ve Ege Denizi", "Karadeniz ve Hazar Denizi"], "İstanbul Boğazı, Karadeniz'i Marmara Denizi'ne bağlar."),
+        q(2, "Matematik", "En küçük asal sayı hangisidir?", "2", ["0", "1", "3"], "Yalnızca 1'e ve kendisine bölünebilen en küçük sayı 2'dir."),
+        q(2, "Günlük Yaşam", "Cam üretiminde temel ham madde olarak hangisi kullanılır?", "Silis kumu", ["Kömür", "Pamuk", "Kireç taşı tozu"], "Camın ana bileşeni çoğunlukla silis kumundan elde edilen silisyum dioksittir."),
+        q(2, "Teknoloji", "E-posta göndermek için kullanılan protokol hangisidir?", "SMTP", ["HTTP", "DNS", "FTP"], "SMTP, e-posta iletilerinin gönderiminde kullanılan temel protokoldür."),
+        q(2, "Spor", "Olimpiyat halkalarının sayısı kaçtır?", "5", ["4", "6", "7"], "Olimpiyat simgesinde birbirine geçmiş beş halka bulunur."),
+        q(2, "Sanat ve Edebiyat", "Yıldızlı Gece tablosunun ressamı kimdir?", "Vincent van Gogh", ["Salvador Dalí", "Paul Cézanne", "Edvard Munch"], "Yıldızlı Gece, Vincent van Gogh'un en tanınan eserlerinden biridir."),
+        q(2, "Bilim", "Kanı vücuda pompalayan organ hangisidir?", "Kalp", ["Mide", "Böbrek", "Pankreas"], "Kalp, kasılarak kanın dolaşım sistemi boyunca hareket etmesini sağlar."),
+        q(2, "Günlük Yaşam", "Artık yıl kaç gün sürer?", "366", ["364", "365", "367"], "Artık yıllarda şubat 29 gün çeker ve yıl toplam 366 gün sürer."),
+        q(2, "Genel Kültür", "Kız Kulesi hangi şehirdedir?", "İstanbul", ["İzmir", "Antalya", "Çanakkale"], "Kız Kulesi, İstanbul Boğazı'nın Üsküdar açıklarında bulunur."),
+        q(2, "Bilim", "Ses hangi ortamda yayılamaz?", "Boşlukta", ["Suda", "Havada", "Çelikte"], "Ses mekanik bir dalgadır ve yayılmak için maddi bir ortama ihtiyaç duyar."),
+        q(2, "Müzik", "Keman çoğunlukla hangi araçla çalınır?", "Yay", ["Tokmak", "Mızrap", "Baget"], "Keman telleri çoğunlukla yay sürülerek titreştirilir."),
+        q(2, "Coğrafya", "Tamamı Türkiye sınırları içinde bulunan deniz hangisidir?", "Marmara Denizi", ["Karadeniz", "Ege Denizi", "Akdeniz"], "Marmara Denizi'nin bütün kıyıları Türkiye sınırları içindedir."),
+        q(2, "Tarih", "Anıtkabir hangi şehirdedir?", "Ankara", ["Samsun", "İstanbul", "Sivas"], "Mustafa Kemal Atatürk'ün anıt mezarı Anıtkabir Ankara'dadır."),
+        q(2, "Matematik", "80 sayısının yüzde 50'si kaçtır?", "40", ["20", "30", "60"], "Yüzde 50 bir sayının yarısıdır; 80'in yarısı 40'tır."),
+        q(2, "Bilim", "H₂O formülü hangi maddeyi gösterir?", "Su", ["Oksijen", "Tuz", "Karbondioksit"], "Bir su molekülü iki hidrojen ve bir oksijen atomundan oluşur."),
+        q(2, "Doğa", "Çevresine uyum sağlamak için renk değiştirmesiyle tanınan hayvan hangisidir?", "Bukalemun", ["Kirpi", "Penguen", "Kanguru"], "Bukalemunlar iletişim ve çevresel koşullara uyum için renk değiştirebilir."),
+        q(2, "Genel Kültür", "UNICEF çalışmalarını öncelikle hangi grup için yürütür?", "Çocuklar", ["Denizciler", "Sporcular", "Astronotlar"], "UNICEF, çocukların hakları ve esenliği için çalışan Birleşmiş Milletler kuruluşudur."),
 
-        pack("Coğrafya", "{subject} ülkesinin başkenti hangisidir?", "{subject} ülkesinin başkenti {answer} şehridir.", [
-            ["Kanada", "Ottawa"], ["Avustralya", "Canberra"], ["Brezilya", "Brasilia"], ["Mısır", "Kahire"],
-        ]),
-        pack("Coğrafya", "{subject} Nehri hangi denize veya okyanusa dökülür?", "{subject} Nehri, {answer} sularına ulaşır.", [
-            ["Nil", "Akdeniz"], ["Amazon", "Atlas Okyanusu"], ["Tuna", "Karadeniz"], ["Volga", "Hazar Denizi"],
-        ]),
-        pack("Coğrafya", "{subject} Dağı hangi ülkededir?", "{subject} Dağı {answer} sınırları içinde bulunur.", [
-            ["Fuji", "Japonya"], ["Kilimanjaro", "Tanzanya"], ["Aconcagua", "Arjantin"], ["Ağrı", "Türkiye"],
-        ]),
-        pack("Coğrafya", "{subject} hangi iki su kütlesini birbirine bağlar?", "{subject}, {answer} arasında doğal bir geçittir.", [
-            ["İstanbul Boğazı", "Karadeniz ile Marmara Denizi"], ["Çanakkale Boğazı", "Marmara Denizi ile Ege Denizi"], ["Cebelitarık Boğazı", "Akdeniz ile Atlas Okyanusu"], ["Bering Boğazı", "Arktik Okyanusu ile Pasifik Okyanusu"],
-        ]),
+        // 3. seviye: kolay-orta
+        q(3, "Genel Kültür", "Japonya'nın para birimi hangisidir?", "Yen", ["Won", "Yuan", "Rupi"], "Japonya'nın resmî para birimi yendir."),
+        q(3, "Tarih", "Uzaya çıkan ilk insan kimdir?", "Yuri Gagarin", ["Neil Armstrong", "John Glenn", "Buzz Aldrin"], "Yuri Gagarin, 1961'de Vostok 1 ile uzaya çıkan ilk insan oldu."),
+        q(3, "Coğrafya", "Tamamı Türkiye'de bulunan en uzun nehir hangisidir?", "Kızılırmak", ["Fırat", "Dicle", "Aras"], "Kızılırmak, doğduğu ve denize döküldüğü noktalar Türkiye'de olan en uzun nehirdir."),
+        q(3, "Bilim", "Kuvvetin SI birimi hangisidir?", "Newton", ["Joule", "Watt", "Pascal"], "Kuvvetin Uluslararası Birimler Sistemi'ndeki birimi newtondur."),
+        q(3, "Matematik", "Hangisi asal sayıdır?", "29", ["21", "27", "33"], "29 yalnızca 1'e ve kendisine tam bölünür."),
+        q(3, "Sanat ve Edebiyat", "İnce Memed adlı romanın yazarı kimdir?", "Yaşar Kemal", ["Orhan Kemal", "Kemal Tahir", "Tarık Buğra"], "İnce Memed, Yaşar Kemal'in romanıdır."),
+        q(3, "Sinema", "Ruhların Kaçışı filminin yönetmeni kimdir?", "Hayao Miyazaki", ["Akira Kurosawa", "Makoto Shinkai", "Takeshi Kitano"], "Ruhların Kaçışı'nı Hayao Miyazaki yazıp yönetmiştir."),
+        q(3, "Spor", "Teniste skor 40-40 olduğunda kullanılan terim hangisidir?", "Deuce", ["Set", "Ace", "Love"], "Teniste 40-40 eşitliği deuce olarak adlandırılır."),
+        q(3, "Teknoloji", "Bir IP adresinin temel işlevi nedir?", "Ağdaki bir cihazı tanımlamak", ["Dosyaları sıkıştırmak", "Ekran parlaklığını ayarlamak", "Şifre üretmek"], "IP adresi, bir ağ üzerindeki cihazın adreslenmesini ve tanınmasını sağlar."),
+        q(3, "Coğrafya", "Dünyanın en büyük sıcak çölü hangisidir?", "Sahra Çölü", ["Gobi Çölü", "Kalahari Çölü", "Atacama Çölü"], "Sahra, dünyanın en büyük sıcak çölüdür."),
+        q(3, "Tarih", "Cumhuriyetin ilan edildiği tarih hangisidir?", "29 Ekim 1923", ["23 Nisan 1920", "19 Mayıs 1919", "30 Ağustos 1922"], "Türkiye Cumhuriyeti 29 Ekim 1923'te ilan edilmiştir."),
+        q(3, "Bilim", "Nötr bir çözeltinin pH değeri yaklaşık kaçtır?", "7", ["1", "5", "14"], "25 °C'de nötr bir çözeltinin pH değeri yaklaşık 7'dir."),
+        q(3, "Tarih", "Rönesans hareketi ilk olarak hangi ülkede güç kazanmıştır?", "İtalya", ["İsveç", "Rusya", "Portekiz"], "Rönesans, 14. yüzyıldan itibaren İtalyan kentlerinde gelişmiştir."),
+        q(3, "Matematik", "3, 6, 12, 24 dizisinde sıradaki sayı hangisidir?", "48", ["30", "36", "42"], "Her terim bir öncekinin iki katıdır; sıradaki sayı 48'dir."),
+        q(3, "Günlük Yaşam", "Ekmek hamurunun kabarmasını sağlayan temel süreç hangisidir?", "Mayalanma", ["Yoğunlaşma", "Donma", "Süzülme"], "Maya, şekerleri parçalayarak karbondioksit üretir ve hamurun kabarmasını sağlar."),
+        q(3, "Coğrafya", "Nil Nehri hangi denize dökülür?", "Akdeniz", ["Kızıldeniz", "Karadeniz", "Hint Okyanusu"], "Nil Nehri, geniş bir delta oluşturarak Akdeniz'e dökülür."),
+        q(3, "Sanat ve Edebiyat", "Guernica tablosunun ressamı kimdir?", "Pablo Picasso", ["Joan Miró", "Diego Velázquez", "Francisco Goya"], "Guernica, Pablo Picasso'nun savaş karşıtı başyapıtıdır."),
+        q(3, "Müzik", "Bağlama hangi çalgı grubunda yer alır?", "Telli çalgılar", ["Vurmalı çalgılar", "Üflemeli çalgılar", "Elektronik çalgılar"], "Bağlama, telleri mızrapla veya parmakla titreştirilerek çalınır."),
+        q(3, "Teknoloji", "İkili sayı sisteminde hangi rakamlar kullanılır?", "0 ve 1", ["1 ve 2", "0 ile 9", "A ve B"], "İkili sayı sistemi yalnızca 0 ve 1 rakamlarını kullanır."),
+        q(3, "Coğrafya", "Ekvator, Dünya'yı hangi iki yarım küreye ayırır?", "Kuzey ve Güney", ["Doğu ve Batı", "Kara ve Deniz", "Sıcak ve Soğuk"], "Ekvator, Dünya'yı Kuzey ve Güney yarım kürelerine ayıran hayalî çizgidir."),
+        q(3, "Spor", "Futbolda penaltı noktası kale çizgisinden kaç metre uzaktadır?", "11", ["9", "12", "16"], "Penaltı noktası kale çizgisinden 11 metre uzaklıktadır."),
+        q(3, "Sanat ve Edebiyat", "Kürk Mantolu Madonna adlı romanın yazarı kimdir?", "Sabahattin Ali", ["Reşat Nuri Güntekin", "Peyami Safa", "Halide Edib Adıvar"], "Kürk Mantolu Madonna'yı Sabahattin Ali yazmıştır."),
+        q(3, "Tarih", "İnsanların Ay'a ilk kez ayak bastığı Apollo 11 görevi hangi yılda gerçekleşmiştir?", "1969", ["1957", "1975", "1981"], "Apollo 11 görevi 1969 yılında Ay'a ulaştı."),
+        q(3, "Bilim", "Bitki hücresinde fotosentezin gerçekleştiği organel hangisidir?", "Kloroplast", ["Mitokondri", "Ribozom", "Lizozom"], "Kloroplastlar, fotosentez için gerekli klorofili içerir."),
+        q(3, "Teknoloji", "HTTPS kısaltmasındaki “S” harfi neyi ifade eder?", "Güvenli", ["Basit", "Paylaşımlı", "Sabit"], "HTTPS, şifreli ve güvenli HTTP iletişimini ifade eder."),
+        q(3, "Matematik", "Bir üçgenin iç açılarının toplamı kaç derecedir?", "180", ["90", "270", "360"], "Öklid geometrisinde bir üçgenin iç açıları toplamı 180 derecedir."),
+        q(3, "Tarih", "Tanzimat Fermanı hangi yılda ilan edilmiştir?", "1839", ["1789", "1876", "1908"], "Gülhane Hatt-ı Hümâyunu olarak da bilinen Tanzimat Fermanı 1839'da ilan edildi."),
+        q(3, "Genel Kültür", "Oktoberfest geleneği hangi ülkeyle özdeşleşmiştir?", "Almanya", ["Avusturya", "Belçika", "Danimarka"], "Oktoberfest, Almanya'nın Münih kentinde başlayan bir festivaldir."),
+        q(3, "Doğa", "Penguenler hangi hayvan sınıfında yer alır?", "Kuşlar", ["Memeliler", "Sürüngenler", "İki yaşamlılar"], "Penguenler uçamasa da tüyleri ve yumurtayla çoğalmalarıyla kuş sınıfındadır."),
+        q(3, "Mantık", "Ali, Buse'den; Buse de Cem'den uzunsa en uzun kişi kimdir?", "Ali", ["Buse", "Cem", "Belirlenemez"], "Ali > Buse > Cem sıralamasına göre en uzun kişi Ali'dir."),
 
-        pack("Bilim", "{subject} elementinin kimyasal sembolü hangisidir?", "{subject} elementinin periyodik tablodaki sembolü {answer} şeklindedir.", [
-            ["Altın", "Au"], ["Demir", "Fe"], ["Oksijen", "O"], ["Sodyum", "Na"],
-        ]),
-        pack("Bilim", "“{subject}” tanımı hangi gezegeni anlatır?", "{answer}, {subject} özelliğiyle bilinir.", [
-            ["Güneş'e en yakın gezegen", "Merkür"], ["Güneş Sistemi'nin en büyük gezegeni", "Jüpiter"], ["Belirgin halkalarıyla tanınan gezegen", "Satürn"], ["Kızıl Gezegen olarak bilinen gezegen", "Mars"],
-        ]),
-        pack("Bilim", "{subject} organının temel görevlerinden biri hangisidir?", "{subject}, vücutta “{answer}” görevini yerine getirir.", [
-            ["Kalp", "Kanı vücuda pompalamak"], ["Akciğer", "Oksijen ve karbondioksit alışverişi"], ["Böbrek", "Kandaki atıkları süzmek"], ["Karaciğer", "Safra üretmek ve maddeleri işlemek"],
-        ]),
-        pack("Bilim", "Fizikte {subject} için kullanılan SI birimi hangisidir?", "{subject} büyüklüğünün SI birimi {answer} olarak adlandırılır.", [
-            ["kuvvet", "Newton"], ["enerji", "Joule"], ["güç", "Watt"], ["basınç", "Pascal"],
-        ]),
+        // 4. seviye: orta
+        q(4, "Coğrafya", "Kanada'nın başkenti hangisidir?", "Ottawa", ["Toronto", "Vancouver", "Montreal"], "Kanada'nın başkenti Ottawa'dır."),
+        q(4, "Tarih", "I. Dünya Savaşı'nın ardından Almanya ile imzalanan antlaşma hangisidir?", "Versay Antlaşması", ["Lozan Antlaşması", "Brest-Litovsk Antlaşması", "Utrecht Antlaşması"], "Versay Antlaşması 1919'da Almanya ile İtilaf Devletleri arasında imzalandı."),
+        q(4, "Bilim", "Atom numarası 6 olan element hangisidir?", "Karbon", ["Azot", "Oksijen", "Bor"], "Çekirdeğinde altı proton bulunan element karbondur."),
+        q(4, "Matematik", "1, 1, 2, 3, 5, 8, 13 dizisinde sıradaki sayı hangisidir?", "21", ["18", "19", "20"], "Fibonacci dizisinde her terim önceki iki terimin toplamıdır; 8 + 13 = 21."),
+        q(4, "Sanat ve Edebiyat", "Saatleri Ayarlama Enstitüsü adlı romanın yazarı kimdir?", "Ahmet Hamdi Tanpınar", ["Oğuz Atay", "Yusuf Atılgan", "Adalet Ağaoğlu"], "Saatleri Ayarlama Enstitüsü, Ahmet Hamdi Tanpınar'ın romanıdır."),
+        q(4, "Sinema", "Parazit filminin yönetmeni kimdir?", "Bong Joon-ho", ["Park Chan-wook", "Lee Chang-dong", "Wong Kar-wai"], "Parazit filmini Güney Koreli yönetmen Bong Joon-ho çekmiştir."),
+        q(4, "Müzik", "Caz müziğinde önemli yer tutan anlık müzik üretimine ne denir?", "Doğaçlama", ["Armoni", "Tekrar", "Uvertür"], "Doğaçlama, caz müziğinin temel anlatım araçlarından biridir."),
+        q(4, "Spor", "Maraton yarışının resmî uzunluğu kaç kilometredir?", "42,195", ["40", "41,5", "45"], "Maratonun standart mesafesi 42 kilometre 195 metredir."),
+        q(4, "Teknoloji", "Alan adlarını IP adreslerine çeviren sistem hangisidir?", "DNS", ["SMTP", "USB", "HTML"], "DNS, alan adlarını ağda kullanılabilen IP adresleriyle eşleştirir."),
+        q(4, "Coğrafya", "Panama Kanalı hangi iki okyanusu birbirine bağlar?", "Atlas ve Pasifik", ["Atlas ve Hint", "Pasifik ve Hint", "Arktik ve Atlas"], "Panama Kanalı, Atlas Okyanusu ile Pasifik Okyanusu arasında geçiş sağlar."),
+        q(4, "Tarih", "Magna Carta hangi ülkede imzalanmıştır?", "İngiltere", ["Fransa", "İspanya", "İtalya"], "Magna Carta, 1215 yılında İngiltere'de imzalanmıştır."),
+        q(4, "Bilim", "Ağızda karbonhidrat sindirimini başlatan enzim hangisidir?", "Amilaz", ["Pepsin", "Lipaz", "Tripsin"], "Tükürükteki amilaz enzimi nişastanın parçalanmasını başlatır."),
+        q(4, "Matematik", "Yarıçapı r olan bir dairenin alan formülü hangisidir?", "πr²", ["2πr", "πr", "2r²"], "Dairenin alanı π ile yarıçapın karesinin çarpımına eşittir."),
+        q(4, "Sanat ve Edebiyat", "Belleğin Azmi adlı tablonun ressamı kimdir?", "Salvador Dalí", ["René Magritte", "Henri Matisse", "Gustav Klimt"], "Eriyen saatleriyle tanınan Belleğin Azmi, Salvador Dalí'nin eseridir."),
+        q(4, "Genel Kültür", "Göbeklitepe hangi ilimizin sınırları içindedir?", "Şanlıurfa", ["Mardin", "Gaziantep", "Diyarbakır"], "Göbeklitepe, Şanlıurfa kent merkezinin yakınındadır."),
+        q(4, "Bilim", "Güneş çevresindeki bir turunu en kısa sürede tamamlayan gezegen hangisidir?", "Merkür", ["Venüs", "Dünya", "Mars"], "Merkür'ün Güneş çevresindeki bir yılı yaklaşık 88 Dünya günüdür."),
+        q(4, "Teknoloji", "Çoğu bilgisayar uygulamasında Ctrl+Z kısayolu ne işe yarar?", "Son işlemi geri alır", ["Dosyayı kaydeder", "Metni seçer", "Pencereyi kapatır"], "Ctrl+Z, gerçekleştirilen son işlemi geri alma kısayoludur."),
+        q(4, "Spor", "Dekatlon kaç farklı atletizm yarışından oluşur?", "10", ["5", "7", "12"], "Dekatlon, iki güne yayılan on atletizm yarışından oluşur."),
+        q(4, "Sanat ve Edebiyat", "Suç ve Ceza adlı romanın yazarı kimdir?", "Fyodor Dostoyevski", ["Lev Tolstoy", "Nikolay Gogol", "Anton Çehov"], "Suç ve Ceza, Fyodor Dostoyevski'nin romanıdır."),
+        q(4, "Tarih", "Dünyanın çevresini dolaşan ilk seferi, Macellan'ın ölümünden sonra kim tamamlamıştır?", "Juan Sebastián Elcano", ["Vasco da Gama", "Kristof Kolomb", "James Cook"], "Macellan'ın başlattığı seferi 1522'de Juan Sebastián Elcano tamamladı."),
+        q(4, "Doğa", "Depremlerin büyük bölümü hangi bölgelerde meydana gelir?", "Tektonik levha sınırlarında", ["Ekvator çizgisinde", "Nehir deltalarında", "Çöl merkezlerinde"], "Yer kabuğundaki gerilim çoğunlukla tektonik levha sınırlarında birikir."),
+        q(4, "Matematik", "Romen rakamlarıyla XL hangi sayıyı gösterir?", "40", ["15", "60", "90"], "XL gösteriminde X, L'den önce geldiği için 50 - 10 = 40'tır."),
+        q(4, "Coğrafya", "Kapadokya'daki peribacalarının oluşumunda en etkili süreç hangisidir?", "Volkanik tüflerin aşınması", ["Mercanların birikmesi", "Buzulların donması", "Lavların denizde soğuması"], "Peribacaları, volkanik tüflerin su ve rüzgârla farklı hızlarda aşınmasıyla oluşur."),
+        q(4, "Teknoloji", "HTTP 404 durum kodu genellikle ne anlama gelir?", "Sayfa bulunamadı", ["Sunucu başarıyla yanıt verdi", "Erişim kalıcı olarak yasak", "Dosya indirildi"], "404 kodu, istenen kaynağın sunucuda bulunamadığını belirtir."),
+        q(4, "Müzik", "Müzikte “crescendo” terimi neyi belirtir?", "Sesin giderek güçlenmesini", ["Temponun aniden durmasını", "Sesin giderek incelmesini", "Eserin tekrar başlamasını"], "Crescendo, ses şiddetinin kademeli biçimde artırılmasıdır."),
+        q(4, "Matematik", "Bir dörtgenin iç açılarının toplamı kaç derecedir?", "360", ["180", "270", "540"], "Bir dörtgen iki üçgene ayrılabildiği için iç açıları toplamı 360 derecedir."),
+        q(4, "Tarih", "Fransız Devrimi'nin sembolik başlangıcı sayılan olay hangisidir?", "Bastille Hapishanesi'nin basılması", ["Waterloo Savaşı", "Viyana Kongresi", "Magna Carta'nın imzalanması"], "14 Temmuz 1789'da Bastille'in basılması devrimin sembolik başlangıcı kabul edilir."),
+        q(4, "Coğrafya", "Süveyş Kanalı hangi iki denizi birbirine bağlar?", "Akdeniz ve Kızıldeniz", ["Karadeniz ve Akdeniz", "Ege Denizi ve Marmara Denizi", "Kızıldeniz ve Basra Körfezi"], "Süveyş Kanalı, Akdeniz ile Kızıldeniz arasında geçiş sağlar."),
+        q(4, "Bilim", "İnsülin hormonu hangi organda üretilir?", "Pankreas", ["Dalak", "Böbrek", "Tiroid"], "İnsülin, pankreastaki beta hücreleri tarafından üretilir."),
+        q(4, "Sanat ve Edebiyat", "Orhan Veli Kanık hangi şiir hareketinin öncülerindendir?", "Garip", ["Servetifünun", "Fecriati", "İkinci Yeni"], "Orhan Veli, Melih Cevdet ve Oktay Rifat ile Garip hareketini başlatmıştır."),
 
-        pack("Teknoloji", "{subject} internet protokolünün temel görevi hangisidir?", "{subject}, “{answer}” amacıyla kullanılır.", [
-            ["HTTP", "Web sayfalarını aktarmak"], ["SMTP", "E-posta göndermek"], ["DNS", "Alan adını IP adresine çevirmek"], ["FTP", "Dosya aktarmak"],
-        ]),
-        pack("Teknoloji", "{subject} uzantılı bir dosya genellikle ne içerir?", "{subject} uzantısı çoğunlukla {answer} için kullanılır.", [
-            [".png", "Kayıpsız sıkıştırılmış görsel"], [".mp3", "Sıkıştırılmış ses"], [".pdf", "Taşınabilir belge"], [".zip", "Sıkıştırılmış arşiv"],
-        ]),
-        pack("Teknoloji", "{subject} bileşeninin temel görevi hangisidir?", "{subject}, bilgisayarda “{answer}” görevini üstlenir.", [
-            ["CPU", "Komutları işlemek"], ["RAM", "Geçici çalışma verisini tutmak"], ["SSD", "Veriyi kalıcı saklamak"], ["GPU", "Grafik işlemlerini hızlandırmak"],
-        ]),
-        pack("Teknoloji", "{subject} kavramı en doğru nasıl açıklanır?", "{subject}, “{answer}” anlamına gelir.", [
-            ["Şifreleme", "Veriyi anahtar olmadan okunamaz hale getirme"], ["Yedekleme", "Verinin güvenli bir kopyasını oluşturma"], ["İki aşamalı doğrulama", "İkinci bir kimlik kontrolü kullanma"], ["Açık kaynak", "Kaynak kodunu incelenebilir biçimde yayımlama"],
-        ]),
+        // 5. seviye: orta-zor
+        q(5, "Coğrafya", "İsviçre'nin federal başkenti hangisidir?", "Bern", ["Zürih", "Cenevre", "Lozan"], "İsviçre'nin federal yönetim merkezi Bern'dir."),
+        q(5, "Tarih", "1648 Westphalia Barışı hangi büyük savaşı sona erdirmiştir?", "Otuz Yıl Savaşı", ["Yedi Yıl Savaşı", "Yüz Yıl Savaşı", "Kırım Savaşı"], "Westphalia antlaşmaları, Avrupa'daki Otuz Yıl Savaşı'nı sona erdirdi."),
+        q(5, "Bilim", "Hafifliği ve yanıcı olmaması nedeniyle balonlarda kullanılan soy gaz hangisidir?", "Helyum", ["Neon", "Argon", "Radon"], "Helyum havadan hafiftir ve hidrojenin aksine yanıcı değildir."),
+        q(5, "Matematik", "İki adil zar atıldığında toplamın 7 gelme olasılığı nedir?", "1/6", ["1/12", "1/8", "1/4"], "36 eş olasılıklı sonuçtan altısının toplamı 7'dir; olasılık 6/36 yani 1/6'dır."),
+        q(5, "Sanat ve Edebiyat", "Tutunamayanlar adlı romanın yazarı kimdir?", "Oğuz Atay", ["Yusuf Atılgan", "Bilge Karasu", "Ferit Edgü"], "Tutunamayanlar, Oğuz Atay'ın ilk romanıdır."),
+        q(5, "Sinema", "Rashomon filminin yönetmeni kimdir?", "Akira Kurosawa", ["Yasujirō Ozu", "Kenji Mizoguchi", "Hayao Miyazaki"], "Rashomon, Akira Kurosawa'nın 1950 yapımı filmidir."),
+        q(5, "Müzik", "Do majör tonunun ilgili minörü hangisidir?", "La minör", ["Mi minör", "Re minör", "Sol minör"], "Do majör ile la minör aynı donanımı paylaşır."),
+        q(5, "Spor", "Voleybolda savunma ve manşet karşılamasında uzmanlaşan oyuncuya ne denir?", "Libero", ["Pivot", "Kaleci", "Forvet"], "Libero, arka alan savunması ve servis karşılamasında uzmanlaşan oyuncudur."),
+        q(5, "Teknoloji", "SQL'de iki tablodaki ilişkili satırları birleştirmek için hangi ifade kullanılır?", "JOIN", ["PRINT", "STYLE", "RENAME"], "JOIN ifadesi, ortak alanlara göre birden fazla tablodaki satırları birleştirir."),
+        q(5, "Coğrafya", "Asya ile Kuzey Amerika'yı ayıran boğaz hangisidir?", "Bering Boğazı", ["Malakka Boğazı", "Hürmüz Boğazı", "Dover Boğazı"], "Bering Boğazı, Rusya'nın doğusu ile Alaska arasında yer alır."),
+        q(5, "Tarih", "Rosetta Taşı'nda aynı metin hangi üç yazı sistemiyle yer alır?", "Hiyeroglif, Demotik ve Antik Yunanca", ["Latin, Arap ve Kiril", "Çivi, Fenike ve Latin", "Sanskrit, Brahmi ve Pali"], "Rosetta Taşı'ndaki üçlü metin, Mısır hiyerogliflerinin çözülmesinde anahtar olmuştur."),
+        q(5, "Bilim", "Kendi DNA'sına sahip hücre organeli hangisidir?", "Mitokondri", ["Golgi aygıtı", "Lizozom", "Endoplazmik retikulum"], "Mitokondrilerin çekirdek DNA'sından ayrı, halkasal DNA'sı bulunur."),
+        q(5, "Matematik", "f(x) = x² fonksiyonunun türevi hangisidir?", "2x", ["x", "x²", "2"], "Kuvvet kuralına göre x² fonksiyonunun türevi 2x'tir."),
+        q(5, "Sanat ve Edebiyat", "Atina Okulu freskinin ressamı kimdir?", "Raffaello", ["Michelangelo", "Tiziano", "Caravaggio"], "Atina Okulu, Raffaello'nun Vatikan'daki ünlü freskidir."),
+        q(5, "Tarih", "Divânu Lügati't-Türk'ün yazarı kimdir?", "Kâşgarlı Mahmud", ["Yusuf Has Hacib", "Ali Şîr Nevâî", "Edip Ahmet Yüknekî"], "Kâşgarlı Mahmud, Türkçenin bilinen ilk kapsamlı sözlüğünü hazırlamıştır."),
+        q(5, "Bilim", "Kendi ekseni etrafındaki dönüş süresi, Güneş çevresindeki dolanma süresinden uzun olan gezegen hangisidir?", "Venüs", ["Mars", "Jüpiter", "Neptün"], "Venüs'ün kendi ekseni etrafındaki bir dönüşü, Güneş çevresindeki bir turundan daha uzun sürer."),
+        q(5, "Teknoloji", "CSS seçicilerinden hangisi diğerlerine göre daha yüksek özgüllüğe sahiptir?", "#menu", [".menu", "nav", "*"], "Kimlik seçicisi olan #menu, sınıf ve etiket seçicilerinden daha yüksek özgüllüğe sahiptir."),
+        q(5, "Spor", "Teniste dört büyük turnuvanın tümünü aynı takvim yılında kazanmaya ne denir?", "Takvim Grand Slam'i", ["Golden Set", "Triple Crown", "Masters Serisi"], "Dört Grand Slam turnuvasını aynı takvim yılında kazanmak Takvim Grand Slam'i olarak adlandırılır."),
+        q(5, "Sanat ve Edebiyat", "Don Kişot adlı romanın yazarı kimdir?", "Miguel de Cervantes", ["Lope de Vega", "Federico García Lorca", "Jorge Luis Borges"], "Don Kişot, Miguel de Cervantes'in eseridir."),
+        q(5, "Sinema", "Metropolis filminin yönetmeni kimdir?", "Fritz Lang", ["F. W. Murnau", "Billy Wilder", "Robert Wiene"], "1927 yapımı Metropolis filmini Fritz Lang yönetmiştir."),
+        q(5, "Coğrafya", "Tropikal kuşakta yükselen ve dönenceler çevresinde alçalan hava dolaşım hücresine ne ad verilir?", "Hadley hücresi", ["Ferrel hücresi", "Walker hücresi", "Polar hücre"], "Hadley hücresi, ekvator ile yaklaşık 30 derece enlemleri arasındaki dolaşımdır."),
+        q(5, "Matematik", "12 ile 18'in en küçük ortak katı kaçtır?", "36", ["24", "48", "72"], "12 ve 18'in ortak katları içinde en küçüğü 36'dır."),
+        q(5, "Tarih", "Osmanlı'da Türkçe yayımlanan ilk özel gazete hangisidir?", "Tercümân-ı Ahvâl", ["Takvîm-i Vekâyi", "Cerîde-i Havâdis", "Tasvîr-i Efkâr"], "Şinasi ve Agâh Efendi'nin çıkardığı Tercümân-ı Ahvâl ilk özel Türkçe gazetedir."),
+        q(5, "Teknoloji", "TCP protokolünü UDP'den ayıran temel özellik hangisidir?", "Bağlantı odaklı ve güvenilir iletim", ["Yalnızca kablosuz ağlarda çalışması", "Alan adlarını çözümlemesi", "Dosyaları otomatik şifrelemesi"], "TCP, bağlantı kurar ve paketlerin sıralı, güvenilir iletimini gözetir."),
+        q(5, "Müzik", "Boléro adlı orkestral eserin bestecisi kimdir?", "Maurice Ravel", ["Claude Debussy", "Erik Satie", "Gabriel Fauré"], "Boléro, Maurice Ravel'in giderek büyüyen orkestrasyonuyla tanınan eseridir."),
+        q(5, "Spor", "Antik Olimpiyat Oyunları adını hangi yerleşimden alır?", "Olympia", ["Atina", "Sparta", "Maraton"], "Antik oyunlar, Yunanistan'daki Olympia kutsal alanında düzenlenirdi."),
+        q(5, "Bilim", "Antibiyotikler neden grip gibi virüs hastalıklarını tedavi etmez?", "Virüsleri değil bakteriyel yapıları hedefledikleri için", ["Vücutta hiç çözünmedikleri için", "Yalnızca ağrıyı azalttıkları için", "Sadece vitamin içerdikleri için"], "Antibiyotikler bakterilere özgü yapıları hedefler; virüslerde bu yapılar bulunmaz."),
+        q(5, "Coğrafya", "Başlangıç meridyeninin geçtiği Londra semti hangisidir?", "Greenwich", ["Chelsea", "Camden", "Westminster"], "0 derece boylamı, tarihsel olarak Greenwich Gözlemevi'nden geçecek biçimde kabul edilmiştir."),
+        q(5, "Sanat ve Edebiyat", "Nesneleri geometrik biçimler ve çoklu bakış açılarıyla gösteren sanat akımı hangisidir?", "Kübizm", ["Fovizm", "Romantizm", "Realizm"], "Kübizm, nesneleri parçalı geometrik biçimler ve farklı bakış açılarıyla ele alır."),
+        q(5, "Matematik", "Yeni bir bilgi geldikçe olasılıkları güncellemeyi sağlayan teorem hangisidir?", "Bayes teoremi", ["Pisagor teoremi", "Thales teoremi", "Wilson teoremi"], "Bayes teoremi, koşullu olasılıklar yardımıyla öncül olasılıkları günceller."),
 
-        pack("Sinema", "{subject} karakteri hangi filmde yer alır?", "{subject}, {answer} filmindeki karakterlerden biridir.", [
-            ["Woody", "Oyuncak Hikayesi"], ["Neo", "Matrix"], ["Amelie Poulain", "Amelie"], ["Simba", "Aslan Kral"],
-        ]),
-        pack("Sinema", "{subject} filminin yönetmeni kimdir?", "{subject} filmini {answer} yönetmiştir.", [
-            ["Başlangıç", "Christopher Nolan"], ["Ruhların Kaçışı", "Hayao Miyazaki"], ["Parazit", "Bong Joon-ho"], ["Büyük Budapeşte Oteli", "Wes Anderson"],
-        ]),
-        pack("Sinema", "“{subject}” tanımı hangi sinema türüne aittir?", "{answer} türü, {subject} özelliğiyle ayırt edilir.", [
-            ["Gerçek kişi ve olayları araştırmacı biçimde aktarma", "Belgesel"], ["Çizim veya modelleri hareket yanılsamasıyla canlandırma", "Animasyon"], ["Öyküyü şarkı ve danslarla ilerletme", "Müzikal"], ["Bilimsel olasılıklar ve gelecek üzerinden kurgu oluşturma", "Bilim kurgu"],
-        ]),
-        pack("Sinema", "{subject} terimi film yapımında neyi ifade eder?", "{subject}, “{answer}” anlamında kullanılır.", [
-            ["Senaryo", "Sahne, diyalog ve olay örgüsü metni"], ["Sinematografi", "Görüntü ve ışık anlatımının tasarımı"], ["Montaj", "Çekimlerin anlamlı bir sırada birleştirilmesi"], ["Film müziği", "Sahneleri destekleyen özgün ses ve besteler"],
-        ]),
+        // 6. seviye: zor
+        q(6, "Coğrafya", "Bhutan'ın başkenti hangisidir?", "Thimphu", ["Katmandu", "Lhasa", "Dakka"], "Bhutan'ın başkenti Thimphu'dur."),
+        q(6, "Tarih", "Napolyon Savaşları sonrasında Avrupa'nın sınırlarını yeniden düzenleyen toplantı hangisidir?", "Viyana Kongresi", ["Berlin Konferansı", "Yalta Konferansı", "Paris Barış Konferansı"], "1814-1815 Viyana Kongresi, Napolyon sonrası Avrupa düzenini belirledi."),
+        q(6, "Bilim", "Heisenberg belirsizlik ilkesi hangi iki niceliğin aynı anda kesin bilinmesini sınırlar?", "Konum ve momentum", ["Kütle ve hacim", "Sıcaklık ve basınç", "Yük ve akım"], "Kuantum mekaniğinde konum ile momentumun belirsizlikleri arasında temel bir sınır vardır."),
+        q(6, "Matematik", "Dışbükey bir çokyüzlü için Euler bağıntısı hangisidir?", "V - E + F = 2", ["V + E + F = 0", "V - E - F = 2", "V + E - F = 1"], "Köşe, kenar ve yüz sayıları dışbükey çokyüzlülerde V - E + F = 2 bağıntısını sağlar."),
+        q(6, "Sanat ve Edebiyat", "Huzur adlı romanın yazarı kimdir?", "Ahmet Hamdi Tanpınar", ["Peyami Safa", "Yakup Kadri Karaosmanoğlu", "Abdülhak Şinasi Hisar"], "Huzur, Ahmet Hamdi Tanpınar'ın İstanbul merkezli romanıdır."),
+        q(6, "Sinema", "Bisiklet Hırsızları filminin yönetmeni kimdir?", "Vittorio De Sica", ["Luchino Visconti", "Roberto Rossellini", "Federico Fellini"], "İtalyan Yeni Gerçekçiliğinin önemli filmi Bisiklet Hırsızları'nı Vittorio De Sica yönetmiştir."),
+        q(6, "Müzik", "Bahar Ayini adlı balenin müziğini kim bestelemiştir?", "Igor Stravinski", ["Sergey Prokofyev", "Dmitri Şostakoviç", "Nikolay Rimski-Korsakov"], "Bahar Ayini'nin çarpıcı müziği Igor Stravinski'ye aittir."),
+        q(6, "Spor", "Yüksek atlamada çıtanın sırtüstü geçildiği tekniğe ne ad verilir?", "Fosbury flop", ["Straddle roll", "Western grip", "Scissors kick"], "Dick Fosbury'nin yaygınlaştırdığı sırtüstü geçiş tekniği Fosbury flop olarak bilinir."),
+        q(6, "Teknoloji", "Veritabanı işlemlerindeki ACID kısaltmasında “I” harfi hangi özelliği belirtir?", "Isolation", ["Indexing", "Inheritance", "Iteration"], "ACID içindeki Isolation, eş zamanlı işlemlerin birbirinden yalıtılmasını ifade eder."),
+        q(6, "Coğrafya", "Hangisi Tuna Nehri'nin geçtiği başkentlerden biri değildir?", "Prag", ["Viyana", "Bratislava", "Budapeşte"], "Tuna; Viyana, Bratislava ve Budapeşte'den geçer, Prag'dan geçmez."),
+        q(6, "Tarih", "Çivi yazısının çözülmesinde önemli rol oynayan üç dilli yazıt hangisidir?", "Behistun Yazıtı", ["Rosetta Taşı", "Orhun Yazıtları", "Hammurabi Steli"], "Behistun Yazıtı, Eski Farsça, Elamca ve Babilce metinleriyle çivi yazısının çözülmesini sağladı."),
+        q(6, "Bilim", "Avogadro sabitinin yaklaşık değeri hangisidir?", "6,022 × 10²³", ["9,81 × 10²", "3,00 × 10⁸", "1,602 × 10⁻¹⁹"], "Bir mol parçacıkta yaklaşık 6,022 × 10²³ birim bulunur."),
+        q(6, "Matematik", "1/x fonksiyonunun belirsiz integrali hangisidir?", "ln|x| + C", ["1/x² + C", "x ln x + C", "eˣ + C"], "1/x'in integrali, x sıfırdan farklıyken ln|x| + C'dir."),
+        q(6, "Sanat ve Edebiyat", "Las Meninas tablosunun ressamı kimdir?", "Diego Velázquez", ["El Greco", "Francisco Goya", "Bartolomé Murillo"], "Las Meninas, İspanyol ressam Diego Velázquez'in başyapıtıdır."),
+        q(6, "Tarih", "Kutadgu Bilig adlı eserin yazarı kimdir?", "Yusuf Has Hacib", ["Kâşgarlı Mahmud", "Ahmet Yesevî", "Ali Şîr Nevâî"], "Kutadgu Bilig'i 11. yüzyılda Yusuf Has Hacib yazmıştır."),
+        q(6, "Bilim", "Triton hangi gezegenin en büyük uydusudur?", "Neptün", ["Uranüs", "Satürn", "Jüpiter"], "Triton, Neptün'ün en büyük doğal uydusudur."),
+        q(6, "Teknoloji", "CAP teoremindeki üç özellik hangileridir?", "Tutarlılık, erişilebilirlik ve bölünme toleransı", ["Gizlilik, doğruluk ve hız", "Önbellek, arşiv ve işlem", "Derleme, soyutlama ve kalıtım"], "CAP teoremi dağıtık sistemlerde consistency, availability ve partition tolerance özelliklerini ele alır."),
+        q(6, "Spor", "Tour de France'ta sarı mayo hangi klasmanın liderine verilir?", "Genel klasman", ["Dağ klasmanı", "Puan klasmanı", "Genç bisikletçi klasmanı"], "Sarı mayo, toplam süresi en düşük olan genel klasman liderine verilir."),
+        q(6, "Tarih", "Yüz Yıl Savaşları esas olarak hangi iki krallık arasında yaşanmıştır?", "İngiltere ve Fransa", ["İspanya ve Portekiz", "Prusya ve Avusturya", "İsveç ve Rusya"], "Yüz Yıl Savaşları, İngiltere ile Fransa hanedanları arasında yaşandı."),
+        q(6, "Sinema", "Yedi Samuray filminin yönetmeni kimdir?", "Akira Kurosawa", ["Masaki Kobayashi", "Nagisa Oshima", "Hiroshi Teshigahara"], "1954 yapımı Yedi Samuray filmini Akira Kurosawa yönetmiştir."),
+        q(6, "Coğrafya", "Termohalin okyanus dolaşımını temel olarak hangi iki özellik belirler?", "Sıcaklık ve tuzluluk", ["Rüzgâr ve yağış", "Derinlik ve dalga boyu", "Basınç ve bulutluluk"], "Sıcaklık ve tuzluluk, deniz suyunun yoğunluğunu ve derin dolaşımı belirler."),
+        q(6, "Matematik", "Birbirine göre asal modüllerdeki eş zamanlı kalan denklemlerini çözen sonuç hangisidir?", "Çin kalan teoremi", ["Ara değer teoremi", "Green teoremi", "Rolle teoremi"], "Çin kalan teoremi, uygun modüllerdeki kalan denklemi sistemlerinin tek çözüm sınıfını verir."),
+        q(6, "Sanat ve Edebiyat", "Taaşşuk-ı Talat ve Fitnat adlı eserin yazarı kimdir?", "Şemsettin Sami", ["Namık Kemal", "Ahmet Mithat Efendi", "Recaizade Mahmut Ekrem"], "Taaşşuk-ı Talat ve Fitnat, Şemsettin Sami tarafından yazılmıştır."),
+        q(6, "Teknoloji", "SHA-256 algoritmasının ürettiği özet kaç bittir?", "256", ["64", "128", "512"], "SHA-256, sabit uzunlukta 256 bitlik bir karma özeti üretir."),
+        q(6, "Müzik", "Das Wohltemperierte Klavier adlı eserin bestecisi kimdir?", "Johann Sebastian Bach", ["Georg Friedrich Händel", "Joseph Haydn", "Franz Schubert"], "İki kitaptan oluşan Das Wohltemperierte Klavier, Johann Sebastian Bach'ın eseridir."),
+        q(6, "Spor", "Bir biatlon yarışında hangi iki temel spor birleştirilir?", "Kayaklı koşu ve tüfekle atış", ["Bisiklet ve yüzme", "Koşu ve okçuluk", "Kürek ve eskrim"], "Biatlon, kayaklı koşu ile tüfekle hedef atışını birleştirir."),
+        q(6, "Bilim", "Miyelin kılıfın sinir sistemindeki temel etkisi nedir?", "Sinir iletimini hızlandırmak", ["Kan şekerini düşürmek", "Hormon üretmek", "Kemik yoğunluğunu artırmak"], "Miyelin, elektriksel sinyallerin akson boyunca daha hızlı iletilmesini sağlar."),
+        q(6, "Coğrafya", "Dünyanın en derin tatlı su gölü hangisidir?", "Baykal Gölü", ["Superior Gölü", "Victoria Gölü", "Tanganika Gölü"], "Sibirya'daki Baykal Gölü, yaklaşık 1.642 metreyle dünyanın en derin tatlı su gölüdür."),
+        q(6, "Sanat ve Edebiyat", "Dada hareketinin doğduğu Zürih mekânı hangisidir?", "Cabaret Voltaire", ["Bauhaus", "Salon des Refusés", "Black Mountain College"], "Dada sanatçıları 1916'da Zürih'teki Cabaret Voltaire çevresinde bir araya geldi."),
+        q(6, "Mantık", "Monty Hall probleminde sunucu boş bir kapıyı açtıktan sonra kapıyı değiştirmek kazanma olasılığını kaça çıkarır?", "2/3", ["1/3", "1/2", "3/4"], "İlk seçimde ödülü bulamama olasılığı 2/3 olduğu için kapı değiştirmek bu olasılığı devralır."),
 
-        pack("Müzik", "{subject} hangi çalgı ailesindedir?", "{subject}, {answer} ailesinde sınıflandırılır.", [
-            ["Keman", "Yaylı çalgılar"], ["Flüt", "Üflemeli çalgılar"], ["Davul", "Vurmalı çalgılar"], ["Piyano", "Tuşlu çalgılar"],
-        ]),
-        pack("Müzik", "Müzikte {subject} terimi ne anlama gelir?", "{subject}, “{answer}” anlamına gelen bir müzik terimidir.", [
-            ["tempo", "Eserin çalınma hızı"], ["forte", "Güçlü ve yüksek sesle"], ["piano", "Hafif ve yumuşak sesle"], ["crescendo", "Sesin giderek güçlenmesi"],
-        ]),
-        pack("Müzik", "{subject} adlı eserin bestecisi kimdir?", "{subject}, {answer} tarafından bestelenmiştir.", [
-            ["Dört Mevsim", "Antonio Vivaldi"], ["Sihirli Flüt", "Wolfgang Amadeus Mozart"], ["Dokuzuncu Senfoni", "Ludwig van Beethoven"], ["Kuğu Gölü", "Pyotr İlyiç Çaykovski"],
-        ]),
-        pack("Müzik", "{subject} türünü ayırt eden özellik hangisidir?", "{subject}, “{answer}” özelliğiyle güçlü biçimde ilişkilidir.", [
-            ["Caz", "Doğaçlamaya geniş yer vermesi"], ["Blues", "On iki ölçülük kalıbın sık kullanılması"], ["Reggae", "Vurgunun çoğunlukla ara vuruşlarda olması"], ["Flamenko", "Gitar, el çırpma ve dans birlikteliği"],
-        ]),
-
-        pack("Spor", "{subject} takımında sahada aynı anda kaç oyuncu bulunur?", "Standart bir {subject} takımında sahada aynı anda {answer} oyuncu yer alır.", [
-            ["Futbol", "11"], ["Basketbol", "5"], ["Voleybol", "6"], ["Hentbol", "7"],
-        ]),
-        pack("Spor", "“{subject}” açıklaması hangi spor terimini anlatır?", "{answer}, {subject} anlamında kullanılan bir spor terimidir.", [
-            ["Teniste servis karşılanmadan alınan sayı", "Ace"], ["Golfte bir çukuru par sayısından bir eksik vuruşla bitirme", "Birdie"], ["Basketbolda yayın gerisinden kazanılan sayı", "Üçlük"], ["Futbolda ceza alanındaki ihlale verilen vuruş", "Penaltı"],
-        ]),
-        pack("Spor", "{subject} hangi sporda kullanılan bir ekipmandır?", "{subject}, {answer} sporunda kullanılır.", [
-            ["Tüytop", "Badminton"], ["Pak", "Buz hokeyi"], ["Flöre", "Eskrim"], ["Kulplu beygir", "Jimnastik"],
-        ]),
-        pack("Spor", "{subject} için doğru açıklama hangisidir?", "{subject}, “{answer}” biçiminde tanımlanır.", [
-            ["Maraton", "42,195 kilometrelik koşu"], ["Dekatlon", "On atletizm yarışından oluşan mücadele"], ["Triatlon", "Yüzme, bisiklet ve koşu birleşimi"], ["Modern pentatlon", "Beş farklı disiplinden oluşan yarışma"],
-        ]),
-
-        pack("Sanat ve Edebiyat", "{subject} adlı eserin yazarı kimdir?", "{subject}, {answer} tarafından yazılmıştır.", [
-            ["İnce Memed", "Yaşar Kemal"], ["Saatleri Ayarlama Enstitüsü", "Ahmet Hamdi Tanpınar"], ["Kürk Mantolu Madonna", "Sabahattin Ali"], ["Sinekli Bakkal", "Halide Edib Adıvar"],
-        ]),
-        pack("Sanat ve Edebiyat", "{subject} adlı dünya klasiğinin yazarı kimdir?", "{subject}, {answer} tarafından kaleme alınmıştır.", [
-            ["1984", "George Orwell"], ["Küçük Prens", "Antoine de Saint-Exupery"], ["Don Kişot", "Miguel de Cervantes"], ["Suç ve Ceza", "Fyodor Dostoyevski"],
-        ]),
-        pack("Sanat ve Edebiyat", "{subject} tablosunun ressamı kimdir?", "{subject}, {answer} imzalı bir eserdir.", [
-            ["Yıldızlı Gece", "Vincent van Gogh"], ["Guernica", "Pablo Picasso"], ["Belleğin Azmi", "Salvador Dali"], ["İnci Küpeli Kız", "Johannes Vermeer"],
-        ]),
-        pack("Sanat ve Edebiyat", "“{subject}” açıklaması hangi sanat akımını anlatır?", "{answer} akımı, {subject} yaklaşımıyla tanınır.", [
-            ["Işık ve anlık izlenimleri görünür fırça darbeleriyle aktarma", "İzlenimcilik"], ["Nesneleri geometrik biçimler ve çoklu bakışlarla gösterme", "Kübizm"], ["Düşler ve bilinçaltından beslenen gerçeküstü imgeler kurma", "Sürrealizm"], ["Antik kültür, insan ve oran düşüncesini yeniden öne çıkarma", "Rönesans"],
-        ]),
-
-        pack("Doğa", "{subject} hangi hayvan sınıfında yer alır?", "{subject}, {answer} sınıfına ait bir canlıdır.", [
-            ["Balina", "Memeliler"], ["Penguen", "Kuşlar"], ["Kurbağa", "İki yaşamlılar"], ["Deniz kaplumbağası", "Sürüngenler"],
-        ]),
-        pack("Doğa", "{subject} ağacının veya bitkisinin ürünü hangisidir?", "{subject}, {answer} verir.", [
-            ["Meşe", "Palamut"], ["Çam", "Kozalak"], ["Zeytin ağacı", "Zeytin"], ["Fındık ocağı", "Fındık"],
-        ]),
-        pack("Doğa", "Ekosistemde {subject} için en uygun rol hangisidir?", "{subject}, ekosistemde çoğunlukla {answer} rolünü üstlenir.", [
-            ["Yeşil bitkiler", "Üretici"], ["Mantarlar", "Ayrıştırıcı"], ["Arılar", "Tozlaştırıcı"], ["Otçul hayvanlar", "Birincil tüketici"],
-        ]),
-        pack("Doğa", "{subject} olgusunun temel açıklaması hangisidir?", "{subject}, “{answer}” sonucunda veya biçiminde ortaya çıkar.", [
-            ["Kutup ışıkları", "Yüklü parçacıkların atmosferle etkileşmesi"], ["Mercan beyazlaması", "Isı stresiyle alg ortaklığının bozulması"], ["Mevsimsel göç", "Canlıların dönemsel olarak yer değiştirmesi"], ["Kış uykusu", "Metabolizmanın uzun süre yavaşlatılması"],
-        ]),
-
-        pack("Günlük Yaşam", "{subject} pişirme yöntemi nasıl uygulanır?", "{subject}, “{answer}” yöntemiyle yapılır.", [
-            ["Haşlama", "Yiyeceği sıcak sıvıda pişirme"], ["Buharda pişirme", "Yiyeceği su buharıyla pişirme"], ["Izgara", "Yiyeceği doğrudan kuru ısıyla pişirme"], ["Fırınlama", "Yiyeceği kapalı sıcak hava ortamında pişirme"],
-        ]),
-        pack("Günlük Yaşam", "{subject} dönüşümünün sonucu hangisidir?", "{subject} eşitliği {answer} sonucunu verir.", [
-            ["1 kilometre", "1.000 metre"], ["1 saat", "60 dakika"], ["1 litre", "1.000 mililitre"], ["1 kilogram", "1.000 gram"],
-        ]),
-        pack("Günlük Yaşam", "{subject} özelliğine en uygun malzeme hangisidir?", "{answer}, {subject} özelliğine günlük yaşamdan iyi bir örnektir.", [
-            ["Elektriği iyi iletme", "Bakır"], ["Elektriği yalıtma", "Kauçuk"], ["Işığı büyük ölçüde geçirme", "Cam"], ["Yüksek mekanik dayanım", "Çelik"],
-        ]),
-        pack("Günlük Yaşam", "{subject} uygulamasının temel yararı hangisidir?", "{subject}, “{answer}” amacıyla uygulanır.", [
-            ["Yiyeceği buzdolabında saklamak", "Mikroorganizma çoğalmasını yavaşlatmak"], ["Elleri sabunla yıkamak", "Kir ve mikroorganizmaları uzaklaştırmak"], ["Çiğ ve pişmiş gıdayı ayırmak", "Çapraz bulaşmayı azaltmak"], ["Düzenli yedek almak", "Veri kaybına karşı kopya bulundurmak"],
-        ]),
-
-        pack("Matematik", "{subject} işleminin sonucu kaçtır?", "{subject} işleminin sonucu {answer} olur.", [
-            ["18 + 24", "42"], ["72 - 29", "43"], ["7 x 8", "56"], ["144 / 12", "12"],
-        ]),
-        pack("Matematik", "{subject} kaçtır?", "{subject} işlemi {answer} sonucunu verir.", [
-            ["200'ün yüzde 10'u", "20"], ["120'nin yüzde 25'i", "30"], ["300'ün yüzde 15'i", "45"], ["240'ın yüzde 25'i", "60"],
-        ]),
-        pack("Matematik", "{subject} şeklinin alanı kaç birimkaredir?", "{subject} için alan {answer} birimkaredir.", [
-            ["Bir kenarı 5 olan karenin", "25"], ["Kenarları 6 ve 4 olan dikdörtgenin", "24"], ["Tabanı 8, yüksekliği 5 olan üçgenin", "20"], ["Pi 3 alınarak yarıçapı 2 olan dairenin", "12"],
-        ]),
-        pack("Matematik", "{subject} dizisinde sıradaki sayı hangisidir?", "{subject} dizisinin kuralına göre sıradaki sayı {answer} olur.", [
-            ["2, 4, 8, 16", "32"], ["1, 4, 9, 16", "25"], ["3, 6, 12, 24", "48"], ["1, 1, 2, 3, 5", "8"],
-        ]),
-
-        pack("Mantık", "“{subject}” sözcüğüyle en doğrudan ilişkili eylem hangisidir?", "{subject} ile en doğrudan ilişkili eylem {answer} eylemidir.", [
-            ["Kitap", "Okumak"], ["Anahtar", "Açmak"], ["Pusula", "Yön bulmak"], ["Makas", "Kesmek"],
-        ]),
-        pack("Mantık", "{subject} ise sonuç hangi gün olur?", "Günler sırayla sayıldığında sonuç {answer} olur.", [
-            ["Pazartesiden üç gün sonrası", "Perşembe"], ["Cumadan iki gün sonrası", "Pazar"], ["Çarşambadan iki gün öncesi", "Pazartesi"], ["Cumartesiden dört gün sonrası", "Çarşamba"],
-        ]),
-        pack("Mantık", "{subject} grubunda diğerlerinden farklı olan hangisidir?", "{answer}, verilen grupta diğerleriyle aynı sınıfta değildir.", [
-            ["Elma, armut, muz, havuç", "Havuç"], ["Kare, üçgen, daire, kırmızı", "Kırmızı"], ["Pazartesi, salı, ocak, çarşamba", "Ocak"], ["Metre, litre, kilogram, sandalye", "Sandalye"],
-        ]),
-        pack("Mantık", "{subject} Buna göre doğru sonuç hangisidir?", "Verilen sıralamaya göre doğru sonuç: {answer}.", [
-            ["Ali, Buse'den; Buse de Cem'den uzundur.", "En uzun Ali'dir"], ["Deniz, Ece'den; Fırat da Deniz'den yaşlıdır.", "En yaşlı Fırat'tır"], ["Kalem defterden; silgi de kalemden ucuzdur.", "En ucuz silgidir"], ["Mavi kutu kırmızıdan; yeşil kutu da maviden ağırdır.", "En ağır yeşil kutudur"],
-        ]),
+        // 7. seviye: final
+        q(7, "Coğrafya", "Palau'nun başkenti hangisidir?", "Ngerulmud", ["Koror", "Suva", "Apia"], "Palau'nun başkenti 2006'dan beri Ngerulmud'dur."),
+        q(7, "Tarih", "1494 Tordesillas Antlaşması dünyadaki keşif alanlarını hangi iki krallık arasında paylaştırmıştır?", "İspanya ve Portekiz", ["İngiltere ve Fransa", "Hollanda ve Belçika", "Venedik ve Ceneviz"], "Tordesillas Antlaşması, Avrupa dışındaki keşif alanlarını İspanya ile Portekiz arasında bölüştürdü."),
+        q(7, "Bilim", "Güçlü nükleer etkileşimin taşıyıcı parçacığı hangisidir?", "Gluon", ["Foton", "Bozon W", "Nötrino"], "Kuantum renk dinamiğinde güçlü etkileşimi gluonlar taşır."),
+        q(7, "Matematik", "p asal ve a, p'nin katı değilse a^(p-1) sayısının p ile bölümünden kalan kaçtır?", "1", ["0", "p - 1", "a"], "Fermat'nın küçük teoremine göre a^(p-1) ≡ 1 mod p olur."),
+        q(7, "Sanat ve Edebiyat", "Aylak Adam adlı romanın yazarı kimdir?", "Yusuf Atılgan", ["Vüs'at O. Bener", "Nezihe Meriç", "Demir Özlü"], "Aylak Adam, Yusuf Atılgan'ın 1959'da yayımlanan romanıdır."),
+        q(7, "Sinema", "Stalker filminin yönetmeni kimdir?", "Andrey Tarkovski", ["Aleksandr Sokurov", "Elem Klimov", "Sergey Parajanov"], "Stalker, Andrey Tarkovski'nin 1979 yapımı filmidir."),
+        q(7, "Müzik", "Gymnopédies adlı piyano parçalarını kim bestelemiştir?", "Erik Satie", ["Camille Saint-Saëns", "Francis Poulenc", "Olivier Messiaen"], "Üç Gymnopédie, Fransız besteci Erik Satie'nin eseridir."),
+        q(7, "Spor", "Snookerda serbest top olmadan yapılabilecek en yüksek seri kaçtır?", "147", ["144", "155", "180"], "On beş kırmızı-siyah çifti ve ardından renkli toplar toplam 147 puan eder."),
+        q(7, "Teknoloji", "B-ağacının veritabanı indekslerinde tercih edilmesinin temel nedeni nedir?", "Disk erişimini azaltan dengeli ve geniş dallanma sağlaması", ["Verileri yalnızca metin olarak tutması", "Şifreleme anahtarı üretmesi", "Ağ paketlerini yönlendirmesi"], "B-ağaçları yüksek dallanma ve dengeli yapı sayesinde disk erişim sayısını düşük tutar."),
+        q(7, "Coğrafya", "Nahçıvan Özerk Cumhuriyeti hangi ülkeye bağlıdır?", "Azerbaycan", ["Ermenistan", "Gürcistan", "İran"], "Nahçıvan, Azerbaycan'a bağlı ve ana ülkeden ayrı bir özerk cumhuriyettir."),
+        q(7, "Tarih", "Linear B yazısını çözerek dilin erken bir Yunanca biçimi olduğunu gösteren kişi kimdir?", "Michael Ventris", ["Arthur Evans", "Jean-François Champollion", "Henry Rawlinson"], "Michael Ventris, Alice Kober'ın çalışmalarından da yararlanarak Linear B'yi 1952'de çözdü."),
+        q(7, "Bilim", "SI sisteminde katalitik etkinliğin birimi hangisidir?", "Katal", ["Tesla", "Weber", "Siemens"], "Katal, saniyede bir mol dönüşüme karşılık gelen katalitik etkinlik birimidir."),
+        q(7, "Matematik", "1729 sayısını ünlü yapan özellik hangisidir?", "İki pozitif küpün toplamı olarak iki farklı biçimde yazılabilmesi", ["İlk mükemmel sayı olması", "En küçük asal palindrom olması", "Fibonacci dizisinin 20. terimi olması"], "1729 = 1³ + 12³ = 9³ + 10³ eşitlikleri nedeniyle Hardy-Ramanujan sayısı olarak bilinir."),
+        q(7, "Sanat ve Edebiyat", "Arnolfini'nin Evlenmesi adlı tablonun ressamı kimdir?", "Jan van Eyck", ["Pieter Bruegel", "Albrecht Dürer", "Hans Holbein"], "Arnolfini'nin Evlenmesi, Erken Hollanda resminin ustası Jan van Eyck'a aittir."),
+        q(7, "Sanat ve Edebiyat", "Şikâyetnâme adlı eserin yazarı kimdir?", "Fuzûlî", ["Bâkî", "Nef'î", "Nâbî"], "Şikâyetnâme, Fuzûlî'nin bürokrasiyi eleştiren mektup biçimindeki eseridir."),
+        q(7, "Bilim", "Yoğun ve azot bakımından zengin atmosfere sahip Satürn uydusu hangisidir?", "Titan", ["Enceladus", "Mimas", "Iapetus"], "Titan'ın yoğun atmosferinin büyük bölümü azottan oluşur."),
+        q(7, "Teknoloji", "Dijkstra'nın en kısa yol algoritması hangi tür kenarlarda güvenilir sonuç vermez?", "Negatif ağırlıklı kenarlarda", ["Yönsüz kenarlarda", "Birim ağırlıklı kenarlarda", "Pozitif ağırlıklı kenarlarda"], "Dijkstra algoritması, negatif ağırlıklı kenarlar bulunduğunda daha önce kesinleştirdiği uzaklıkları düzeltemeyebilir."),
+        q(7, "Spor", "Satrançta “geçerken alma” hamlesi hangi taş için geçerlidir?", "Piyon", ["At", "Fil", "Kale"], "Geçerken alma, iki kare ilerleyen rakip piyona karşı yalnızca piyonun yapabildiği özel hamledir."),
+        q(7, "Tarih", "Hansa Birliği esas olarak hangi alanda etkin olmuş bir oluşumdur?", "Kuzey Avrupa deniz ticareti", ["Akdeniz korsanlığı", "İpek Yolu kervancılığı", "Sahra altı altın madenciliği"], "Hansa Birliği, Orta Çağ'da Kuzey ve Baltık denizlerindeki ticaret kentlerini bir araya getirdi."),
+        q(7, "Sinema", "8½ filminin yönetmeni kimdir?", "Federico Fellini", ["Michelangelo Antonioni", "Pier Paolo Pasolini", "Bernardo Bertolucci"], "8½, Federico Fellini'nin sinema ve yaratıcılık üzerine kurduğu filmidir."),
+        q(7, "Coğrafya", "Coriolis etkisi teorik olarak hangi enlemde sıfırdır?", "Ekvator", ["30 derece kuzey", "45 derece güney", "Kutup noktaları"], "Coriolis parametresi enlemin sinüsüyle değişir ve ekvatorda sıfır olur."),
+        q(7, "Matematik", "Gödel'in birinci eksiklik teoremi kabaca hangi sonucu söyler?", "Yeterince güçlü ve tutarlı bir sistemde kanıtlanamayan doğru önermeler bulunur", ["Her matematiksel önerme deneyle kanıtlanır", "Tüm geometriler birbirine denktir", "Asal sayıların sayısı sonludur"], "Teorem, aritmetiği ifade edebilen tutarlı biçimsel sistemlerin tamamlanamayacağını gösterir."),
+        q(7, "Sanat ve Edebiyat", "Sebk-i Hindî üslubunun divan şiirindeki önemli temsilcilerinden biri kimdir?", "Nâilî", ["Nedim", "Şinasi", "Ziya Paşa"], "Nâilî, yoğun hayal ve anlam örgüsüyle Sebk-i Hindî'nin önemli temsilcilerindendir."),
+        q(7, "Teknoloji", "IPv6 adresleri kaç bit uzunluğundadır?", "128", ["32", "64", "256"], "IPv6 adres alanı 128 bitlik adresler kullanır."),
+        q(7, "Müzik", "Goldberg Varyasyonları kaç varyasyondan oluşur?", "30", ["12", "24", "36"], "Bach'ın Goldberg Varyasyonları bir aria, 30 varyasyon ve arianın dönüşünden oluşur."),
+        q(7, "Bilim", "Ribozomda peptit bağının kurulmasını doğrudan katalizleyen yapı hangisidir?", "Ribozomal RNA", ["Hücre zarı", "DNA polimeraz", "Sentrozom"], "Peptidil transferaz merkezinin katalitik çekirdeğini ribozomal RNA oluşturur."),
+        q(7, "Coğrafya", "Mercator projeksiyonu hangi geometrik özelliği yerel olarak korur?", "Açıları", ["Alanları", "Uzaklıkları", "Nüfus oranlarını"], "Mercator konformal bir projeksiyondur; yerel açıları korurken alanları özellikle kutuplara doğru büyütür."),
+        q(7, "Tarih", "Osmanlı'da ilk sürekli elçilik 1793'te hangi şehirde açılmıştır?", "Londra", ["Paris", "Viyana", "Berlin"], "III. Selim dönemindeki ilk sürekli Osmanlı elçiliği 1793'te Londra'da açıldı."),
     ];
 
-    const questions = [];
+    const questions = entries.map((entry, index) => {
+        const [difficulty, category, text, answer, distractors, explanation] = entry;
+        const correctIndex = index % 4;
+        const options = distractors.slice();
+        options.splice(correctIndex, 0, answer);
 
-    packs.forEach((currentPack, packIndex) => {
-        const difficultyPattern = PACK_DIFFICULTIES[packIndex % PACK_DIFFICULTIES.length];
-        const answers = currentPack.entries.map((entry) => entry[1]);
-
-        currentPack.entries.forEach(([subject, answer], itemIndex) => {
-            const questionIndex = questions.length;
-            const correctIndex = questionIndex % 4;
-            const distractors = answers.filter((_, answerIndex) => answerIndex !== itemIndex);
-            const options = distractors.slice();
-            options.splice(correctIndex, 0, answer);
-            const difficulty = difficultyPattern[itemIndex];
-
-            questions.push(Object.freeze({
-                id: `milyoner-${String(questionIndex + 1).padStart(3, "0")}`,
-                text: fillTemplate(currentPack.question, subject, answer),
-                options: Object.freeze(options),
-                correctIndex,
-                category: currentPack.category,
-                difficulty,
-                difficultyLabel: DIFFICULTY_LABELS[difficulty],
-                explanation: fillTemplate(currentPack.explanation, subject, answer),
-            }));
+        return Object.freeze({
+            id: `milyoner-v2-${String(index + 1).padStart(3, "0")}`,
+            text,
+            options: Object.freeze(options),
+            correctIndex,
+            category,
+            difficulty,
+            difficultyLabel: DIFFICULTY_LABELS[difficulty],
+            explanation,
         });
     });
 
     return Object.freeze(questions);
 
-    function pack(category, question, explanation, entries) {
-        return Object.freeze({ category, question, explanation, entries: Object.freeze(entries) });
-    }
-
-    function fillTemplate(template, subject, answer) {
-        return template.replaceAll("{subject}", subject).replaceAll("{answer}", answer);
+    function q(difficulty, category, text, answer, distractors, explanation) {
+        return Object.freeze([
+            difficulty,
+            category,
+            text,
+            answer,
+            Object.freeze(distractors),
+            explanation,
+        ]);
     }
 });

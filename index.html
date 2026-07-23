@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=68">
+    <link rel="stylesheet" href="style.css?v=72">
 </head>
 
 <body>
@@ -639,7 +639,7 @@
                     </div>
                     <div class="button-row panel-actions">
                         <button id="parolla-start" class="primary-button" type="button">Yeniden Başlat</button>
-                        <button id="parolla-end" class="secondary-button" type="button" disabled>Oyunu Bitir</button>
+                        <button id="parolla-end" class="secondary-button" type="button" hidden disabled>Oyunu Bitir</button>
                     </div>
                 </div>
                 <div class="parolla-layout">
@@ -690,11 +690,11 @@
                                     <div id="parolla-final-answered" class="parolla-final-list-content">-</div>
                                 </div>
                                 <div>
-                                    <span>Yanlış Cevaplar</span>
+                                    <span>Yanlış Cevapların</span>
                                     <div id="parolla-final-wrong-answers" class="parolla-final-list-content">-</div>
                                 </div>
                                 <div>
-                                    <span>Pas Geçilen Harfler</span>
+                                    <span>Pas Geçilen Sorular</span>
                                     <div id="parolla-final-passed-letters" class="parolla-final-list-content">-</div>
                                 </div>
                             </div>
@@ -721,7 +721,20 @@
                         <p>5 haneli gizli sayıyı 6 tahminde bul.</p>
                     </div>
                     <div class="button-row panel-actions">
-                        <button id="numble-hard" class="secondary-button" type="button">Zor Mod: Kapalı</button>
+                        <div class="numble-hard-control">
+                            <button id="numble-hard" class="secondary-button" type="button" aria-describedby="numble-hard-help">Zor Mod: Kapalı</button>
+                            <div id="numble-hard-help" class="numble-hard-help" role="tooltip">
+                                <strong>Zor Mod Nasıl Çalışır?</strong>
+                                <span class="numble-hard-rule">
+                                    <i class="exact" aria-hidden="true"></i>
+                                    <span>Yeşil rakam aynı konumda kalmalı.</span>
+                                </span>
+                                <span class="numble-hard-rule">
+                                    <i class="present" aria-hidden="true"></i>
+                                    <span>Sarı rakam sonraki tahminde kullanılmalı.</span>
+                                </span>
+                            </div>
+                        </div>
                         <button id="numble-new" class="primary-button" type="button">Yeni Oyun</button>
                     </div>
                 </div>
@@ -1132,23 +1145,6 @@
                         </div>
                     </aside>
                 </div>
-
-                <details class="sudoku-statistics">
-                    <summary>İstatistikler</summary>
-                    <div class="sudoku-stat-grid">
-                        <div><span>Toplam oyun</span><strong id="sudoku-stat-games">0</strong></div>
-                        <div><span>Galibiyet</span><strong id="sudoku-stat-wins">0</strong></div>
-                        <div><span>Kolay galibiyet</span><strong id="sudoku-stat-easy-wins">0</strong></div>
-                        <div><span>Orta galibiyet</span><strong id="sudoku-stat-medium-wins">0</strong></div>
-                        <div><span>Zor galibiyet</span><strong id="sudoku-stat-hard-wins">0</strong></div>
-                        <div><span>Kolay en iyi</span><strong id="sudoku-stat-easy-best">--:--</strong></div>
-                        <div><span>Orta en iyi</span><strong id="sudoku-stat-medium-best">--:--</strong></div>
-                        <div><span>Zor en iyi</span><strong id="sudoku-stat-hard-best">--:--</strong></div>
-                        <div><span>Seri</span><strong id="sudoku-stat-streak">0</strong></div>
-                        <div><span>En uzun seri</span><strong id="sudoku-stat-longest-streak">0</strong></div>
-                        <div><span>Toplam hata</span><strong id="sudoku-stat-errors">0</strong></div>
-                    </div>
-                </details>
 
                 <div id="sudoku-modal" class="sudoku-modal" role="dialog" aria-modal="true" aria-labelledby="sudoku-modal-title" hidden>
                     <div class="sudoku-modal-card">
@@ -1679,7 +1675,7 @@
                                         <span><strong>Ceza puanı</strong><small>Tabu denince puan azalt.</small></span>
                                     </label>
                                     <label class="tabu-toggle">
-                                        <input id="tabu-allow-negative" type="checkbox">
+                                        <input id="tabu-allow-negative" type="checkbox" checked>
                                         <span><strong>Negatif skor</strong><small>Puan sıfırın altına inebilsin.</small></span>
                                     </label>
                                     <label class="tabu-toggle">
@@ -1894,21 +1890,21 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=28"></script>
+    <script src="index.js?v=29"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
     <script src="tools/weather/script.js?v=4"></script>
     <script src="tools/translate/script.js?v=1"></script>
-    <script src="tools/parolla/questions.js?v=2"></script>
-    <script src="tools/parolla/script.js?v=2"></script>
+    <script src="tools/parolla/questions.js?v=4"></script>
+    <script src="tools/parolla/script.js?v=4"></script>
     <script src="tools/valorant-crosshair/script.js?v=1"></script>
     <script src="tools/chess/script.js?v=3"></script>
     <script src="tools/advanced-xox/script.js?v=3"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
-    <script src="tools/sudoku/script.js?v=4"></script>
-    <script src="tools/milyoner/questions.js?v=1"></script>
-    <script src="tools/milyoner/engine.js?v=2"></script>
+    <script src="tools/sudoku/script.js?v=6"></script>
+    <script src="tools/milyoner/questions.js?v=2"></script>
+    <script src="tools/milyoner/engine.js?v=3"></script>
     <script src="tools/milyoner/audio.js?v=1"></script>
     <script src="tools/milyoner/script.js?v=11"></script>
     <script src="tools/var-misin-yok-musun/engine.js?v=2"></script>

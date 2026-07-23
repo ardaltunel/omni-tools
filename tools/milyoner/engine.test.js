@@ -11,11 +11,29 @@ assert.equal(questions.length, 208);
 assert.equal(new Set(questions.map((question) => question.id)).size, questions.length);
 assert.equal(new Set(questions.map((question) => question.category)).size, 13);
 assert.deepEqual([0, 1, 2, 3].map((index) => questions.filter((question) => question.correctIndex === index).length), [52, 52, 52, 52]);
+assert.deepEqual([1, 2, 3, 4, 5, 6, 7].map((difficulty) => questions.filter((question) => question.difficulty === difficulty).length), [30, 30, 30, 30, 30, 30, 28]);
+assert.equal(new Set(questions.map((question) => question.text)).size, questions.length);
+
+questions.forEach((question) => {
+    assert.match(question.id, /^milyoner-v2-\d{3}$/);
+    assert.equal(question.text, question.text.trim());
+    assert.match(question.text, /\?$/);
+    assert.equal(question.options.length, 4);
+    assert.equal(new Set(question.options).size, 4);
+    assert.equal(Number.isInteger(question.correctIndex), true);
+    assert.equal(question.correctIndex >= 0 && question.correctIndex < 4, true);
+    assert.equal(question.options.every((option) => typeof option === "string" && option.trim() === option && option.length > 0), true);
+    assert.equal(typeof question.explanation, "string");
+    assert.match(question.explanation, /\.$/);
+    assert.doesNotMatch(question.text, /\{(?:subject|answer)\}/);
+    assert.doesNotMatch(question.text, /\b([\p{L}]+)\s+\1\b/iu);
+});
 
 for (let run = 0; run < 150; run += 1) {
     const game = engine.createGame({ questions, random, now: 1000 + run });
     assert.equal(game.questions.length, 15);
     assert.equal(new Set(game.questions.map((question) => question.id)).size, 15);
+    assert.deepEqual(game.questions.map((question) => question.difficulty), engine.DIFFICULTY_SCHEDULE);
     assert.equal(engine.isValidSavedGame(game), true);
 }
 
@@ -54,4 +72,4 @@ engine.withdraw(withdrawalGame, 5000);
 assert.equal(withdrawalGame.result.reason, "withdrawn");
 assert.equal(withdrawalGame.result.winnings, 5000);
 
-console.log("Milyoner motor testleri başarılı: 208 soru, 150 oyun üretimi, ilk 6 soruda 30 saniye, ödüller ve jokerler.");
+console.log("Milyoner testleri başarılı: 208 özgün soru, dengeli şıklar, kolaydan zora 150 oyun üretimi, süre, ödüller ve jokerler.");

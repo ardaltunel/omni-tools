@@ -28,6 +28,7 @@ const parollaFinalPassedLetters = document.getElementById("parolla-final-passed-
 
 const parollaAlphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 const parollaDurationSeconds = 5 * 60;
+const parollaAnswerSuffixes = ["ulusalparki", "yanardagi", "daglari", "okyanusu", "bogazi", "denizi", "nehri", "dagi", "golu"];
 let parollaAutoStarted = false;
 let parollaAudioContext = null;
 
@@ -83,6 +84,7 @@ function startParollaGame() {
     parollaFinal.hidden = true;
     parollaPlay.hidden = false;
     parollaStartButton.disabled = true;
+    parollaEndButton.hidden = false;
     parollaEndButton.disabled = false;
     parollaFeedback.textContent = "";
 
@@ -133,7 +135,7 @@ function submitParollaAnswer(event) {
     }
 
     const question = getCurrentParollaQuestion();
-    const isCorrect = question.answers.some((answer) => normalizeParollaAnswer(answer) === normalizeParollaAnswer(value));
+    const isCorrect = isParollaAnswerCorrect(value, question.answers);
 
     const previousAnswer = findParollaAnswer(question.letter);
     if (previousAnswer?.status === "passed") {
@@ -248,6 +250,7 @@ function finishParollaGame(reason) {
     parollaIntro.hidden = true;
     parollaFinal.hidden = false;
     parollaStartButton.disabled = false;
+    parollaEndButton.hidden = true;
     parollaEndButton.disabled = true;
     parollaFeedback.textContent = "";
 
@@ -288,58 +291,68 @@ function renderParollaFinalAnswered(answers) {
 }
 
 function renderParollaFinalWrongAnswers(answers) {
-    parollaFinalWrongAnswers.replaceChildren();
-    parollaFinalWrongAnswers.className = "parolla-final-list-content parolla-wrong-answer-list";
-
-    if (!answers.length) {
-        parollaFinalWrongAnswers.append(createParollaEmptyState("Yanlış cevap yok."));
-        return;
-    }
-
-    answers.forEach((answer) => {
-        const row = document.createElement("div");
-        row.className = "parolla-wrong-answer-row";
-
-        const letter = document.createElement("span");
-        letter.className = "parolla-wrong-letter";
-        letter.textContent = answer.letter;
-
-        const details = document.createElement("div");
-        details.className = "parolla-wrong-details";
-
-        const given = document.createElement("p");
-        given.innerHTML = "<span>Senin cevabın</span>";
-        const givenValue = document.createElement("strong");
-        givenValue.textContent = answer.given || "-";
-        given.append(givenValue);
-
-        const correct = document.createElement("p");
-        correct.innerHTML = "<span>Doğru cevap</span>";
-        const correctValue = document.createElement("strong");
-        correctValue.textContent = answer.correctAnswer;
-        correct.append(correctValue);
-
-        details.append(given, correct);
-        row.append(letter, details);
-        parollaFinalWrongAnswers.append(row);
+    renderParollaAnswerReview(parollaFinalWrongAnswers, answers, {
+        status: "wrong",
+        emptyMessage: "Yanlış cevap yok.",
+        showGivenAnswer: true,
     });
 }
 
 function renderParollaFinalPassedLetters(answers) {
-    parollaFinalPassedLetters.replaceChildren();
-    parollaFinalPassedLetters.className = "parolla-final-list-content parolla-final-chip-list";
+    renderParollaAnswerReview(parollaFinalPassedLetters, answers, {
+        status: "passed",
+        emptyMessage: "Pas geçilen soru yok.",
+        showGivenAnswer: false,
+    });
+}
+
+function renderParollaAnswerReview(container, answers, options) {
+    container.replaceChildren();
+    container.className = "parolla-final-list-content parolla-review-list";
 
     if (!answers.length) {
-        parollaFinalPassedLetters.append(createParollaEmptyState("Pas geçilen harf yok."));
+        container.append(createParollaEmptyState(options.emptyMessage));
         return;
     }
 
     answers.forEach((answer) => {
-        const chip = document.createElement("span");
-        chip.className = "parolla-result-chip passed";
-        chip.textContent = answer.letter;
-        parollaFinalPassedLetters.append(chip);
+        const row = document.createElement("article");
+        row.className = `parolla-review-row ${options.status}`;
+
+        const letter = document.createElement("span");
+        letter.className = "parolla-review-letter";
+        letter.textContent = answer.letter;
+        letter.setAttribute("aria-hidden", "true");
+
+        const body = document.createElement("div");
+        body.className = "parolla-review-body";
+
+        const question = createParollaReviewField("Soru", answer.question, "parolla-review-question");
+        const details = document.createElement("div");
+        details.className = "parolla-review-details";
+
+        if (options.showGivenAnswer) {
+            details.append(createParollaReviewField("Senin cevabın", answer.given || "-"));
+        }
+        details.append(createParollaReviewField("Doğru cevap", answer.correctAnswer, "correct-answer"));
+
+        body.append(question, details);
+        row.append(letter, body);
+        container.append(row);
     });
+}
+
+function createParollaReviewField(labelText, value, className = "") {
+    const field = document.createElement("p");
+    if (className) field.className = className;
+
+    const label = document.createElement("span");
+    label.textContent = labelText;
+    const content = document.createElement("strong");
+    content.textContent = value;
+
+    field.append(label, content);
+    return field;
 }
 
 function createParollaEmptyState(message) {
@@ -424,6 +437,8 @@ function normalizeParollaAnswer(value) {
     return String(value || "")
         .trim()
         .toLocaleLowerCase("tr-TR")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
         .replace(/ç/g, "c")
         .replace(/ğ/g, "g")
         .replace(/[ıi]/g, "i")
@@ -431,6 +446,22 @@ function normalizeParollaAnswer(value) {
         .replace(/ş/g, "s")
         .replace(/ü/g, "u")
         .replace(/[^a-z0-9]/g, "");
+}
+
+function getParollaAnswerForms(value) {
+    const normalized = normalizeParollaAnswer(value);
+    const forms = new Set([normalized]);
+    const suffix = parollaAnswerSuffixes.find((item) => normalized.endsWith(item) && normalized.length > item.length + 1);
+    if (suffix) forms.add(normalized.slice(0, -suffix.length));
+    return forms;
+}
+
+function isParollaAnswerCorrect(value, acceptedAnswers) {
+    const givenForms = getParollaAnswerForms(value);
+    return acceptedAnswers.some((answer) => {
+        const acceptedForms = getParollaAnswerForms(answer);
+        return Array.from(acceptedForms).some((form) => givenForms.has(form));
+    });
 }
 
 initParolla();

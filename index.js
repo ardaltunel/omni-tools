@@ -379,6 +379,7 @@ const numbleState = {
 
 document.getElementById("numble-new").addEventListener("click", startNumbleGame);
 numbleHardButton.addEventListener("click", toggleNumbleHardMode);
+numbleHardButton.addEventListener("pointerup", () => numbleHardButton.blur());
 numbleCopy.addEventListener("click", copyNumbleResult);
 document.addEventListener("keydown", handleNumbleKeyboard);
 

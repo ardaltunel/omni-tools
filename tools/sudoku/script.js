@@ -38,20 +38,6 @@
         summary: document.getElementById("sudoku-modal-summary"),
         primary: document.getElementById("sudoku-modal-primary"),
     };
-    const statsElements = {
-        games: document.getElementById("sudoku-stat-games"),
-        wins: document.getElementById("sudoku-stat-wins"),
-        easyWins: document.getElementById("sudoku-stat-easy-wins"),
-        mediumWins: document.getElementById("sudoku-stat-medium-wins"),
-        hardWins: document.getElementById("sudoku-stat-hard-wins"),
-        easyBest: document.getElementById("sudoku-stat-easy-best"),
-        mediumBest: document.getElementById("sudoku-stat-medium-best"),
-        hardBest: document.getElementById("sudoku-stat-hard-best"),
-        streak: document.getElementById("sudoku-stat-streak"),
-        longestStreak: document.getElementById("sudoku-stat-longest-streak"),
-        errors: document.getElementById("sudoku-stat-errors"),
-    };
-
     const state = {
         difficulty: "medium",
         puzzle: Array(engine.CELL_COUNT).fill(0),
@@ -81,7 +67,6 @@
 
     createBoard();
     bindEvents();
-    renderStats();
 
     const savedGame = loadActiveGame();
     if (savedGame) {
@@ -102,7 +87,7 @@
             cell.setAttribute("role", "gridcell");
             cell.setAttribute("aria-rowindex", (Math.floor(index / 9) + 1).toString());
             cell.setAttribute("aria-colindex", (index % 9 + 1).toString());
-            cell.addEventListener("click", () => selectCell(index, true));
+            cell.addEventListener("click", () => selectCell(index, true, true));
             fragment.appendChild(cell);
         }
 
@@ -170,7 +155,7 @@
             state.values = generated.puzzle.slice();
             state.notes = Array(engine.CELL_COUNT).fill(0);
             state.hints = Array(engine.CELL_COUNT).fill(false);
-            state.selected = state.puzzle.findIndex((value) => value === 0);
+            state.selected = -1;
             state.errors = 0;
             state.hintsRemaining = MAX_HINTS;
             state.hintsUsed = 0;
@@ -191,10 +176,11 @@
         }, 40);
     }
 
-    function selectCell(index, shouldFocus = false) {
+    function selectCell(index, shouldFocus = false, allowDeselect = false) {
         if (!canInteract() || index < 0 || index >= engine.CELL_COUNT) return;
-        state.selected = index;
+        state.selected = allowDeselect && state.selected === index ? -1 : index;
         renderBoard();
+        renderControls();
         if (shouldFocus) cells[index].focus({ preventScroll: true });
         saveActiveGame();
     }
@@ -445,7 +431,6 @@
     function render() {
         renderBoard();
         renderControls();
-        renderStats();
         display.errors.textContent = `Hatalar ${state.errors}/${MAX_ERRORS}`;
         display.hints.textContent = `${state.hintsRemaining}/${MAX_HINTS}`;
         display.difficulty.textContent = DIFFICULTY_LABELS[state.difficulty];
@@ -528,20 +513,6 @@
         document.getElementById("sudoku-pause-cover").hidden = !state.paused;
     }
 
-    function renderStats() {
-        statsElements.games.textContent = stats.games.toString();
-        statsElements.wins.textContent = stats.wins.toString();
-        statsElements.easyWins.textContent = stats.byDifficulty.easy.wins.toString();
-        statsElements.mediumWins.textContent = stats.byDifficulty.medium.wins.toString();
-        statsElements.hardWins.textContent = stats.byDifficulty.hard.wins.toString();
-        statsElements.easyBest.textContent = formatBestTime(stats.byDifficulty.easy.bestMs);
-        statsElements.mediumBest.textContent = formatBestTime(stats.byDifficulty.medium.bestMs);
-        statsElements.hardBest.textContent = formatBestTime(stats.byDifficulty.hard.bestMs);
-        statsElements.streak.textContent = stats.currentStreak.toString();
-        statsElements.longestStreak.textContent = stats.longestStreak.toString();
-        statsElements.errors.textContent = stats.errors.toString();
-    }
-
     function getCompletedCells() {
         const completed = new Set();
 
@@ -618,9 +589,8 @@
     }
 
     function focusSelectedCell() {
-        if (!panel.classList.contains("active") || !canInteract()) return;
-        const index = state.selected >= 0 ? state.selected : 0;
-        window.requestAnimationFrame(() => cells[index]?.focus({ preventScroll: true }));
+        if (!panel.classList.contains("active") || !canInteract() || state.selected < 0) return;
+        window.requestAnimationFrame(() => cells[state.selected]?.focus({ preventScroll: true }));
     }
 
     function getCellLabel(index, value, isGiven, isError, notesMask) {
@@ -795,7 +765,6 @@
         } catch (error) {
             // Statistics remain available for the current session.
         }
-        renderStats();
     }
 
     function readStorage(key) {
@@ -814,7 +783,4 @@
         return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
 
-    function formatBestTime(milliseconds) {
-        return milliseconds === null ? "--:--" : formatTime(milliseconds);
-    }
 })();

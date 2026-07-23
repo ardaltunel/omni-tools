@@ -1095,6 +1095,101 @@ input[type="color"] {
     margin-top: 0;
 }
 
+#parolla-end[hidden] {
+    display: none;
+}
+
+.numble-hard-control {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.numble-hard-control > button {
+    width: 100%;
+}
+
+.numble-hard-help {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 10px);
+    right: 0;
+    display: grid;
+    gap: 9px;
+    width: min(306px, calc(100vw - 40px));
+    padding: 13px 14px;
+    border: 1px solid rgba(24, 169, 153, 0.38);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+}
+
+.numble-hard-help > strong {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.numble-hard-rule {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 9px;
+    align-items: start;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.numble-hard-rule i {
+    width: 11px;
+    height: 11px;
+    margin-top: 3px;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.numble-hard-rule i.exact {
+    background: #22a06b;
+}
+
+.numble-hard-rule i.present {
+    background: #c6a82f;
+}
+
+.numble-hard-help::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: 24px;
+    width: 8px;
+    height: 8px;
+    border-top: 1px solid rgba(24, 169, 153, 0.38);
+    border-left: 1px solid rgba(24, 169, 153, 0.38);
+    background: var(--surface);
+    transform: rotate(45deg);
+}
+
+.numble-hard-control:hover .numble-hard-help,
+.numble-hard-control > button:focus-visible + .numble-hard-help {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .numble-hard-help {
+        transition: none;
+    }
+}
+
 .parolla-layout {
     display: grid;
     grid-template-columns: minmax(0, 680px) minmax(280px, 360px);
@@ -1338,6 +1433,11 @@ input[type="color"] {
     background: linear-gradient(180deg, rgba(255, 115, 128, 0.08), rgba(17, 20, 26, 0.58)), var(--surface);
 }
 
+.parolla-final-lists > div:nth-child(3) {
+    border-color: rgba(244, 211, 94, 0.24);
+    background: linear-gradient(180deg, rgba(244, 211, 94, 0.06), rgba(17, 20, 26, 0.58)), var(--surface);
+}
+
 .parolla-final-list-content {
     display: flex;
     min-height: 42px;
@@ -1380,12 +1480,12 @@ input[type="color"] {
     color: #cbd5e1;
 }
 
-.parolla-wrong-answer-list {
+.parolla-review-list {
     display: grid;
     gap: 8px;
 }
 
-.parolla-wrong-answer-row {
+.parolla-review-row {
     display: grid;
     grid-template-columns: 38px minmax(0, 1fr);
     gap: 10px;
@@ -1396,7 +1496,11 @@ input[type="color"] {
     padding: 9px;
 }
 
-.parolla-wrong-letter {
+.parolla-review-row.passed {
+    border-color: rgba(244, 211, 94, 0.16);
+}
+
+.parolla-review-letter {
     display: grid;
     min-height: 38px;
     place-items: center;
@@ -1406,33 +1510,54 @@ input[type="color"] {
     font-weight: 900;
 }
 
-.parolla-wrong-details {
+.parolla-review-row.passed .parolla-review-letter {
+    background: #665b2c;
+    color: #fff1ad;
+}
+
+.parolla-review-body {
+    display: grid;
+    gap: 9px;
+    min-width: 0;
+}
+
+.parolla-review-details {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
 
-.parolla-wrong-details p {
+.parolla-review-body p {
     display: grid;
     gap: 2px;
     margin: 0;
     min-width: 0;
 }
 
-.parolla-wrong-details span {
+.parolla-review-body span {
     color: var(--muted);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
 }
 
-.parolla-wrong-details strong {
+.parolla-review-body strong {
     overflow-wrap: anywhere;
     color: var(--text);
     font-size: 14px;
+    line-height: 1.4;
 }
 
-.parolla-wrong-details p:last-child strong {
+.parolla-review-question {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+}
+
+.parolla-review-question strong {
+    font-weight: 700;
+}
+
+.parolla-review-details .correct-answer strong {
     color: #9de2ad;
 }
 
@@ -3786,8 +3911,7 @@ input[type="color"] {
 }
 
 .sudoku-game-card,
-.sudoku-side,
-.sudoku-statistics {
+.sudoku-side {
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--panel);
@@ -4058,8 +4182,7 @@ input[type="color"] {
 
 .sudoku-difficulties button:focus-visible,
 .sudoku-number-pad button:focus-visible,
-.sudoku-actions button:focus-visible,
-.sudoku-statistics summary:focus-visible {
+.sudoku-actions button:focus-visible {
     outline: 3px solid rgba(24, 169, 153, 0.48);
     outline-offset: 2px;
 }
@@ -4087,47 +4210,6 @@ input[type="color"] {
     border-radius: 6px;
     font-size: 14px;
     line-height: 1;
-}
-
-.sudoku-statistics {
-    width: min(100%, 936px);
-    margin: 16px auto 0;
-    padding: 0 16px;
-}
-
-.sudoku-statistics summary {
-    cursor: pointer;
-    padding: 15px 0;
-    color: var(--text);
-    font-weight: 800;
-}
-
-.sudoku-stat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-    padding-bottom: 16px;
-}
-
-.sudoku-stat-grid > div {
-    display: grid;
-    gap: 5px;
-    min-width: 0;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--surface);
-    padding: 10px 11px;
-}
-
-.sudoku-stat-grid span {
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.sudoku-stat-grid strong {
-    color: var(--accent-strong);
-    font-size: 17px;
 }
 
 .sudoku-modal {
@@ -4291,10 +4373,6 @@ input[type="color"] {
 
     .sudoku-layout {
         grid-template-columns: 1fr;
-        width: min(100%, 620px);
-    }
-
-    .sudoku-statistics {
         width: min(100%, 620px);
     }
 
@@ -4587,10 +4665,6 @@ input[type="color"] {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .sudoku-stat-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .chess-topline,
     .coach-topline,
     .xox-topline {
@@ -4620,12 +4694,12 @@ input[type="color"] {
         grid-template-columns: 1fr;
     }
 
-    .parolla-wrong-answer-row,
-    .parolla-wrong-details {
+    .parolla-review-row,
+    .parolla-review-details {
         grid-template-columns: 1fr;
     }
 
-    .parolla-wrong-letter {
+    .parolla-review-letter {
         width: 38px;
     }
 }
@@ -4721,7 +4795,6 @@ input[type="color"] {
         height: 22px;
     }
 
-    .sudoku-stat-grid,
     .sudoku-modal-actions {
         grid-template-columns: 1fr;
     }
