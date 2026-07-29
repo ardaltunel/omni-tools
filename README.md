@@ -2,7 +2,7 @@
 
 # Omni Tools
 
-### Modern, hızlı ve kullanıcı dostu hepsi bir arada utility platformu.
+### A modern, fast, and user-friendly all-in-one utility platform.
 
 <p align="center">
   <img src="https://img.shields.io/github/stars/ardaltunel/omni-tools?style=flat-square" />
@@ -15,115 +15,115 @@
 
 ---
 
-# 📸 Önizleme
+# 📸 Preview
 
 <p align="center">
-  <img width="1891" height="900" alt="image" src="https://github.com/user-attachments/assets/4519d578-3793-486c-8440-2791f0266ea1" />
+  <img width="1891" height="900" alt="Omni Tools application preview" src="https://github.com/user-attachments/assets/4519d578-3793-486c-8440-2791f0266ea1" />
 </p>
 
 ---
 
-# 🚀 Hakkında
+# 🚀 About
 
-Omni Tools, günlük hayatta kullanılan faydalı araçları tek bir platform altında birleştiren modern bir web uygulamasıdır.
+Omni Tools is a modern web application that brings together useful everyday tools in a single platform.
 
-Birden fazla farklı website kullanmak yerine; hızlı, responsive ve tutarlı kullanıcı deneyimi sunan merkezi bir utility platformu oluşturmayı hedefler.
+Instead of relying on multiple websites, the project aims to provide a centralized utility platform with a fast, responsive, and consistent user experience.
 
-Proje özellikle şu konulara odaklanmaktadır:
+The project mainly focuses on:
 
-- Modern kullanıcı arayüzü
-- Responsive tasarım
-- Hızlı performans
-- Minimal tasarım dili
-- Modüler yapı
-- Tutarlı kullanıcı deneyimi
-
----
-
-# ✨ Özellikler
-
-## Mevcut Araçlar
-
-- QR Code Generator
-- Weather Application
-- Crypto Price Tracker
-- GitHub User Finder
-- Dönüştürücü
-- Text To Speech
-- Translator
-- Parolla
-- Sudoku
-- Tabu
-- Var Mısın Yok Musun
-- Milyoner Bilgi Yarışması
-- Utility Calculators
+* Modern user interface design
+* Responsive layouts
+* Fast performance
+* Minimal design language
+* Modular architecture
+* Consistent user experience
 
 ---
 
-# 🎨 Tasarım Yaklaşımı
+# ✨ Features
 
-Omni Tools modern dark UI yaklaşımıyla tasarlanmıştır.
+## Available Tools
 
-Platformun hissiyatı:
-
-- Minimal
-- Modern
-- Hızlı
-- Responsive
-- Dengeli
-- Kullanımı kolay
-
-olacak şekilde planlanmıştır.
-
-Tüm araçlar aynı tasarım sistemini kullanır ve böylece uygulama genelinde tutarlı bir kullanıcı deneyimi sağlanır.
+* QR Code Generator
+* Weather Application
+* Cryptocurrency Price Tracker
+* GitHub User Finder
+* Unit Converter
+* Text-to-Speech
+* Translator
+* Parolla
+* Sudoku
+* Taboo
+* Deal or No Deal
+* Millionaire Quiz
+* Utility Calculators
 
 ---
 
-# 🛠️ Teknoloji Yığını
+# 🎨 Design Approach
+
+Omni Tools is designed with a modern dark user interface.
+
+The platform is intended to feel:
+
+* Minimal
+* Modern
+* Fast
+* Responsive
+* Balanced
+* Easy to use
+
+All tools follow the same design system, providing a consistent experience throughout the application.
+
+---
+
+# 🛠️ Technology Stack
 
 <div align="center">
 
-| Frontend | Styling | APIs | Build Tool |
-|---|---|---|---|
-| React | Tailwind CSS | REST APIs | Vite |
-| JavaScript | CSS3 | OpenWeather API | npm |
-| React Router | Responsive Design | Crypto APIs | Vercel |
+| Frontend     | Styling           | APIs                | Build and Deployment |
+| ------------ | ----------------- | ------------------- | -------------------- |
+| React        | Tailwind CSS      | REST APIs           | Vite                 |
+| JavaScript   | CSS3              | OpenWeather API     | npm                  |
+| React Router | Responsive Design | Cryptocurrency APIs | Vercel               |
 
 </div>
 
 ---
 
-# ⚙️ Kurulum
+# ⚙️ Installation
 
-## Repository Klonlama
+## Clone the Repository
 
 ```bash
 git clone https://github.com/ardaltunel/omni-tools.git
 ```
 
-## Proje Klasörüne Gir
+## Navigate to the Project Directory
 
 ```bash
 cd omni-tools
 ```
 
-## Bağımlılıkları Kur
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-## Geliştirme Sunucusunu Başlat
+## Start the Development Server
 
 ```bash
 npm run dev
 ```
 
+After the development server starts, open the local URL displayed in the terminal.
+
 ---
 
-# 📂 Proje Yapısı
+# 📂 Project Structure
 
-```bash
+```text
 src/
 ├── assets/
 ├── components/
@@ -133,46 +133,58 @@ src/
 └── utils/
 ```
 
----
+### Directory Overview
 
-# 🗺️ Yol Haritası
-
-- [ ] AI destekli araçlar
-- [ ] Favori araç sistemi
-- [ ] Authentication sistemi
-- [ ] Çoklu dil desteği
-- [ ] PWA desteği
-- [ ] Daha gelişmiş animasyonlar
-- [ ] Yeni utility araçları
+* `assets/`: Images, icons, and other static resources
+* `components/`: Reusable user interface components
+* `pages/`: Main application pages
+* `tools/`: Individual utility implementations
+* `styles/`: Shared style definitions
+* `utils/`: Helper functions and shared utilities
 
 ---
 
-# ⚡ Performans Hedefleri
+# 🗺️ Roadmap
 
-- Optimize edilmiş yükleme süresi
-- Mobile-first responsive yapı
-- Yeniden kullanılabilir component sistemi
-- Tutarlı spacing sistemi
-- Akıcı animasyonlar
-- Ölçeklenebilir proje mimarisi
-
----
-
-# 🤝 Katkıda Bulunma
-
-Katkılar, feature önerileri ve pull request'ler her zaman memnuniyetle karşılanır.
-
-Repository’yi fork ederek geliştirmelerde bulunabilirsiniz.
+* [ ] AI-powered tools
+* [ ] Favorite tools system
+* [ ] User authentication
+* [ ] Multilingual support
+* [ ] Progressive Web App support
+* [ ] More advanced animations
+* [ ] Additional utility tools
 
 ---
 
-# 📄 Lisans
+# ⚡ Performance Goals
 
-Bu proje MIT lisansı ile lisanslanmıştır.
-
-Detaylı bilgi için:
-<a href="LICENSE">LICENSE</a>
+* Optimized loading times
+* Mobile-first responsive architecture
+* Reusable component system
+* Consistent spacing system
+* Smooth animations
+* Scalable project architecture
 
 ---
 
-Made with ❤️ by Arda Altunel
+# 🤝 Contributing
+
+Contributions, feature suggestions, and pull requests are always welcome.
+
+To contribute:
+
+1. Fork the repository.
+2. Create a new branch for your changes.
+3. Make and test your improvements.
+4. Commit your changes.
+5. Open a pull request.
+
+---
+
+# 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+Made with ❤️ by **Arda Altunel**
