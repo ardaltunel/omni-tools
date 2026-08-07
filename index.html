@@ -21,7 +21,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=72">
+    <link rel="stylesheet" href="style.css?v=74">
+    <link rel="stylesheet" href="tools/exif-viewer/style.css?v=2">
 </head>
 
 <body>
@@ -59,6 +60,16 @@
                 </button>
                 <button class="nav-item" data-tool="converter" data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
                     <span>Dönüştürücü</span>
+                </button>
+                <button class="nav-item" data-tool="metadata-cleaner"
+                    data-search="metadata cleaner medya veri temizleyici exif xmp iptc gps fotoğraf mahremiyet"
+                    data-description="Fotoğraflardaki mahremiyet metadata bilgilerini kayıpsız temizle." type="button">
+                    <span>Medya Veri Temizleyici</span>
+                </button>
+                <button class="nav-item" data-tool="exif-viewer"
+                    data-search="exif metadata viewer görüntüleme gps kamera tarih iptc xmp icc"
+                    data-description="Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin." type="button">
+                    <span>EXIF Veri Görüntüleme</span>
                 </button>
                 <button class="nav-item" data-tool="numble" data-description="Beş haneli gizli sayıyı altı tahminde bul." type="button">
                     <span>Numble</span>
@@ -1436,6 +1447,188 @@
                 </div>
             </section>
 
+            <section id="exif-viewer" class="tool-panel exif-viewer-panel" aria-labelledby="exif-viewer-title">
+                <div class="panel-heading exif-viewer-heading">
+                    <div>
+                        <h2 id="exif-viewer-title">EXIF Veri Görüntüleme</h2>
+                        <p>Fotoğrafın içindeki EXIF, GPS, kamera, tarih, XMP, IPTC ve teknik metadata alanlarını ayrıntılı incele.</p>
+                    </div>
+                    <button id="exif-viewer-new" class="secondary-button" type="button" hidden>Yeni Fotoğraf Analiz Et</button>
+                </div>
+
+                <div class="exif-viewer-privacy" role="note">
+                    <span class="exif-viewer-privacy-mark" aria-hidden="true">✓</span>
+                    <div>
+                        <strong>Dosyanız cihazınızdan ayrılmaz.</strong>
+                        <p>Tüm EXIF ve metadata analizi doğrudan tarayıcınızda gerçekleştirilir. Tool dosyayı değiştirmez.</p>
+                    </div>
+                </div>
+
+                <section id="exif-viewer-upload" class="exif-viewer-upload" aria-labelledby="exif-viewer-upload-title">
+                    <div id="exif-viewer-drop-zone" class="exif-viewer-drop-zone" tabindex="0">
+                        <input id="exif-viewer-file-input" type="file"
+                            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
+                        <div class="exif-viewer-upload-icon" aria-hidden="true"><span></span></div>
+                        <div>
+                            <h3 id="exif-viewer-upload-title">Fotoğrafınızı buraya sürükleyin</h3>
+                            <p>veya dosya seçin</p>
+                        </div>
+                        <button id="exif-viewer-browse" class="primary-button" type="button">Fotoğraf Seç</button>
+                        <small>JPG <b>•</b> JPEG <b>•</b> PNG <b>•</b> WEBP</small>
+                        <span>Ctrl+V ile panodaki fotoğrafı da yapıştırabilirsiniz.</span>
+                    </div>
+                </section>
+
+                <div id="exif-viewer-status" class="exif-viewer-status" role="status" aria-live="polite" hidden>
+                    <div class="exif-viewer-status-heading">
+                        <span class="exif-viewer-spinner" aria-hidden="true"></span>
+                        <strong id="exif-viewer-status-text">Dosya okunuyor...</strong>
+                    </div>
+                    <div class="exif-viewer-status-track" aria-hidden="true"><span id="exif-viewer-progress"></span></div>
+                </div>
+
+                <p id="exif-viewer-error" class="exif-viewer-error" role="alert" hidden></p>
+
+                <div id="exif-viewer-result" class="exif-viewer-result" hidden>
+                    <section class="exif-viewer-overview" aria-labelledby="exif-viewer-overview-title">
+                        <div class="exif-viewer-section-heading">
+                            <div>
+                                <h3 id="exif-viewer-overview-title">Analiz Özeti</h3>
+                                <p>Yalnızca dosyanın içinde gerçekten bulunan bilgiler gösterilir.</p>
+                            </div>
+                        </div>
+                        <div id="exif-viewer-summary" class="exif-viewer-summary"></div>
+                    </section>
+
+                    <section id="exif-viewer-gps-alert" class="exif-viewer-gps-alert" hidden></section>
+                    <div id="exif-viewer-warnings" class="exif-viewer-warnings" hidden></div>
+
+                    <div class="exif-viewer-toolbar" aria-label="Metadata rapor işlemleri">
+                        <button id="exif-viewer-copy-all" class="primary-button" type="button">Tüm Meta Verileri Kopyala</button>
+                        <button id="exif-viewer-show-json" class="secondary-button" type="button">JSON Olarak Gör</button>
+                        <button id="exif-viewer-download-json" class="secondary-button" type="button">JSON İndir</button>
+                        <button id="exif-viewer-download-txt" class="secondary-button" type="button">TXT Raporu İndir</button>
+                    </div>
+
+                    <section class="exif-viewer-details" aria-labelledby="exif-viewer-details-title">
+                        <div class="exif-viewer-section-heading">
+                            <div>
+                                <h3 id="exif-viewer-details-title">Metadata Ayrıntıları</h3>
+                                <p>Kaynağına ve kullanım amacına göre gruplandırılmış alanlar.</p>
+                            </div>
+                        </div>
+                        <div id="exif-viewer-categories" class="exif-viewer-categories"></div>
+                    </section>
+
+                    <section class="exif-viewer-raw" aria-labelledby="exif-viewer-raw-title">
+                        <div class="exif-viewer-raw-heading">
+                            <div>
+                                <h3 id="exif-viewer-raw-title">Tüm Ham Meta Veriler</h3>
+                                <p id="exif-viewer-raw-count">0 alan</p>
+                            </div>
+                            <label class="exif-viewer-raw-search">
+                                <span class="sr-only">Meta verilerde ara</span>
+                                <input id="exif-viewer-raw-search" type="search" placeholder="Meta verilerde ara..." autocomplete="off" spellcheck="false">
+                            </label>
+                        </div>
+                        <div class="exif-viewer-table-wrap">
+                            <table>
+                                <thead><tr><th>Alan</th><th>Değer</th><th>Kaynak</th></tr></thead>
+                                <tbody id="exif-viewer-raw-body"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section id="exif-viewer-json" class="exif-viewer-json" aria-labelledby="exif-viewer-json-title" hidden>
+                        <div class="exif-viewer-json-heading">
+                            <div>
+                                <h3 id="exif-viewer-json-title">Structured Metadata JSON</h3>
+                                <p>Dosya, EXIF, GPS, XMP, IPTC, ICC ve container alanları.</p>
+                            </div>
+                            <button id="exif-viewer-copy-json" class="secondary-button" type="button">JSON'u Kopyala</button>
+                        </div>
+                        <pre id="exif-viewer-json-output"></pre>
+                    </section>
+
+                    <p class="exif-viewer-disclaimer">Bu araç bir AI detector değildir. Metadata veya Content Credentials bulunmaması, görselin nasıl üretildiği konusunda kesin sonuç vermez.</p>
+                </div>
+
+                <p id="exif-viewer-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="metadata-cleaner" class="tool-panel metadata-cleaner-panel" aria-labelledby="metadata-cleaner-title">
+                <div class="panel-heading metadata-cleaner-heading">
+                    <div>
+                        <h2 id="metadata-cleaner-title">Medya Veri Temizleyici</h2>
+                        <p>Fotoğraflarını değiştirmeden EXIF, XMP, IPTC, GPS ve diğer mahremiyet verilerini temizle.</p>
+                    </div>
+                    <span class="metadata-local-badge">%100 cihazınızda</span>
+                </div>
+
+                <div class="metadata-privacy-note" role="note">
+                    <span class="metadata-privacy-icon" aria-hidden="true">✓</span>
+                    <div>
+                        <strong>Dosyalarınız cihazınızdan ayrılmaz.</strong>
+                        <p>Tüm işlemler tarayıcınızda gerçekleştirilir. Dosyalar herhangi bir sunucuya yüklenmez.</p>
+                    </div>
+                </div>
+
+                <div class="metadata-cleaner-shell">
+                    <div class="metadata-cleaner-main-grid">
+                        <section id="metadata-drop-zone" class="metadata-drop-zone" tabindex="0" aria-labelledby="metadata-drop-title">
+                            <input id="metadata-file-input" type="file" multiple
+                                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif" hidden>
+                            <div class="metadata-upload-icon" aria-hidden="true">
+                                <span></span>
+                            </div>
+                            <div>
+                                <h3 id="metadata-drop-title">Görselleri buraya sürükleyin</h3>
+                                <p>veya dosya seçin · Ctrl+V ile panodan yapıştırabilirsiniz</p>
+                            </div>
+                            <button id="metadata-browse" class="primary-button" type="button">Dosya Seç</button>
+                            <small>JPEG / JPG · PNG · WebP</small>
+                            <p id="metadata-upload-status" class="metadata-upload-status" aria-live="polite"></p>
+                        </section>
+
+                        <aside class="metadata-batch-card" aria-labelledby="metadata-batch-title">
+                            <div>
+                                <h3 id="metadata-batch-title">Toplu İşlem</h3>
+                                <p>En fazla 20 fotoğrafı sırayla analiz edin, temizleyin ve ZIP olarak indirin.</p>
+                            </div>
+                            <div class="metadata-batch-actions">
+                                <button id="metadata-clean-all" class="primary-button" type="button" disabled>META VERİLERİ TEMİZLE</button>
+                                <button id="metadata-download-zip" class="secondary-button" type="button" disabled>ZIP OLARAK İNDİR</button>
+                                <button id="metadata-clear-all" class="secondary-button" type="button" disabled>Listeyi Temizle</button>
+                            </div>
+                            <div class="metadata-batch-progress" aria-live="polite">
+                                <div class="metadata-progress-track" aria-hidden="true"><span id="metadata-progress-bar"></span></div>
+                                <span id="metadata-progress-text">Dosya bekleniyor</span>
+                            </div>
+                            <div class="metadata-format-notes">
+                                <span>JPEG, PNG ve WebP kayıpsız temizlenir</span>
+                                <span>Video desteği yakında</span>
+                                <span>HEIC/HEIF bu sürümde desteklenmiyor</span>
+                            </div>
+                            <p class="metadata-purpose-note">Bu araç yalnızca dosya mahremiyeti içindir; herhangi bir içerik tespit sistemini atlatma garantisi vermez.</p>
+                        </aside>
+                    </div>
+
+                    <section class="metadata-files-section" aria-labelledby="metadata-files-title">
+                        <div class="metadata-section-heading">
+                            <div>
+                                <h3 id="metadata-files-title">Fotoğraflar</h3>
+                                <p id="metadata-file-count">Henüz dosya eklenmedi.</p>
+                            </div>
+                        </div>
+                        <div id="metadata-file-list" class="metadata-file-list"></div>
+                    </section>
+
+                    <section id="metadata-selection" class="metadata-selection" aria-label="Metadata analizi ve karşılaştırma"></section>
+                </div>
+
+                <div id="metadata-live" class="sr-only" aria-live="assertive"></div>
+            </section>
+
             <section id="converter" class="tool-panel converter-panel" aria-labelledby="converter-title">
                 <div class="panel-heading converter-heading">
                     <div>
@@ -1891,7 +2084,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=29"></script>
+    <script src="index.js?v=32"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
@@ -1923,6 +2116,10 @@
     <script src="tools/converter/ebook-adapter.js?v=2"></script>
     <script src="tools/converter/engine.js?v=3"></script>
     <script src="tools/converter/app.js?v=5"></script>
+    <script src="tools/exif-viewer/core.js?v=1"></script>
+    <script src="tools/exif-viewer/app.js?v=2"></script>
+    <script src="tools/metadata-cleaner/core.js?v=2"></script>
+    <script src="tools/metadata-cleaner/app.js?v=4"></script>
     <script src="tools/coach/jquery-1.12.4.min.js"></script>
     <script src="tools/coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/coach/chess.js?v=1"></script>

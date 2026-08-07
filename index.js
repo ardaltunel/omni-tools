@@ -244,12 +244,25 @@ function updatePageMetadata(tool) {
     const keywordsMeta = document.querySelector('meta[name="keywords"]');
     const ogTitle = document.querySelector('meta[property="og:title"]');
     const ogDescription = document.querySelector('meta[property="og:description"]');
-    const millionaireDescription = "15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş.";
-    const title = tool === "milyoner" ? "Milyoner Bilgi Yarışması | Omni Tools" : defaultPageTitle;
-    const description = tool === "milyoner" ? millionaireDescription : defaultPageDescription;
-    const keywords = tool === "milyoner"
-        ? "milyoner bilgi yarışması, bilgi yarışması, quiz, genel kültür, soru oyunu, millionaire"
-        : defaultPageKeywords;
+    const toolMetadata = {
+        milyoner: {
+            title: "Milyoner Bilgi Yarışması | Omni Tools",
+            description: "15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş.",
+            keywords: "milyoner bilgi yarışması, bilgi yarışması, quiz, genel kültür, soru oyunu, millionaire",
+        },
+        "metadata-cleaner": {
+            description: "JPEG, PNG ve WebP fotoğraflardaki EXIF, XMP, IPTC ve GPS mahremiyet verilerini tarayıcıda kayıpsız temizleyin.",
+            keywords: "metadata cleaner, exif temizleme, fotoğraf metadata silme, gps kaldırma, medya veri temizleyici",
+        },
+        "exif-viewer": {
+            description: "Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin.",
+            keywords: "exif viewer, metadata viewer, exif veri görüntüleme, gps metadata, fotoğraf kamera bilgisi, xmp iptc icc",
+        },
+    };
+    const metadata = toolMetadata[tool] || {};
+    const title = metadata.title || defaultPageTitle;
+    const description = metadata.description || defaultPageDescription;
+    const keywords = metadata.keywords || defaultPageKeywords;
 
     document.title = title;
     if (descriptionMeta) descriptionMeta.content = description;
