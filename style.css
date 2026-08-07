@@ -363,6 +363,8 @@ a {
 
 .metadata-file-card {
     display: grid;
+    min-width: 0;
+    max-width: 100%;
     grid-template-columns: 76px minmax(0, 1fr) auto;
     align-items: center;
     gap: 14px;
@@ -404,10 +406,14 @@ a {
 
 .metadata-file-content {
     min-width: 0;
+    width: 100%;
+    max-width: 100%;
 }
 
 .metadata-file-title-row {
     display: flex;
+    min-width: 0;
+    max-width: 100%;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
@@ -415,7 +421,9 @@ a {
 }
 
 .metadata-file-title-row h4 {
+    flex: 1 1 0;
     min-width: 0;
+    max-width: 100%;
     margin: 0;
     overflow: hidden;
     font-size: 14px;
@@ -857,12 +865,21 @@ a {
     }
 
     .metadata-file-title-row {
-        align-items: flex-start;
+        width: 100%;
+        align-items: stretch;
         flex-direction: column;
         gap: 5px;
     }
 
+    .metadata-file-title-row h4 {
+        flex: 0 1 auto;
+        width: 100%;
+    }
+
     .metadata-file-status {
+        align-self: flex-start;
+        max-width: 100%;
+        overflow-wrap: anywhere;
         white-space: normal;
     }
 
