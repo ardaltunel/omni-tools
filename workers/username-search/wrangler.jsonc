@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "omni-tools-username-search",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-08",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://ardaltunel.github.io,http://localhost:8765,http://127.0.0.1:8765",
+    "REQUEST_TIMEOUT_MS": "10000"
+  }
+}

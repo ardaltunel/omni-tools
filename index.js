@@ -258,6 +258,10 @@ function updatePageMetadata(tool) {
             description: "Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin.",
             keywords: "exif viewer, metadata viewer, exif veri görüntüleme, gps metadata, fotoğraf kamera bilgisi, xmp iptc icc",
         },
+        "username-search": {
+            description: "Bir kullanıcı adının internette hangi platformlarda kullanıldığını herkese açık API ve profil sinyalleriyle araştırın.",
+            keywords: "kullanıcı adı araştırma, username search, OSINT, sosyal medya hesap bulma, profil araştırma",
+        },
     };
     const metadata = toolMetadata[tool] || {};
     const title = metadata.title || defaultPageTitle;

@@ -1,2 +1,4 @@
 server.log
 server.err.log
+/workers/username-search/node_modules/
+/workers/username-search/.wrangler/

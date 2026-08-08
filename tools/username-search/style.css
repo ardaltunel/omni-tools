@@ -1,0 +1,787 @@
+.username-search-panel {
+    --username-found: var(--success);
+    --username-unknown: var(--accent-2);
+    --username-missing: #87909f;
+    --username-error: var(--danger);
+    overflow: hidden;
+}
+
+.username-search-panel [hidden] {
+    display: none !important;
+}
+
+.username-search-heading {
+    align-items: flex-start;
+}
+
+.username-search-heading-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--line));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+    color: var(--accent-strong);
+    padding: 7px 11px;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.03em;
+}
+
+.username-search-heading-badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.username-search-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 52%),
+        var(--surface);
+    padding: clamp(18px, 3vw, 30px);
+}
+
+.username-search-hero::after {
+    content: "";
+    position: absolute;
+    right: -90px;
+    bottom: -120px;
+    width: 280px;
+    height: 280px;
+    border: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 34px color-mix(in srgb, var(--accent) 3%, transparent),
+        0 0 0 68px color-mix(in srgb, var(--accent) 2%, transparent);
+    pointer-events: none;
+}
+
+.username-search-form,
+.username-search-scan,
+.username-search-results-section,
+.username-search-note {
+    position: relative;
+    z-index: 1;
+}
+
+.username-search-label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.username-search-input-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 9px;
+}
+
+.username-search-input-shell {
+    position: relative;
+    min-width: 0;
+}
+
+.username-search-at {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 750;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.username-search-input {
+    width: 100%;
+    min-height: 54px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: 0;
+    background: var(--panel);
+    color: var(--text);
+    padding: 0 16px 0 42px;
+    font-size: 16px;
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.username-search-input:hover {
+    border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
+}
+
+.username-search-input:focus {
+    border-color: var(--accent);
+    background: var(--panel-2);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.username-search-input[aria-invalid="true"] {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 16%, transparent);
+}
+
+.username-search-input::placeholder {
+    color: var(--muted);
+}
+
+.username-search-input-row > button {
+    min-height: 54px;
+}
+
+.username-search-stop {
+    border-color: color-mix(in srgb, var(--danger) 44%, var(--line));
+    color: color-mix(in srgb, var(--danger) 78%, var(--text));
+}
+
+.username-search-error {
+    margin: 8px 0 0;
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.username-search-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.username-search-facts span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.username-search-facts span::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.username-search-scan {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 16px;
+}
+
+.username-search-progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.username-search-progress-head strong {
+    font-size: 14px;
+}
+
+.username-search-progress-head span {
+    color: var(--muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.username-search-progress-track {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--panel-2);
+}
+
+.username-search-progress-track::after {
+    content: "";
+    display: block;
+    width: var(--username-progress, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--accent-2)));
+    transition: width 180ms ease;
+}
+
+.username-search-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 16px;
+}
+
+.username-search-stat {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 14px;
+}
+
+.username-search-stat span,
+.username-search-stat strong {
+    display: block;
+}
+
+.username-search-stat span {
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.username-search-stat strong {
+    font-size: 24px;
+    font-variant-numeric: tabular-nums;
+}
+
+.username-search-stat.is-found {
+    border-color: color-mix(in srgb, var(--username-found) 30%, var(--line));
+}
+
+.username-search-stat.is-found strong {
+    color: var(--username-found);
+}
+
+.username-search-stat.is-missing strong {
+    color: var(--username-missing);
+}
+
+.username-search-stat.is-unknown strong {
+    color: var(--username-unknown);
+}
+
+.username-search-results-section {
+    margin-top: 18px;
+}
+
+.username-search-result-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(210px, 300px);
+    gap: 12px;
+    margin-bottom: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 12px;
+}
+
+.username-search-filter-row {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+}
+
+.username-search-filter {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+    color: var(--muted);
+    padding: 0 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.username-search-filter span {
+    min-width: 20px;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    padding: 2px 6px;
+    font-size: 10px;
+    text-align: center;
+}
+
+.username-search-filter:hover,
+.username-search-filter.active {
+    border-color: color-mix(in srgb, var(--accent) 58%, var(--line));
+    color: var(--text);
+}
+
+.username-search-filter.active {
+    background: color-mix(in srgb, var(--accent) 13%, var(--panel-2));
+}
+
+.username-search-control-side {
+    display: grid;
+    gap: 8px;
+}
+
+.username-search-platform-filter {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: 0;
+    background: var(--panel);
+    color: var(--text);
+    padding: 0 11px;
+    font-size: 12px;
+}
+
+.username-search-platform-filter:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.username-search-found-only {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.username-search-found-only input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.username-search-export {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.username-search-export label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.username-search-export select {
+    min-height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: 0;
+    background: var(--surface);
+    color: var(--text);
+    padding: 0 30px 0 10px;
+}
+
+.username-search-export select:focus {
+    border-color: var(--accent);
+}
+
+.username-search-results {
+    display: grid;
+    gap: 9px;
+}
+
+.username-result-card {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid var(--line);
+    border-left-width: 3px;
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 12px;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.username-result-card:hover {
+    background: color-mix(in srgb, var(--panel-2) 48%, var(--surface));
+    transform: translateY(-1px);
+}
+
+.username-result-card.is-found {
+    border-left-color: var(--username-found);
+}
+
+.username-result-card.is-notFound {
+    border-left-color: var(--username-missing);
+}
+
+.username-result-card.is-unknown {
+    border-left-color: var(--username-unknown);
+}
+
+.username-result-card.is-error {
+    border-left-color: var(--username-error);
+}
+
+.username-result-icon {
+    position: relative;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+}
+
+.username-result-icon-fallback {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.username-result-icon img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    object-fit: contain;
+    padding: 8px;
+}
+
+.username-result-body {
+    min-width: 0;
+}
+
+.username-result-heading {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    row-gap: 6px;
+    margin-bottom: 6px;
+}
+
+.username-result-title {
+    display: flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.username-result-title h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.username-result-title span {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.username-result-status {
+    display: inline-flex;
+    min-height: 24px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.is-found .username-result-status {
+    border-color: color-mix(in srgb, var(--username-found) 35%, var(--line));
+    background: color-mix(in srgb, var(--username-found) 8%, transparent);
+    color: var(--username-found);
+}
+
+.is-notFound .username-result-status {
+    border-color: color-mix(in srgb, var(--username-missing) 30%, var(--line));
+    background: color-mix(in srgb, var(--username-missing) 7%, transparent);
+    color: var(--username-missing);
+}
+
+.is-unknown .username-result-status {
+    border-color: color-mix(in srgb, var(--username-unknown) 32%, var(--line));
+    background: color-mix(in srgb, var(--username-unknown) 7%, transparent);
+    color: var(--username-unknown);
+}
+
+.is-error .username-result-status {
+    border-color: color-mix(in srgb, var(--username-error) 35%, var(--line));
+    background: color-mix(in srgb, var(--username-error) 7%, transparent);
+    color: var(--username-error);
+}
+
+.username-result-url {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.username-result-detail {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.username-result-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.username-result-actions a {
+    min-width: 102px;
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.username-result-skeleton {
+    min-height: 74px;
+    border-left-color: var(--line);
+}
+
+.username-result-skeleton > span,
+.username-result-skeleton i {
+    display: block;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--panel-2), color-mix(in srgb, var(--muted) 12%, var(--panel-2)), var(--panel-2));
+    background-size: 220% 100%;
+    animation: username-skeleton 1.25s linear infinite;
+}
+
+.username-result-skeleton > span {
+    width: 48px;
+    height: 48px;
+}
+
+.username-result-skeleton > div {
+    display: grid;
+    gap: 7px;
+}
+
+.username-result-skeleton i {
+    width: min(240px, 70%);
+    height: 9px;
+}
+
+.username-result-skeleton i:first-child {
+    width: min(150px, 50%);
+    height: 12px;
+}
+
+.username-result-skeleton i:last-child {
+    width: min(320px, 88%);
+}
+
+.username-search-empty {
+    display: grid;
+    min-height: 210px;
+    place-content: center;
+    gap: 6px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    padding: 24px;
+    text-align: center;
+}
+
+.username-search-empty strong {
+    color: var(--text);
+    font-size: 15px;
+}
+
+.username-search-empty span {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.username-search-note {
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    padding-top: 14px;
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.username-search-note p {
+    margin: 0;
+}
+
+.username-search-note p + p {
+    margin-top: 5px;
+}
+
+.username-search-note a {
+    color: var(--accent);
+}
+
+.username-search-panel button:focus-visible,
+.username-search-panel a:focus-visible,
+.username-search-panel input:focus-visible,
+.username-search-panel select:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    outline-offset: 2px;
+}
+
+@keyframes username-skeleton {
+    to {
+        background-position: -220% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .username-search-progress-track::after,
+    .username-result-card,
+    .username-search-input {
+        transition: none;
+    }
+
+    .username-result-card:hover {
+        transform: none;
+    }
+
+    .username-result-skeleton > span,
+    .username-result-skeleton i {
+        animation: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .username-search-result-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .username-search-control-side {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+}
+
+@media (max-width: 700px) {
+    .username-search-heading-badge {
+        align-self: flex-start;
+    }
+
+    .username-search-input-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .username-search-input-row > .username-search-stop {
+        grid-column: 1 / -1;
+    }
+
+    .username-search-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .username-result-card {
+        grid-template-columns: 44px minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .username-result-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .username-result-heading {
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .username-result-title {
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .username-result-actions {
+        grid-column: 1 / -1;
+    }
+
+    .username-result-actions a {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .username-search-input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .username-search-input-row > button,
+    .username-search-input-row > .username-search-stop {
+        width: 100%;
+        grid-column: auto;
+    }
+
+    .username-search-progress-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .username-search-control-side {
+        grid-template-columns: 1fr;
+    }
+
+    .username-search-export {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .username-search-export button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@media (max-width: 380px) {
+    .username-search-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .username-search-filter-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .username-search-filter {
+        justify-content: space-between;
+    }
+}

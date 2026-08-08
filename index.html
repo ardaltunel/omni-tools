@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="style.css?v=76">
     <link rel="stylesheet" href="tools/exif-viewer/style.css?v=2">
+    <link rel="stylesheet" href="tools/username-search/style.css?v=2">
 </head>
 
 <body>
@@ -54,6 +55,11 @@
                 </button>
                 <button class="nav-item" data-tool="github-user" data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
                     <span>GitHub User</span>
+                </button>
+                <button class="nav-item" data-tool="username-search"
+                    data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
+                    data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
+                    <span>Kullanıcı Adı Araştırma</span>
                 </button>
                 <button class="nav-item" data-tool="gradient" data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
                     <span>Gradient Generator</span>
@@ -1073,6 +1079,111 @@
                 </div>
             </section>
 
+            <section id="username-search" class="tool-panel username-search-panel" aria-labelledby="username-search-title">
+                <div class="panel-heading username-search-heading">
+                    <div>
+                        <h2 id="username-search-title">Kullanıcı Adı Araştırma</h2>
+                        <p>Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın.</p>
+                    </div>
+                    <span id="username-search-mode-badge" class="username-search-heading-badge">Herkese açık profil kontrolü</span>
+                </div>
+
+                <div class="username-search-hero">
+                    <form id="username-search-form" class="username-search-form" novalidate>
+                        <label class="username-search-label" for="username-search-input">Kullanıcı adı</label>
+                        <div class="username-search-input-row">
+                            <div class="username-search-input-shell">
+                                <span class="username-search-at" aria-hidden="true">@</span>
+                                <input id="username-search-input" class="username-search-input" type="text"
+                                    placeholder="Kullanıcı adı girin" autocomplete="off" autocapitalize="none"
+                                    spellcheck="false" maxlength="80" aria-describedby="username-search-error">
+                            </div>
+                            <button id="username-search-submit" class="primary-button" type="submit">Ara</button>
+                            <button id="username-search-stop" class="secondary-button username-search-stop" type="button" hidden>Taramayı Durdur</button>
+                        </div>
+                        <p id="username-search-error" class="username-search-error" role="alert" hidden></p>
+                    </form>
+                    <div class="username-search-facts" aria-label="Tarama özellikleri">
+                        <span>Kontrollü eşzamanlı tarama</span>
+                        <span>12 saniyelik istek zaman aşımı</span>
+                        <span>CORS hataları yanlış negatif sayılmaz</span>
+                    </div>
+                </div>
+
+                <div id="username-search-progress" class="username-search-scan" hidden>
+                    <div class="username-search-progress-head">
+                        <strong id="username-search-progress-title">Platformlar kontrol ediliyor...</strong>
+                        <span id="username-search-progress-count">0 / 0</span>
+                    </div>
+                    <div id="username-search-progress-bar" class="username-search-progress-track" role="progressbar"
+                        aria-label="Kullanıcı adı tarama ilerlemesi" aria-valuemin="0" aria-valuenow="0" aria-valuemax="0"></div>
+                </div>
+                <p id="username-search-live-status" class="sr-only" aria-live="polite"></p>
+
+                <div id="username-search-summary" class="username-search-summary" aria-label="Tarama özeti" hidden>
+                    <div class="username-search-stat">
+                        <span>Kontrol edilen</span>
+                        <strong id="username-search-summary-checked">0</strong>
+                    </div>
+                    <div class="username-search-stat is-found">
+                        <span>Bulunan</span>
+                        <strong id="username-search-summary-found">0</strong>
+                    </div>
+                    <div class="username-search-stat is-missing">
+                        <span>Bulunamayan</span>
+                        <strong id="username-search-summary-not-found">0</strong>
+                    </div>
+                    <div class="username-search-stat is-unknown">
+                        <span>Kontrol edilemeyen</span>
+                        <strong id="username-search-summary-unknown">0</strong>
+                    </div>
+                </div>
+
+                <div class="username-search-results-section">
+                    <div id="username-search-result-controls" class="username-search-result-controls" hidden>
+                        <div class="username-search-filter-row" role="group" aria-label="Sonuç durumuna göre filtrele">
+                            <button class="username-search-filter active" data-username-result-filter="all" type="button" aria-pressed="true">Tümü <span>0</span></button>
+                            <button class="username-search-filter" data-username-result-filter="found" type="button" aria-pressed="false">Bulunanlar <span>0</span></button>
+                            <button class="username-search-filter" data-username-result-filter="notFound" type="button" aria-pressed="false">Bulunamayanlar <span>0</span></button>
+                            <button class="username-search-filter" data-username-result-filter="unknown" type="button" aria-pressed="false">Kontrol Edilemeyenler <span>0</span></button>
+                        </div>
+                        <div class="username-search-control-side">
+                            <label class="sr-only" for="username-search-platform-filter">Platform adına göre filtrele</label>
+                            <input id="username-search-platform-filter" class="username-search-platform-filter" type="search"
+                                placeholder="Platform ara..." autocomplete="off" spellcheck="false">
+                            <label class="username-search-found-only">
+                                <input id="username-search-found-only" type="checkbox">
+                                <span>Sadece bulunan hesapları göster</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="username-search-export" class="username-search-export" hidden>
+                        <label for="username-search-export-format">Format</label>
+                        <select id="username-search-export-format">
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="txt">TXT</option>
+                        </select>
+                        <button id="username-search-download" class="secondary-button" type="button">Sonuçları İndir</button>
+                    </div>
+
+                    <div id="username-search-results" class="username-search-results" aria-label="Platform sonuçları"></div>
+                    <div id="username-search-empty" class="username-search-empty">
+                        <strong id="username-search-empty-title">Arama için hazır</strong>
+                        <span id="username-search-empty-copy">Kullanıcı adını yazıp Ara butonuna basın.</span>
+                    </div>
+                </div>
+
+                <footer class="username-search-note">
+                    <p>Bu araç yalnızca herkese açık profil bilgilerini kontrol eder. Sonuçlar platformların erişilebilirliğine göre değişebilir.</p>
+                    <p>Backend etkinse yalnızca kullanıcı adı ve platform kimliği geçici kontrol isteği olarak Worker'a iletilir; sonuçlar kalıcı olarak saklanmaz. Backend yoksa tarayıcı kontrolü kullanılır. Detection yaklaşımı
+                        <a href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener noreferrer">Sherlock Project</a>'ten esinlenmiştir.
+                        <a href="tools/username-search/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener noreferrer">MIT lisans bildirimi</a>
+                    </p>
+                </footer>
+            </section>
+
             <section id="sudoku" class="tool-panel sudoku-panel" aria-labelledby="sudoku-title">
                 <div class="panel-heading sudoku-panel-heading">
                     <div>
@@ -2084,7 +2195,11 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=32"></script>
+    <script src="index.js?v=34"></script>
+    <script src="tools/username-search/config.js?v=1"></script>
+    <script src="tools/username-search/platforms.js?v=3"></script>
+    <script src="tools/username-search/core.js?v=2"></script>
+    <script src="tools/username-search/app.js?v=3"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
