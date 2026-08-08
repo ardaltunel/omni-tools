@@ -11,7 +11,7 @@
         domain: {
             title: "Domain Intelligence",
             kicker: "DOMAIN",
-            description: "Alan adının kayıt, DNS ve erişilebilir HTTP sinyallerini birlikte inceleyin.",
+            description: "Alan adının kayıt, DNS, IPv4 ve IPv6 bilgilerini birlikte inceleyin.",
             label: "Alan adı",
             placeholder: "github.com",
         },
@@ -37,13 +37,6 @@
             label: "IPv4 veya IPv6",
             placeholder: "8.8.8.8",
         },
-        headers: {
-            title: "HTTP Header Analyzer",
-            kicker: "HTTP RESPONSE",
-            description: "CORS ile görünür olan response header alanlarını ve security header durumunu inceleyin.",
-            label: "HTTP veya HTTPS URL",
-            placeholder: "https://github.com",
-        },
         subdomains: {
             title: "Subdomain Discovery",
             kicker: "PASSIVE CT",
@@ -57,13 +50,6 @@
             description: "URL yapısını, query parametrelerini, credentials ve punycode sinyallerini yerel olarak analiz edin.",
             label: "HTTP veya HTTPS URL",
             placeholder: "https://github.com/search?q=osint&lang=tr",
-        },
-        expander: {
-            title: "URL Expander",
-            kicker: "REDIRECT CHECK",
-            description: "Kısa URL'nin yönlendiği nihai adresi, tarayıcı izin verdiği ölçüde güvenle kontrol edin.",
-            label: "Kısa veya yönlendiren URL",
-            placeholder: "https://bit.ly/...",
         },
         "user-agent": {
             title: "User-Agent Analyzer",
@@ -124,7 +110,17 @@
     };
 
     elements.moduleCards.forEach((card) => {
-        card.addEventListener("click", () => selectModule(card.dataset.osintModule, { focus: true }));
+        card.addEventListener("click", () => {
+            cancelActiveResearch(false);
+            selectModule(card.dataset.osintModule, { focus: true, clear: true });
+            state.exportData = null;
+            elements.resultToolbar.hidden = true;
+            renderEmpty(
+                `${MODULES[card.dataset.osintModule].title} için hazır`,
+                "Sorgunuzu girip Araştır butonuna basın.",
+                MODULES[card.dataset.osintModule].kicker.slice(0, 2),
+            );
+        });
     });
     elements.moduleForm.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -179,7 +175,7 @@
             elements.queryLabel.setAttribute("for", replacement.id);
         }
         state.queryInput.placeholder = definition.placeholder;
-        state.queryInput.value = options.value !== undefined ? options.value : currentValue;
+        state.queryInput.value = options.clear ? "" : (options.value !== undefined ? options.value : currentValue);
         hideMessage(elements.formError);
         if (options.focus) state.queryInput.focus();
     }
@@ -223,7 +219,7 @@
             if (!Core.isValidIp(ip)) throw new TypeError("Geçersiz IP adresi.");
             return ip;
         }
-        if (["headers", "url", "expander"].includes(moduleId)) return Core.normalizeUrl(input).href;
+        if (moduleId === "url") return Core.normalizeUrl(input).href;
         if (moduleId === "email") {
             if (!Core.isValidEmail(input)) throw new TypeError("Geçersiz e-posta adresi.");
             return input;
@@ -261,10 +257,8 @@
                 case "whois": result = await services.lookupWhois(query, controller.signal); break;
                 case "dns": result = await services.lookupDns(query, elements.dnsType.value, controller.signal); break;
                 case "ip": result = await services.lookupIp(query, controller.signal); break;
-                case "headers": result = await services.analyzeHeaders(query, controller.signal); break;
                 case "subdomains": result = await services.discoverSubdomains(query, controller.signal, updateSubdomainProgress); break;
                 case "url": result = Core.analyzeUrl(query); break;
-                case "expander": result = await services.expandUrl(query, controller.signal); break;
                 case "user-agent": result = Core.analyzeUserAgent(query); break;
                 case "email": result = await services.lookupEmail(query, controller.signal); break;
                 default: throw new TypeError("Bilinmeyen araştırma modülü.");
@@ -350,10 +344,8 @@
             whois: renderWhois,
             dns: renderDns,
             ip: renderIp,
-            headers: renderHeaders,
             subdomains: renderSubdomains,
             url: renderUrl,
-            expander: renderExpander,
             "user-agent": renderUserAgent,
             email: renderEmail,
         };
@@ -445,12 +437,14 @@
         const fragment = resultFragment();
         const firstIp = result.dns && result.dns.records.A && result.dns.records.A.records[0]
             ? result.dns.records.A.records[0].value : null;
+        const firstIpv6 = result.dns && result.dns.records.AAAA && result.dns.records.AAAA.records[0]
+            ? result.dns.records.AAAA.records[0].value : null;
         fragment.append(summaryGrid([
             { label: "Domain", value: result.domain },
-            { label: "IP", value: firstIp || "Alınamadı" },
+            { label: "IPv4", value: firstIp || "Kayıt yok" },
+            { label: "IPv6", value: firstIpv6 || "Kayıt yok" },
             { label: "Domain Yaşı", value: result.whois && result.whois.age ? result.whois.age.text : "Alınamadı" },
             { label: "DNS", value: result.dns ? "Aktif" : "Alınamadı", tone: result.dns ? "success" : "warning" },
-            { label: "HTTPS", value: result.http ? `Erişildi · HTTP ${result.http.status}` : "Kontrol edilemedi", tone: result.http ? "success" : "warning" },
             { label: "Registrar", value: result.whois ? result.whois.registrar : "Alınamadı" },
         ]));
         Object.entries(result.errors || {}).forEach(([source, error]) => {
@@ -458,7 +452,6 @@
         });
         if (result.whois) fragment.append(renderWhoisSection(result.whois));
         if (result.dns) fragment.append(renderDnsSection(result.dns));
-        if (result.http) fragment.append(renderHeaderSection(result.http));
         return fragment;
     }
 
@@ -588,43 +581,6 @@
         return fragment;
     }
 
-    function renderHeaders(result) {
-        const fragment = resultFragment();
-        fragment.append(summaryGrid([
-            { label: "Status Code", value: `${result.status} ${result.statusText}`.trim() },
-            { label: "HTTPS", value: result.finalUrl.startsWith("https://") ? "Aktif" : "Pasif", tone: result.finalUrl.startsWith("https://") ? "success" : "warning" },
-            { label: "Görünür Header", value: Object.keys(result.headers).length },
-            { label: "Yönlendirme", value: result.redirected ? "Var" : "Yok" },
-        ]));
-        fragment.append(renderHeaderSection(result));
-        return fragment;
-    }
-
-    function renderHeaderSection(result) {
-        const section = makeSection("HTTP Response Headers", result.visibilityNotice);
-        section.body.append(keyValueGrid([
-            { label: "İstenen URL", value: result.requestedUrl },
-            { label: "Nihai URL", value: result.finalUrl },
-            { label: "Status", value: `${result.status} ${result.statusText}`.trim() },
-            { label: "SSL / HTTPS", value: result.sslNotice, copy: false },
-        ]));
-        const security = createElement("div", "osint-status-list");
-        result.security.forEach((check) => {
-            const row = createElement("div", "osint-status-row");
-            row.dataset.status = check.status;
-            row.append(createElement("span", "", check.status === "ok" ? "✓" : (check.status === "warning" ? "⚠" : "•")));
-            row.append(createElement("strong", "", check.label), createElement("small", "", check.detail));
-            security.append(row);
-        });
-        section.body.append(makeSectionBlock("Security Headers Summary", security));
-        const headerRows = Object.entries(result.headers).sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => [key, value]);
-        section.body.append(makeSectionBlock("Görünür Response Header Alanları", headerRows.length ? table(["Header", "Değer"], headerRows) : warning("Sunucu CORS üzerinden görünür bir response header paylaşmadı.")));
-        if (result.technologies.length) {
-            section.body.append(makeSectionBlock("Güvenilir Teknoloji Sinyalleri", table(["Sinyal", "Kaynak", "Değer"], result.technologies.map((item) => [item.name, item.source, item.value]))));
-        }
-        return section.section;
-    }
-
     function renderSubdomains(result) {
         const fragment = resultFragment();
         fragment.append(summaryGrid([
@@ -689,33 +645,6 @@
             { label: "Punycode", value: result.hasPunycode ? "Var" : "Yok" },
         ]));
         if (result.queryParameters.length) section.body.append(makeSectionBlock("Query Parametreleri", table(["Parametre", "Değer"], result.queryParameters.map((item) => [item.key, item.value]))));
-        fragment.append(section.section);
-        return fragment;
-    }
-
-    function renderExpander(result) {
-        const fragment = resultFragment();
-        fragment.append(summaryGrid([
-            { label: "Yönlendirme", value: result.redirected ? "Bulundu" : "Bulunmadı", tone: result.redirected ? "success" : "warning" },
-            { label: "Nihai Status", value: result.finalStatus },
-            { label: "Adım", value: result.chain.length },
-            { label: "Nihai Host", value: new URL(result.finalUrl).hostname },
-        ]));
-        fragment.append(warning(result.limitation));
-        const section = makeSection("Redirect Akışı", "URL otomatik olarak açılmaz; yalnızca tarayıcı fetch sonucu analiz edilir.");
-        const timeline = createElement("div", "osint-timeline");
-        result.chain.forEach((step, index) => {
-            const item = createElement("div", "osint-timeline-item");
-            item.append(createElement("span", "osint-timeline-dot", String(index + 1)));
-            item.append(createElement("span", "osint-timeline-url", step.url), createElement("span", "osint-status-badge", step.status));
-            timeline.append(item);
-        });
-        section.body.append(timeline);
-        const copy = createElement("button", "primary-button", "Nihai URL'yi Kopyala");
-        copy.type = "button";
-        copy.style.marginTop = "12px";
-        copy.addEventListener("click", () => copyText(result.finalUrl, copy));
-        section.body.append(copy);
         fragment.append(section.section);
         return fragment;
     }
@@ -848,7 +777,7 @@
     function loadHistory() {
         try {
             const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-            return Array.isArray(value) ? value.slice(0, 10) : [];
+            return Array.isArray(value) ? value.filter((item) => MODULES[item?.moduleId]).slice(0, 10) : [];
         } catch (_error) {
             return [];
         }

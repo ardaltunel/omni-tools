@@ -362,69 +362,6 @@
             };
         }
 
-        async function analyzeHeaders(urlValue, signal) {
-            const url = Core.normalizeUrl(urlValue);
-            let response;
-            try {
-                response = await request(url.href, { method: "HEAD", signal, redirect: "follow", cache: "no-store" });
-            } catch (error) {
-                if (error.code === "HTTP_ERROR" && error.details && [405, 501].includes(error.details.status)) {
-                    response = await request(url.href, { method: "GET", signal, redirect: "follow", cache: "no-store" });
-                } else {
-                    throw new OsintServiceError(
-                        "HTTP başlıkları tarayıcı güvenlik politikası (CORS) veya ağ kısıtlaması nedeniyle alınamadı.",
-                        error.code || "NETWORK_OR_CORS",
-                        serializeError(error),
-                    );
-                }
-            }
-            const headers = Core.normalizeHeaders(response.headers);
-            return {
-                requestedUrl: url.href,
-                finalUrl: response.url || url.href,
-                status: response.status,
-                statusText: response.statusText || "",
-                redirected: Boolean(response.redirected),
-                headers,
-                security: Core.analyzeSecurityHeaders(response.url || url.href, headers),
-                technologies: Core.inferTechnologies(headers),
-                visibilityNotice: "Tarayıcı yalnızca sunucunun CORS ile görünür kıldığı response header alanlarını gösterebilir.",
-                sslNotice: url.protocol === "https:"
-                    ? "HTTPS bağlantısı kurulabildi; tarayıcı güvenlik modeli sertifika ayrıntılarını JavaScript'e açmaz."
-                    : "Adres HTTPS kullanmıyor.",
-            };
-        }
-
-        async function expandUrl(urlValue, signal) {
-            const url = Core.normalizeUrl(urlValue);
-            let response;
-            try {
-                response = await request(url.href, { method: "HEAD", signal, redirect: "follow", cache: "no-store" });
-                if (!response.redirected && (response.url || url.href) === url.href) {
-                    response = await request(url.href, { method: "GET", signal, redirect: "follow", cache: "no-store" });
-                }
-            } catch (error) {
-                throw new OsintServiceError(
-                    "Yönlendirme tarayıcı güvenlik politikası (CORS) nedeniyle izlenemedi. URL otomatik olarak açılmadı.",
-                    error.code || "NETWORK_OR_CORS",
-                    serializeError(error),
-                );
-            }
-            const finalUrl = response.url || url.href;
-            const chain = [{ url: url.href, status: response.redirected ? "Yönlendirildi" : response.status }];
-            if (finalUrl !== url.href) chain.push({ url: finalUrl, status: response.status });
-            return {
-                originalUrl: url.href,
-                finalUrl,
-                redirected: finalUrl !== url.href,
-                finalStatus: response.status,
-                chain,
-                limitation: response.redirected
-                    ? "Tarayıcı ara yönlendirmelerin Location başlıklarını paylaşmadığı için yalnızca başlangıç ve nihai adres gösterilebilir."
-                    : "Bu adres erişilebilir bir yönlendirme döndürmedi.",
-            };
-        }
-
         async function requestCertificateNames(domain, signal) {
             const certSpotterUrl = `${CERTSPOTTER_ENDPOINT}?domain=${encodeURIComponent(domain)}&include_subdomains=true&expand=dns_names`;
             try {
@@ -523,23 +460,20 @@
         async function researchDomain(domainValue, signal) {
             const domain = Core.normalizeDomain(domainValue);
             if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz domain.", "INVALID_INPUT");
-            const [whoisResult, dnsResult, headersResult] = await Promise.allSettled([
+            const [whoisResult, dnsResult] = await Promise.allSettled([
                 lookupWhois(domain, signal),
                 lookupDns(domain, "ALL", signal),
-                analyzeHeaders(`https://${domain}`, signal),
             ]);
-            if ([whoisResult, dnsResult, headersResult].every((item) => item.status === "rejected")) {
-                throw dnsResult.reason || whoisResult.reason || headersResult.reason;
+            if ([whoisResult, dnsResult].every((item) => item.status === "rejected")) {
+                throw dnsResult.reason || whoisResult.reason;
             }
             return {
                 domain,
                 whois: whoisResult.status === "fulfilled" ? whoisResult.value : null,
                 dns: dnsResult.status === "fulfilled" ? dnsResult.value : null,
-                http: headersResult.status === "fulfilled" ? headersResult.value : null,
                 errors: {
                     whois: whoisResult.status === "rejected" ? serializeError(whoisResult.reason) : null,
                     dns: dnsResult.status === "rejected" ? serializeError(dnsResult.reason) : null,
-                    http: headersResult.status === "rejected" ? serializeError(headersResult.reason) : null,
                 },
             };
         }
@@ -553,8 +487,6 @@
             lookupDns,
             lookupWhois,
             lookupIp,
-            analyzeHeaders,
-            expandUrl,
             discoverSubdomains,
             lookupEmail,
             researchDomain,

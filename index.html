@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="style.css?v=76">
     <link rel="stylesheet" href="tools/exif-viewer/style.css?v=2">
     <link rel="stylesheet" href="tools/username-search/style.css?v=2">
-    <link rel="stylesheet" href="tools/osint-center/style.css?v=2">
+    <link rel="stylesheet" href="tools/osint-center/style.css?v=5">
     <link rel="stylesheet" href="tools/discord-emoji-downloader/style.css?v=2">
 </head>
 
@@ -64,7 +64,7 @@
                     <span>Kullanıcı Adı Araştırma</span>
                 </button>
                 <button class="nav-item" data-tool="osint-center"
-                    data-search="osint ip domain alan adı dns whois url header subdomain email e-posta user agent network website redirect yönlendirme rdap"
+                    data-search="osint ip domain alan adı dns whois url subdomain email e-posta user agent network website rdap"
                     data-description="Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın." type="button">
                     <span>OSINT Araştırma</span>
                 </button>
@@ -1228,13 +1228,13 @@
                 <section class="osint-modules" aria-labelledby="osint-modules-title">
                     <div class="osint-section-heading">
                         <div>
-                            <span class="osint-kicker">10 MODÜL</span>
+                            <span class="osint-kicker">8 MODÜL</span>
                             <h3 id="osint-modules-title">Araştırma Modülleri</h3>
                         </div>
                     </div>
                     <div class="osint-module-grid">
                         <button class="osint-module-card active" data-osint-module="domain" type="button" aria-pressed="true">
-                            <span class="osint-module-code">DI</span><span><strong>Domain Intelligence</strong><small>WHOIS, DNS, HTTPS ve teknoloji sinyalleri</small></span>
+                            <span class="osint-module-code">DI</span><span><strong>Domain Intelligence</strong><small>WHOIS, DNS, IPv4 ve IPv6 kayıtları</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="whois" type="button" aria-pressed="false">
                             <span class="osint-module-code">WH</span><span><strong>WHOIS</strong><small>RDAP kayıt ve domain yaşı bilgileri</small></span>
@@ -1245,17 +1245,11 @@
                         <button class="osint-module-card" data-osint-module="ip" type="button" aria-pressed="false">
                             <span class="osint-module-code">IP</span><span><strong>IP Lookup</strong><small>ASN, ağ, reverse DNS ve yaklaşık konum</small></span>
                         </button>
-                        <button class="osint-module-card" data-osint-module="headers" type="button" aria-pressed="false">
-                            <span class="osint-module-code">HH</span><span><strong>HTTP Headers</strong><small>Response ve security header özeti</small></span>
-                        </button>
                         <button class="osint-module-card" data-osint-module="subdomains" type="button" aria-pressed="false">
                             <span class="osint-module-code">SD</span><span><strong>Subdomain Discovery</strong><small>Pasif Certificate Transparency sonuçları</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="url" type="button" aria-pressed="false">
                             <span class="osint-module-code">UA</span><span><strong>URL Analyzer</strong><small>URL yapısı ve query parametreleri</small></span>
-                        </button>
-                        <button class="osint-module-card" data-osint-module="expander" type="button" aria-pressed="false">
-                            <span class="osint-module-code">RE</span><span><strong>URL Expander</strong><small>Nihai yönlendirme adresini kontrol et</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="user-agent" type="button" aria-pressed="false">
                             <span class="osint-module-code">AG</span><span><strong>User-Agent</strong><small>Tarayıcı, işletim sistemi ve cihaz analizi</small></span>
@@ -1272,7 +1266,7 @@
                             <div>
                                 <span id="osint-active-kicker" class="osint-kicker">DOMAIN</span>
                                 <h3 id="osint-workbench-title">Domain Intelligence</h3>
-                                <p id="osint-workbench-description">Alan adının kayıt, DNS ve erişilebilir HTTP sinyallerini birlikte inceleyin.</p>
+                                <p id="osint-workbench-description">Alan adının kayıt, DNS, IPv4 ve IPv6 bilgilerini birlikte inceleyin.</p>
                             </div>
                             <button id="osint-cancel" class="secondary-button" type="button" hidden>İptal Et</button>
                         </div>
@@ -2516,9 +2510,9 @@
     <script src="tools/username-search/platforms.js?v=5"></script>
     <script src="tools/username-search/core.js?v=3"></script>
     <script src="tools/username-search/app.js?v=3"></script>
-    <script src="tools/osint-center/core.js?v=3"></script>
-    <script src="tools/osint-center/services.js?v=3"></script>
-    <script src="tools/osint-center/app.js?v=3"></script>
+    <script src="tools/osint-center/core.js?v=4"></script>
+    <script src="tools/osint-center/services.js?v=4"></script>
+    <script src="tools/osint-center/app.js?v=4"></script>
     <script src="tools/discord-emoji-downloader/core.js?v=6"></script>
     <script src="tools/discord-emoji-downloader/app.js?v=3"></script>
     <script src="tools/2048/script.js?v=1"></script>

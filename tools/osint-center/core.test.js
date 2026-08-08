@@ -120,16 +120,6 @@ test("DNS MX, SOA, CAA ve TXT kayıtları veri odaklı ayrıştırılır", () =>
     assert.equal(txt.records[0].value, "v=spf1 -all");
 });
 
-test("security header özeti HTTPS ve eksik başlıkları ayrı gösterir", () => {
-    const checks = Core.analyzeSecurityHeaders("https://example.com", {
-        "strict-transport-security": "max-age=31536000",
-        "content-security-policy": "default-src 'self'",
-    });
-    assert.equal(checks.find((item) => item.key === "https").status, "ok");
-    assert.equal(checks.find((item) => item.key === "content-security-policy").status, "ok");
-    assert.equal(checks.find((item) => item.key === "x-frame-options").status, "warning");
-});
-
 test("subdomain temizleme wildcard, duplicate hazırlığı ve kapsam kontrolü yapar", () => {
     assert.equal(Core.cleanSubdomain("*.API.Example.com.", "example.com"), "api.example.com");
     assert.equal(Core.cleanSubdomain("evil-example.com", "example.com"), null);

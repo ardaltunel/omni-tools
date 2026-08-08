@@ -26,8 +26,7 @@
 }
 
 .osint-local-badge,
-.osint-detection-badge,
-.osint-status-badge {
+.osint-detection-badge {
     display: inline-flex;
     align-items: center;
     border: 1px solid rgba(24, 169, 153, 0.4);
@@ -131,6 +130,11 @@
     gap: 10px;
 }
 
+.osint-quick-form > button,
+.osint-module-form > button {
+    min-height: 44px;
+}
+
 .osint-quick-form input,
 .osint-module-form input,
 .osint-module-form textarea,
@@ -184,7 +188,7 @@
 
 .osint-module-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 9px;
 }
 
@@ -289,13 +293,29 @@
 
 .osint-module-form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     gap: 10px;
 }
 
+.osint-module-form:has(.osint-record-field:not([hidden])) {
+    grid-template-columns: minmax(0, 1fr) 150px auto;
+}
+
 .osint-module-form:has(#osint-current-ua:not([hidden])) {
-    grid-template-columns: auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.osint-module-form:has(#osint-current-ua:not([hidden])) #osint-query-field {
+    grid-column: 1 / -1;
+}
+
+.osint-module-form:has(#osint-current-ua:not([hidden])) #osint-current-ua {
+    grid-column: 2;
+}
+
+.osint-module-form:has(#osint-current-ua:not([hidden])) #osint-submit {
+    grid-column: 3;
 }
 
 .osint-field {
@@ -463,6 +483,7 @@
 
 .osint-summary-card {
     min-width: 0;
+    min-height: 66px;
     padding: 13px;
 }
 
@@ -481,12 +502,11 @@
 }
 
 .osint-summary-card strong {
-    overflow: hidden;
+    overflow-wrap: anywhere;
     color: var(--text);
     font-size: 15px;
     line-height: 1.3;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .osint-summary-card[data-tone="success"] {
@@ -495,6 +515,13 @@
 
 .osint-summary-card[data-tone="warning"] {
     border-color: rgba(244, 211, 94, 0.38);
+}
+
+@media (min-width: 1241px) {
+    .osint-summary-card:nth-child(5):nth-last-child(2),
+    .osint-summary-card:nth-child(6):last-child {
+        grid-column: span 2;
+    }
 }
 
 .osint-result-section {
@@ -529,34 +556,54 @@
 .osint-kv-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    background: var(--line);
+    gap: 8px;
 }
 
 .osint-kv-item {
     display: grid;
-    grid-template-columns: minmax(90px, 0.45fr) minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 9px;
+    grid-template-areas:
+        "label copy"
+        "value copy";
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: center;
+    column-gap: 12px;
+    row-gap: 4px;
     min-width: 0;
+    min-height: 68px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
     background: var(--surface);
-    padding: 9px 10px;
+    padding: 11px 12px;
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.osint-kv-item:hover {
+    border-color: rgba(24, 169, 153, 0.38);
+    background: rgba(24, 169, 153, 0.035);
+}
+
+.osint-kv-item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
 }
 
 .osint-kv-label {
+    grid-area: label;
     color: var(--muted);
-    font-size: 10px;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 0.045em;
+    line-height: 1.3;
+    text-transform: uppercase;
 }
 
 .osint-kv-value {
+    grid-area: value;
     min-width: 0;
     overflow-wrap: anywhere;
     color: var(--text);
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 650;
     line-height: 1.45;
 }
 
@@ -569,6 +616,20 @@
     cursor: pointer;
     font-size: 9px;
     font-weight: 750;
+}
+
+.osint-copy-button {
+    grid-area: copy;
+    align-self: center;
+    border: 1px solid rgba(24, 169, 153, 0.26);
+    border-radius: 6px;
+    background: var(--osint-accent-soft);
+    padding: 6px 8px;
+}
+
+.osint-copy-button:hover {
+    border-color: rgba(24, 169, 153, 0.52);
+    background: rgba(24, 169, 153, 0.16);
 }
 
 .osint-table-wrap {
@@ -626,40 +687,6 @@
     overflow-wrap: anywhere;
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
     font-size: 9px;
-}
-
-.osint-status-list {
-    display: grid;
-    gap: 7px;
-}
-
-.osint-status-row {
-    display: grid;
-    grid-template-columns: 18px minmax(145px, 0.36fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 8px;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 7px;
-    font-size: 10px;
-}
-
-.osint-status-row:last-child {
-    border-bottom: 0;
-    padding-bottom: 0;
-}
-
-.osint-status-row > span:first-child {
-    color: var(--osint-warning);
-    font-weight: 900;
-}
-
-.osint-status-row[data-status="ok"] > span:first-child {
-    color: var(--success);
-}
-
-.osint-status-row small {
-    color: var(--muted);
-    line-height: 1.45;
 }
 
 .osint-partial-warning {
@@ -722,55 +749,6 @@
 
 .osint-subdomain-filter {
     min-height: 38px;
-}
-
-.osint-timeline {
-    display: grid;
-    gap: 0;
-}
-
-.osint-timeline-item {
-    position: relative;
-    display: grid;
-    grid-template-columns: 24px minmax(0, 1fr) auto;
-    gap: 10px;
-    padding-bottom: 20px;
-}
-
-.osint-timeline-item:last-child {
-    padding-bottom: 0;
-}
-
-.osint-timeline-item:not(:last-child)::before {
-    position: absolute;
-    top: 22px;
-    bottom: 0;
-    left: 11px;
-    width: 1px;
-    background: var(--line);
-    content: "";
-}
-
-.osint-timeline-dot {
-    display: grid;
-    z-index: 1;
-    width: 24px;
-    height: 24px;
-    place-items: center;
-    border: 1px solid var(--accent);
-    border-radius: 50%;
-    background: var(--panel);
-    color: var(--accent);
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.osint-timeline-url {
-    min-width: 0;
-    overflow-wrap: anywhere;
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 10px;
-    line-height: 1.5;
 }
 
 .osint-history {
@@ -898,12 +876,19 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .osint-module-form {
+    .osint-module-form,
+    .osint-module-form:has(.osint-record-field:not([hidden])),
+    .osint-module-form:has(#osint-current-ua:not([hidden])) {
         grid-template-columns: 1fr 1fr;
     }
 
     #osint-query-field {
         grid-column: 1 / -1;
+    }
+
+    .osint-module-form:has(#osint-current-ua:not([hidden])) #osint-current-ua,
+    .osint-module-form:has(#osint-current-ua:not([hidden])) #osint-submit {
+        grid-column: auto;
     }
 
     .osint-record-field {
@@ -932,6 +917,8 @@
     .osint-quick-form,
     .osint-module-grid,
     .osint-module-form,
+    .osint-module-form:has(.osint-record-field:not([hidden])),
+    .osint-module-form:has(#osint-current-ua:not([hidden])),
     .osint-summary-grid,
     .osint-history-list,
     .osint-subdomain-controls {
@@ -952,20 +939,9 @@
         grid-template-columns: 1fr;
     }
 
-    .osint-kv-item {
-        grid-template-columns: 1fr auto;
-    }
-
-    .osint-kv-label {
-        grid-column: 1 / -1;
-    }
-
-    .osint-status-row {
-        grid-template-columns: 18px minmax(0, 1fr);
-    }
-
-    .osint-status-row small {
-        grid-column: 2;
+    .osint-module-form:has(#osint-current-ua:not([hidden])) #osint-current-ua,
+    .osint-module-form:has(#osint-current-ua:not([hidden])) #osint-submit {
+        grid-column: auto;
     }
 
     .osint-workbench,

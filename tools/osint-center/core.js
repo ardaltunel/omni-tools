@@ -19,15 +19,6 @@
         "yopmail.com",
     ]);
 
-    const SECURITY_HEADERS = [
-        { key: "strict-transport-security", label: "HSTS", httpsOnly: true },
-        { key: "content-security-policy", label: "Content-Security-Policy" },
-        { key: "x-frame-options", label: "X-Frame-Options" },
-        { key: "x-content-type-options", label: "X-Content-Type-Options" },
-        { key: "referrer-policy", label: "Referrer-Policy" },
-        { key: "permissions-policy", label: "Permissions-Policy" },
-    ];
-
     function normalizeWhitespace(value) {
         return String(value == null ? "" : value).trim();
     }
@@ -417,55 +408,6 @@
         };
     }
 
-    function normalizeHeaders(headers) {
-        const normalized = {};
-        if (!headers) return normalized;
-        if (typeof headers.forEach === "function") {
-            headers.forEach((value, key) => { normalized[String(key).toLowerCase()] = String(value); });
-        } else {
-            Object.entries(headers).forEach(([key, value]) => { normalized[String(key).toLowerCase()] = String(value); });
-        }
-        return normalized;
-    }
-
-    function analyzeSecurityHeaders(urlValue, headersValue) {
-        const url = normalizeUrl(urlValue);
-        const headers = normalizeHeaders(headersValue);
-        const checks = [{
-            key: "https",
-            label: "HTTPS",
-            present: url.protocol === "https:",
-            status: url.protocol === "https:" ? "ok" : "warning",
-            detail: url.protocol === "https:" ? "HTTPS kullanılıyor." : "Bağlantı HTTP kullanıyor.",
-        }];
-        SECURITY_HEADERS.forEach((definition) => {
-            const present = Boolean(headers[definition.key]);
-            const applicable = !definition.httpsOnly || url.protocol === "https:";
-            checks.push({
-                key: definition.key,
-                label: definition.label,
-                present,
-                status: !applicable ? "neutral" : (present ? "ok" : "warning"),
-                detail: !applicable
-                    ? "Yalnızca HTTPS yanıtlarında değerlendirilir."
-                    : (present ? "Başlık mevcut." : "Başlık bulunamadı veya CORS nedeniyle görünmüyor."),
-            });
-        });
-        return checks;
-    }
-
-    function inferTechnologies(headersValue) {
-        const headers = normalizeHeaders(headersValue);
-        const signals = [];
-        const add = (name, source, value) => { if (value) signals.push({ name, source, value }); };
-        add(headers.server ? "Web sunucusu" : null, "server", headers.server);
-        add(headers["x-powered-by"] ? "Uygulama altyapısı" : null, "x-powered-by", headers["x-powered-by"]);
-        add(headers["x-generator"] ? "İçerik üreticisi" : null, "x-generator", headers["x-generator"]);
-        if (headers["cf-ray"]) add("Cloudflare", "cf-ray", "Cloudflare ağı sinyali");
-        if (headers.via) add("Proxy / CDN", "via", headers.via);
-        return signals;
-    }
-
     function ipv4ReverseName(value) {
         if (!isValidIPv4(value)) throw new TypeError("Geçersiz IPv4 adresi.");
         return `${value.split(".").reverse().join(".")}.in-addr.arpa`;
@@ -509,7 +451,7 @@
 
     function sanitizeHistoryQuery(query, moduleId) {
         const value = String(query || "");
-        if (!["url", "headers", "expander"].includes(String(moduleId || ""))) return value;
+        if (String(moduleId || "") !== "url") return value;
         try {
             const url = normalizeUrl(value);
             url.username = "";
@@ -522,7 +464,6 @@
 
     const api = {
         DNS_TYPES,
-        SECURITY_HEADERS,
         normalizeDomain,
         isValidDomain,
         isValidIPv4,
@@ -539,9 +480,6 @@
         calculateDomainAge,
         parseRdapDomain,
         parseDnsResponse,
-        normalizeHeaders,
-        analyzeSecurityHeaders,
-        inferTechnologies,
         ipReverseName,
         cleanSubdomain,
         createExportPayload,

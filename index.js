@@ -263,8 +263,8 @@ function updatePageMetadata(tool) {
             keywords: "kullanıcı adı araştırma, username search, OSINT, sosyal medya hesap bulma, profil araştırma",
         },
         "osint-center": {
-            description: "Alan adı, IP, DNS, WHOIS, URL, HTTP header, subdomain, User-Agent ve e-posta domain bilgilerini herkese açık kaynaklarla araştırın.",
-            keywords: "osint, ip lookup, domain intelligence, dns lookup, whois rdap, url analyzer, http headers, subdomain discovery, email intelligence, user agent",
+            description: "Alan adı, IP, DNS, WHOIS/RDAP, URL, subdomain, User-Agent ve e-posta domain bilgilerini herkese açık kaynaklarla araştırın.",
+            keywords: "osint, ip lookup, domain intelligence, dns lookup, whois rdap, url analyzer, subdomain discovery, email intelligence, user agent",
         },
         "discord-emoji-downloader": {
             description: "Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin, seçin ve doğrudan tarayıcınızda ZIP olarak indirin.",

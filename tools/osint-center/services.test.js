@@ -43,15 +43,6 @@ function createMockFetch() {
         if (value.startsWith("https://api.certspotter.com/v1/issuances")) {
             return json([{ dns_names: ["*.example.com", "api.example.com", "evil-example.com"] }]);
         }
-        if (value === "https://cors.example.test/") {
-            return new Response(null, { status: 200, headers: { "Content-Type": "text/html", "Strict-Transport-Security": "max-age=100" } });
-        }
-        if (value === "https://short.example/") {
-            const response = new Response(null, { status: 200 });
-            Object.defineProperty(response, "url", { value: "https://final.example/" });
-            Object.defineProperty(response, "redirected", { value: true });
-            return response;
-        }
         throw new TypeError(`Unhandled mock URL: ${value}`);
     };
     mock.calls = calls;
@@ -98,19 +89,6 @@ async function test(name, fn) {
         const result = await services.lookupIp("192.168.1.1");
         assert.equal(result.isPrivate, true);
         assert.equal(mockFetch.calls.length, before);
-    });
-
-    await test("HTTP header analizi security özetini üretir", async () => {
-        const result = await services.analyzeHeaders("https://cors.example.test/");
-        assert.equal(result.status, 200);
-        assert.equal(result.security.find((item) => item.key === "strict-transport-security").status, "ok");
-    });
-
-    await test("URL expander başlangıç ve nihai adresi döndürür", async () => {
-        const result = await services.expandUrl("https://short.example/");
-        assert.equal(result.redirected, true);
-        assert.equal(result.finalUrl, "https://final.example/");
-        assert.equal(result.chain.length, 2);
     });
 
     await test("subdomain keşfi wildcard ve kapsam dışı isimleri temizler", async () => {
