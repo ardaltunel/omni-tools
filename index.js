@@ -262,6 +262,10 @@ function updatePageMetadata(tool) {
             description: "Bir kullanıcı adının internette hangi platformlarda kullanıldığını herkese açık API ve profil sinyalleriyle araştırın.",
             keywords: "kullanıcı adı araştırma, username search, OSINT, sosyal medya hesap bulma, profil araştırma",
         },
+        "osint-center": {
+            description: "Alan adı, IP, DNS, WHOIS, URL, HTTP header, subdomain, User-Agent ve e-posta domain bilgilerini herkese açık kaynaklarla araştırın.",
+            keywords: "osint, ip lookup, domain intelligence, dns lookup, whois rdap, url analyzer, http headers, subdomain discovery, email intelligence, user agent",
+        },
         "discord-emoji-downloader": {
             description: "Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin, seçin ve doğrudan tarayıcınızda ZIP olarak indirin.",
             keywords: "discord emoji indir, discord sticker indir, bot token, guild json, emoji zip, animated emoji gif, lottie sticker",

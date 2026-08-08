@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="style.css?v=76">
     <link rel="stylesheet" href="tools/exif-viewer/style.css?v=2">
     <link rel="stylesheet" href="tools/username-search/style.css?v=2">
+    <link rel="stylesheet" href="tools/osint-center/style.css?v=2">
     <link rel="stylesheet" href="tools/discord-emoji-downloader/style.css?v=2">
 </head>
 
@@ -61,6 +62,11 @@
                     data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
                     data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
                     <span>Kullanıcı Adı Araştırma</span>
+                </button>
+                <button class="nav-item" data-tool="osint-center"
+                    data-search="osint ip domain alan adı dns whois url header subdomain email e-posta user agent network website redirect yönlendirme rdap"
+                    data-description="Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın." type="button">
+                    <span>OSINT Araştırma</span>
                 </button>
                 <button class="nav-item" data-tool="discord-emoji-downloader"
                     data-search="discord emoji sticker sunucu guild zip indir download animated gif apng lottie"
@@ -1183,10 +1189,147 @@
 
                 <footer class="username-search-note">
                     <p>Bu araç yalnızca herkese açık profil bilgilerini kontrol eder. Sonuçlar platformların erişilebilirliğine göre değişebilir.</p>
-                    <p>Backend etkinse yalnızca kullanıcı adı ve platform kimliği geçici kontrol isteği olarak Worker'a iletilir; sonuçlar kalıcı olarak saklanmaz. Backend yoksa tarayıcı kontrolü kullanılır. Detection yaklaşımı
-                        <a href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener noreferrer">Sherlock Project</a>'ten esinlenmiştir.
-                        <a href="tools/username-search/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener noreferrer">MIT lisans bildirimi</a>
-                    </p>
+                    <p>Backend etkinse yalnızca kullanıcı adı ve platform kimliği geçici kontrol isteği olarak Worker'a iletilir; sonuçlar kalıcı olarak saklanmaz. Backend yoksa tarayıcı kontrolü kullanılır.</p>
+                </footer>
+            </section>
+
+            <section id="osint-center" class="tool-panel osint-panel" aria-labelledby="osint-title">
+                <header class="panel-heading osint-heading">
+                    <div>
+                        <span class="osint-eyebrow">PUBLIC INTERNET INTELLIGENCE</span>
+                        <h2 id="osint-title">OSINT Araştırma</h2>
+                        <p>Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın.</p>
+                    </div>
+                    <span class="osint-local-badge">API anahtarı gerektirmez</span>
+                </header>
+
+                <div class="osint-safety-note" role="note">
+                    <span class="osint-safety-mark" aria-hidden="true">i</span>
+                    <p>Bu araç yalnızca herkese açık internet kaynaklarından teknik bilgi toplamak amacıyla tasarlanmıştır. Aktif tarama, port taraması veya hesap araştırması yapmaz.</p>
+                </div>
+
+                <section class="osint-quick-card" aria-labelledby="osint-quick-title">
+                    <div class="osint-section-heading">
+                        <div>
+                            <span class="osint-kicker">OTOMATİK ALGILAMA</span>
+                            <h3 id="osint-quick-title">Hızlı Araştırma</h3>
+                        </div>
+                        <span id="osint-detection-badge" class="osint-detection-badge" data-state="idle">Algılanan tür bekleniyor</span>
+                    </div>
+                    <form id="osint-quick-form" class="osint-quick-form" novalidate>
+                        <label class="sr-only" for="osint-quick-input">Alan adı, IP, URL, e-posta veya User-Agent</label>
+                        <input id="osint-quick-input" type="text" autocomplete="off" spellcheck="false"
+                            placeholder="github.com, 8.8.8.8, https://github.com veya test@example.com">
+                        <button class="primary-button" type="submit">Türü Algıla ve Araştır</button>
+                    </form>
+                    <p id="osint-quick-error" class="osint-inline-error" role="alert" hidden></p>
+                </section>
+
+                <section class="osint-modules" aria-labelledby="osint-modules-title">
+                    <div class="osint-section-heading">
+                        <div>
+                            <span class="osint-kicker">10 MODÜL</span>
+                            <h3 id="osint-modules-title">Araştırma Modülleri</h3>
+                        </div>
+                    </div>
+                    <div class="osint-module-grid">
+                        <button class="osint-module-card active" data-osint-module="domain" type="button" aria-pressed="true">
+                            <span class="osint-module-code">DI</span><span><strong>Domain Intelligence</strong><small>WHOIS, DNS, HTTPS ve teknoloji sinyalleri</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="whois" type="button" aria-pressed="false">
+                            <span class="osint-module-code">WH</span><span><strong>WHOIS</strong><small>RDAP kayıt ve domain yaşı bilgileri</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="dns" type="button" aria-pressed="false">
+                            <span class="osint-module-code">DN</span><span><strong>DNS Lookup</strong><small>A, AAAA, MX, NS, TXT, CNAME, SOA, CAA</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="ip" type="button" aria-pressed="false">
+                            <span class="osint-module-code">IP</span><span><strong>IP Lookup</strong><small>ASN, ağ, reverse DNS ve yaklaşık konum</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="headers" type="button" aria-pressed="false">
+                            <span class="osint-module-code">HH</span><span><strong>HTTP Headers</strong><small>Response ve security header özeti</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="subdomains" type="button" aria-pressed="false">
+                            <span class="osint-module-code">SD</span><span><strong>Subdomain Discovery</strong><small>Pasif Certificate Transparency sonuçları</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="url" type="button" aria-pressed="false">
+                            <span class="osint-module-code">UA</span><span><strong>URL Analyzer</strong><small>URL yapısı ve query parametreleri</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="expander" type="button" aria-pressed="false">
+                            <span class="osint-module-code">RE</span><span><strong>URL Expander</strong><small>Nihai yönlendirme adresini kontrol et</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="user-agent" type="button" aria-pressed="false">
+                            <span class="osint-module-code">AG</span><span><strong>User-Agent</strong><small>Tarayıcı, işletim sistemi ve cihaz analizi</small></span>
+                        </button>
+                        <button class="osint-module-card" data-osint-module="email" type="button" aria-pressed="false">
+                            <span class="osint-module-code">EM</span><span><strong>Email Intelligence</strong><small>Biçim, domain ve public MX kayıtları</small></span>
+                        </button>
+                    </div>
+                </section>
+
+                <div class="osint-dashboard-layout">
+                    <section class="osint-workbench" aria-labelledby="osint-workbench-title">
+                        <div class="osint-workbench-head">
+                            <div>
+                                <span id="osint-active-kicker" class="osint-kicker">DOMAIN</span>
+                                <h3 id="osint-workbench-title">Domain Intelligence</h3>
+                                <p id="osint-workbench-description">Alan adının kayıt, DNS ve erişilebilir HTTP sinyallerini birlikte inceleyin.</p>
+                            </div>
+                            <button id="osint-cancel" class="secondary-button" type="button" hidden>İptal Et</button>
+                        </div>
+
+                        <form id="osint-module-form" class="osint-module-form" novalidate>
+                            <div class="osint-field" id="osint-query-field">
+                                <label id="osint-query-label" for="osint-query-input">Alan adı</label>
+                                <input id="osint-query-input" type="text" autocomplete="off" spellcheck="false" placeholder="github.com">
+                            </div>
+                            <div id="osint-dns-type-field" class="osint-field osint-record-field" hidden>
+                                <label for="osint-dns-type">Kayıt türü</label>
+                                <select id="osint-dns-type">
+                                    <option value="ALL">Tüm Kayıtlar</option>
+                                    <option value="A">A</option><option value="AAAA">AAAA</option><option value="MX">MX</option>
+                                    <option value="NS">NS</option><option value="TXT">TXT</option><option value="CNAME">CNAME</option>
+                                    <option value="SOA">SOA</option><option value="CAA">CAA</option>
+                                </select>
+                            </div>
+                            <button id="osint-current-ua" class="secondary-button osint-current-ua" type="button" hidden>Mevcut Tarayıcımı Analiz Et</button>
+                            <button id="osint-submit" class="primary-button" type="submit">Araştır</button>
+                        </form>
+                        <p id="osint-form-error" class="osint-inline-error" role="alert" hidden></p>
+
+                        <div id="osint-progress" class="osint-progress" hidden>
+                            <div><strong id="osint-progress-title">Araştırılıyor...</strong><span id="osint-progress-detail">Public kaynaklara bağlanılıyor</span></div>
+                            <div class="osint-progress-track" role="progressbar" aria-label="Araştırma ilerlemesi"><span></span></div>
+                        </div>
+
+                        <div id="osint-result-toolbar" class="osint-result-toolbar" hidden>
+                            <span id="osint-duration">Araştırma tamamlandı.</span>
+                            <div>
+                                <button id="osint-copy-all" class="secondary-button" type="button">Tüm Sonuçları Kopyala</button>
+                                <button id="osint-download-json" class="primary-button" type="button">JSON İndir</button>
+                            </div>
+                        </div>
+                        <p id="osint-live-status" class="sr-only" aria-live="polite"></p>
+                        <div id="osint-results" class="osint-results">
+                            <div class="osint-empty-state">
+                                <span>OS</span>
+                                <strong>Araştırma için hazır</strong>
+                                <p>Bir modül seçin, sorgunuzu girin ve herkese açık teknik sonuçları inceleyin.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside class="osint-history" aria-labelledby="osint-history-title">
+                        <div class="osint-history-head">
+                            <div><span class="osint-kicker">YEREL KAYIT</span><h3 id="osint-history-title">Son Araştırmalar</h3></div>
+                            <button id="osint-clear-history" class="osint-text-button" type="button">Temizle</button>
+                        </div>
+                        <p class="osint-history-note">Son 10 sorgu yalnızca bu tarayıcıda saklanır.</p>
+                        <div id="osint-history-list" class="osint-history-list"></div>
+                    </aside>
+                </div>
+
+                <footer class="osint-footer-note">
+                    <span>Veri kaynakları: Google Public DNS, IANA/registry RDAP, Team Cymru, ipwho.is/FreeIPAPI ve Certificate Transparency servisleri.</span>
                 </footer>
             </section>
 
@@ -2373,6 +2516,9 @@
     <script src="tools/username-search/platforms.js?v=5"></script>
     <script src="tools/username-search/core.js?v=3"></script>
     <script src="tools/username-search/app.js?v=3"></script>
+    <script src="tools/osint-center/core.js?v=3"></script>
+    <script src="tools/osint-center/services.js?v=3"></script>
+    <script src="tools/osint-center/app.js?v=3"></script>
     <script src="tools/discord-emoji-downloader/core.js?v=6"></script>
     <script src="tools/discord-emoji-downloader/app.js?v=3"></script>
     <script src="tools/2048/script.js?v=1"></script>
