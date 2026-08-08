@@ -53,6 +53,10 @@ function responseHeaders(origin, env) {
 function detectionVariables(env) {
     return {
         apiKey: env?.LASTFM_API_KEY,
+        redditClientId: env?.REDDIT_CLIENT_ID,
+        redditClientSecret: env?.REDDIT_CLIENT_SECRET,
+        deviantArtClientId: env?.DEVIANTART_CLIENT_ID,
+        deviantArtClientSecret: env?.DEVIANTART_CLIENT_SECRET,
     };
 }
 

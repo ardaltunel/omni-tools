@@ -29,7 +29,10 @@
             profileUrl: "https://www.reddit.com/user/{username}",
             iconUrl: simpleIcon("reddit"),
             usernamePattern: "^[A-Za-z0-9_-]{3,20}$",
-            detection: { method: "unavailable", reason: CORS_LIMITATION },
+            detection: {
+                method: "unavailable",
+                reason: "Reddit kontrolü backend OAuth uygulama kimliği gerektiriyor.",
+            },
         },
         {
             id: "instagram",
@@ -38,7 +41,10 @@
             profileUrl: "https://www.instagram.com/{username}/",
             iconUrl: simpleIcon("instagram"),
             usernamePattern: "^[A-Za-z0-9._]{1,30}$",
-            detection: { method: "unavailable", reason: AUTH_LIMITATION },
+            detection: {
+                method: "unavailable",
+                reason: "Instagram kişisel profiller için güvenilir bir anonim kullanıcı adı API'si sunmuyor.",
+            },
         },
         {
             id: "tiktok",
@@ -95,7 +101,7 @@
             usernamePattern: "^[A-Za-z0-9][A-Za-z0-9-]{2,63}$",
             detection: {
                 method: "unavailable",
-                reason: "LinkedIn profil kontrolü CORS nedeniyle güvenilir biçimde yalnızca backend üzerinden yapılabiliyor.",
+                reason: "LinkedIn başka üyeleri vanity kullanıcı adıyla anonim sorgulamaya izin vermiyor.",
             },
         },
         {
@@ -281,7 +287,10 @@
             profileUrl: "https://open.spotify.com/user/{username}",
             iconUrl: simpleIcon("spotify"),
             usernamePattern: "^[A-Za-z0-9._-]{1,64}$",
-            detection: { method: "unavailable", reason: AUTH_LIMITATION },
+            detection: {
+                method: "unavailable",
+                reason: "Spotify API yalnızca izin veren mevcut kullanıcının profilini döndürüyor.",
+            },
         },
         {
             id: "vimeo",
@@ -324,7 +333,10 @@
             profileUrl: "https://www.deviantart.com/{username}",
             iconUrl: simpleIcon("deviantart"),
             usernamePattern: "^[A-Za-z][A-Za-z0-9_-]{2,19}$",
-            detection: { method: "unavailable", reason: CORS_LIMITATION },
+            detection: {
+                method: "unavailable",
+                reason: "DeviantArt kontrolü backend OAuth uygulama kimliği gerektiriyor.",
+            },
         },
         {
             id: "flickr",

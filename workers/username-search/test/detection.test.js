@@ -92,6 +92,60 @@ test("Last.fm API anahtarı yoksa istek atmaz; API yanıtı varsa kesin karar ve
     assert.equal(notFound.status, "notFound");
 });
 
+test("Reddit OAuth token alıp kullanıcı API'sini doğrular", async () => {
+    const platform = {
+        requestUrl: "https://oauth.reddit.com/user/{username}/about",
+        evaluator: "jsonExact",
+        identityPath: "data.name",
+        notFoundStatuses: [404],
+        requestAdapter: "redditOAuth",
+        requiredVariables: ["redditClientId", "redditClientSecret"],
+    };
+    let requestCount = 0;
+    const result = await checkPlatform(platform, "alice", {
+        variables: { redditClientId: "reddit-test-client", redditClientSecret: "secret" },
+        fetchImpl: async (url, options) => {
+            requestCount += 1;
+            if (requestCount === 1) {
+                assert.equal(url, "https://www.reddit.com/api/v1/access_token");
+                assert.match(options.headers.authorization, /^Basic /);
+                return makeResponse({ access_token: "reddit-token", expires_in: 3600 });
+            }
+            assert.match(url, /oauth\.reddit\.com\/user\/alice\/about/);
+            assert.equal(options.headers.authorization, "Bearer reddit-token");
+            return makeResponse({ data: { name: "Alice" } });
+        },
+    });
+    assert.equal(requestCount, 2);
+    assert.equal(result.status, "found");
+});
+
+test("DeviantArt OAuth aramasında exact kullanıcıyı doğrular", async () => {
+    const platform = {
+        requestUrl: "https://www.deviantart.com/api/v1/oauth2/user/friends/search?query={username}&access_token={accessToken}",
+        evaluator: "deviantArtSearch",
+        requestAdapter: "deviantArtOAuth",
+        requiredVariables: ["deviantArtClientId", "deviantArtClientSecret"],
+    };
+    let requestCount = 0;
+    const result = await checkPlatform(platform, "alice", {
+        variables: { deviantArtClientId: "deviantart-test-client", deviantArtClientSecret: "secret" },
+        fetchImpl: async (url, options) => {
+            requestCount += 1;
+            if (requestCount === 1) {
+                assert.equal(url, "https://www.deviantart.com/oauth2/token");
+                assert.match(options.body, /grant_type=client_credentials/);
+                return makeResponse({ access_token: "deviantart-token", expires_in: 3600 });
+            }
+            assert.match(url, /query=alice/);
+            assert.match(url, /access_token=deviantart-token/);
+            return makeResponse({ results: [{ username: "Alice" }] });
+        },
+    });
+    assert.equal(requestCount, 2);
+    assert.equal(result.status, "found");
+});
+
 test("LinkedIn canonical URL ve profil kartını birlikte doğrular", async () => {
     const platform = {
         requestUrl: "https://www.linkedin.com/in/{username}",

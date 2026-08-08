@@ -1,5 +1,6 @@
 const MAX_RESPONSE_BYTES = 768 * 1024;
 const DEFAULT_TIMEOUT_MS = 10000;
+const oauthTokenCache = new Map();
 
 const valueAt = (object, path) => String(path || "")
     .split(".")
@@ -47,6 +48,57 @@ async function readLimitedText(response) {
         if (received >= MAX_RESPONSE_BYTES) await reader.cancel().catch(() => {});
     }
     return text;
+}
+
+function encodeBasicAuth(clientId, clientSecret) {
+    const bytes = new TextEncoder().encode(`${clientId}:${clientSecret}`);
+    let binary = "";
+    bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+    return btoa(binary);
+}
+
+async function requestOAuthToken(adapter, variables, fetchImpl, signal) {
+    const clientIdKey = adapter === "redditOAuth" ? "redditClientId" : "deviantArtClientId";
+    const clientSecretKey = adapter === "redditOAuth" ? "redditClientSecret" : "deviantArtClientSecret";
+    const clientId = String(variables[clientIdKey] || "");
+    const clientSecret = String(variables[clientSecretKey] || "");
+    const cacheKey = `${adapter}:${clientId}`;
+    const cached = oauthTokenCache.get(cacheKey);
+    if (cached?.token && cached.expiresAt > Date.now() + 30000) return { token: cached.token };
+
+    const isReddit = adapter === "redditOAuth";
+    const response = await fetchImpl(isReddit
+        ? "https://www.reddit.com/api/v1/access_token"
+        : "https://www.deviantart.com/oauth2/token", {
+        method: "POST",
+        redirect: "follow",
+        signal,
+        headers: {
+            accept: "application/json",
+            "content-type": "application/x-www-form-urlencoded",
+            "user-agent": "OmniToolsUsernameSearch/1.0 (+https://github.com/ardaltunel/omni-tools)",
+            ...(isReddit ? { authorization: `Basic ${encodeBasicAuth(clientId, clientSecret)}` } : {}),
+        },
+        body: isReddit
+            ? "grant_type=client_credentials"
+            : new URLSearchParams({
+                grant_type: "client_credentials",
+                client_id: clientId,
+                client_secret: clientSecret,
+            }).toString(),
+    });
+    const body = await readLimitedText(response);
+    let data = null;
+    try { data = JSON.parse(body); } catch (_error) { data = null; }
+    if (response.status === 429) return { error: verdict("error", "Platform OAuth istek sınırına ulaşıldı (HTTP 429).") };
+    if (response.status < 200 || response.status >= 300 || !data?.access_token) {
+        const platformName = isReddit ? "Reddit" : "DeviantArt";
+        return { error: verdict("error", `${platformName} OAuth kimlik bilgileri reddedildi veya erişim onayı eksik.`) };
+    }
+    const expiresIn = Math.max(60, Number(data.expires_in) || 3600);
+    const token = String(data.access_token);
+    oauthTokenCache.set(cacheKey, { token, expiresAt: Date.now() + (expiresIn * 1000) });
+    return { token };
 }
 
 function looksLikeAccessChallenge(body) {
@@ -138,6 +190,12 @@ function evaluate(platform, response, body, data, username) {
             }
             if (data?.error === 10) return verdict("error", "Last.fm API anahtarı geçersiz veya yetkisiz.");
             break;
+        }
+        case "deviantArtSearch": {
+            if (status !== 200 || !Array.isArray(data?.results)) break;
+            return data.results.some((item) => equalsUsername(item?.username, username))
+                ? verdict("found", "DeviantArt OAuth API kullanıcı adını doğruladı.")
+                : verdict("notFound", "DeviantArt OAuth API eşleşen kullanıcı bulamadı.");
         }
         case "keybase": {
             const code = valueAt(data, "status.code");
@@ -237,7 +295,16 @@ export async function checkPlatform(platform, username, options = {}) {
     const timeoutId = setTimeout(() => controller.abort("timeout"), timeoutMs);
 
     try {
-        const response = await (options.fetchImpl || fetch)(interpolate(platform.requestUrl, username, variables), {
+        const fetchImpl = options.fetchImpl || fetch;
+        const requestVariables = { ...variables };
+        const authHeaders = {};
+        if (platform.requestAdapter === "redditOAuth" || platform.requestAdapter === "deviantArtOAuth") {
+            const authentication = await requestOAuthToken(platform.requestAdapter, variables, fetchImpl, controller.signal);
+            if (authentication.error) return authentication.error;
+            requestVariables.accessToken = authentication.token;
+            if (platform.requestAdapter === "redditOAuth") authHeaders.authorization = `Bearer ${authentication.token}`;
+        }
+        const response = await fetchImpl(interpolate(platform.requestUrl, username, requestVariables), {
             method: "GET",
             redirect: "follow",
             signal: controller.signal,
@@ -245,6 +312,7 @@ export async function checkPlatform(platform, username, options = {}) {
                 accept: "application/json,text/html,application/xml;q=0.9,*/*;q=0.8",
                 "accept-language": "en-US,en;q=0.8",
                 "user-agent": "OmniToolsUsernameSearch/1.0 (+https://github.com/ardaltunel/omni-tools)",
+                ...authHeaders,
                 ...(platform.headers || {}),
             },
         });
