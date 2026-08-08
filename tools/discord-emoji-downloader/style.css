@@ -1,0 +1,990 @@
+.discord-emoji-panel {
+    --discord-soft-accent: rgba(24, 169, 153, 0.1);
+    --discord-soft-yellow: rgba(244, 211, 94, 0.1);
+}
+
+.discord-emoji-panel [hidden] {
+    display: none !important;
+}
+
+.discord-emoji-heading {
+    align-items: flex-start;
+}
+
+.discord-emoji-heading-copy,
+.discord-emoji-security-note,
+.discord-emoji-section-heading,
+.discord-emoji-browser-toolbar,
+.discord-emoji-assets-heading,
+.discord-emoji-controls,
+.discord-emoji-download-bar,
+.discord-emoji-progress-copy,
+.discord-emoji-manual-footer,
+.discord-emoji-selection-actions,
+.discord-emoji-download-actions,
+.discord-emoji-footer-links {
+    display: flex;
+    align-items: center;
+}
+
+.discord-emoji-heading-copy {
+    min-width: 0;
+    gap: 14px;
+}
+
+.discord-emoji-heading-copy > div {
+    min-width: 0;
+}
+
+.discord-emoji-local-badge {
+    flex: 0 0 auto;
+    border: 1px solid rgba(24, 169, 153, 0.42);
+    border-radius: 999px;
+    background: var(--discord-soft-accent);
+    color: var(--accent-strong);
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.discord-emoji-security-note {
+    gap: 13px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(24, 169, 153, 0.34);
+    border-radius: 8px;
+    background: rgba(24, 169, 153, 0.07);
+    padding: 14px 16px;
+}
+
+.discord-emoji-security-mark {
+    display: grid;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #06110f;
+    font-weight: 900;
+}
+
+.discord-emoji-security-note strong,
+.discord-emoji-security-note p {
+    display: block;
+}
+
+.discord-emoji-security-note p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.discord-emoji-input-card,
+.discord-emoji-guild-browser,
+.discord-emoji-progress,
+.discord-emoji-notice {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.discord-emoji-input-card,
+.discord-emoji-guild-browser {
+    padding: 18px;
+}
+
+.discord-emoji-section-heading,
+.discord-emoji-browser-toolbar,
+.discord-emoji-assets-heading,
+.discord-emoji-controls,
+.discord-emoji-download-bar,
+.discord-emoji-progress-copy {
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.discord-emoji-section-heading,
+.discord-emoji-browser-toolbar {
+    align-items: flex-end;
+    margin-bottom: 16px;
+}
+
+.discord-emoji-section-heading h3,
+.discord-emoji-browser-toolbar h3,
+.discord-emoji-assets-heading h3 {
+    margin: 3px 0 0;
+    font-size: 18px;
+}
+
+.discord-emoji-eyebrow {
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.discord-emoji-mode-tabs,
+.discord-emoji-filter-tabs {
+    display: inline-flex;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-2);
+    padding: 3px;
+}
+
+.discord-emoji-mode-tab,
+.discord-emoji-filter-tab {
+    min-height: 36px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    padding: 0 13px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.discord-emoji-mode-tab:hover,
+.discord-emoji-filter-tab:hover,
+.discord-emoji-mode-tab.active,
+.discord-emoji-filter-tab.active {
+    background: var(--panel);
+    color: var(--text);
+}
+
+.discord-emoji-mode-tab.active,
+.discord-emoji-filter-tab.active {
+    box-shadow: inset 0 0 0 1px rgba(24, 169, 153, 0.45);
+}
+
+.discord-emoji-filter-tab span {
+    display: inline-grid;
+    min-width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--bg);
+    padding: 0 5px;
+    color: var(--text);
+    font-size: 10px;
+}
+
+.discord-emoji-input-panel[hidden],
+.discord-emoji-guild-browser[hidden],
+.discord-emoji-assets[hidden],
+.discord-emoji-progress[hidden],
+.discord-emoji-notice[hidden],
+.discord-emoji-items-empty[hidden],
+.discord-guild-empty[hidden] {
+    display: none;
+}
+
+.discord-emoji-bot-panel {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(320px, 1.2fr);
+    gap: 18px 24px;
+    align-items: end;
+    min-height: 190px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(145deg, rgba(24, 169, 153, 0.055), rgba(244, 211, 94, 0.025));
+    padding: 24px;
+}
+
+.discord-emoji-bot-copy strong {
+    display: block;
+    color: var(--text);
+    font-size: 17px;
+}
+
+.discord-emoji-bot-copy p,
+.discord-emoji-bot-help p {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.discord-emoji-token-row {
+    display: grid;
+    gap: 8px;
+}
+
+.discord-emoji-token-row > label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.discord-emoji-token-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 9px;
+}
+
+#discord-emoji-bot-token {
+    min-width: 0;
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    background: var(--bg);
+    color: var(--text);
+    padding: 0 13px;
+    font: inherit;
+    font-size: 13px;
+}
+
+#discord-emoji-bot-token:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(24, 169, 153, 0.14);
+}
+
+.discord-emoji-bot-help {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid var(--line);
+    padding-top: 13px;
+}
+
+.discord-emoji-bot-help p {
+    margin: 0;
+}
+
+.discord-emoji-bot-help a {
+    flex: 0 0 auto;
+    color: var(--accent-strong);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.discord-emoji-file-drop {
+    display: grid;
+    min-height: 230px;
+    place-items: center;
+    align-content: center;
+    gap: 13px;
+    border: 1px dashed #414755;
+    border-radius: 8px;
+    background: linear-gradient(145deg, rgba(24, 169, 153, 0.04), rgba(244, 211, 94, 0.025));
+    padding: 26px;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.discord-emoji-file-drop:hover,
+.discord-emoji-file-drop.is-dragging {
+    border-color: var(--accent);
+    background: rgba(24, 169, 153, 0.07);
+}
+
+.discord-emoji-file-drop.is-dragging {
+    transform: translateY(-2px);
+}
+
+.discord-emoji-file-drop:focus-visible,
+.discord-emoji-mode-tab:focus-visible,
+.discord-emoji-filter-tab:focus-visible,
+.discord-guild-option:focus-visible,
+.discord-expression-download:focus-visible,
+.discord-expression-select input:focus-visible + span {
+    outline: 3px solid rgba(24, 169, 153, 0.28);
+    outline-offset: 2px;
+}
+
+.discord-emoji-drop-icon {
+    display: grid;
+    width: 62px;
+    height: 72px;
+    place-items: center;
+    border: 1px solid #414755;
+    border-radius: 8px;
+    background: var(--panel-2);
+    color: var(--accent-strong);
+    box-shadow: 8px 8px 0 rgba(24, 169, 153, 0.09);
+}
+
+.discord-emoji-drop-icon span {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
+
+.discord-emoji-file-drop strong,
+.discord-emoji-file-drop p {
+    display: block;
+}
+
+.discord-emoji-file-drop p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.discord-emoji-input-panel > label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#discord-emoji-manual-input {
+    width: 100%;
+    min-height: 280px;
+    resize: vertical;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    background: var(--bg);
+    color: var(--text);
+    padding: 15px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    tab-size: 2;
+}
+
+#discord-emoji-manual-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(24, 169, 153, 0.14);
+}
+
+.discord-emoji-manual-footer {
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 12px;
+}
+
+.discord-emoji-manual-footer p {
+    max-width: 760px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.discord-emoji-manual-footer code {
+    color: var(--accent-strong);
+}
+
+.discord-emoji-input-error,
+.discord-emoji-notice {
+    margin: 14px 0 0;
+    padding: 11px 13px;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.discord-emoji-input-error,
+.discord-emoji-notice.is-error {
+    border-color: rgba(255, 95, 109, 0.42);
+    background: rgba(255, 95, 109, 0.08);
+    color: #ffb7bf;
+}
+
+.discord-emoji-notice.is-success {
+    border-color: rgba(74, 222, 128, 0.35);
+    background: rgba(74, 222, 128, 0.07);
+    color: #bdf8cf;
+}
+
+.discord-emoji-notice.is-warning {
+    border-color: rgba(244, 211, 94, 0.4);
+    background: var(--discord-soft-yellow);
+    color: #ffe99a;
+}
+
+.discord-emoji-guild-browser {
+    margin-top: 20px;
+}
+
+.discord-emoji-browser-layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 16px;
+    min-width: 0;
+}
+
+.discord-guild-sidebar,
+.discord-emoji-assets {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.discord-guild-sidebar {
+    align-self: start;
+    padding: 10px;
+}
+
+.discord-emoji-search {
+    position: relative;
+    display: block;
+    min-width: 0;
+}
+
+.discord-emoji-search input {
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    background: var(--surface);
+    color: var(--text);
+    padding: 0 12px 0 38px;
+    font-size: 12px;
+}
+
+.discord-emoji-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(24, 169, 153, 0.13);
+}
+
+.discord-emoji-search-icon {
+    position: absolute;
+    z-index: 1;
+    top: 12px;
+    left: 13px;
+    width: 13px;
+    height: 13px;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.discord-emoji-search-icon::after {
+    content: "";
+    position: absolute;
+    right: -5px;
+    bottom: -3px;
+    width: 6px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--muted);
+    transform: rotate(45deg);
+}
+
+.discord-guild-list {
+    display: grid;
+    max-height: 650px;
+    gap: 5px;
+    margin-top: 9px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.discord-guild-option {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    padding: 6px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.discord-guild-option:hover,
+.discord-guild-option.active {
+    border-color: var(--line);
+    background: var(--panel-2);
+}
+
+.discord-guild-option.active {
+    border-color: rgba(24, 169, 153, 0.42);
+}
+
+.discord-guild-icon {
+    position: relative;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.discord-guild-icon img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.discord-guild-icon-fallback {
+    position: absolute;
+    color: var(--accent-strong);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.discord-guild-option-copy {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.discord-guild-option-copy small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.discord-guild-empty,
+.discord-emoji-items-empty {
+    margin: 12px 0 0;
+    color: var(--muted);
+    padding: 18px 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.discord-emoji-assets {
+    padding: 14px;
+}
+
+.discord-emoji-assets-heading {
+    align-items: flex-end;
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--line);
+}
+
+.discord-emoji-assets-heading > div {
+    min-width: 0;
+}
+
+.discord-emoji-assets-heading h3 {
+    overflow-wrap: anywhere;
+}
+
+.discord-emoji-assets-heading p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.discord-emoji-item-search {
+    width: min(100%, 300px);
+}
+
+.discord-emoji-controls {
+    margin-top: 13px;
+}
+
+.discord-emoji-selection-actions,
+.discord-emoji-download-actions,
+.discord-emoji-footer-links {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.discord-emoji-selection-actions .secondary-button,
+.discord-emoji-download-actions .secondary-button {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 11px;
+}
+
+.discord-emoji-download-bar {
+    margin-top: 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 12px;
+}
+
+.discord-emoji-selected-copy strong,
+.discord-emoji-selected-copy span {
+    display: block;
+}
+
+.discord-emoji-selected-copy strong {
+    font-size: 13px;
+}
+
+.discord-emoji-selected-copy span {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.discord-emoji-download-actions {
+    justify-content: flex-end;
+}
+
+.discord-emoji-download-actions .primary-button {
+    min-height: 40px;
+    font-size: 11px;
+}
+
+.discord-emoji-panel button:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+}
+
+.discord-emoji-progress {
+    margin-top: 12px;
+    padding: 11px 12px;
+}
+
+.discord-emoji-progress-copy {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.discord-emoji-progress-copy strong {
+    color: var(--text);
+}
+
+.discord-emoji-progress-track {
+    height: 7px;
+    margin-top: 9px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--panel-2);
+}
+
+.discord-emoji-progress-track > span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width 160ms ease;
+}
+
+.discord-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px;
+    margin-top: 13px;
+}
+
+.discord-expression-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "preview select"
+        "copy copy"
+        "download download";
+    gap: 10px;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 10px;
+    transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease;
+}
+
+.discord-expression-card:hover {
+    border-color: #424958;
+    transform: translateY(-1px);
+}
+
+.discord-expression-card.is-selected {
+    border-color: rgba(24, 169, 153, 0.65);
+    background: rgba(24, 169, 153, 0.045);
+}
+
+.discord-expression-card.is-failed {
+    border-color: rgba(255, 95, 109, 0.55);
+}
+
+.discord-expression-select {
+    grid-area: select;
+    align-self: start;
+    cursor: pointer;
+}
+
+.discord-expression-select input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.discord-expression-select span {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border: 1px solid #4b5260;
+    border-radius: 6px;
+    background: var(--panel-2);
+}
+
+.discord-expression-select input:checked + span {
+    border-color: var(--accent);
+    background: var(--accent);
+}
+
+.discord-expression-select input:checked + span::after {
+    content: "✓";
+    color: #06110f;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.discord-expression-select input:disabled + span {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.discord-expression-preview {
+    position: relative;
+    display: grid;
+    grid-area: preview;
+    min-height: 104px;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(48, 53, 66, 0.82);
+    border-radius: 8px;
+    background:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%),
+        var(--bg);
+    background-position: 0 0, 8px 8px;
+    background-size: 16px 16px;
+}
+
+.discord-expression-preview img {
+    position: relative;
+    z-index: 1;
+    max-width: 92px;
+    max-height: 92px;
+    object-fit: contain;
+}
+
+.discord-expression-fallback {
+    position: absolute;
+    color: #737b8c;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+.discord-expression-copy {
+    display: grid;
+    grid-area: copy;
+    min-width: 0;
+    gap: 3px;
+}
+
+.discord-expression-copy strong,
+.discord-expression-copy span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.discord-expression-copy strong {
+    font-size: 13px;
+}
+
+.discord-expression-copy span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.discord-expression-download {
+    grid-area: download;
+    min-height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.discord-expression-download:hover:not(:disabled) {
+    border-color: rgba(24, 169, 153, 0.5);
+    color: var(--accent-strong);
+}
+
+.discord-emoji-footer {
+    margin-top: 20px;
+    border-top: 1px solid var(--line);
+    padding-top: 15px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.discord-emoji-footer p {
+    margin-bottom: 7px;
+}
+
+.discord-emoji-footer a {
+    color: var(--accent-strong);
+}
+
+@media (max-width: 1100px) {
+    .discord-emoji-browser-layout {
+        grid-template-columns: 210px minmax(0, 1fr);
+    }
+
+    .discord-emoji-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 820px) {
+    .discord-emoji-bot-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .discord-emoji-bot-help {
+        grid-column: auto;
+    }
+
+    .discord-emoji-browser-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .discord-guild-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 680px) {
+    .discord-emoji-heading,
+    .discord-emoji-section-heading,
+    .discord-emoji-browser-toolbar,
+    .discord-emoji-assets-heading,
+    .discord-emoji-controls,
+    .discord-emoji-download-bar,
+    .discord-emoji-manual-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .discord-emoji-local-badge {
+        align-self: flex-start;
+    }
+
+    .discord-emoji-mode-tabs,
+    .discord-emoji-filter-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .discord-emoji-filter-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .discord-emoji-mode-tab,
+    .discord-emoji-filter-tab {
+        min-width: 0;
+        padding: 0 6px;
+        white-space: normal;
+    }
+
+    .discord-emoji-item-search,
+    .discord-emoji-download-actions,
+    .discord-emoji-download-actions .primary-button,
+    .discord-emoji-download-actions .secondary-button {
+        width: 100%;
+    }
+
+    .discord-emoji-selection-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .discord-emoji-input-card,
+    .discord-emoji-guild-browser {
+        padding: 12px;
+    }
+
+    .discord-emoji-file-drop {
+        min-height: 210px;
+        padding: 20px 14px;
+    }
+
+    .discord-emoji-bot-panel {
+        min-height: 0;
+        padding: 18px 14px;
+    }
+
+    .discord-emoji-bot-help {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 460px) {
+    .discord-emoji-heading-copy {
+        align-items: flex-start;
+    }
+
+    .discord-emoji-security-note {
+        align-items: flex-start;
+    }
+
+    .discord-guild-list,
+    .discord-emoji-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .discord-emoji-selection-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .discord-emoji-filter-tab span {
+        display: none;
+    }
+
+    .discord-emoji-token-control {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .discord-emoji-file-drop,
+    .discord-expression-card,
+    .discord-emoji-progress-track > span {
+        transition: none;
+    }
+
+    .discord-expression-card:hover,
+    .discord-emoji-file-drop.is-dragging {
+        transform: none;
+    }
+}

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="style.css?v=76">
     <link rel="stylesheet" href="tools/exif-viewer/style.css?v=2">
     <link rel="stylesheet" href="tools/username-search/style.css?v=2">
+    <link rel="stylesheet" href="tools/discord-emoji-downloader/style.css?v=2">
 </head>
 
 <body>
@@ -60,6 +61,11 @@
                     data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
                     data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
                     <span>Kullanıcı Adı Araştırma</span>
+                </button>
+                <button class="nav-item" data-tool="discord-emoji-downloader"
+                    data-search="discord emoji sticker sunucu guild zip indir download animated gif apng lottie"
+                    data-description="Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve ZIP olarak indirin." type="button">
+                    <span>Discord Emoji İndir</span>
                 </button>
                 <button class="nav-item" data-tool="gradient" data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
                     <span>Gradient Generator</span>
@@ -1184,6 +1190,173 @@
                 </footer>
             </section>
 
+            <section id="discord-emoji-downloader" class="tool-panel discord-emoji-panel" aria-labelledby="discord-emoji-title">
+                <div class="panel-heading discord-emoji-heading">
+                    <div class="discord-emoji-heading-copy">
+                        <div>
+                            <h2 id="discord-emoji-title">Discord Emoji İndir</h2>
+                            <p>Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve kolayca indirin.</p>
+                        </div>
+                    </div>
+                    <span class="discord-emoji-local-badge">Tamamen tarayıcıda</span>
+                </div>
+
+                <div class="discord-emoji-security-note" role="note">
+                    <span class="discord-emoji-security-mark" aria-hidden="true">✓</span>
+                    <div>
+                        <strong>Yalnızca resmi Discord bot token'ı kullanın</strong>
+                        <p>Normal Discord kullanıcı token'ları kabul edilmez. Bot token'ı yalnızca bağlantı süresince bellekte tutulur, doğrudan Discord HTTP API ve Gateway dışında hiçbir yere gönderilmez.</p>
+                    </div>
+                </div>
+
+                <section class="discord-emoji-input-card" aria-labelledby="discord-emoji-source-title">
+                    <div class="discord-emoji-section-heading">
+                        <div>
+                            <span class="discord-emoji-eyebrow">Veri kaynağı</span>
+                            <h3 id="discord-emoji-source-title">Discord'a bağlanın veya veri yükleyin</h3>
+                        </div>
+                        <div class="discord-emoji-mode-tabs" role="tablist" aria-label="Guild verisi giriş yöntemi">
+                            <button id="discord-emoji-bot-tab" class="discord-emoji-mode-tab active" type="button" role="tab" aria-selected="true"
+                                aria-controls="discord-emoji-bot-panel" data-discord-input-mode="bot">Bot ile Bağlan</button>
+                            <button id="discord-emoji-file-tab" class="discord-emoji-mode-tab" type="button" role="tab" aria-selected="false"
+                                aria-controls="discord-emoji-file-panel" data-discord-input-mode="file">JSON Dosyası</button>
+                            <button id="discord-emoji-manual-tab" class="discord-emoji-mode-tab" type="button" role="tab" aria-selected="false"
+                                aria-controls="discord-emoji-manual-panel" data-discord-input-mode="manual">Manuel Veri</button>
+                        </div>
+                    </div>
+
+                    <div id="discord-emoji-bot-panel" class="discord-emoji-input-panel discord-emoji-bot-panel" role="tabpanel" aria-labelledby="discord-emoji-bot-tab" data-discord-input-panel="bot">
+                        <div class="discord-emoji-bot-copy">
+                            <strong>Botunuzun bulunduğu sunucuları otomatik yükleyin</strong>
+                            <p>Discord Developer Portal'dan oluşturduğunuz botu sunucularınıza ekleyin, ardından bot token'ını aşağıya girin.</p>
+                        </div>
+                        <div class="discord-emoji-token-row">
+                            <label for="discord-emoji-bot-token">Bot token</label>
+                            <div class="discord-emoji-token-control">
+                                <input id="discord-emoji-bot-token" type="password" placeholder="Bot token'ını girin"
+                                    autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true"
+                                    aria-describedby="discord-emoji-bot-help discord-emoji-input-error">
+                                <button id="discord-emoji-bot-connect" class="primary-button" type="button">Sunucuları Getir</button>
+                            </div>
+                        </div>
+                        <div class="discord-emoji-bot-help" id="discord-emoji-bot-help">
+                            <p>Token kaydedilmez veya loglanmaz; sunucu verileri Gateway'den gelince bellekten temizlenir.</p>
+                            <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer">Discord Developer Portal'ı Aç</a>
+                        </div>
+                    </div>
+
+                    <div id="discord-emoji-file-panel" class="discord-emoji-input-panel" role="tabpanel" aria-labelledby="discord-emoji-file-tab" data-discord-input-panel="file" hidden>
+                        <div id="discord-emoji-file-drop" class="discord-emoji-file-drop" tabindex="0">
+                            <input id="discord-emoji-file-input" type="file" accept=".json,application/json" multiple hidden>
+                            <span class="discord-emoji-drop-icon" aria-hidden="true"><span>JSON</span></span>
+                            <div>
+                                <strong>Guild JSON dosyalarını buraya bırakın</strong>
+                                <p>Bir veya birden fazla sunucuyu aynı anda yükleyebilirsiniz.</p>
+                            </div>
+                            <button id="discord-emoji-file-browse" class="primary-button" type="button">JSON Dosyası Seç</button>
+                        </div>
+                    </div>
+
+                    <div id="discord-emoji-manual-panel" class="discord-emoji-input-panel" role="tabpanel" aria-labelledby="discord-emoji-manual-tab" data-discord-input-panel="manual" hidden>
+                        <label for="discord-emoji-manual-input">Guild JSON verisi</label>
+                        <textarea id="discord-emoji-manual-input" placeholder="Guild JSON verisini buraya yapıştırın..."
+                            autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="discord-emoji-manual-help discord-emoji-input-error"></textarea>
+                        <div class="discord-emoji-manual-footer">
+                            <p id="discord-emoji-manual-help"><code>id</code>, <code>name</code>, <code>emojis</code> ve <code>stickers</code> alanları otomatik algılanır. Ctrl/Cmd + Enter ile işleyebilirsiniz.</p>
+                            <button id="discord-emoji-manual-submit" class="primary-button" type="button">Veriyi İşle</button>
+                        </div>
+                    </div>
+                    <p id="discord-emoji-input-error" class="discord-emoji-input-error" role="alert" hidden></p>
+                </section>
+
+                <p id="discord-emoji-notice" class="discord-emoji-notice" role="status" hidden></p>
+
+                <section id="discord-emoji-guild-browser" class="discord-emoji-guild-browser" aria-labelledby="discord-emoji-guilds-title" hidden>
+                    <div class="discord-emoji-browser-toolbar">
+                        <div>
+                            <span id="discord-emoji-guild-source-label" class="discord-emoji-eyebrow">Sunucular</span>
+                            <h3 id="discord-emoji-guilds-title">Sunucu seçin</h3>
+                        </div>
+                        <button id="discord-emoji-reset" class="secondary-button" type="button">Bağlantıyı Kes / Yeni Veri</button>
+                    </div>
+
+                    <div class="discord-emoji-browser-layout">
+                        <aside class="discord-guild-sidebar" aria-label="Discord sunucuları">
+                            <label class="discord-emoji-search">
+                                <span class="sr-only">Sunucu ara</span>
+                                <span class="discord-emoji-search-icon" aria-hidden="true"></span>
+                                <input id="discord-emoji-guild-search" type="search" placeholder="Sunucu ara..." autocomplete="off" spellcheck="false">
+                            </label>
+                            <div id="discord-emoji-guild-list" class="discord-guild-list"></div>
+                            <p id="discord-emoji-guild-empty" class="discord-guild-empty" hidden>Aramanızla eşleşen sunucu bulunamadı.</p>
+                        </aside>
+
+                        <div id="discord-emoji-asset-browser" class="discord-emoji-assets" hidden>
+                            <header class="discord-emoji-assets-heading">
+                                <div>
+                                    <h3 id="discord-emoji-current-guild">Sunucu</h3>
+                                    <p id="discord-emoji-current-summary">0 emoji · 0 sticker</p>
+                                </div>
+                                <label class="discord-emoji-search discord-emoji-item-search">
+                                    <span class="sr-only">Emoji veya sticker ara</span>
+                                    <span class="discord-emoji-search-icon" aria-hidden="true"></span>
+                                    <input id="discord-emoji-item-search" type="search" placeholder="Emoji veya sticker ara..." autocomplete="off" spellcheck="false">
+                                </label>
+                            </header>
+
+                            <div class="discord-emoji-controls">
+                                <div class="discord-emoji-filter-tabs" role="group" aria-label="Öğe türüne göre filtrele">
+                                    <button class="discord-emoji-filter-tab active" data-discord-item-filter="all" type="button" aria-pressed="true">Tümü <span>0</span></button>
+                                    <button class="discord-emoji-filter-tab" data-discord-item-filter="emoji" type="button" aria-pressed="false">Emojiler <span>0</span></button>
+                                    <button class="discord-emoji-filter-tab" data-discord-item-filter="sticker" type="button" aria-pressed="false">Sticker'lar <span>0</span></button>
+                                </div>
+                                <div class="discord-emoji-selection-actions">
+                                    <button id="discord-emoji-select-all" class="secondary-button" type="button">Tümünü Seç</button>
+                                    <button id="discord-emoji-clear-selection" class="secondary-button" type="button">Seçimi Temizle</button>
+                                </div>
+                            </div>
+
+                            <div class="discord-emoji-download-bar">
+                                <div class="discord-emoji-selected-copy">
+                                    <strong id="discord-emoji-selected-count">0 öğe seçildi</strong>
+                                    <span>Emoji ve sticker seçimleri aynı ZIP içinde korunur.</span>
+                                </div>
+                                <div class="discord-emoji-download-actions">
+                                    <button id="discord-emoji-retry" class="secondary-button" type="button" hidden>Başarısızları Tekrar Dene</button>
+                                    <button id="discord-emoji-download-zip" class="primary-button" type="button" disabled>Seçilenleri ZIP Olarak İndir</button>
+                                </div>
+                            </div>
+
+                            <div id="discord-emoji-progress" class="discord-emoji-progress" hidden>
+                                <div class="discord-emoji-progress-copy">
+                                    <strong id="discord-emoji-progress-text">Dosyalar hazırlanıyor…</strong>
+                                    <span id="discord-emoji-progress-count">0 / 0</span>
+                                </div>
+                                <div id="discord-emoji-progress-bar" class="discord-emoji-progress-track" role="progressbar"
+                                    aria-label="ZIP hazırlama ilerlemesi" aria-valuemin="0" aria-valuenow="0" aria-valuemax="0">
+                                    <span id="discord-emoji-progress-fill"></span>
+                                </div>
+                            </div>
+
+                            <div id="discord-emoji-grid" class="discord-emoji-grid" role="list" aria-label="Emoji ve sticker listesi"></div>
+                            <p id="discord-emoji-items-empty" class="discord-emoji-items-empty" hidden></p>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="discord-emoji-footer">
+                    <p>Dosyalar doğrudan Discord CDN'inden alınır, yeniden kodlanmadan tarayıcıda ZIP'e eklenir. Rastgele CORS proxy servisi kullanılmaz.</p>
+                    <p>Bot bağlantısı Discord'un resmi HTTP API ve Gateway WebSocket akışını kullanır; normal kullanıcı token'ı ve self-bot yöntemi desteklenmez. Lottie sticker'lar JSON olarak korunur; tarayıcı CORS nedeniyle belleğe alamazsa orijinal CDN dosyası ayrı sekmede açılır.</p>
+                    <div class="discord-emoji-footer-links">
+                        <a href="https://docs.discord.com/developers/platform/oauth2-and-permissions" target="_blank" rel="noopener noreferrer">Bot Kurulum Rehberi</a>
+                        <a href="https://docs.discord.com/developers/events/gateway" target="_blank" rel="noopener noreferrer">Discord Gateway API</a>
+                        <a href="https://docs.discord.com/developers/resources/emoji" target="_blank" rel="noopener noreferrer">Discord Emoji API</a>
+                        <a href="https://docs.discord.com/developers/resources/sticker" target="_blank" rel="noopener noreferrer">Discord Sticker API</a>
+                    </div>
+                </footer>
+                <p id="discord-emoji-live" class="sr-only" aria-live="polite"></p>
+            </section>
+
             <section id="sudoku" class="tool-panel sudoku-panel" aria-labelledby="sudoku-title">
                 <div class="panel-heading sudoku-panel-heading">
                     <div>
@@ -2195,11 +2368,13 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=34"></script>
+    <script src="index.js?v=36"></script>
     <script src="tools/username-search/config.js?v=1"></script>
     <script src="tools/username-search/platforms.js?v=5"></script>
     <script src="tools/username-search/core.js?v=3"></script>
     <script src="tools/username-search/app.js?v=3"></script>
+    <script src="tools/discord-emoji-downloader/core.js?v=6"></script>
+    <script src="tools/discord-emoji-downloader/app.js?v=3"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
