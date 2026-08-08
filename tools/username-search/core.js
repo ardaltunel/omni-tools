@@ -106,6 +106,16 @@
                     ? verdict("found", "API kullanıcı adını doğruladı.")
                     : verdict("unknown", "API yanıtı beklenen kullanıcı kimliğini doğrulamadı.");
             }
+            case "npmMaintainer": {
+                if (status !== 200 || !Array.isArray(data?.objects)) break;
+                const hasMaintainedPackage = data.objects.some((item) => (
+                    Array.isArray(item?.package?.maintainers)
+                    && item.package.maintainers.some((maintainer) => equalsUsername(maintainer?.username, username))
+                ));
+                return hasMaintainedPackage
+                    ? verdict("found", "npm Registry kullanıcı adını bir maintainer kaydında doğruladı.")
+                    : verdict("unknown", "npm Registry'de herkese açık paket kaydı yok; paketsiz hesap doğrulanamıyor.");
+            }
             case "keybase": {
                 const code = getValue(data, "status.code");
                 const identity = getValue(data, "them.basics.username");

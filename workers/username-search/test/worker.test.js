@@ -10,8 +10,12 @@ test("health endpoint platform kapsamını döndürür", async () => {
     const payload = await response.json();
     assert.equal(response.status, 200);
     assert.equal(payload.platforms, 46);
-    assert.equal(payload.serverCheckable > 35, true);
+    assert.equal(payload.serverCheckable, 42);
     assert.equal(response.headers.get("access-control-allow-origin"), "https://ardaltunel.github.io");
+
+    const configuredResponse = await handleRequest(new Request("https://worker.test/api/health"), { LASTFM_API_KEY: "configured" });
+    const configuredPayload = await configuredResponse.json();
+    assert.equal(configuredPayload.serverCheckable, 43);
 });
 
 test("bilinmeyen origin ve platform reddedilir", async () => {

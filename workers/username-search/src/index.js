@@ -50,6 +50,18 @@ function responseHeaders(origin, env) {
     return headers;
 }
 
+function detectionVariables(env) {
+    return {
+        apiKey: env?.LASTFM_API_KEY,
+    };
+}
+
+function isServerCheckable(platform, env) {
+    if (platform.evaluator === "unsupported") return false;
+    const variables = detectionVariables(env);
+    return (platform.requiredVariables || []).every((key) => String(variables[key] || "").trim());
+}
+
 function json(payload, status, origin, env, extraHeaders = {}) {
     return new Response(JSON.stringify(payload), {
         status,
@@ -85,6 +97,7 @@ async function handleCheck(request, env, origin, url) {
         result = await checkPlatform(platform, username, {
             signal: request.signal,
             timeoutMs: Math.min(12000, Math.max(3000, Number(env?.REQUEST_TIMEOUT_MS) || 10000)),
+            variables: detectionVariables(env),
         });
     } catch (_error) {
         result = { status: "unknown", detail: "İstemci bağlantısı kesildiği için kontrol tamamlanamadı." };
@@ -125,7 +138,7 @@ export async function handleRequest(request, env = {}) {
             ok: true,
             service: "omni-tools-username-search",
             platforms: PLATFORMS.length,
-            serverCheckable: PLATFORMS.filter((item) => item.evaluator !== "unsupported").length,
+            serverCheckable: PLATFORMS.filter((item) => isServerCheckable(item, env)).length,
         }, 200, origin, env);
     }
     if (path === "/api/check") return handleCheck(request, env, origin, url);
@@ -134,5 +147,4 @@ export async function handleRequest(request, env = {}) {
 
 export default { fetch: handleRequest };
 
-export const internals = Object.freeze({ allowedOrigins, isAllowedOrigin, normalizeUsername, validateUsername });
-
+export const internals = Object.freeze({ allowedOrigins, detectionVariables, isAllowedOrigin, isServerCheckable, normalizeUsername, validateUsername });

@@ -78,6 +78,19 @@ test("Hacker News tipi null yanıtı bulunamadı sayar", () => {
     assert.equal(core.evaluateProbe(hackerNews, { status: 200, data: null }, "unlikely-user").status, "notFound");
 });
 
+test("npm maintainer kaydı yalnızca kesin eşleşmede bulundu sayılır", () => {
+    const npm = platform({
+        detection: { method: "fetch", evaluator: "npmMaintainer" },
+    });
+    const found = core.evaluateProbe(npm, {
+        status: 200,
+        data: { objects: [{ package: { maintainers: [{ username: "SindreSorhus" }] } }] },
+    }, "sindresorhus");
+    const noPublicPackage = core.evaluateProbe(npm, { status: 200, data: { objects: [] } }, "empty-account");
+    assert.equal(found.status, "found");
+    assert.equal(noPublicPackage.status, "unknown");
+});
+
 test("CORS/ağ hatasını bulunamadı yerine kontrol edilemedi sayar", () => {
     assert.deepEqual(
         core.classifyFetchError(new TypeError("Failed to fetch")),

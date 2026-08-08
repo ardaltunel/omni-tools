@@ -168,8 +168,11 @@
             iconUrl: simpleIcon("bitbucket"),
             usernamePattern: "^[A-Za-z0-9_-]{1,30}$",
             detection: {
-                method: "unavailable",
-                reason: "Bitbucket'ın herkese açık kullanıcı uç noktası kullanıcı adlarını güvenilir biçimde çözümlemiyor.",
+                method: "fetch",
+                requestUrl: "https://api.bitbucket.org/2.0/workspaces/{username}",
+                evaluator: "jsonExact",
+                identityPath: "slug",
+                notFoundStatuses: [404],
             },
         },
         {
@@ -357,7 +360,10 @@
             profileUrl: "https://www.last.fm/user/{username}",
             iconUrl: simpleIcon("lastdotfm"),
             usernamePattern: "^[A-Za-z0-9_-]{2,15}$",
-            detection: { method: "unavailable", reason: AUTH_LIMITATION },
+            detection: {
+                method: "unavailable",
+                reason: "Last.fm kullanıcı kontrolü resmi API anahtarının Worker secret'ı olarak yapılandırılmasını gerektiriyor.",
+            },
         },
         {
             id: "docker-hub",
@@ -376,8 +382,9 @@
             iconUrl: simpleIcon("npm"),
             usernamePattern: "^[a-z0-9][a-z0-9._-]{0,63}$",
             detection: {
-                method: "unavailable",
-                reason: "npm'in anonim kullanıcı uç noktası güvenilir hesap doğrulaması sunmuyor.",
+                method: "fetch",
+                requestUrl: "https://registry.npmjs.org/-/v1/search?text=maintainer%3A{username}&size=1",
+                evaluator: "npmMaintainer",
             },
         },
         {

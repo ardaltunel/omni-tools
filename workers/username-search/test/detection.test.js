@@ -52,6 +52,46 @@ test("Docker Hub organizasyon yanıtını kullanıcı adı olarak doğrular", as
     assert.equal(result.status, "found");
 });
 
+test("npm araması exact maintainer kaydını doğrular, boş sonucu false negative saymaz", async () => {
+    const platform = { requestUrl: "https://example.test/{username}", evaluator: "npmMaintainer" };
+    const found = await checkPlatform(platform, "alice", {
+        fetchImpl: async () => makeResponse({ objects: [{ package: { maintainers: [{ username: "Alice" }] } }] }),
+    });
+    const noPublicPackage = await checkPlatform(platform, "alice", {
+        fetchImpl: async () => makeResponse({ objects: [] }),
+    });
+    assert.equal(found.status, "found");
+    assert.equal(noPublicPackage.status, "unknown");
+});
+
+test("Last.fm API anahtarı yoksa istek atmaz; API yanıtı varsa kesin karar verir", async () => {
+    let fetchCalled = false;
+    const platform = {
+        requestUrl: "https://example.test/?user={username}&api_key={apiKey}",
+        evaluator: "lastFm",
+        requiredVariables: ["apiKey"],
+        missingVariableReason: "API anahtarı gerekli.",
+    };
+    const missingKey = await checkPlatform(platform, "alice", {
+        fetchImpl: async () => { fetchCalled = true; return makeResponse({}); },
+    });
+    const found = await checkPlatform(platform, "alice", {
+        variables: { apiKey: "secret" },
+        fetchImpl: async (url) => {
+            assert.match(url, /api_key=secret/);
+            return makeResponse({ user: { name: "Alice" } });
+        },
+    });
+    const notFound = await checkPlatform(platform, "alice", {
+        variables: { apiKey: "secret" },
+        fetchImpl: async () => makeResponse({ error: 6, message: "User not found" }, 400),
+    });
+    assert.equal(fetchCalled, false);
+    assert.equal(missingKey.status, "unknown");
+    assert.equal(found.status, "found");
+    assert.equal(notFound.status, "notFound");
+});
+
 test("LinkedIn canonical URL ve profil kartını birlikte doğrular", async () => {
     const platform = {
         requestUrl: "https://www.linkedin.com/in/{username}",

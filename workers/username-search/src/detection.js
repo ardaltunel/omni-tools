@@ -9,7 +9,13 @@ const valueAt = (object, path) => String(path || "")
 const equalsUsername = (value, username) => typeof value === "string"
     && value.localeCompare(username, "en", { sensitivity: "base" }) === 0;
 
-const interpolate = (template, username) => String(template).replaceAll("{username}", encodeURIComponent(username));
+const interpolate = (template, username, variables = {}) => {
+    let value = String(template).replaceAll("{username}", encodeURIComponent(username));
+    Object.entries(variables).forEach(([key, replacement]) => {
+        value = value.replaceAll(`{${key}}`, encodeURIComponent(String(replacement || "")));
+    });
+    return value;
+};
 
 function normalizeUrl(value) {
     try {
@@ -113,6 +119,26 @@ function evaluate(platform, response, body, data, username) {
             }
             break;
         }
+        case "npmMaintainer": {
+            if (status !== 200 || !Array.isArray(data?.objects)) break;
+            const hasMaintainedPackage = data.objects.some((item) => (
+                Array.isArray(item?.package?.maintainers)
+                && item.package.maintainers.some((maintainer) => equalsUsername(maintainer?.username, username))
+            ));
+            return hasMaintainedPackage
+                ? verdict("found", "npm Registry, kullanıcı adını yayımlanmış bir paketin maintainer kaydında doğruladı.")
+                : verdict("unknown", "npm Registry'de bu kullanıcı adına ait herkese açık paket kaydı yok; paketsiz hesaplar anonim olarak doğrulanamıyor.");
+        }
+        case "lastFm": {
+            if (status === 200 && equalsUsername(data?.user?.name, username)) {
+                return verdict("found", "Last.fm API kullanıcı adını doğruladı.");
+            }
+            if (data?.error === 6 && /user not found/i.test(String(data?.message || ""))) {
+                return verdict("notFound", "Last.fm API kullanıcıyı bulamadı.");
+            }
+            if (data?.error === 10) return verdict("error", "Last.fm API anahtarı geçersiz veya yetkisiz.");
+            break;
+        }
         case "keybase": {
             const code = valueAt(data, "status.code");
             if (status === 200 && code === 0 && equalsUsername(valueAt(data, "them.basics.username"), username)) {
@@ -199,6 +225,10 @@ function evaluate(platform, response, body, data, username) {
 
 export async function checkPlatform(platform, username, options = {}) {
     if (platform.evaluator === "unsupported") return verdict("unknown", platform.reason);
+    const variables = options.variables || {};
+    if ((platform.requiredVariables || []).some((key) => !String(variables[key] || "").trim())) {
+        return verdict("unknown", platform.missingVariableReason || "Bu platform için gerekli güvenli yapılandırma eksik.");
+    }
 
     const controller = new AbortController();
     const timeoutMs = Number(options.timeoutMs) > 0 ? Number(options.timeoutMs) : DEFAULT_TIMEOUT_MS;
@@ -207,7 +237,7 @@ export async function checkPlatform(platform, username, options = {}) {
     const timeoutId = setTimeout(() => controller.abort("timeout"), timeoutMs);
 
     try {
-        const response = await (options.fetchImpl || fetch)(interpolate(platform.requestUrl, username), {
+        const response = await (options.fetchImpl || fetch)(interpolate(platform.requestUrl, username, variables), {
             method: "GET",
             redirect: "follow",
             signal: controller.signal,
