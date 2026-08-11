@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    const panel = document.getElementById("osint-center");
+    const panel = document.getElementById("osint-arastirma");
     const Core = window.OsintCenterCore;
     const ServiceApi = window.OsintCenterServices;
     if (!panel || !Core || !ServiceApi) return;

@@ -33,7 +33,7 @@ function initCoach() {
         draggable: true,
         showNotation: false,
         position: "start",
-        pieceTheme: "tools/coach/img/chesspieces/wikipedia/{piece}.png",
+        pieceTheme: "tools/chess-coach/img/chesspieces/wikipedia/{piece}.png",
         onDragStart: handleCoachDragStart,
         onDrop: handleCoachDrop,
         onSnapEnd: () => coachBoard.position(coachGame.fen()),
@@ -65,7 +65,7 @@ function handleCoachPanelActivation(event) {
 
 function initCoachEngine() {
     try {
-        coachEngine = typeof STOCKFISH === "function" ? STOCKFISH() : new Worker("tools/coach/stockfish.js");
+        coachEngine = typeof STOCKFISH === "function" ? STOCKFISH() : new Worker("tools/chess-coach/stockfish.js");
         coachEngine.onmessage = handleCoachEngineLine;
         postCoachEngine("uci");
         postCoachEngine("setoption name MultiPV value 4");

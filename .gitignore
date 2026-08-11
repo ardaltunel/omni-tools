@@ -1,4 +1,4 @@
 server.log
 server.err.log
-/workers/username-search/node_modules/
-/workers/username-search/.wrangler/
+/tools/kullanici-adi-arastirma/worker/node_modules/
+/tools/kullanici-adi-arastirma/worker/.wrangler/

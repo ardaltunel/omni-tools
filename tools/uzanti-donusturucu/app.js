@@ -2,7 +2,7 @@
     "use strict";
 
     const namespace = root.OmniConverter;
-    const panel = document.getElementById("converter");
+    const panel = document.getElementById("uzanti-donusturucu");
     if (!namespace?.ConversionEngine || !panel) return;
 
     const elements = {};

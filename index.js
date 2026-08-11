@@ -9,6 +9,18 @@ const appHome = document.getElementById("app-home");
 const defaultPageTitle = "Omni Tools | Arda Altunel";
 const defaultPageDescription = document.querySelector('meta[name="description"]')?.content || "";
 const defaultPageKeywords = document.querySelector('meta[name="keywords"]')?.content || "";
+const legacyToolRoutes = Object.freeze({
+    "alninda-ne-var": "nebuu",
+    "discord-emoji-downloader": "discord-emoji-indir",
+    "username-search": "kullanici-adi-arastirma",
+    "osint-center": "osint-arastirma",
+    converter: "uzanti-donusturucu",
+    "metadata-cleaner": "medya-veri-temizleyici",
+    "exif-viewer": "exif-veri-goruntuleme",
+    milyoner: "milyoner-bilgi-yarismasi",
+    weather: "weather-app",
+    "deal-game": "var-misin-yok-musun",
+});
 document.body.classList.add("is-app-home");
 const homeAppCards = createAppHomeCards();
 initializeAppSearch(homeAppCards);
@@ -29,6 +41,8 @@ brand?.addEventListener("keydown", (event) => {
 initializeToolRouting();
 
 function activateTool(tool, options = {}) {
+    const requestedTool = tool;
+    tool = legacyToolRoutes[tool] || tool;
     const matchingPanel = document.getElementById(tool);
     const matchingNavItem = Array.from(navItems).find((item) => item.dataset.tool === tool);
     if (!matchingPanel || !matchingNavItem) return false;
@@ -39,7 +53,7 @@ function activateTool(tool, options = {}) {
     document.body.classList.remove("is-app-home");
     document.body.classList.add("is-tool-active");
     resetToolScroll();
-    updateToolHistory(tool, options.historyMode);
+    updateToolHistory(tool, options.historyMode || (requestedTool !== tool ? "replace" : undefined));
     updatePageMetadata(tool);
     document.dispatchEvent(new CustomEvent("tool-activated", { detail: { tool } }));
 
@@ -245,30 +259,34 @@ function updatePageMetadata(tool) {
     const ogTitle = document.querySelector('meta[property="og:title"]');
     const ogDescription = document.querySelector('meta[property="og:description"]');
     const toolMetadata = {
-        milyoner: {
+        "milyoner-bilgi-yarismasi": {
             title: "Milyoner Bilgi Yarışması | Omni Tools",
             description: "15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş.",
             keywords: "milyoner bilgi yarışması, bilgi yarışması, quiz, genel kültür, soru oyunu, millionaire",
         },
-        "metadata-cleaner": {
+        "medya-veri-temizleyici": {
             description: "JPEG, PNG ve WebP fotoğraflardaki EXIF, XMP, IPTC ve GPS mahremiyet verilerini tarayıcıda kayıpsız temizleyin.",
             keywords: "metadata cleaner, exif temizleme, fotoğraf metadata silme, gps kaldırma, medya veri temizleyici",
         },
-        "exif-viewer": {
+        "exif-veri-goruntuleme": {
             description: "Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin.",
             keywords: "exif viewer, metadata viewer, exif veri görüntüleme, gps metadata, fotoğraf kamera bilgisi, xmp iptc icc",
         },
-        "username-search": {
+        "kullanici-adi-arastirma": {
             description: "Bir kullanıcı adının internette hangi platformlarda kullanıldığını herkese açık API ve profil sinyalleriyle araştırın.",
             keywords: "kullanıcı adı araştırma, username search, OSINT, sosyal medya hesap bulma, profil araştırma",
         },
-        "osint-center": {
+        "osint-arastirma": {
             description: "Alan adı, IP, DNS, WHOIS/RDAP, URL, subdomain, User-Agent ve e-posta domain bilgilerini herkese açık kaynaklarla araştırın.",
             keywords: "osint, ip lookup, domain intelligence, dns lookup, whois rdap, url analyzer, subdomain discovery, email intelligence, user agent",
         },
-        "discord-emoji-downloader": {
+        "discord-emoji-indir": {
             description: "Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin, seçin ve doğrudan tarayıcınızda ZIP olarak indirin.",
             keywords: "discord emoji indir, discord sticker indir, bot token, guild json, emoji zip, animated emoji gif, lottie sticker",
+        },
+        nebuu: {
+            description: "Telefonunu alnına koy, arkadaşlarının ipuçlarıyla Türkçe kelimeleri hareket ederek tahmin et.",
+            keywords: "nebuu, alnında ne var, kelime tahmin oyunu, telefon hareket oyunu, parti oyunu, heads up türkçe",
         },
     };
     const metadata = toolMetadata[tool] || {};

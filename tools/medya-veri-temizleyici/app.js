@@ -2,7 +2,7 @@
     "use strict";
 
     const core = root.MetadataCleanerCore;
-    const panel = document.getElementById("metadata-cleaner");
+    const panel = document.getElementById("medya-veri-temizleyici");
     if (!core || !panel) return;
 
     const MAX_FILES = 20;
@@ -568,7 +568,7 @@
     function ensureWorker() {
         if (worker || typeof Worker === "undefined") return worker;
         try {
-            const url = new URL("tools/metadata-cleaner/worker.js?v=2", document.baseURI);
+            const url = new URL("tools/medya-veri-temizleyici/worker.js?v=2", document.baseURI);
             worker = new Worker(url);
             worker.addEventListener("message", (event) => {
                 const request = workerRequests.get(event.data?.id);

@@ -43,7 +43,7 @@ test("platforma uymayan kullanıcı adı dış isteğe çıkmadan unknown döner
 });
 
 test("frontend ve Worker platform kimlikleri eşleşir", async () => {
-    await import("../../../tools/username-search/platforms.js");
+    await import("../../platforms.js");
     const frontendIds = globalThis.UsernameSearchPlatforms.map((item) => item.id).sort();
     const workerIds = PLATFORMS.map((item) => item.id).sort();
     assert.deepEqual(workerIds, frontendIds);

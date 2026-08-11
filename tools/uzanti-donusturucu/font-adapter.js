@@ -5,7 +5,7 @@
     if (!namespace?.Adapters) return;
 
     const { CategoryAdapter } = namespace.Adapters;
-    const BASE_URL = new URL("tools/converter/vendor/fonteditor/", document.baseURI).href;
+    const BASE_URL = new URL("tools/uzanti-donusturucu/vendor/fonteditor/", document.baseURI).href;
     const FONT_MODULE_URL = `${BASE_URL}fonteditor.js`;
     const PAKO_MODULE_URL = `${BASE_URL}pako.js`;
     const WOFF2_MODULE_URL = `${BASE_URL}woff2-encoder.js`;

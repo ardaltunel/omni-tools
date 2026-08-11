@@ -6,7 +6,7 @@
 
     const { CategoryAdapter } = namespace.Adapters;
     const services = namespace.Services;
-    const MOBI_MODULE_URL = new URL("tools/converter/vendor/ebook/mobi-parser.js", document.baseURI).href;
+    const MOBI_MODULE_URL = new URL("tools/uzanti-donusturucu/vendor/ebook/mobi-parser.js", document.baseURI).href;
     const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"]);
     const MIME_TYPES = Object.freeze({
         epub: "application/epub+zip",

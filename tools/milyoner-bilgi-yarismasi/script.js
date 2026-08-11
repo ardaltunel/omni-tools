@@ -4,7 +4,7 @@
     const engine = window.OmniMillionaireEngine;
     const questionBank = window.OmniMillionaireQuestions;
     const audio = window.OmniMillionaireAudio;
-    const panel = document.getElementById("milyoner");
+    const panel = document.getElementById("milyoner-bilgi-yarismasi");
     const app = document.getElementById("millionaire-app");
 
     if (!engine || !Array.isArray(questionBank) || !audio || !panel || !app) return;
@@ -83,7 +83,7 @@
     }
 
     function handleToolActivated(event) {
-        if (event.detail?.tool === "milyoner") {
+        if (event.detail?.tool === "milyoner-bilgi-yarismasi") {
             applySettings();
             if (state?.status === "playing") startTimerLoop();
             if (state && ["playing", "review"].includes(state.status)) audio.startMusic();
@@ -620,7 +620,7 @@
     }
 
     function handleKeyboard(event) {
-        if (document.querySelector(".tool-panel.active")?.id !== "milyoner") return;
+        if (document.querySelector(".tool-panel.active")?.id !== "milyoner-bilgi-yarismasi") return;
         const target = event.target;
         const editable = target instanceof HTMLElement
             && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));

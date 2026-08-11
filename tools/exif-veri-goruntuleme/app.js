@@ -2,7 +2,7 @@
     "use strict";
 
     const core = root.ExifViewerCore;
-    const panel = document.getElementById("exif-viewer");
+    const panel = document.getElementById("exif-veri-goruntuleme");
     if (!core || !panel) return;
 
     const MAX_FILE_BYTES = 300 * 1024 * 1024;
@@ -174,7 +174,7 @@
     function ensureWorker() {
         if (state.worker || typeof Worker === "undefined") return state.worker;
         try {
-            state.worker = new Worker(new URL("tools/exif-viewer/worker.js?v=1", document.baseURI));
+            state.worker = new Worker(new URL("tools/exif-veri-goruntuleme/worker.js?v=1", document.baseURI));
             state.worker.addEventListener("message", (event) => {
                 const request = state.pending.get(event.data?.id);
                 if (!request) return;

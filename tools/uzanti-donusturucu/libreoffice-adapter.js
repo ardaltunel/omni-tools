@@ -5,7 +5,7 @@
     if (!namespace?.Adapters) return;
 
     const { CategoryAdapter } = namespace.Adapters;
-    const BASE_URL = new URL("tools/converter/vendor/libreoffice/", document.baseURI).href;
+    const BASE_URL = new URL("tools/uzanti-donusturucu/vendor/libreoffice/", document.baseURI).href;
     const MODULE_URL = `${BASE_URL}browser.js`;
     const WASM_PARTS = [`${BASE_URL}soffice.wasm.part1`, `${BASE_URL}soffice.wasm.part2`];
     const MIME_TYPES = Object.freeze({

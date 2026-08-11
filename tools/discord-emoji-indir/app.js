@@ -2,7 +2,7 @@
     "use strict";
 
     const core = window.DiscordEmojiDownloaderCore;
-    const panel = document.getElementById("discord-emoji-downloader");
+    const panel = document.getElementById("discord-emoji-indir");
     if (!core || !panel) return;
 
     const byId = (id) => document.getElementById(id);
@@ -155,7 +155,7 @@
             releasePreviewCache();
         });
         document.addEventListener("tool-activated", (event) => {
-            if (event.detail?.tool !== "discord-emoji-downloader") return;
+            if (event.detail?.tool !== "discord-emoji-indir") return;
             const focusTarget = state.guilds.length
                 ? elements.itemSearch
                 : state.inputMode === "bot" ? elements.botToken : state.inputMode === "manual" ? elements.manualInput : elements.fileBrowse;

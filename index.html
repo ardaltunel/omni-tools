@@ -20,12 +20,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="tools/coach/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="style.css?v=76">
-    <link rel="stylesheet" href="tools/exif-viewer/style.css?v=2">
-    <link rel="stylesheet" href="tools/username-search/style.css?v=2">
-    <link rel="stylesheet" href="tools/osint-center/style.css?v=5">
-    <link rel="stylesheet" href="tools/discord-emoji-downloader/style.css?v=2">
+    <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=2">
+    <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=2">
+    <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=5">
+    <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=2">
+    <link rel="stylesheet" href="tools/nebuu/style.css?v=1">
 </head>
 
 <body>
@@ -46,6 +47,11 @@
                 <button class="nav-item" data-tool="advanced-xox" data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
                     <span>Advanced XOX</span>
                 </button>
+                <button class="nav-item" data-tool="nebuu"
+                    data-search="nebuu alnında ne var heads up kelime tahmin telefon hareket sensör parti oyun"
+                    data-description="Telefonunu alnına koy, kelimeyi tahmin et!" type="button">
+                    <span>Nebuu</span>
+                </button>
                 <button class="nav-item" data-tool="chess" data-description="Farklı zorluklardaki bota karşı satranç oyna." type="button">
                     <span>Chess</span>
                 </button>
@@ -58,17 +64,17 @@
                 <button class="nav-item" data-tool="github-user" data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
                     <span>GitHub User</span>
                 </button>
-                <button class="nav-item" data-tool="username-search"
+                <button class="nav-item" data-tool="kullanici-adi-arastirma"
                     data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
                     data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
                     <span>Kullanıcı Adı Araştırma</span>
                 </button>
-                <button class="nav-item" data-tool="osint-center"
+                <button class="nav-item" data-tool="osint-arastirma"
                     data-search="osint ip domain alan adı dns whois url subdomain email e-posta user agent network website rdap"
                     data-description="Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın." type="button">
                     <span>OSINT Araştırma</span>
                 </button>
-                <button class="nav-item" data-tool="discord-emoji-downloader"
+                <button class="nav-item" data-tool="discord-emoji-indir"
                     data-search="discord emoji sticker sunucu guild zip indir download animated gif apng lottie"
                     data-description="Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve ZIP olarak indirin." type="button">
                     <span>Discord Emoji İndir</span>
@@ -76,15 +82,15 @@
                 <button class="nav-item" data-tool="gradient" data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
                     <span>Gradient Generator</span>
                 </button>
-                <button class="nav-item" data-tool="converter" data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
+                <button class="nav-item" data-tool="uzanti-donusturucu" data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
                     <span>Uzantı Dönüştürücü</span>
                 </button>
-                <button class="nav-item" data-tool="metadata-cleaner"
+                <button class="nav-item" data-tool="medya-veri-temizleyici"
                     data-search="metadata cleaner medya veri temizleyici exif xmp iptc gps fotoğraf mahremiyet"
                     data-description="Fotoğraflardaki mahremiyet metadata bilgilerini kayıpsız temizle." type="button">
                     <span>Medya Veri Temizleyici</span>
                 </button>
-                <button class="nav-item" data-tool="exif-viewer"
+                <button class="nav-item" data-tool="exif-veri-goruntuleme"
                     data-search="exif metadata viewer görüntüleme gps kamera tarih iptc xmp icc"
                     data-description="Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin." type="button">
                     <span>EXIF Veri Görüntüleme</span>
@@ -116,17 +122,17 @@
                 <button class="nav-item" data-tool="translate" data-description="Metinleri farklı diller arasında hızlıca çevir." type="button">
                     <span>Translate</span>
                 </button>
-                <button class="nav-item" data-tool="deal-game" data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
+                <button class="nav-item" data-tool="var-misin-yok-musun" data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
                     <span>Var Mısın Yok Musun</span>
                 </button>
-                <button class="nav-item" data-tool="milyoner" data-search="milyoner bilgi yarışma quiz soru genel kültür millionaire"
+                <button class="nav-item" data-tool="milyoner-bilgi-yarismasi" data-search="milyoner bilgi yarışma quiz soru genel kültür millionaire"
                     data-description="15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş." type="button">
                     <span>Milyoner Bilgi Yarışması</span>
                 </button>
                 <button class="nav-item" data-tool="valorant-crosshair" data-description="Valorant nişangâhlarını incele ve kodunu kopyala." type="button">
                     <span>Valorant Crosshair</span>
                 </button>
-                <button class="nav-item" data-tool="weather" data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
+                <button class="nav-item" data-tool="weather-app" data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
                     <span>Weather App</span>
                 </button>
                 <button class="nav-item" data-tool="wordle" data-description="Beş harfli Türkçe kelimeyi altı denemede tahmin et." type="button">
@@ -876,7 +882,7 @@
                 </div>
             </section>
 
-            <section id="weather" class="tool-panel" aria-labelledby="weather-title">
+            <section id="weather-app" class="tool-panel" aria-labelledby="weather-title">
                 <div class="panel-heading">
                     <div>
                         <h2 id="weather-title">Weather App</h2>
@@ -901,7 +907,7 @@
                         <p class="status-message"></p>
 
                         <div class="not-found">
-                            <img src="tools/weather/images/404.png" alt="">
+                            <img src="tools/weather-app/images/404.png" alt="">
                             <p>Konum bulunamadı</p>
                         </div>
 
@@ -1091,7 +1097,7 @@
                 </div>
             </section>
 
-            <section id="username-search" class="tool-panel username-search-panel" aria-labelledby="username-search-title">
+            <section id="kullanici-adi-arastirma" class="tool-panel username-search-panel" aria-labelledby="username-search-title">
                 <div class="panel-heading username-search-heading">
                     <div>
                         <h2 id="username-search-title">Kullanıcı Adı Araştırma</h2>
@@ -1193,7 +1199,7 @@
                 </footer>
             </section>
 
-            <section id="osint-center" class="tool-panel osint-panel" aria-labelledby="osint-title">
+            <section id="osint-arastirma" class="tool-panel osint-panel" aria-labelledby="osint-title">
                 <header class="panel-heading osint-heading">
                     <div>
                         <span class="osint-eyebrow">PUBLIC INTERNET INTELLIGENCE</span>
@@ -1327,7 +1333,7 @@
                 </footer>
             </section>
 
-            <section id="discord-emoji-downloader" class="tool-panel discord-emoji-panel" aria-labelledby="discord-emoji-title">
+            <section id="discord-emoji-indir" class="tool-panel discord-emoji-panel" aria-labelledby="discord-emoji-title">
                 <div class="panel-heading discord-emoji-heading">
                     <div class="discord-emoji-heading-copy">
                         <div>
@@ -1591,7 +1597,7 @@
                 </div>
             </section>
 
-            <section id="milyoner" class="tool-panel millionaire-panel" aria-labelledby="millionaire-title">
+            <section id="milyoner-bilgi-yarismasi" class="tool-panel millionaire-panel" aria-labelledby="millionaire-title">
                 <div class="panel-heading millionaire-panel-heading">
                     <div>
                         <h2 id="millionaire-title">Milyoner Bilgi Yarışması</h2>
@@ -1722,7 +1728,7 @@
                 </div>
             </section>
 
-            <section id="deal-game" class="tool-panel deal-panel" aria-labelledby="deal-title">
+            <section id="var-misin-yok-musun" class="tool-panel deal-panel" aria-labelledby="deal-title">
                 <div class="panel-heading deal-panel-heading">
                     <div>
                         <h2 id="deal-title">Var Mısın Yok Musun</h2>
@@ -1868,7 +1874,7 @@
                 </div>
             </section>
 
-            <section id="exif-viewer" class="tool-panel exif-viewer-panel" aria-labelledby="exif-viewer-title">
+            <section id="exif-veri-goruntuleme" class="tool-panel exif-viewer-panel" aria-labelledby="exif-viewer-title">
                 <div class="panel-heading exif-viewer-heading">
                     <div>
                         <h2 id="exif-viewer-title">EXIF Veri Görüntüleme</h2>
@@ -1977,7 +1983,7 @@
                 <p id="exif-viewer-live" class="sr-only" aria-live="assertive"></p>
             </section>
 
-            <section id="metadata-cleaner" class="tool-panel metadata-cleaner-panel" aria-labelledby="metadata-cleaner-title">
+            <section id="medya-veri-temizleyici" class="tool-panel metadata-cleaner-panel" aria-labelledby="metadata-cleaner-title">
                 <div class="panel-heading metadata-cleaner-heading">
                     <div>
                         <h2 id="metadata-cleaner-title">Medya Veri Temizleyici</h2>
@@ -2050,7 +2056,7 @@
                 <div id="metadata-live" class="sr-only" aria-live="assertive"></div>
             </section>
 
-            <section id="converter" class="tool-panel converter-panel" aria-labelledby="converter-title">
+            <section id="uzanti-donusturucu" class="tool-panel converter-panel" aria-labelledby="converter-title">
                 <div class="panel-heading converter-heading">
                     <div>
                         <h2 id="converter-title">Uzantı Dönüştürücü</h2>
@@ -2164,6 +2170,160 @@
                 </div>
 
                 <div id="converter-live" class="sr-only" aria-live="assertive"></div>
+            </section>
+
+            <section id="nebuu" class="tool-panel forehead-game-panel" aria-labelledby="forehead-game-title">
+                <div class="panel-heading forehead-game-panel-heading">
+                    <div>
+                        <h2 id="forehead-game-title">Nebuu</h2>
+                        <p>Telefonunu alnına koy, kelimeyi tahmin et!</p>
+                    </div>
+                    <span class="forehead-game-local-badge">Tamamen cihazında</span>
+                </div>
+
+                <div id="forehead-game-app" class="forehead-game-app" data-state="MENU">
+                    <section id="forehead-game-desktop" class="forehead-game-desktop" aria-labelledby="forehead-game-desktop-title">
+                        <div class="forehead-game-phone-illustration" aria-hidden="true"><span>?</span></div>
+                        <span class="forehead-game-eyebrow">MOBİL PARTİ OYUNU</span>
+                        <h3 id="forehead-game-desktop-title">Bu oyun telefonda oynanır <span aria-hidden="true">📱</span></h3>
+                        <p>Nebuu, telefonun hareket sensörlerini kullanır. Oyunu oynamak için bu sayfayı telefonundan aç.</p>
+                        <div class="forehead-game-qr-card">
+                            <div id="forehead-game-qr" class="forehead-game-qr" aria-label="Oyunun mobil bağlantısı için QR kod"></div>
+                            <div>
+                                <strong>Telefonundan hemen aç</strong>
+                                <p id="forehead-game-url"></p>
+                                <button id="forehead-game-copy-link" class="primary-button" type="button">Bağlantıyı Kopyala</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div id="forehead-game-mobile" class="forehead-game-mobile" hidden>
+                        <section id="forehead-game-menu" class="forehead-game-screen forehead-game-menu" aria-labelledby="forehead-game-menu-title">
+                            <header class="forehead-game-hero">
+                                <div class="forehead-game-hero-mark" aria-hidden="true">?</div>
+                                <div>
+                                    <span class="forehead-game-eyebrow">HAREKETLİ KELİME OYUNU</span>
+                                    <h3 id="forehead-game-menu-title">Nebuu</h3>
+                                    <p>Kategorini seç, telefonu alnına koy ve arkadaşlarının ipuçlarıyla kelimeyi bul.</p>
+                                </div>
+                            </header>
+
+                            <div class="forehead-game-menu-stats" aria-label="Oyun istatistikleri">
+                                <div><span>En iyi</span><strong id="forehead-game-best">0</strong></div>
+                                <div><span>Oyun</span><strong id="forehead-game-played">0</strong></div>
+                                <div><span>Toplam doğru</span><strong id="forehead-game-total-correct">0</strong></div>
+                            </div>
+
+                            <section class="forehead-game-setup-card" aria-labelledby="forehead-game-category-title">
+                                <div class="forehead-game-section-heading">
+                                    <div><span>1</span><h4 id="forehead-game-category-title">Kategori seç</h4></div>
+                                    <small id="forehead-game-word-total">1.597 özgün girdi</small>
+                                </div>
+                                <div id="forehead-game-categories" class="forehead-game-category-grid" role="radiogroup" aria-label="Kelime kategorileri"></div>
+                            </section>
+
+                            <section class="forehead-game-setup-card" aria-labelledby="forehead-game-duration-title">
+                                <div class="forehead-game-section-heading">
+                                    <div><span>2</span><h4 id="forehead-game-duration-title">Oyun süresi</h4></div>
+                                </div>
+                                <div id="forehead-game-durations" class="forehead-game-duration-grid" role="radiogroup" aria-label="Oyun süresi">
+                                    <button type="button" data-duration="30" role="radio" aria-checked="false"><strong>30</strong><span>sn</span></button>
+                                    <button type="button" data-duration="60" role="radio" aria-checked="true" class="active"><strong>60</strong><span>sn</span></button>
+                                    <button type="button" data-duration="90" role="radio" aria-checked="false"><strong>90</strong><span>sn</span></button>
+                                    <button type="button" data-duration="120" role="radio" aria-checked="false"><strong>120</strong><span>sn</span></button>
+                                </div>
+                            </section>
+
+                            <div class="forehead-game-menu-actions">
+                                <button id="forehead-game-sound" class="secondary-button forehead-game-sound" type="button" aria-pressed="true" aria-label="Oyun seslerini kapat"><span aria-hidden="true">♪</span><span>Ses Açık</span></button>
+                                <button id="forehead-game-start" class="primary-button forehead-game-start" type="button"><span>Oyunu Başlat</span><span aria-hidden="true">→</span></button>
+                            </div>
+                            <p id="forehead-game-menu-message" class="forehead-game-message" role="status" aria-live="polite"></p>
+                        </section>
+
+                        <section id="forehead-game-preparing" class="forehead-game-screen forehead-game-centered" aria-labelledby="forehead-game-preparing-title" hidden>
+                            <div class="forehead-game-tilt-demo" aria-hidden="true"><span>?</span></div>
+                            <span class="forehead-game-eyebrow">HAZIRLIK</span>
+                            <h3 id="forehead-game-preparing-title">Telefonu yatay çevir ve alnına yerleştir.</h3>
+                            <p>Doğru bildiğinde telefonu öne, pas geçmek istediğinde arkaya doğru belirgin biçimde eğ.</p>
+                            <div id="forehead-game-sensor-status" class="forehead-game-sensor-status" data-status="waiting">
+                                <span aria-hidden="true"></span><strong>Sensör hazırlanıyor</strong><small>Dokunmatik kontroller her zaman kullanılabilir.</small>
+                            </div>
+                            <div class="forehead-game-preparing-actions">
+                                <button id="forehead-game-ready" class="primary-button" type="button">Hazırım, Başlat</button>
+                                <button id="forehead-game-preparing-back" class="secondary-button" type="button">Kategoriye Dön</button>
+                            </div>
+                        </section>
+
+                        <section id="forehead-game-countdown" class="forehead-game-screen forehead-game-countdown" aria-labelledby="forehead-game-countdown-label" hidden>
+                            <p id="forehead-game-countdown-label">Telefon alnında, gözler karşıda</p>
+                            <strong id="forehead-game-countdown-value" aria-live="assertive">3</strong>
+                            <span id="forehead-game-countdown-category">Karışık</span>
+                        </section>
+
+                        <section id="forehead-game-play" class="forehead-game-screen forehead-game-play" aria-label="Oyun alanı" hidden>
+                            <header class="forehead-game-play-top">
+                                <button id="forehead-game-exit" class="forehead-game-icon-button" type="button" aria-label="Oyunu bitir">×</button>
+                                <div class="forehead-game-live-score"><span>Doğru</span><strong id="forehead-game-live-correct">0</strong></div>
+                                <div class="forehead-game-live-category"><span>Kategori</span><strong id="forehead-game-live-category">Karışık</strong></div>
+                                <div id="forehead-game-timer-wrap" class="forehead-game-timer"><span>Kalan</span><strong id="forehead-game-timer">01:00</strong></div>
+                            </header>
+                            <div class="forehead-game-word-stage">
+                                <span id="forehead-game-word-kicker">ANLAT</span>
+                                <h3 id="forehead-game-word" aria-live="assertive">KELİME</h3>
+                                <p>Öne eğ: <strong>DOĞRU</strong> · Arkaya eğ: <strong>PAS</strong></p>
+                            </div>
+                            <div id="forehead-game-feedback" class="forehead-game-feedback" aria-live="assertive" hidden></div>
+                            <div class="forehead-game-touch-controls" aria-label="Yedek dokunmatik kontroller">
+                                <button id="forehead-game-pass" type="button"><span aria-hidden="true">↶</span><strong>PAS</strong></button>
+                                <button id="forehead-game-correct" type="button"><strong>DOĞRU</strong><span aria-hidden="true">✓</span></button>
+                            </div>
+                        </section>
+
+                        <section id="forehead-game-result" class="forehead-game-screen forehead-game-result" aria-labelledby="forehead-game-result-title" hidden>
+                            <div class="forehead-game-result-emblem" aria-hidden="true">✓</div>
+                            <span class="forehead-game-eyebrow">TUR TAMAMLANDI</span>
+                            <h3 id="forehead-game-result-title">Süre Bitti!</h3>
+                            <p id="forehead-game-result-message">Harika bir turdu.</p>
+                            <div class="forehead-game-result-stats">
+                                <div data-tone="correct"><span>Doğru</span><strong id="forehead-game-result-correct">0</strong></div>
+                                <div data-tone="pass"><span>Pas</span><strong id="forehead-game-result-pass">0</strong></div>
+                                <div><span>Toplam</span><strong id="forehead-game-result-total">0</strong></div>
+                            </div>
+                            <div class="forehead-game-history-wrap">
+                                <div class="forehead-game-section-heading"><div><span>•</span><h4>Çıkan kelimeler</h4></div></div>
+                                <ol id="forehead-game-history" class="forehead-game-history"></ol>
+                            </div>
+                            <div class="forehead-game-result-actions">
+                                <button id="forehead-game-replay" class="primary-button" type="button">Tekrar Oyna</button>
+                                <button id="forehead-game-categories-back" class="secondary-button" type="button">Kategori Seç</button>
+                            </div>
+                        </section>
+
+                        <div id="forehead-game-orientation" class="forehead-game-orientation" role="alert" hidden>
+                            <div class="forehead-game-rotate-phone" aria-hidden="true"><span>↻</span></div>
+                            <strong>Telefonunu yatay çevir</strong>
+                            <p>Oyun yatay ekranda devam edecek.</p>
+                        </div>
+
+                        <aside id="forehead-game-debug" class="forehead-game-debug" aria-label="Sensör debug paneli" hidden>
+                            <strong>Sensör Debug</strong>
+                            <dl>
+                                <div><dt>alpha</dt><dd id="forehead-game-debug-alpha">-</dd></div>
+                                <div><dt>beta</dt><dd id="forehead-game-debug-beta">-</dd></div>
+                                <div><dt>gamma</dt><dd id="forehead-game-debug-gamma">-</dd></div>
+                                <div><dt>orientation</dt><dd id="forehead-game-debug-orientation">-</dd></div>
+                                <div><dt>reference</dt><dd id="forehead-game-debug-reference">-</dd></div>
+                                <div><dt>delta</dt><dd id="forehead-game-debug-delta">-</dd></div>
+                                <div><dt>locked</dt><dd id="forehead-game-debug-locked">-</dd></div>
+                                <div><dt>action</dt><dd id="forehead-game-debug-action">-</dd></div>
+                                <div><dt>permission</dt><dd id="forehead-game-debug-permission">-</dd></div>
+                                <div><dt>device</dt><dd id="forehead-game-debug-device">-</dd></div>
+                            </dl>
+                        </aside>
+                    </div>
+                    <p id="forehead-game-live" class="sr-only" aria-live="assertive"></p>
+                </div>
             </section>
 
             <section id="tabu" class="tool-panel tabu-panel" aria-labelledby="tabu-title">
@@ -2506,19 +2666,22 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="index.js?v=36"></script>
-    <script src="tools/username-search/config.js?v=1"></script>
-    <script src="tools/username-search/platforms.js?v=5"></script>
-    <script src="tools/username-search/core.js?v=3"></script>
-    <script src="tools/username-search/app.js?v=3"></script>
-    <script src="tools/osint-center/core.js?v=4"></script>
-    <script src="tools/osint-center/services.js?v=4"></script>
-    <script src="tools/osint-center/app.js?v=4"></script>
-    <script src="tools/discord-emoji-downloader/core.js?v=6"></script>
-    <script src="tools/discord-emoji-downloader/app.js?v=3"></script>
+    <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
+    <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
+    <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
+    <script src="tools/kullanici-adi-arastirma/app.js?v=3"></script>
+    <script src="tools/osint-arastirma/core.js?v=4"></script>
+    <script src="tools/osint-arastirma/services.js?v=4"></script>
+    <script src="tools/osint-arastirma/app.js?v=4"></script>
+    <script src="tools/discord-emoji-indir/core.js?v=6"></script>
+    <script src="tools/discord-emoji-indir/app.js?v=3"></script>
+    <script src="tools/nebuu/words.js?v=1"></script>
+    <script src="tools/nebuu/core.js?v=1"></script>
+    <script src="tools/nebuu/app.js?v=1"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
-    <script src="tools/weather/script.js?v=4"></script>
+    <script src="tools/weather-app/script.js?v=4"></script>
     <script src="tools/translate/script.js?v=1"></script>
     <script src="tools/parolla/questions.js?v=4"></script>
     <script src="tools/parolla/script.js?v=4"></script>
@@ -2527,35 +2690,35 @@
     <script src="tools/advanced-xox/script.js?v=3"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
     <script src="tools/sudoku/script.js?v=6"></script>
-    <script src="tools/milyoner/questions.js?v=2"></script>
-    <script src="tools/milyoner/engine.js?v=3"></script>
-    <script src="tools/milyoner/audio.js?v=1"></script>
-    <script src="tools/milyoner/script.js?v=11"></script>
+    <script src="tools/milyoner-bilgi-yarismasi/questions.js?v=2"></script>
+    <script src="tools/milyoner-bilgi-yarismasi/engine.js?v=3"></script>
+    <script src="tools/milyoner-bilgi-yarismasi/audio.js?v=1"></script>
+    <script src="tools/milyoner-bilgi-yarismasi/script.js?v=11"></script>
     <script src="tools/var-misin-yok-musun/engine.js?v=2"></script>
     <script src="tools/var-misin-yok-musun/audio.js?v=2"></script>
     <script src="tools/var-misin-yok-musun/script.js?v=7"></script>
     <script src="tools/tabu/cards.js?v=1"></script>
     <script src="tools/tabu/script.js?v=10"></script>
-    <script src="tools/converter/registry.js?v=7"></script>
-    <script src="tools/converter/services.js?v=2"></script>
-    <script src="tools/converter/adapters.js?v=3"></script>
-    <script src="tools/converter/ffmpeg-adapter.js?v=7"></script>
-    <script src="tools/converter/libreoffice-adapter.js?v=1"></script>
-    <script src="tools/converter/archive-adapter.js?v=11"></script>
-    <script src="tools/converter/font-adapter.js?v=7"></script>
-    <script src="tools/converter/ebook-adapter.js?v=2"></script>
-    <script src="tools/converter/engine.js?v=3"></script>
-    <script src="tools/converter/app.js?v=5"></script>
-    <script src="tools/exif-viewer/core.js?v=1"></script>
-    <script src="tools/exif-viewer/app.js?v=2"></script>
-    <script src="tools/metadata-cleaner/core.js?v=2"></script>
-    <script src="tools/metadata-cleaner/app.js?v=4"></script>
-    <script src="tools/coach/jquery-1.12.4.min.js"></script>
-    <script src="tools/coach/chessboard-1.0.0.min.js"></script>
-    <script src="tools/coach/chess.js?v=1"></script>
-    <script src="tools/coach/stockfish.js"></script>
-    <script src="tools/coach/stockfish.asm.js"></script>
-    <script src="tools/coach/script.js?v=5"></script>
+    <script src="tools/uzanti-donusturucu/registry.js?v=7"></script>
+    <script src="tools/uzanti-donusturucu/services.js?v=2"></script>
+    <script src="tools/uzanti-donusturucu/adapters.js?v=3"></script>
+    <script src="tools/uzanti-donusturucu/ffmpeg-adapter.js?v=7"></script>
+    <script src="tools/uzanti-donusturucu/libreoffice-adapter.js?v=1"></script>
+    <script src="tools/uzanti-donusturucu/archive-adapter.js?v=11"></script>
+    <script src="tools/uzanti-donusturucu/font-adapter.js?v=7"></script>
+    <script src="tools/uzanti-donusturucu/ebook-adapter.js?v=2"></script>
+    <script src="tools/uzanti-donusturucu/engine.js?v=3"></script>
+    <script src="tools/uzanti-donusturucu/app.js?v=5"></script>
+    <script src="tools/exif-veri-goruntuleme/core.js?v=1"></script>
+    <script src="tools/exif-veri-goruntuleme/app.js?v=2"></script>
+    <script src="tools/medya-veri-temizleyici/core.js?v=2"></script>
+    <script src="tools/medya-veri-temizleyici/app.js?v=4"></script>
+    <script src="tools/chess-coach/jquery-1.12.4.min.js"></script>
+    <script src="tools/chess-coach/chessboard-1.0.0.min.js"></script>
+    <script src="tools/chess-coach/chess.js?v=1"></script>
+    <script src="tools/chess-coach/stockfish.js"></script>
+    <script src="tools/chess-coach/stockfish.asm.js"></script>
+    <script src="tools/chess-coach/script.js?v=5"></script>
 </body>
 
 </html>

@@ -5,8 +5,8 @@
     if (!namespace?.Adapters) return;
 
     const { CategoryAdapter } = namespace.Adapters;
-    const CORE_BASE_URL = new URL("tools/converter/vendor/ffmpeg/", document.baseURI).href;
-    const MODULE_URL = new URL("tools/converter/vendor/ffmpeg/esm/index.js", document.baseURI).href;
+    const CORE_BASE_URL = new URL("tools/uzanti-donusturucu/vendor/ffmpeg/", document.baseURI).href;
+    const MODULE_URL = new URL("tools/uzanti-donusturucu/vendor/ffmpeg/esm/index.js", document.baseURI).href;
     const AUDIO_LOSSY_FORMATS = new Set(["mp3", "aac", "m4a", "ogg", "wma"]);
     const AUDIO_PROFILES = Object.freeze({
         mp3: ["-c:a", "libmp3lame"],

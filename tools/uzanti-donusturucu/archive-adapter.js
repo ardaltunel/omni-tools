@@ -6,10 +6,10 @@
 
     const { CategoryAdapter } = namespace.Adapters;
     const services = namespace.Services;
-    const BASE_URL = new URL("tools/converter/vendor/libarchive/", document.baseURI).href;
+    const BASE_URL = new URL("tools/uzanti-donusturucu/vendor/libarchive/", document.baseURI).href;
     const MODULE_URL = `${BASE_URL}libarchive.js`;
     const WORKER_URL = `${BASE_URL}worker-bundle.js?v=2`;
-    const WRITER_WORKER_URL = new URL("tools/converter/vendor/sevenzip/sevenzip-worker.js?v=3", document.baseURI).href;
+    const WRITER_WORKER_URL = new URL("tools/uzanti-donusturucu/vendor/sevenzip/sevenzip-worker.js?v=3", document.baseURI).href;
     const MAX_ENTRY_COUNT = 10_000;
     const MAX_EXTRACTED_SIZE = 2 * 1024 * 1024 * 1024;
     const OUTPUT_MIME_TYPES = Object.freeze({

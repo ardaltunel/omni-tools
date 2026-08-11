@@ -78,7 +78,7 @@
     }
 
     function handleToolActivated(event) {
-        if (event.detail?.tool !== "deal-game") return;
+        if (event.detail?.tool !== "var-misin-yok-musun") return;
         updateResumeButton();
         focusPanelOnMobile();
     }
@@ -86,7 +86,7 @@
     function focusPanelOnMobile() {
         if (!window.matchMedia("(max-width: 900px)").matches) return;
         const behavior = prefersReducedMotion() ? "auto" : "smooth";
-        window.requestAnimationFrame(() => element("deal-game").scrollIntoView({ behavior, block: "start" }));
+        window.requestAnimationFrame(() => element("var-misin-yok-musun").scrollIntoView({ behavior, block: "start" }));
     }
 
     function startNewGame() {
@@ -540,7 +540,7 @@
 
     function handleKeyboard(event) {
         const activePanel = document.querySelector(".tool-panel.active");
-        if (activePanel?.id !== "deal-game") return;
+        if (activePanel?.id !== "var-misin-yok-musun") return;
         const target = event.target;
         const editable = target instanceof HTMLElement
             && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));

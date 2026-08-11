@@ -26,7 +26,7 @@
       "name": "Milyoner Bilgi Yarışması",
       "short_name": "Milyoner",
       "description": "15 soruyu geç ve büyük ödüle ulaş.",
-      "url": "./?tool=milyoner",
+      "url": "./?tool=milyoner-bilgi-yarismasi",
       "icons": [
         {
           "src": "tools/assets/favicon/apple-icon-180x180.png",

@@ -83,7 +83,7 @@
         form.requestSubmit();
     });
     document.addEventListener("tool-activated", (event) => {
-        if (event.detail?.tool !== "username-search") return;
+        if (event.detail?.tool !== "kullanici-adi-arastirma") return;
         window.setTimeout(() => elements.input.focus({ preventScroll: true }), 120);
     });
 
