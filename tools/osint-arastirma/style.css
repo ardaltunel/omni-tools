@@ -25,7 +25,6 @@
     letter-spacing: 0.12em;
 }
 
-.osint-local-badge,
 .osint-detection-badge {
     display: inline-flex;
     align-items: center;
@@ -37,10 +36,6 @@
     font-weight: 750;
     line-height: 1;
     padding: 8px 11px;
-}
-
-.osint-local-badge {
-    flex: 0 0 auto;
 }
 
 .osint-safety-note {
@@ -909,7 +904,6 @@
         flex-direction: column;
     }
 
-    .osint-local-badge,
     .osint-detection-badge {
         align-self: flex-start;
     }

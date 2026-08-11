@@ -33,7 +33,6 @@
         exportFormat: document.getElementById("username-search-export-format"),
         download: document.getElementById("username-search-download"),
         liveStatus: document.getElementById("username-search-live-status"),
-        modeBadge: document.getElementById("username-search-mode-badge"),
     };
 
     if (Object.values(elements).some((value) => value === null)) return;
@@ -53,7 +52,6 @@
     };
 
     const apiBaseUrl = core.normalizeApiBaseUrl(config.apiBaseUrl);
-    elements.modeBadge.textContent = apiBaseUrl ? "Backend destekli kontrol" : "Tarayıcı kontrolü";
 
     form.addEventListener("submit", (event) => {
         event.preventDefault();

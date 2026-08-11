@@ -89,17 +89,6 @@ a {
     align-items: flex-start;
 }
 
-.metadata-local-badge {
-    flex: 0 0 auto;
-    border: 1px solid rgba(24, 169, 153, 0.42);
-    border-radius: 999px;
-    background: rgba(24, 169, 153, 0.11);
-    color: var(--accent-strong);
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
 .metadata-privacy-note {
     display: flex;
     align-items: center;
@@ -848,10 +837,6 @@ a {
 @media (max-width: 620px) {
     .metadata-privacy-note {
         align-items: flex-start;
-    }
-
-    .metadata-local-badge {
-        align-self: flex-start;
     }
 
     .metadata-drop-zone {

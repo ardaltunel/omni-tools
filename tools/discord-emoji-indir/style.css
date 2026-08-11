@@ -36,17 +36,6 @@
     min-width: 0;
 }
 
-.discord-emoji-local-badge {
-    flex: 0 0 auto;
-    border: 1px solid rgba(24, 169, 153, 0.42);
-    border-radius: 999px;
-    background: var(--discord-soft-accent);
-    color: var(--accent-strong);
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
 .discord-emoji-security-note {
     gap: 13px;
     margin-bottom: 20px;
@@ -892,10 +881,6 @@
     .discord-emoji-manual-footer {
         align-items: stretch;
         flex-direction: column;
-    }
-
-    .discord-emoji-local-badge {
-        align-self: flex-start;
     }
 
     .discord-emoji-mode-tabs,
