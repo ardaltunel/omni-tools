@@ -76,6 +76,34 @@ test("ekran yönüne göre doğru sensör ekseni kullanılıyor", () => {
     assert.equal(Core.getTiltAxis({ beta: 12, gamma: 30, angle: 270 }), 30);
 });
 
+test("yatay viewport angle 0 raporlasa bile fiziksel gamma ekseni seçilir", () => {
+    assert.equal(Core.resolveOrientationAngle({ screenAngle: 0, orientationType: "landscape-primary", landscape: true }), 90);
+    assert.equal(Core.resolveOrientationAngle({ screenAngle: 0, orientationType: "landscape-secondary", landscape: true }), 270);
+    assert.equal(Core.getTiltAxis({ beta: 68, gamma: -31, angle: 90 }), 31);
+});
+
+test("hareketli örneklerle kalibrasyon yapmaz, sabitlenince yeni kelimede yeniden kurulur", () => {
+    const detector = Core.createMotionDetector({ calibrationSamples: 4, calibrationStability: 3, threshold: 20 });
+    [0, 15, -12, 18].forEach((gamma, index) => detector.ingest({ gamma, beta: 70, angle: 90 }, index * 20));
+    assert.equal(detector.snapshot().calibrated, false);
+    detector.reset();
+    [10, 11, 9, 10].forEach((gamma, index) => detector.ingest({ gamma, beta: 70, angle: 90 }, 200 + index * 20));
+    assert.equal(detector.snapshot().calibrated, true);
+    assert.equal(detector.ingest({ gamma: -20, beta: 70, angle: 90 }, 700).action, "correct");
+    detector.reset();
+    [10, 10, 9, 11].forEach((gamma, index) => detector.ingest({ gamma, beta: 70, angle: 90 }, 900 + index * 20));
+    assert.equal(detector.ingest({ gamma: 40, beta: 70, angle: 90 }, 1400).action, "pass");
+});
+
+test("ilk cevaptan sonra yaklaşık nötr konuma dönüş ikinci hareketin kilidini açar", () => {
+    const detector = Core.createMotionDetector({ calibrationSamples: 4, threshold: 24, neutralThreshold: 14, neutralSamples: 3, debounceMs: 300 });
+    [10, 10, 11, 9].forEach((gamma, index) => detector.ingest({ gamma: -gamma, beta: 70, angle: 90 }, index * 20));
+    assert.equal(detector.ingest({ gamma: -36, beta: 70, angle: 90 }, 500).action, "correct");
+    [22, 21, 22].forEach((axis, index) => detector.ingest({ gamma: -axis, beta: 70, angle: 90 }, 650 + index * 30));
+    assert.equal(detector.snapshot().locked, false);
+    assert.equal(detector.ingest({ gamma: 18, beta: 70, angle: 90 }, 950).action, "pass");
+});
+
 test("cihaz algılama UA, dokunma, pointer ve viewport sinyallerini birlikte kullanıyor", () => {
     const phone = Core.detectDevice({ userAgent: "Android Mobile", viewportWidth: 412, maxTouchPoints: 5, touchCapable: true, coarsePointer: true, orientationSupported: true });
     const desktop = Core.detectDevice({ userAgent: "Windows NT", viewportWidth: 1440, maxTouchPoints: 0, coarsePointer: false, orientationSupported: true });

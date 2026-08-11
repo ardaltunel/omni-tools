@@ -12,6 +12,22 @@
     --danger: #ff5f6d;
     --success: #4ade80;
     --surface: #11141a;
+    --surface-raised: var(--panel-2);
+    --surface-soft: var(--surface);
+    --border: var(--line);
+    --border-strong: #454b59;
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-lg: 10px;
+    --control-height: 42px;
+    --space-1: 6px;
+    --space-2: 10px;
+    --space-3: 14px;
+    --space-4: 18px;
+    --space-5: 24px;
+    --workspace-compact: 960px;
+    --workspace-standard: 1120px;
+    --workspace-wide: 1280px;
 }
 
 html {
@@ -1238,6 +1254,16 @@ a {
     margin-bottom: 24px;
 }
 
+.panel-heading > div {
+    min-width: 0;
+}
+
+.panel-heading p {
+    max-width: 760px;
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
 h1,
 h2,
 p {
@@ -1296,9 +1322,9 @@ h2 {
 .primary-button,
 .secondary-button,
 .ghost-button {
-    min-height: 42px;
+    min-height: var(--control-height);
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--radius);
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
@@ -1306,6 +1332,7 @@ h2 {
     justify-content: center;
     padding: 0 16px;
     font-weight: 700;
+    transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 
 .primary-button {
@@ -1324,6 +1351,30 @@ h2 {
     border-color: rgba(24, 169, 153, 0.7);
     background: rgba(24, 169, 153, 0.18);
     color: var(--accent-strong);
+}
+
+.primary-button:hover:not(:disabled) {
+    background: #20bbaa;
+}
+
+.secondary-button:hover:not(:disabled),
+.ghost-button:hover:not(:disabled) {
+    border-color: var(--border-strong);
+    background: #262a32;
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.ghost-button:focus-visible {
+    outline: 3px solid rgba(24, 169, 153, 0.25);
+    outline-offset: 2px;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.ghost-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 .button-row {
@@ -1393,7 +1444,6 @@ h2 {
     background: #202226;
     padding: 10px 18px 10px 8px;
     font-family: Mukta, Inter, sans-serif;
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
 }
 
 .coin.rising {
@@ -1528,6 +1578,13 @@ textarea {
     color: var(--text);
     outline: none;
     padding: 12px;
+}
+
+.text-input:focus,
+select:focus,
+textarea:focus {
+    border-color: rgba(24, 169, 153, 0.72);
+    box-shadow: 0 0 0 3px rgba(24, 169, 153, 0.14);
 }
 
 textarea {
@@ -2059,7 +2116,6 @@ input[type="color"] {
     border-radius: 8px;
     background: #1c2028;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .parolla-card {
@@ -2443,7 +2499,6 @@ input[type="color"] {
     border-radius: 8px;
     background: #1c2028;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .numble-card,
@@ -2635,7 +2690,6 @@ input[type="color"] {
     border-radius: 8px;
     background: #1c2028;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .wordle-topline {
@@ -2780,7 +2834,6 @@ input[type="color"] {
     border-radius: 8px;
     background: #1c2028;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .wordle-finder-card {
@@ -3027,7 +3080,6 @@ input[type="color"] {
     border-radius: 8px;
     background: #1c2028;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .game-2048-card {
@@ -3235,7 +3287,6 @@ input[type="color"] {
     border: 1px solid var(--line);
     border-radius: 8px;
     background: #1c2028;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
 }
 
 .valorant-crosshair-card {
@@ -3496,7 +3547,6 @@ input[type="color"] {
     border-radius: 8px;
     background: #1c2028;
     padding: 16px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .github-search {
@@ -5167,6 +5217,135 @@ input[type="color"] {
     .sudoku-modal-card {
         animation: none;
         transition: none;
+    }
+}
+
+/* Shared tool workspace sizing
+   Tool panels may fill the viewport; their functional workspace keeps a
+   deliberate, content-appropriate width and stays visually centered. */
+.game-2048-layout,
+.crypto-layout,
+.qr-grid,
+.speech-layout,
+.gradient-grid,
+.typing-grid,
+.password-grid,
+.parolla-layout,
+.numble-grid,
+.wordle-shell,
+.wordle-finder-layout,
+.github-grid,
+.weather-layout,
+.translate-layout,
+.chess-layout,
+.coach-layout,
+.xox-layout,
+.valorant-crosshair-layout {
+    margin-inline: auto;
+}
+
+.game-2048-layout {
+    width: min(100%, 920px);
+}
+
+.crypto-layout {
+    width: min(100%, 1100px);
+    grid-template-columns: minmax(0, 720px) minmax(260px, 364px);
+}
+
+.qr-grid {
+    width: min(100%, 1084px);
+}
+
+.speech-layout {
+    width: min(100%, var(--workspace-standard));
+    grid-template-columns: minmax(0, 700px) minmax(280px, 404px);
+}
+
+.gradient-grid {
+    width: min(100%, 1180px);
+    grid-template-columns: minmax(300px, 440px) minmax(0, 716px);
+}
+
+.typing-grid {
+    width: min(100%, var(--workspace-standard));
+    grid-template-columns: minmax(0, 756px) minmax(280px, 340px);
+}
+
+.password-grid {
+    width: min(100%, var(--workspace-standard));
+    grid-template-columns: minmax(0, 716px) minmax(300px, 380px);
+}
+
+.translate-layout {
+    width: min(100%, var(--workspace-standard));
+    grid-template-columns: minmax(0, 824px) 280px;
+}
+
+.weather-layout,
+.github-grid,
+.wordle-finder-layout {
+    width: min(100%, var(--workspace-standard));
+}
+
+.parolla-layout {
+    width: min(100%, 1058px);
+}
+
+.numble-grid {
+    width: min(100%, 880px);
+}
+
+.wordle-shell {
+    width: min(100%, 920px);
+}
+
+.chess-layout {
+    width: min(100%, var(--workspace-compact));
+    grid-template-columns: minmax(0, 664px) 280px;
+}
+
+.coach-layout {
+    width: min(100%, 1000px);
+    grid-template-columns: minmax(0, 664px) 320px;
+}
+
+.xox-layout {
+    width: min(100%, 800px);
+    grid-template-columns: minmax(0, 504px) 280px;
+}
+
+.valorant-crosshair-layout {
+    width: min(100%, 1440px);
+}
+
+/* A desktop sidebar leaves a narrow content column around tablet widths.
+   Stack compound workspaces before their minimum tracks can overflow. */
+@media (min-width: 901px) and (max-width: 1180px) {
+    .qr-grid,
+    .crypto-layout,
+    .gradient-grid,
+    .typing-grid,
+    .password-grid,
+    .translate-layout,
+    .speech-layout,
+    .numble-grid,
+    .wordle-shell,
+    .wordle-finder-layout,
+    .github-grid,
+    .weather-layout,
+    .game-2048-layout,
+    .parolla-layout,
+    .valorant-crosshair-layout,
+    .coach-layout,
+    .chess-layout,
+    .xox-layout {
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+    }
+
+    .valorant-crosshair-side {
+        position: static;
     }
 }
 

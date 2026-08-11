@@ -61,15 +61,18 @@
     let deviceInfo = detectCurrentDevice();
     let latestOrientation = { alpha: null, beta: null, gamma: null, angle: getScreenAngle() };
     let lastDebugRender = 0;
+    let orientationRefreshTimers = [];
 
     initialize();
 
     function initialize() {
+        activeTool = panel.classList.contains("active");
         renderCategories();
         renderDuration();
         renderSettings();
         renderStats();
         bindEvents();
+        updateViewportMetrics();
         refreshDeviceMode();
         setState(Core.STATES.MENU, true);
         showScreen(elements.menu);
@@ -91,9 +94,10 @@
         document.addEventListener("keydown", handleKeyboard);
         document.addEventListener("tool-activated", handleToolActivated);
         document.addEventListener("visibilitychange", handleVisibilityChange);
-        window.addEventListener("resize", handleOrientationChange, { passive: true });
-        window.addEventListener("orientationchange", handleOrientationChange, { passive: true });
-        window.screen?.orientation?.addEventListener?.("change", handleOrientationChange);
+        window.addEventListener("resize", scheduleOrientationRefresh, { passive: true });
+        window.addEventListener("orientationchange", scheduleOrientationRefresh, { passive: true });
+        window.screen?.orientation?.addEventListener?.("change", scheduleOrientationRefresh);
+        window.visualViewport?.addEventListener?.("resize", scheduleOrientationRefresh, { passive: true });
         window.addEventListener("beforeunload", cleanupRuntime);
     }
 
@@ -106,9 +110,11 @@
             setState(Core.STATES.MENU, true);
             showScreen(elements.menu);
             document.body.classList.remove("forehead-game-immersive");
+            document.body.classList.remove("forehead-game-is-landscape");
             return;
         }
         deviceInfo = detectCurrentDevice();
+        updateViewportMetrics();
         refreshDeviceMode();
         renderStats();
     }
@@ -368,6 +374,7 @@
         startTimerLoop();
         requestWakeLock();
         document.body.classList.add("forehead-game-immersive");
+        updateViewportMetrics();
     }
 
     function nextWord() {
@@ -402,7 +409,9 @@
         feedbackTimer = window.setTimeout(() => {
             feedbackTimer = 0;
             elements.feedback.hidden = true;
-            if (gameState === Core.STATES.PLAYING || (gameState === Core.STATES.PAUSED_ORIENTATION && resumeState === Core.STATES.PLAYING)) nextWord();
+            if (gameState === Core.STATES.PLAYING || (gameState === Core.STATES.PAUSED_ORIENTATION && resumeState === Core.STATES.PLAYING)) {
+                nextWord();
+            }
             actionLocked = false;
         }, 390);
     }
@@ -579,7 +588,21 @@
         return Number.isFinite(value) ? Number(value).toFixed(1) : "-";
     }
 
+    function scheduleOrientationRefresh() {
+        orientationRefreshTimers.forEach((id) => window.clearTimeout(id));
+        orientationRefreshTimers = [];
+        updateViewportMetrics();
+        handleOrientationChange();
+        [120, 360].forEach((delay) => {
+            orientationRefreshTimers.push(window.setTimeout(() => {
+                updateViewportMetrics();
+                handleOrientationChange();
+            }, delay));
+        });
+    }
+
     function handleOrientationChange() {
+        updateViewportMetrics();
         latestOrientation.angle = getScreenAngle();
         if (!activeTool || !deviceInfo.mobileLike || waitingForReady) return;
         if (!isLandscape() && [Core.STATES.PREPARING, Core.STATES.COUNTDOWN, Core.STATES.PLAYING].includes(gameState)) {
@@ -600,6 +623,7 @@
         setState(Core.STATES.PAUSED_ORIENTATION);
         elements.orientation.hidden = false;
         document.body.classList.add("forehead-game-immersive");
+        updateViewportMetrics();
         releaseWakeLock();
     }
 
@@ -610,6 +634,8 @@
         if (target === Core.STATES.PLAYING) {
             setState(Core.STATES.PLAYING);
             showScreen(elements.play);
+            motion.reset();
+            actionLocked = false;
             deadline = Date.now() + remainingMs;
             startTimerLoop();
             requestWakeLock();
@@ -624,11 +650,26 @@
     }
 
     function isLandscape() {
-        return window.matchMedia?.("(orientation: landscape)").matches ?? window.innerWidth > window.innerHeight;
+        const viewport = window.visualViewport;
+        const width = Number(viewport?.width || window.innerWidth);
+        const height = Number(viewport?.height || window.innerHeight);
+        return width > height || Boolean(window.matchMedia?.("(orientation: landscape)").matches);
     }
 
     function getScreenAngle() {
-        return Core.normalizeOrientationAngle(window.screen?.orientation?.angle ?? window.orientation ?? 0);
+        return Core.resolveOrientationAngle({
+            screenAngle: window.screen?.orientation?.angle,
+            windowAngle: window.orientation,
+            orientationType: window.screen?.orientation?.type,
+            landscape: isLandscape(),
+        });
+    }
+
+    function updateViewportMetrics() {
+        const viewport = window.visualViewport;
+        const height = Math.max(1, Math.round(Number(viewport?.height || window.innerHeight)));
+        document.documentElement.style.setProperty("--forehead-game-viewport-height", `${height}px`);
+        document.body.classList.toggle("forehead-game-is-landscape", isLandscape());
     }
 
     function tryLockLandscape() {
@@ -691,6 +732,7 @@
         cleanupRuntime();
         hideOrientationOverlay();
         document.body.classList.remove("forehead-game-immersive");
+        document.body.classList.remove("forehead-game-is-landscape");
         setState(Core.STATES.MENU, true);
         showScreen(elements.menu);
         waitingForReady = false;
@@ -700,6 +742,8 @@
 
     function cleanupRuntime() {
         clearRuntimeTimers();
+        orientationRefreshTimers.forEach((id) => window.clearTimeout(id));
+        orientationRefreshTimers = [];
         detachSensor();
         releaseWakeLock();
         unlockOrientation();

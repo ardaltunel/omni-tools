@@ -58,6 +58,26 @@
         return ((angle % 360) + 360) % 360;
     }
 
+    function resolveOrientationAngle(environment = {}) {
+        const screenAngle = Number(environment.screenAngle);
+        const windowAngle = Number(environment.windowAngle);
+        const type = String(environment.orientationType || "").toLowerCase();
+        const landscape = Boolean(environment.landscape);
+        let angle = Number.isFinite(screenAngle)
+            ? normalizeOrientationAngle(screenAngle)
+            : (Number.isFinite(windowAngle) ? normalizeOrientationAngle(windowAngle) : 0);
+
+        // A number of Android WebViews report angle=0 after the viewport has
+        // already become landscape. In that case beta is the wrong physical
+        // axis for the forehead gesture; infer the landscape side from type.
+        if (landscape && angle % 180 === 0) {
+            angle = type.includes("secondary") ? 270 : 90;
+        } else if (!landscape && angle % 180 !== 0) {
+            angle = type.includes("secondary") ? 180 : 0;
+        }
+        return angle;
+    }
+
     function getTiltAxis(sample = {}) {
         const beta = Number(sample.beta);
         const gamma = Number(sample.gamma);
@@ -84,10 +104,11 @@
     function createMotionDetector(options = {}) {
         const settings = {
             threshold: Number(options.threshold) || 24,
-            neutralThreshold: Number(options.neutralThreshold) || 9,
+            neutralThreshold: Number(options.neutralThreshold) || 14,
             debounceMs: Number(options.debounceMs) || 520,
             calibrationSamples: Number(options.calibrationSamples) || 10,
             neutralSamples: Number(options.neutralSamples) || 3,
+            calibrationStability: Number(options.calibrationStability) || 6,
         };
         let samples = [];
         let reference = null;
@@ -105,13 +126,18 @@
 
             if (!Number.isFinite(reference)) {
                 samples.push(axis);
+                if (samples.length > settings.calibrationSamples) samples.shift();
                 if (samples.length >= settings.calibrationSamples) {
-                    reference = median(samples);
-                    delta = 0;
-                    samples = [];
-                    locked = false;
-                    neutralStreak = settings.neutralSamples;
-                    return snapshot("ready");
+                    const candidate = median(samples);
+                    const stable = samples.every((value) => Math.abs(angularDifference(value, candidate)) <= settings.calibrationStability);
+                    if (stable) {
+                        reference = candidate;
+                        delta = 0;
+                        samples = [];
+                        locked = false;
+                        neutralStreak = settings.neutralSamples;
+                        return snapshot("ready");
+                    }
                 }
                 return snapshot("calibrating");
             }
@@ -209,6 +235,7 @@
         formatTime,
         getTiltAxis,
         normalizeOrientationAngle,
+        resolveOrientationAngle,
         shuffle,
     });
 });

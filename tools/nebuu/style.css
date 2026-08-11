@@ -949,14 +949,14 @@ body.forehead-game-immersive .sidebar {
 
 body.forehead-game-immersive .workspace {
     width: 100%;
-    height: 100dvh;
+    height: var(--forehead-game-viewport-height, 100dvh);
     overflow: hidden;
     padding: 0;
 }
 
 body.forehead-game-immersive #nebuu.tool-panel.active {
     width: 100%;
-    height: 100dvh;
+    height: var(--forehead-game-viewport-height, 100dvh);
     min-height: 0;
     overflow: hidden;
     border: 0;
@@ -975,81 +975,79 @@ body.forehead-game-immersive .forehead-game-mobile,
 body.forehead-game-immersive .forehead-game-screen {
     width: 100%;
     max-width: none;
-    height: 100dvh;
+    height: var(--forehead-game-viewport-height, 100dvh);
     min-height: 0;
     margin: 0;
     border: 0;
     border-radius: 0;
 }
 
-@media (orientation: landscape) {
-    body.forehead-game-immersive .forehead-game-centered {
-        grid-template-columns: minmax(160px, 0.6fr) minmax(280px, 1.4fr);
-        grid-template-rows: auto auto auto auto;
-        column-gap: clamp(24px, 6vw, 72px);
-        padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
-        text-align: left;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered {
+    grid-template-columns: minmax(160px, 0.6fr) minmax(280px, 1.4fr);
+    grid-template-rows: auto auto auto auto;
+    column-gap: clamp(24px, 6vw, 72px);
+    padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    text-align: left;
+}
 
-    body.forehead-game-immersive .forehead-game-centered .forehead-game-tilt-demo {
-        grid-row: 1 / 5;
-        width: clamp(150px, 24vw, 280px);
-        height: clamp(90px, 14vw, 164px);
-        margin: 0;
-        justify-self: end;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered .forehead-game-tilt-demo {
+    grid-row: 1 / 5;
+    width: clamp(150px, 24vw, 280px);
+    height: clamp(90px, 14vw, 164px);
+    margin: 0;
+    justify-self: end;
+}
 
-    body.forehead-game-immersive .forehead-game-centered .forehead-game-eyebrow,
-    body.forehead-game-immersive .forehead-game-centered h3,
-    body.forehead-game-immersive .forehead-game-centered > p,
-    body.forehead-game-immersive .forehead-game-sensor-status,
-    body.forehead-game-immersive .forehead-game-preparing-actions {
-        grid-column: 2;
-        justify-self: stretch;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered .forehead-game-eyebrow,
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered h3,
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered > p,
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-sensor-status,
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-preparing-actions {
+    grid-column: 2;
+    justify-self: stretch;
+}
 
-    body.forehead-game-immersive .forehead-game-centered h3 {
-        font-size: clamp(24px, 4vw, 42px);
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered h3 {
+    font-size: clamp(24px, 4vw, 42px);
+}
 
-    body.forehead-game-immersive .forehead-game-sensor-status {
-        margin: 12px 0;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-sensor-status {
+    margin: 12px 0;
+}
 
-    body.forehead-game-immersive .forehead-game-countdown {
-        grid-template-columns: 1fr auto 1fr;
-        column-gap: 6vw;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-countdown {
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 6vw;
+}
 
-    body.forehead-game-immersive .forehead-game-countdown strong {
-        width: min(32vh, 230px);
-        height: min(32vh, 230px);
-        margin: 0;
-        font-size: min(24vh, 150px);
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-countdown strong {
+    width: min(32vh, 230px);
+    height: min(32vh, 230px);
+    margin: 0;
+    font-size: min(24vh, 150px);
+}
 
-    body.forehead-game-immersive .forehead-game-countdown strong.is-start {
-        width: auto;
-        font-size: min(18vh, 106px);
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-countdown strong.is-start {
+    width: auto;
+    font-size: min(18vh, 106px);
+}
 
-    body.forehead-game-immersive .forehead-game-play {
-        grid-template-rows: auto minmax(0, 1fr) auto;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-play {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
 
-    body.forehead-game-immersive .forehead-game-play-top {
-        padding-top: max(8px, env(safe-area-inset-top));
-        padding-right: max(10px, env(safe-area-inset-right));
-        padding-left: max(10px, env(safe-area-inset-left));
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-play-top {
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-left: max(10px, env(safe-area-inset-left));
+}
 
-    body.forehead-game-immersive .forehead-game-touch-controls {
-        width: min(100%, 660px);
-        justify-self: center;
-        border: 1px solid var(--line);
-        border-bottom: 0;
-        border-radius: 12px 12px 0 0;
-    }
+body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-touch-controls {
+    width: min(100%, 660px);
+    justify-self: center;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 12px 12px 0 0;
 }
 
 @media (max-width: 760px) {
