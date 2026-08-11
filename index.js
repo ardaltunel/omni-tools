@@ -313,6 +313,27 @@ const githubForm = document.getElementById("github-form");
 const githubUsername = document.getElementById("github-username");
 const githubResult = document.getElementById("github-result");
 
+function renderGithubEmptyState({ mark, title, description, tone = "" }) {
+    githubResult.className = `github-result empty-state${tone ? ` is-${tone}` : ""}`;
+
+    const content = document.createElement("div");
+    const markElement = document.createElement("div");
+    const copy = document.createElement("div");
+    const heading = document.createElement("strong");
+    const detail = document.createElement("span");
+
+    content.className = "github-empty-content";
+    markElement.className = "github-empty-mark";
+    markElement.setAttribute("aria-hidden", "true");
+    markElement.textContent = mark;
+    copy.className = "github-empty-copy";
+    heading.textContent = title;
+    detail.textContent = description;
+    copy.append(heading, detail);
+    content.append(markElement, copy);
+    githubResult.replaceChildren(content);
+}
+
 githubForm.addEventListener("submit", (event) => {
     event.preventDefault();
     searchGithubProfile();
@@ -321,19 +342,25 @@ githubForm.addEventListener("submit", (event) => {
 async function searchGithubProfile() {
     const username = githubUsername.value.trim();
     if (!username) {
-        githubResult.className = "github-result empty-state";
-        githubResult.textContent = "Bir GitHub kullanıcı adı gir.";
+        renderGithubEmptyState({
+            mark: "@",
+            title: "Kullanıcı adı gerekli",
+            description: "Aramaya başlamak için bir GitHub kullanıcı adı gir.",
+        });
         return;
     }
 
-    githubResult.className = "github-result empty-state";
-    githubResult.innerHTML = '<div class="github-empty-mark">GH</div><span>Profil yükleniyor...</span>';
+    renderGithubEmptyState({
+        mark: "GH",
+        title: "Profil yükleniyor",
+        description: "GitHub profil ve repo bilgileri getiriliyor...",
+    });
 
     try {
         const response = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`);
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Kullanıcı bulunamadı.");
-        const repos = await fetchGithubRepos(data.repos_url);
+        const repoResult = await fetchGithubRepos(data.repos_url);
 
         const blogUrl = data.blog?.startsWith("http") ? data.blog : `https://${data.blog}`;
         githubResult.className = "github-result";
@@ -363,37 +390,92 @@ async function searchGithubProfile() {
                 <a href="${data.html_url}?tab=repositories" target="_blank" rel="noreferrer">Tümünü Aç</a>
             </div>
             <div class="github-repos">
-                ${renderGithubRepos(repos)}
+                ${renderGithubRepos(repoResult)}
             </div>
         `;
     } catch (error) {
-        githubResult.className = "github-result empty-state";
-        githubResult.innerHTML = `<div class="github-empty-mark">!</div><span>${escapeHtml(error.message)}</span>`;
+        renderGithubEmptyState({
+            mark: "!",
+            title: "Profil alınamadı",
+            description: error.message,
+            tone: "error",
+        });
     }
 }
 
 async function fetchGithubRepos(reposUrl) {
-    const response = await fetch(`${reposUrl}?sort=updated&per_page=5`);
-    if (!response.ok) return [];
-    return response.json();
+    const query = new URLSearchParams({
+        type: "owner",
+        sort: "pushed",
+        direction: "desc",
+        per_page: "5",
+    });
+
+    try {
+        const response = await fetch(`${reposUrl}?${query}`, {
+            headers: { Accept: "application/vnd.github+json" },
+        });
+        if (!response.ok) {
+            const rateLimited = response.status === 403 || response.status === 429;
+            return {
+                items: [],
+                error: rateLimited
+                    ? "GitHub istek sınırına ulaşıldı. Repo listesi kısa bir süre sonra yeniden denenebilir."
+                    : "Repo bilgileri şu anda alınamadı.",
+            };
+        }
+
+        const payload = await response.json();
+        if (!Array.isArray(payload)) return { items: [], error: "GitHub beklenmeyen bir repo yanıtı döndürdü." };
+
+        const items = payload
+            .filter((repo) => repo && !repo.private)
+            .sort((left, right) => (Date.parse(right.pushed_at) || 0) - (Date.parse(left.pushed_at) || 0))
+            .slice(0, 5);
+        return { items, error: "" };
+    } catch (_) {
+        return { items: [], error: "Repo listesine şu anda bağlanılamadı." };
+    }
 }
 
-function renderGithubRepos(repos) {
-    if (!repos.length) {
-        return '<div class="github-repo-card"><p>Gösterilecek public repo bulunamadı.</p></div>';
+function renderGithubRepos(result) {
+    if (result.error) {
+        return `<div class="github-repo-card is-error"><strong>Repo listesi alınamadı</strong><p>${escapeHtml(result.error)}</p></div>`;
     }
 
-    return repos.map((repo) => `
+    if (!result.items.length) {
+        return '<div class="github-repo-card is-empty"><strong>Public repo bulunamadı</strong><p>Bu kullanıcının herkese açık bir reposu yok.</p></div>';
+    }
+
+    return result.items.map((repo) => `
         <article class="github-repo-card">
-            <a href="${repo.html_url}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a>
+            <div class="github-repo-heading">
+                <a href="${escapeHtml(repo.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(repo.name)}</a>
+                ${repo.fork ? '<span class="github-repo-badge">Fork</span>' : ""}
+            </div>
             <p>${escapeHtml(repo.description || "Açıklama yok.")}</p>
             <div class="github-repo-meta">
                 <span>${escapeHtml(repo.language || "Dil yok")}</span>
                 <span>★ ${repo.stargazers_count}</span>
                 <span>Fork ${repo.forks_count}</span>
+                <time datetime="${escapeHtml(repo.pushed_at || "")}">${formatGithubRepoDate(repo.pushed_at)}</time>
             </div>
         </article>
     `).join("");
+}
+
+function formatGithubRepoDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Güncelleme bilinmiyor";
+
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+    if (elapsedSeconds < 60) return "Az önce güncellendi";
+    if (elapsedSeconds < 3600) return `${Math.floor(elapsedSeconds / 60)} dakika önce güncellendi`;
+    if (elapsedSeconds < 86400) return `${Math.floor(elapsedSeconds / 3600)} saat önce güncellendi`;
+    if (elapsedSeconds < 604800) return `${Math.floor(elapsedSeconds / 86400)} gün önce güncellendi`;
+    if (elapsedSeconds < 2592000) return `${Math.floor(elapsedSeconds / 604800)} hafta önce güncellendi`;
+
+    return `${date.toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })} tarihinde güncellendi`;
 }
 
 const numbleBoard = document.getElementById("numble-board");

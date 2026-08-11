@@ -394,7 +394,9 @@
     function handleAction(action, source) {
         if (gameState !== Core.STATES.PLAYING || actionLocked || !currentWord) return;
         actionLocked = true;
-        motion.forceLock();
+        // A sensor action has already locked the detector at its own event
+        // timestamp. Only fallback controls need to create that lock here.
+        if (source !== "sensor") motion.forceLock(performance.now());
         const correct = action === "correct";
         history.push({ word: currentWord, status: action });
         if (correct) correctCount += 1;

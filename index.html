@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=77">
+    <link rel="stylesheet" href="style.css?v=81">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=2">
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=2">
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=5">
@@ -1009,8 +1009,25 @@
                         </div>
                     </div>
                     <div id="github-result" class="github-result empty-state">
-                        <strong>Henüz profil aranmadı</strong>
-                        <span>Kullanıcı adını yazıp Ara butonuna bastığında profil özeti burada görünecek.</span>
+                        <div class="github-empty-content">
+                            <div class="github-empty-mark" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M2.5 20.5v-1.4A6.6 6.6 0 0 1 9 12.5c1.4 0 2.7.4 3.8 1.2"></path>
+                                    <circle cx="17" cy="17" r="3.2"></circle>
+                                    <path d="m19.4 19.4 2.1 2.1"></path>
+                                </svg>
+                            </div>
+                            <div class="github-empty-copy">
+                                <strong>Henüz profil aranmadı</strong>
+                                <span>Kullanıcı adını yazıp Ara butonuna bastığında profil özeti burada görünecek.</span>
+                            </div>
+                            <div class="github-empty-tags" aria-hidden="true">
+                                <span>Profil</span>
+                                <span>İstatistik</span>
+                                <span>Repolar</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -2665,7 +2682,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=36"></script>
+    <script src="index.js?v=39"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
@@ -2676,8 +2693,8 @@
     <script src="tools/discord-emoji-indir/core.js?v=6"></script>
     <script src="tools/discord-emoji-indir/app.js?v=3"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
-    <script src="tools/nebuu/core.js?v=3"></script>
-    <script src="tools/nebuu/app.js?v=3"></script>
+    <script src="tools/nebuu/core.js?v=4"></script>
+    <script src="tools/nebuu/app.js?v=4"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>

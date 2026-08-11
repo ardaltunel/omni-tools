@@ -71,15 +71,15 @@ test("hareket algılayıcı kalibrasyon, tek aksiyon ve nötre dönüş kilidini
 });
 
 test("ekran yönüne göre doğru sensör ekseni kullanılıyor", () => {
-    assert.equal(Core.getTiltAxis({ beta: 12, gamma: 30, angle: 0 }), 12);
-    assert.equal(Core.getTiltAxis({ beta: 12, gamma: 30, angle: 90 }), -30);
-    assert.equal(Core.getTiltAxis({ beta: 12, gamma: 30, angle: 270 }), 30);
+    assert.ok(Math.abs(Core.getTiltAxis({ beta: 12, gamma: 0, angle: 0 }) - 12) < 0.0001);
+    assert.ok(Math.abs(Core.getTiltAxis({ beta: 0, gamma: 30, angle: 90 }) + 30) < 0.0001);
+    assert.ok(Math.abs(Core.getTiltAxis({ beta: 0, gamma: 30, angle: 270 }) - 30) < 0.0001);
 });
 
 test("yatay viewport angle 0 raporlasa bile fiziksel gamma ekseni seçilir", () => {
     assert.equal(Core.resolveOrientationAngle({ screenAngle: 0, orientationType: "landscape-primary", landscape: true }), 90);
     assert.equal(Core.resolveOrientationAngle({ screenAngle: 0, orientationType: "landscape-secondary", landscape: true }), 270);
-    assert.equal(Core.getTiltAxis({ beta: 68, gamma: -31, angle: 90 }), 31);
+    assert.ok(Math.abs(Core.getTiltAxis({ beta: 68, gamma: -31, angle: 90 }) - 31) < 0.0001);
 });
 
 test("hareketli örneklerle kalibrasyon yapmaz, sabitlenince yeni kelimede yeniden kurulur", () => {
@@ -102,6 +102,35 @@ test("ilk cevaptan sonra yaklaşık nötr konuma dönüş ikinci hareketin kilid
     [22, 21, 22].forEach((axis, index) => detector.ingest({ gamma: -axis, beta: 70, angle: 90 }, 650 + index * 30));
     assert.equal(detector.snapshot().locked, false);
     assert.equal(detector.ingest({ gamma: 18, beta: 70, angle: 90 }, 950).action, "pass");
+});
+
+test("yatay konumdaki Euler katlanması karşıt hareketleri aynı sonuç yapmaz", () => {
+    [
+        { angle: 90, neutralGamma: 85, movedGamma: 55 },
+        { angle: 270, neutralGamma: -85, movedGamma: -55 },
+    ].forEach(({ angle, neutralGamma, movedGamma }) => {
+        const detector = Core.createMotionDetector({ calibrationSamples: 4, threshold: 24, neutralThreshold: 10, neutralSamples: 2, debounceMs: 250 });
+        [0, 1, -1, 0].forEach((offset, index) => detector.ingest({ gamma: neutralGamma + offset, beta: 0, angle }, index * 20));
+
+        assert.equal(detector.ingest({ gamma: movedGamma, beta: 0, angle }, 400).action, "correct");
+        detector.ingest({ gamma: neutralGamma, beta: 0, angle }, 500);
+        detector.ingest({ gamma: neutralGamma, beta: 0, angle }, 530);
+        assert.equal(detector.ingest({ gamma: movedGamma, beta: 180, angle }, 800).action, "pass");
+    });
+});
+
+test("harici kilit sensörün zaman tabanını korur ve ikinci kelimeyi engellemez", () => {
+    const detector = Core.createMotionDetector({ calibrationSamples: 4, threshold: 20, neutralThreshold: 8, neutralSamples: 2, debounceMs: 250 });
+    [10, 10, 9, 11].forEach((gamma, index) => detector.ingest({ gamma: -gamma, beta: 0, angle: 90 }, index * 20));
+    assert.equal(detector.ingest({ gamma: -35, beta: 0, angle: 90 }, 400).action, "correct");
+
+    // app.js used to call forceLock() without a timestamp. Date.now() then
+    // mixed epoch milliseconds with DeviceOrientationEvent.timeStamp and made
+    // every following debounce comparison negative forever.
+    detector.forceLock();
+    detector.ingest({ gamma: -10, beta: 0, angle: 90 }, 520);
+    assert.equal(detector.ingest({ gamma: -10, beta: 0, angle: 90 }, 550).locked, false);
+    assert.equal(detector.ingest({ gamma: 16, beta: 0, angle: 90 }, 800).action, "pass");
 });
 
 test("cihaz algılama UA, dokunma, pointer ve viewport sinyallerini birlikte kullanıyor", () => {

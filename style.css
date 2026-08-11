@@ -25,9 +25,6 @@
     --space-3: 14px;
     --space-4: 18px;
     --space-5: 24px;
-    --workspace-compact: 960px;
-    --workspace-standard: 1120px;
-    --workspace-wide: 1280px;
 }
 
 html {
@@ -3127,6 +3124,7 @@ input[type="color"] {
     grid-template-rows: repeat(4, minmax(0, 1fr));
     gap: 10px;
     width: min(100%, 520px);
+    justify-self: center;
     aspect-ratio: 1;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -3601,14 +3599,88 @@ input[type="color"] {
 }
 
 .github-result.empty-state {
-    min-height: 142px;
+    position: relative;
+    min-height: 300px;
+    place-items: center;
     align-content: center;
     color: var(--muted);
     line-height: 1.55;
+    padding: clamp(28px, 5vw, 64px);
+    text-align: center;
 }
 
 .github-result.empty-state strong {
     color: var(--text);
+}
+
+.github-empty-content {
+    display: grid;
+    width: min(100%, 560px);
+    justify-items: center;
+    gap: 18px;
+}
+
+.github-empty-mark {
+    display: grid;
+    width: 72px;
+    height: 72px;
+    place-items: center;
+    border: 1px solid rgba(24, 169, 153, 0.42);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    box-shadow: inset 0 0 0 5px rgba(24, 169, 153, 0.06);
+}
+
+.github-empty-mark svg {
+    width: 34px;
+    height: 34px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.github-empty-copy {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+}
+
+.github-empty-copy strong {
+    font-size: 20px;
+}
+
+.github-empty-copy span {
+    max-width: 520px;
+}
+
+.github-empty-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.github-empty-tags span {
+    min-height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #0f1218;
+    color: var(--muted);
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.github-result.empty-state.is-error .github-empty-mark {
+    border-color: rgba(255, 82, 106, 0.48);
+    color: var(--danger);
+    box-shadow: inset 0 0 0 5px rgba(255, 82, 106, 0.06);
 }
 
 .github-profile {
@@ -3711,10 +3783,30 @@ input[type="color"] {
     gap: 8px;
 }
 
-.github-repo-card a {
+.github-repo-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.github-repo-heading a {
+    min-width: 0;
+    overflow-wrap: anywhere;
     color: var(--text);
     font-weight: 800;
     text-decoration: none;
+}
+
+.github-repo-badge {
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .github-repo-card p {
@@ -3730,6 +3822,18 @@ input[type="color"] {
     color: var(--muted);
     font-size: 13px;
     font-weight: 700;
+}
+
+.github-repo-card.is-error {
+    border-color: rgba(255, 82, 106, 0.4);
+}
+
+.github-repo-card.is-error strong {
+    color: var(--danger);
+}
+
+.github-repo-card.is-empty strong {
+    color: var(--text);
 }
 
 .weather-layout {
@@ -5221,8 +5325,144 @@ input[type="color"] {
 }
 
 /* Shared tool workspace sizing
-   Tool panels may fill the viewport; their functional workspace keeps a
-   deliberate, content-appropriate width and stays visually centered. */
+   The tool shell owns the available desktop area. Data/form workspaces use
+   that area directly; board games keep a natural primary column and let their
+   control panel consume the remaining width. */
+.crypto-layout,
+.qr-grid,
+.speech-layout,
+.gradient-grid,
+.typing-grid,
+.password-grid,
+.wordle-finder-layout,
+.github-grid,
+.weather-layout,
+.translate-layout,
+.valorant-crosshair-layout {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+}
+
+.crypto-layout {
+    grid-template-columns: minmax(0, 1.9fr) minmax(300px, 0.85fr);
+    align-items: stretch;
+}
+
+.crypto-side {
+    height: 100%;
+    align-content: start;
+}
+
+.qr-grid {
+    grid-template-columns: minmax(340px, 0.78fr) minmax(0, 1.22fr);
+}
+
+.speech-layout {
+    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.72fr);
+}
+
+.speech-form textarea {
+    min-height: clamp(280px, 38vh, 480px);
+}
+
+.gradient-grid {
+    grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+}
+
+.typing-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.68fr);
+}
+
+.password-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.72fr);
+}
+
+.translate-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+}
+
+.translate-panel textarea {
+    min-height: clamp(260px, 36vh, 440px);
+}
+
+.weather-layout {
+    grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.75fr);
+}
+
+.github-grid {
+    grid-template-columns: minmax(340px, 400px) minmax(0, 1fr);
+}
+
+.github-result.empty-state {
+    min-height: clamp(300px, 42vh, 560px);
+}
+
+.wordle-finder-layout {
+    grid-template-columns: minmax(420px, 540px) minmax(0, 1fr);
+}
+
+.valorant-crosshair-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+}
+
+.converter-category-tabs {
+    margin: 0 0 20px;
+}
+
+.game-2048-layout,
+.parolla-layout,
+.numble-grid,
+.wordle-shell,
+.chess-layout,
+.coach-layout,
+.xox-layout,
+.sudoku-layout {
+    width: 100%;
+    margin-inline: 0;
+    align-items: stretch;
+}
+
+.game-2048-layout {
+    grid-template-columns: minmax(520px, 620px) minmax(260px, 1fr);
+}
+
+.parolla-layout {
+    grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.7fr);
+}
+
+.numble-grid {
+    grid-template-columns: minmax(480px, 620px) minmax(280px, 1fr);
+}
+
+.wordle-shell {
+    grid-template-columns: minmax(520px, 660px) minmax(280px, 1fr);
+}
+
+.chess-layout,
+.coach-layout,
+.sudoku-layout {
+    grid-template-columns: minmax(520px, 620px) minmax(280px, 1fr);
+}
+
+.xox-layout {
+    grid-template-columns: minmax(460px, 560px) minmax(260px, 1fr);
+}
+
+.game-2048-side,
+.parolla-side,
+.numble-side,
+.wordle-side,
+.chess-side,
+.coach-side,
+.xox-side,
+.sudoku-side {
+    height: 100%;
+    align-content: start;
+}
+
+/* Previous centered-workspace selectors intentionally stay listed here so
+   future tool additions do not silently reintroduce narrow desktop wrappers. */
 .game-2048-layout,
 .crypto-layout,
 .qr-grid,
@@ -5241,82 +5481,7 @@ input[type="color"] {
 .coach-layout,
 .xox-layout,
 .valorant-crosshair-layout {
-    margin-inline: auto;
-}
-
-.game-2048-layout {
-    width: min(100%, 920px);
-}
-
-.crypto-layout {
-    width: min(100%, 1100px);
-    grid-template-columns: minmax(0, 720px) minmax(260px, 364px);
-}
-
-.qr-grid {
-    width: min(100%, 1084px);
-}
-
-.speech-layout {
-    width: min(100%, var(--workspace-standard));
-    grid-template-columns: minmax(0, 700px) minmax(280px, 404px);
-}
-
-.gradient-grid {
-    width: min(100%, 1180px);
-    grid-template-columns: minmax(300px, 440px) minmax(0, 716px);
-}
-
-.typing-grid {
-    width: min(100%, var(--workspace-standard));
-    grid-template-columns: minmax(0, 756px) minmax(280px, 340px);
-}
-
-.password-grid {
-    width: min(100%, var(--workspace-standard));
-    grid-template-columns: minmax(0, 716px) minmax(300px, 380px);
-}
-
-.translate-layout {
-    width: min(100%, var(--workspace-standard));
-    grid-template-columns: minmax(0, 824px) 280px;
-}
-
-.weather-layout,
-.github-grid,
-.wordle-finder-layout {
-    width: min(100%, var(--workspace-standard));
-}
-
-.parolla-layout {
-    width: min(100%, 1058px);
-}
-
-.numble-grid {
-    width: min(100%, 880px);
-}
-
-.wordle-shell {
-    width: min(100%, 920px);
-}
-
-.chess-layout {
-    width: min(100%, var(--workspace-compact));
-    grid-template-columns: minmax(0, 664px) 280px;
-}
-
-.coach-layout {
-    width: min(100%, 1000px);
-    grid-template-columns: minmax(0, 664px) 320px;
-}
-
-.xox-layout {
-    width: min(100%, 800px);
-    grid-template-columns: minmax(0, 504px) 280px;
-}
-
-.valorant-crosshair-layout {
-    width: min(100%, 1440px);
+    min-width: 0;
 }
 
 /* A desktop sidebar leaves a narrow content column around tablet widths.
@@ -5339,7 +5504,8 @@ input[type="color"] {
     .valorant-crosshair-layout,
     .coach-layout,
     .chess-layout,
-    .xox-layout {
+    .xox-layout,
+    .sudoku-layout {
         grid-template-columns: minmax(0, 1fr);
         width: 100%;
     }
@@ -5408,7 +5574,7 @@ input[type="color"] {
 
     .sudoku-layout {
         grid-template-columns: 1fr;
-        width: min(100%, 620px);
+        width: 100%;
     }
 
     .sudoku-live-stats {
@@ -5841,15 +6007,15 @@ input[type="color"] {
 }
 
 .converter-shell {
-    width: min(100%, 1280px);
-    margin-inline: auto;
+    width: 100%;
+    margin-inline: 0;
 }
 
 .converter-category-tabs {
     display: grid;
     grid-template-columns: repeat(8, minmax(96px, 1fr));
-    width: min(100%, 1280px);
-    margin: 0 auto 20px;
+    width: 100%;
+    margin: 0 0 20px;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -6822,8 +6988,8 @@ input[type="color"] {
 }
 
 .tabu-app {
-    width: min(100%, 1180px);
-    margin-inline: auto;
+    width: 100%;
+    margin-inline: 0;
 }
 
 .tabu-panel.is-setup-screen {
@@ -7917,9 +8083,9 @@ body.deal-modal-open {
     --deal-deep: #0d1716;
     --deal-low: #2b9ed0;
     position: relative;
-    width: min(100%, 1240px);
+    width: 100%;
     min-width: 0;
-    margin-inline: auto;
+    margin-inline: 0;
 }
 
 .deal-app[data-theme="stage"] {
@@ -8960,9 +9126,9 @@ body.millionaire-modal-open {
     --millionaire-purple: #7455bc;
     --millionaire-deep: #10131c;
     position: relative;
-    width: min(100%, 1220px);
+    width: 100%;
     min-width: 0;
-    margin-inline: auto;
+    margin-inline: 0;
     color: var(--text);
 }
 

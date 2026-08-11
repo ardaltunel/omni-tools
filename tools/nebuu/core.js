@@ -81,10 +81,25 @@
     function getTiltAxis(sample = {}) {
         const beta = Number(sample.beta);
         const gamma = Number(sample.gamma);
+        if (!Number.isFinite(beta) || !Number.isFinite(gamma)) return null;
+
         const angle = normalizeOrientationAngle(sample.angle);
-        if (angle === 90) return Number.isFinite(gamma) ? -gamma : null;
-        if (angle === 270) return Number.isFinite(gamma) ? gamma : null;
-        return Number.isFinite(beta) ? beta : null;
+        const betaRadians = beta * Math.PI / 180;
+        const gammaRadians = gamma * Math.PI / 180;
+        const screenRadians = angle * Math.PI / 180;
+
+        // DeviceOrientation gamma is limited to -90..90 degrees. A phone held
+        // upright in landscape sits close to that boundary, so reading gamma
+        // alone folds both sides of the gesture onto the same value. Project
+        // the gravity vector into screen coordinates instead; beta then keeps
+        // the two hemispheres distinguishable and opposite tilts retain their
+        // sign on every screen orientation.
+        const gravityX = -Math.cos(betaRadians) * Math.sin(gammaRadians);
+        const gravityY = Math.sin(betaRadians);
+        const gravityZ = Math.cos(betaRadians) * Math.cos(gammaRadians);
+        const screenY = gravityX * Math.sin(screenRadians) + gravityY * Math.cos(screenRadians);
+
+        return Math.atan2(screenY, gravityZ) * 180 / Math.PI;
     }
 
     function angularDifference(value, reference) {
@@ -117,11 +132,14 @@
         let locked = false;
         let neutralStreak = 0;
         let lastActionAt = -Infinity;
+        let lastSampleAt = null;
         let detectedAction = "-";
 
         function ingest(sample, now = Date.now()) {
             const axis = getTiltAxis(sample);
             if (!Number.isFinite(axis)) return snapshot("invalid");
+            const sampleAt = Number(now);
+            if (Number.isFinite(sampleAt)) lastSampleAt = sampleAt;
             current = axis;
 
             if (!Number.isFinite(reference)) {
@@ -163,12 +181,12 @@
             }
 
             neutralStreak = 0;
-            if (Math.abs(delta) < settings.threshold || now - lastActionAt < settings.debounceMs) {
+            if (Math.abs(delta) < settings.threshold || sampleAt - lastActionAt < settings.debounceMs) {
                 return snapshot("moving");
             }
 
             locked = true;
-            lastActionAt = now;
+            lastActionAt = sampleAt;
             detectedAction = delta > 0 ? "correct" : "pass";
             return { ...snapshot("action"), action: detectedAction };
         }
@@ -181,13 +199,18 @@
             locked = false;
             neutralStreak = 0;
             lastActionAt = -Infinity;
+            lastSampleAt = null;
             detectedAction = "-";
         }
 
-        function forceLock(now = Date.now()) {
+        function forceLock(now) {
+            const suppliedAt = Number(now);
+            const lockAt = Number.isFinite(suppliedAt)
+                ? suppliedAt
+                : (Number.isFinite(lastSampleAt) ? lastSampleAt : Date.now());
             locked = true;
             neutralStreak = 0;
-            lastActionAt = now;
+            lastActionAt = lockAt;
         }
 
         function snapshot(status = "idle") {
