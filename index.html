@@ -21,12 +21,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=82">
+    <link rel="stylesheet" href="style.css?v=83">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=2">
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=3">
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=6">
     <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=3">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
+    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=36">
 </head>
 
 <body>
@@ -46,6 +47,11 @@
                 </button>
                 <button class="nav-item" data-tool="advanced-xox" data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
                     <span>Advanced XOX</span>
+                </button>
+                <button class="nav-item" data-tool="blackjack"
+                    data-category="Oyunlar" data-search="blackjack iskambil kart casino masa bahis krupiye 21 oyunlar"
+                    data-description="Sanal çiplerle, klasik kurallara göre premium Blackjack oyna." type="button">
+                    <span>Blackjack</span>
                 </button>
                 <button class="nav-item" data-tool="nebuu"
                     data-search="nebuu alnında ne var heads up kelime tahmin telefon hareket sensör parti oyun"
@@ -205,6 +211,135 @@
                             <p>Aynı değerdeki iki taş çarpıştığında birleşir. Her hamleden sonra boş bir karede yeni taş oluşur.</p>
                         </div>
                     </aside>
+                </div>
+            </section>
+
+            <section id="blackjack" class="tool-panel blackjack-panel" aria-labelledby="blackjack-title">
+                <div id="blackjack-app" class="blackjack-app" data-phase="BETTING">
+                    <header class="blackjack-header">
+                        <div class="blackjack-heading">
+                            <h2 id="blackjack-title">Blackjack</h2>
+                            <p>Altı destelik shoe ile klasik 21 masası.</p>
+                        </div>
+                        <div class="blackjack-header-actions">
+                            <span class="blackjack-virtual-note">Yalnızca sanal kredi</span>
+                            <button id="blackjack-sound" class="blackjack-icon-button" type="button"
+                                aria-label="Oyun seslerini kapat" aria-pressed="true" title="Ses">
+                                <span aria-hidden="true">🔊</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="blackjack-table-shell">
+                        <div class="blackjack-table-rim">
+                            <div class="blackjack-table" aria-label="Blackjack masası">
+                                <div class="blackjack-table-grain" aria-hidden="true"></div>
+                                <div class="blackjack-table-arc" aria-hidden="true"></div>
+
+                                <div class="blackjack-bankroll" aria-label="Sanal kredi bilgisi">
+                                    <div class="blackjack-bankroll-item">
+                                        <span>BAKİYE</span>
+                                        <strong id="blackjack-balance">10.000</strong>
+                                    </div>
+                                    <div class="blackjack-bankroll-divider" aria-hidden="true"></div>
+                                <div class="blackjack-bankroll-item">
+                                    <span>BAHİS</span>
+                                    <strong id="blackjack-current-bet">0</strong>
+                                </div>
+                                <span id="blackjack-balance-delta" class="blackjack-balance-delta" aria-live="polite" aria-atomic="true" hidden></span>
+                                </div>
+
+                                <div id="blackjack-shoe" class="blackjack-shoe" aria-label="Altı destelik kart shoe'u" title="6 deste shoe">
+                                    <span class="blackjack-shoe-card blackjack-shoe-card-one"></span>
+                                    <span class="blackjack-shoe-card blackjack-shoe-card-two"></span>
+                                    <span class="blackjack-shoe-card blackjack-shoe-card-three"></span>
+                                </div>
+
+                                <section class="blackjack-hand-area blackjack-dealer-area" aria-labelledby="blackjack-dealer-title">
+                                    <div class="blackjack-hand-heading">
+                                        <span id="blackjack-dealer-title">KRUPİYE</span>
+                                        <strong id="blackjack-dealer-total">Toplam: —</strong>
+                                    </div>
+                                    <div id="blackjack-dealer-cards" class="blackjack-card-row blackjack-dealer-cards" aria-live="polite"></div>
+                                </section>
+
+                                <div class="blackjack-table-copy" aria-hidden="true">
+                                    <strong>BLACKJACK</strong>
+                                    <span>BLACKJACK PAYS 3 TO 2</span>
+                                    <small>DEALER MUST STAND ON 17</small>
+                                </div>
+
+                                <div id="blackjack-insurance" class="blackjack-insurance" aria-live="polite" hidden>
+                                    <div>
+                                        <strong>Sigorta?</strong>
+                                        <span>Krupiye As gösteriyor. Bahsinin yarısı ile 2:1 koruma al.</span>
+                                    </div>
+                                    <div class="blackjack-insurance-actions">
+                                        <button id="blackjack-insurance-take" type="button">Sigorta Al</button>
+                                        <button id="blackjack-insurance-decline" type="button">Devam Et</button>
+                                    </div>
+                                </div>
+
+                                <section class="blackjack-hand-area blackjack-player-area" aria-label="Oyuncu eli">
+                                <div class="blackjack-hand-heading blackjack-player-heading">
+                                    <span id="blackjack-player-title">SEN</span>
+                                    <strong id="blackjack-player-total">Toplam: —</strong>
+                                </div>
+                                <div id="blackjack-status" class="blackjack-status" role="status" aria-live="polite">
+                                    <strong>Hazır</strong>
+                                    <span>Bahsini yerleştir ve dağıt.</span>
+                                </div>
+                                <div id="blackjack-player-hands" class="blackjack-player-hands" aria-live="polite"></div>
+                                </section>
+
+                                <div class="blackjack-bottom-grid" aria-label="Masa kontrolleri">
+                        <section class="blackjack-betting-panel" aria-labelledby="blackjack-betting-title">
+                            <div class="blackjack-control-heading">
+                                <div>
+                                    <span class="blackjack-control-kicker">MASA BAHİSLERİ</span>
+                                    <h3 id="blackjack-betting-title">Çiplerini seç</h3>
+                                </div>
+                                <span id="blackjack-bet-note" class="blackjack-bet-note">Minimum 10 kredi</span>
+                            </div>
+                            <div class="blackjack-chip-row" aria-label="Bahis çipleri">
+                                <button class="blackjack-chip chip-ten" data-blackjack-chip="10" type="button" aria-label="Bahse 10 kredi ekle"><strong>10</strong></button>
+                                <button class="blackjack-chip chip-twenty-five" data-blackjack-chip="25" type="button" aria-label="Bahse 25 kredi ekle"><strong>25</strong></button>
+                                <button class="blackjack-chip chip-fifty" data-blackjack-chip="50" type="button" aria-label="Bahse 50 kredi ekle"><strong>50</strong></button>
+                                <button class="blackjack-chip chip-hundred" data-blackjack-chip="100" type="button" aria-label="Bahse 100 kredi ekle"><strong>100</strong></button>
+                                <button class="blackjack-chip chip-five-hundred" data-blackjack-chip="500" type="button" aria-label="Bahse 500 kredi ekle"><strong>500</strong></button>
+                                <button class="blackjack-chip chip-thousand" data-blackjack-chip="1000" type="button" aria-label="Bahse 1000 kredi ekle"><strong>1K</strong></button>
+                                <button class="blackjack-chip chip-ten-thousand" data-blackjack-chip="10000" type="button" aria-label="Bahse 10000 kredi ekle"><strong>10K</strong></button>
+                            </div>
+                            <div class="blackjack-bet-actions">
+                                <button id="blackjack-clear-bet" class="blackjack-text-button" type="button">Temizle</button>
+                                <button id="blackjack-repeat-bet" class="blackjack-text-button" type="button">Son Bahsi Tekrarla</button>
+                                <button id="blackjack-deal" class="blackjack-deal-button" type="button">Dağıt <span aria-hidden="true">↗</span></button>
+                            </div>
+                            <button id="blackjack-refresh-credit" class="blackjack-refresh-credit" type="button" hidden>
+                                Krediyi Yenile <small>10.000 sanal kredi</small>
+                            </button>
+                        </section>
+
+                        <section class="blackjack-actions-panel" aria-label="Oyun hamleleri">
+                            <div class="blackjack-control-heading">
+                                <div>
+                                    <span id="blackjack-action-kicker" class="blackjack-control-kicker">BAHİSLER AÇIK</span>
+                                    <h3>Hamleler</h3>
+                                </div>
+                                <span class="blackjack-shortcuts" aria-label="Klavye kısayolları">H · S · D · P</span>
+                            </div>
+                            <div class="blackjack-action-grid">
+                                <button id="blackjack-hit" class="blackjack-action-button primary" type="button"><span>Kart Çek</span><kbd>H</kbd></button>
+                                <button id="blackjack-stand" class="blackjack-action-button" type="button"><span>Dur</span><kbd>S</kbd></button>
+                                <button id="blackjack-double" class="blackjack-action-button" type="button"><span>İkiye Katla</span><kbd>D</kbd></button>
+                                <button id="blackjack-split" class="blackjack-action-button" type="button"><span>Böl</span><kbd>P</kbd></button>
+                            </div>
+                        </section>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -2677,7 +2812,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=39"></script>
+    <script src="index.js?v=40"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
@@ -2690,6 +2825,8 @@
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=4"></script>
     <script src="tools/nebuu/app.js?v=4"></script>
+    <script src="tools/blackjack/engine.js?v=4"></script>
+    <script src="tools/blackjack/app.js?v=14"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>

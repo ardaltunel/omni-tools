@@ -288,6 +288,11 @@ function updatePageMetadata(tool) {
             description: "Telefonunu alnına koy, arkadaşlarının ipuçlarıyla Türkçe kelimeleri hareket ederek tahmin et.",
             keywords: "nebuu, alnında ne var, kelime tahmin oyunu, telefon hareket oyunu, parti oyunu, heads up türkçe",
         },
+        blackjack: {
+            title: "Blackjack | Omni Tools",
+            description: "Sanal çiplerle, klasik Blackjack kurallarına göre tarayıcıda premium masa deneyimi yaşa.",
+            keywords: "blackjack, iskambil, kart oyunu, casino masası, sanal kredi, 21 oyunu",
+        },
     };
     const metadata = toolMetadata[tool] || {};
     const title = metadata.title || defaultPageTitle;
