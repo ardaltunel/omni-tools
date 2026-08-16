@@ -1,0 +1,1037 @@
+.github-unfollower-panel {
+    --ghu-accent: var(--accent);
+    --ghu-accent-soft: rgba(24, 169, 153, 0.1);
+    --ghu-danger: var(--danger);
+    --ghu-danger-soft: rgba(255, 95, 109, 0.09);
+    --ghu-blue: #76a9ff;
+    --ghu-purple: #b794f6;
+}
+
+.github-unfollower-panel [hidden] {
+    display: none !important;
+}
+
+.github-unfollower-panel button,
+.github-unfollower-panel input {
+    font: inherit;
+}
+
+.github-unfollower-heading {
+    align-items: flex-start;
+}
+
+.ghu-privacy-note {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(24, 169, 153, 0.34);
+    border-radius: var(--radius);
+    background: rgba(24, 169, 153, 0.07);
+    padding: 14px 16px;
+}
+
+.ghu-privacy-mark {
+    display: grid;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ghu-accent);
+    color: #06110f;
+    font-weight: 900;
+}
+
+.ghu-privacy-note > div:nth-child(2) {
+    min-width: 0;
+}
+
+.ghu-privacy-note strong,
+.ghu-privacy-note p {
+    display: block;
+}
+
+.ghu-privacy-note p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.ghu-trust-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 7px;
+    margin-left: auto;
+}
+
+.ghu-trust-list span,
+.ghu-privacy-pill,
+.ghu-selected-badge {
+    border: 1px solid rgba(24, 169, 153, 0.28);
+    border-radius: 999px;
+    background: var(--ghu-accent-soft);
+    color: var(--accent-strong);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ghu-trust-list span {
+    padding: 5px 8px;
+}
+
+.ghu-card,
+.ghu-activity-panel,
+.ghu-account-bar,
+.ghu-stat-card,
+.ghu-results-card,
+.ghu-danger-zone {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.ghu-connection-card {
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.ghu-step-badge {
+    display: flex;
+    justify-content: center;
+    border-right: 1px solid var(--line);
+    color: #6f7788;
+    padding-top: 29px;
+    font-family: Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+}
+
+.ghu-connection-content {
+    padding: 26px 28px 29px;
+}
+
+.ghu-card-heading,
+.ghu-activity-heading,
+.ghu-account-bar,
+.ghu-results-heading,
+.ghu-danger-zone {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.ghu-card-heading {
+    align-items: flex-start;
+}
+
+.ghu-card-heading h3,
+.ghu-results-heading h3,
+.ghu-danger-zone h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.ghu-card-heading p,
+.ghu-results-heading p,
+.ghu-danger-zone p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.ghu-kicker,
+.ghu-account-label,
+.ghu-danger-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ghu-accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.ghu-privacy-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 9px;
+}
+
+.ghu-privacy-pill > span {
+    color: var(--ghu-accent);
+    font-size: 7px;
+}
+
+.ghu-token-form {
+    max-width: 780px;
+    margin-top: 23px;
+}
+
+.ghu-token-form > label,
+.ghu-confirm-dialog label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ghu-token-input-wrap {
+    position: relative;
+}
+
+.ghu-token-input-wrap input,
+.ghu-search-wrap input,
+.ghu-confirm-dialog input {
+    width: 100%;
+    outline: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: #121419;
+    color: var(--text);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.ghu-token-input-wrap input {
+    min-height: 48px;
+    padding: 0 76px 0 14px;
+    font-family: Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+}
+
+.ghu-token-input-wrap input:focus,
+.ghu-search-wrap input:focus,
+.ghu-confirm-dialog input:focus {
+    border-color: var(--ghu-accent);
+    box-shadow: 0 0 0 3px rgba(24, 169, 153, 0.14);
+}
+
+.ghu-token-input-wrap input[aria-invalid="true"] {
+    border-color: var(--ghu-danger);
+}
+
+.ghu-input-action {
+    position: absolute;
+    top: 50%;
+    right: 7px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    padding: 7px 9px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    transform: translateY(-50%);
+}
+
+.ghu-input-action:hover {
+    background: var(--panel-2);
+    color: var(--text);
+}
+
+.ghu-field-error {
+    margin: 8px 0 0;
+    color: var(--ghu-danger);
+    font-size: 12px;
+}
+
+.ghu-token-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 12px;
+}
+
+.ghu-check-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    user-select: none;
+}
+
+.ghu-check-option input {
+    position: absolute;
+    opacity: 0;
+}
+
+.ghu-check-option > span {
+    display: inline-grid;
+    flex: 0 0 17px;
+    width: 17px;
+    height: 17px;
+    place-items: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    background: #121419;
+}
+
+.ghu-check-option input:checked + span {
+    border-color: var(--ghu-accent);
+    background: var(--ghu-accent);
+}
+
+.ghu-check-option input:checked + span::after,
+.ghu-user-checkbox:checked::after {
+    width: 7px;
+    height: 4px;
+    border-bottom: 2px solid #06110f;
+    border-left: 2px solid #06110f;
+    content: "";
+    transform: translateY(-1px) rotate(-45deg);
+}
+
+.ghu-check-option input:focus-visible + span {
+    box-shadow: 0 0 0 3px rgba(24, 169, 153, 0.18);
+}
+
+.ghu-text-button {
+    border: 0;
+    background: transparent;
+    color: var(--ghu-accent);
+    padding: 0;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ghu-text-button:hover {
+    color: var(--accent-strong);
+}
+
+.ghu-field-help {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.ghu-field-help strong {
+    color: var(--text);
+}
+
+.ghu-field-help a {
+    margin-left: 5px;
+    color: var(--ghu-accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.ghu-form-actions,
+.ghu-dialog-actions {
+    display: flex;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.ghu-activity-panel {
+    margin-top: 15px;
+    padding: 18px 20px;
+}
+
+.ghu-activity-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ghu-activity-status strong,
+.ghu-activity-status span,
+.ghu-rate-status span,
+.ghu-rate-status strong {
+    display: block;
+}
+
+.ghu-activity-status strong {
+    font-size: 13px;
+}
+
+.ghu-activity-status div > span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.ghu-activity-percent {
+    color: var(--ghu-accent);
+    font-family: Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+}
+
+.ghu-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(24, 169, 153, 0.2);
+    border-top-color: var(--ghu-accent);
+    border-radius: 50%;
+    animation: ghu-spin 800ms linear infinite;
+}
+
+.ghu-activity-panel.is-complete .ghu-spinner,
+.ghu-activity-panel.is-error .ghu-spinner {
+    display: grid;
+    border: 0;
+    place-items: center;
+    color: #06110f;
+    animation: none;
+}
+
+.ghu-activity-panel.is-complete .ghu-spinner {
+    background: var(--ghu-accent);
+}
+
+.ghu-activity-panel.is-complete .ghu-spinner::after {
+    content: "✓";
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.ghu-activity-panel.is-error {
+    border-color: rgba(255, 95, 109, 0.35);
+}
+
+.ghu-activity-panel.is-error .ghu-spinner {
+    background: var(--ghu-danger);
+    color: white;
+}
+
+.ghu-activity-panel.is-error .ghu-spinner::after {
+    content: "!";
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.ghu-progress-track {
+    display: block;
+    width: 100%;
+    height: 5px;
+    margin-top: 15px;
+    appearance: none;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    background: var(--panel-2);
+}
+
+.ghu-progress-track::-webkit-progress-bar {
+    border-radius: inherit;
+    background: var(--panel-2);
+}
+
+.ghu-progress-track::-webkit-progress-value,
+.ghu-progress-track::-moz-progress-bar {
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--ghu-accent), #59d4c6);
+}
+
+.ghu-results {
+    margin-top: 22px;
+}
+
+.ghu-account-bar {
+    padding: 14px 16px;
+}
+
+.ghu-account-identity {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+}
+
+.ghu-account-identity img {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 auto;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+}
+
+.ghu-account-label {
+    margin-bottom: 1px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.ghu-account-identity a {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.ghu-account-identity a:hover {
+    color: var(--ghu-accent);
+}
+
+.ghu-rate-status {
+    margin-left: auto;
+    text-align: right;
+}
+
+.ghu-rate-status span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.ghu-rate-status strong {
+    margin-top: 2px;
+    color: var(--text);
+    font-family: Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+}
+
+.ghu-compact-button {
+    min-height: 36px;
+    padding-inline: 12px;
+    font-size: 11px;
+}
+
+.ghu-stats-grid {
+    display: grid;
+    margin: 14px 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.ghu-stat-card {
+    display: flex;
+    min-height: 96px;
+    align-items: center;
+    gap: 13px;
+    padding: 17px;
+}
+
+.ghu-stat-card.is-accent {
+    border-color: rgba(24, 169, 153, 0.28);
+    background: linear-gradient(135deg, rgba(24, 169, 153, 0.08), var(--surface));
+}
+
+.ghu-stat-icon {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: var(--radius);
+}
+
+.ghu-stat-icon.is-blue {
+    background: rgba(118, 169, 255, 0.1);
+    color: var(--ghu-blue);
+}
+
+.ghu-stat-icon.is-purple {
+    background: rgba(183, 148, 246, 0.1);
+    color: var(--ghu-purple);
+}
+
+.ghu-stat-icon.is-accent {
+    background: var(--ghu-accent-soft);
+    color: var(--ghu-accent);
+}
+
+.ghu-stat-card div span,
+.ghu-stat-card div strong {
+    display: block;
+}
+
+.ghu-stat-card div span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.ghu-stat-card div strong {
+    margin-top: 3px;
+    font-size: 21px;
+}
+
+.ghu-results-card {
+    overflow: hidden;
+}
+
+.ghu-results-heading {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.ghu-results-heading h3 {
+    font-size: 18px;
+}
+
+.ghu-selected-badge {
+    padding: 6px 9px;
+}
+
+.ghu-results-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.012);
+    padding: 13px 18px;
+}
+
+.ghu-search-wrap {
+    position: relative;
+    width: min(100%, 340px);
+}
+
+.ghu-search-wrap > span {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    color: var(--muted);
+    transform: translateY(-50%);
+}
+
+.ghu-search-wrap input {
+    min-height: 39px;
+    padding: 0 12px 0 36px;
+    font-size: 12px;
+}
+
+.ghu-selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ghu-selection-actions > span {
+    width: 1px;
+    height: 14px;
+    background: var(--border-strong);
+}
+
+.ghu-user-list {
+    min-height: 70px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ghu-user-row {
+    display: grid;
+    min-height: 68px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding: 11px 19px;
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    gap: 11px;
+}
+
+.ghu-user-row:last-child {
+    border-bottom: 0;
+}
+
+.ghu-user-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.ghu-user-checkbox {
+    display: grid;
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    padding: 0;
+    appearance: none;
+    place-items: center;
+    outline: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    background: #121419;
+    cursor: pointer;
+}
+
+.ghu-user-checkbox:checked {
+    border-color: var(--ghu-accent);
+    background: var(--ghu-accent);
+}
+
+.ghu-user-checkbox:focus-visible,
+.ghu-text-button:focus-visible,
+.ghu-input-action:focus-visible,
+.ghu-page-button:focus-visible,
+.ghu-danger-button:focus-visible {
+    outline: 3px solid rgba(24, 169, 153, 0.22);
+    outline-offset: 2px;
+}
+
+.ghu-user-identity {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 11px;
+}
+
+.ghu-user-identity img {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+}
+
+.ghu-user-identity strong,
+.ghu-user-identity span {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ghu-user-identity strong {
+    font-size: 13px;
+}
+
+.ghu-user-identity span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.ghu-profile-link {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--muted);
+    padding: 6px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.ghu-profile-link:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+}
+
+.ghu-empty-results {
+    padding: 48px 22px;
+    text-align: center;
+}
+
+.ghu-empty-results > span {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 13px;
+    place-items: center;
+    border: 1px solid rgba(24, 169, 153, 0.28);
+    border-radius: var(--radius);
+    background: var(--ghu-accent-soft);
+    color: var(--ghu-accent);
+}
+
+.ghu-empty-results h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.ghu-empty-results p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.ghu-pagination {
+    display: flex;
+    min-height: 56px;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    border-top: 1px solid var(--line);
+}
+
+.ghu-pagination span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.ghu-page-button {
+    display: grid;
+    width: 31px;
+    height: 31px;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.ghu-page-button:disabled,
+.ghu-text-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.ghu-danger-zone {
+    margin-top: 14px;
+    border-color: rgba(255, 95, 109, 0.3);
+    background: linear-gradient(110deg, var(--ghu-danger-soft), var(--surface));
+    padding: 21px 23px;
+}
+
+.ghu-danger-label {
+    color: #ff8b95;
+}
+
+.ghu-danger-zone p {
+    max-width: 720px;
+}
+
+.ghu-danger-button {
+    display: inline-flex;
+    min-height: var(--control-height);
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 95, 109, 0.34);
+    border-radius: var(--radius);
+    background: var(--ghu-danger);
+    color: white;
+    padding: 0 15px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.ghu-danger-button:hover:not(:disabled) {
+    background: #ff7280;
+}
+
+.ghu-danger-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.ghu-confirm-dialog {
+    width: min(calc(100% - 30px), 470px);
+    padding: 0;
+    outline: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.65);
+}
+
+.ghu-confirm-dialog::backdrop {
+    background: rgba(3, 5, 9, 0.78);
+    backdrop-filter: blur(6px);
+}
+
+.ghu-confirm-dialog form {
+    padding: 28px;
+}
+
+.ghu-dialog-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 16px;
+    place-items: center;
+    border: 1px solid rgba(255, 95, 109, 0.34);
+    border-radius: var(--radius);
+    background: var(--ghu-danger-soft);
+    color: var(--ghu-danger);
+    font-weight: 900;
+}
+
+.ghu-confirm-dialog h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.ghu-confirm-dialog p {
+    margin: 10px 0 20px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.ghu-confirm-dialog p strong,
+.ghu-confirm-dialog label strong {
+    color: var(--text);
+}
+
+.ghu-confirm-dialog input {
+    min-height: 44px;
+    padding: 0 12px;
+    font-family: Consolas, "Liberation Mono", monospace;
+}
+
+.ghu-dialog-actions {
+    justify-content: flex-end;
+}
+
+.ghu-toast {
+    position: fixed;
+    z-index: 80;
+    right: 22px;
+    bottom: 22px;
+    display: flex;
+    max-width: min(400px, calc(100% - 44px));
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+    color: var(--text);
+    padding: 13px 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    font-size: 12px;
+}
+
+.ghu-toast > span:first-child {
+    color: var(--ghu-accent);
+    font-weight: 900;
+}
+
+.ghu-toast.is-error > span:first-child {
+    color: var(--ghu-danger);
+}
+
+@keyframes ghu-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 760px) {
+    .ghu-privacy-note,
+    .ghu-card-heading,
+    .ghu-results-heading,
+    .ghu-danger-zone {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ghu-trust-list {
+        justify-content: flex-start;
+        margin-left: 50px;
+    }
+
+    .ghu-connection-card {
+        grid-template-columns: 1fr;
+    }
+
+    .ghu-step-badge {
+        display: none;
+    }
+
+    .ghu-connection-content {
+        padding: 22px 19px 24px;
+    }
+
+    .ghu-privacy-pill {
+        align-self: flex-start;
+    }
+
+    .ghu-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ghu-stat-card {
+        min-height: 82px;
+    }
+
+    .ghu-account-bar {
+        flex-wrap: wrap;
+    }
+
+    .ghu-rate-status {
+        order: 3;
+        width: 100%;
+        margin-left: 60px;
+        text-align: left;
+    }
+
+    .ghu-account-bar .ghu-compact-button {
+        margin-left: auto;
+    }
+
+    .ghu-results-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ghu-search-wrap {
+        width: 100%;
+    }
+
+    .ghu-selection-actions {
+        justify-content: flex-end;
+    }
+
+    .ghu-danger-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .ghu-privacy-note {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+    }
+
+    .ghu-trust-list {
+        grid-column: 1 / -1;
+        margin-left: 0;
+    }
+
+    .ghu-token-options,
+    .ghu-form-actions,
+    .ghu-dialog-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ghu-form-actions .primary-button,
+    .ghu-form-actions .secondary-button,
+    .ghu-dialog-actions .secondary-button,
+    .ghu-dialog-actions .ghu-danger-button {
+        width: 100%;
+    }
+
+    .ghu-user-row {
+        padding-inline: 14px;
+    }
+
+    .ghu-profile-link {
+        width: 32px;
+        overflow: hidden;
+        color: transparent;
+        white-space: nowrap;
+    }
+
+    .ghu-profile-link::after {
+        display: block;
+        color: var(--muted);
+        content: "↗";
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .github-unfollower-panel *,
+    .github-unfollower-panel *::before,
+    .github-unfollower-panel *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

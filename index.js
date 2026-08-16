@@ -284,6 +284,11 @@ function updatePageMetadata(tool) {
             description: "Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin, seçin ve doğrudan tarayıcınızda ZIP olarak indirin.",
             keywords: "discord emoji indir, discord sticker indir, bot token, guild json, emoji zip, animated emoji gif, lottie sticker",
         },
+        "github-unfollower": {
+            title: "GitHub Unfollower | Omni Tools",
+            description: "Sizi geri takip etmeyen GitHub hesaplarını bulun, inceleyin ve seçerek takipten çıkarın.",
+            keywords: "github unfollower, github takip etmeyenler, github takipten çıkarma, followers, following",
+        },
         nebuu: {
             description: "Telefonunu alnına koy, arkadaşlarının ipuçlarıyla Türkçe kelimeleri hareket ederek tahmin et.",
             keywords: "nebuu, alnında ne var, kelime tahmin oyunu, telefon hareket oyunu, parti oyunu, heads up türkçe",

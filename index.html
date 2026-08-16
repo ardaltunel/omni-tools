@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=3">
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=6">
     <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=3">
+    <link rel="stylesheet" href="tools/github-unfollower/style.css?v=1">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=37">
 </head>
@@ -69,6 +70,11 @@
                 </button>
                 <button class="nav-item" data-tool="github-user" data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
                     <span>GitHub User</span>
+                </button>
+                <button class="nav-item" data-tool="github-unfollower"
+                    data-search="github unfollower takip etmeyenler takipten çıkar followers following"
+                    data-description="Seni takip etmeyen GitHub hesaplarını bul ve seçerek takipten çıkar." type="button">
+                    <span>GitHub Unfollower</span>
                 </button>
                 <button class="nav-item" data-tool="kullanici-adi-arastirma"
                     data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
@@ -1164,6 +1170,185 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section id="github-unfollower" class="tool-panel github-unfollower-panel" aria-labelledby="github-unfollower-title">
+                <div class="panel-heading github-unfollower-heading">
+                    <div>
+                        <h2 id="github-unfollower-title">GitHub Unfollower</h2>
+                        <p>Seni geri takip etmeyen hesapları bul, listeyi incele ve yalnızca seçtiklerini takipten çıkar.</p>
+                    </div>
+                </div>
+
+                <div class="ghu-privacy-note" role="note">
+                    <span class="ghu-privacy-mark" aria-hidden="true">✓</span>
+                    <div>
+                        <strong>Veriler tarayıcında kalır</strong>
+                        <p>Token yalnızca doğrudan GitHub API'ye gönderilir; takip listeleri bir sunucuya yüklenmez.</p>
+                    </div>
+                    <div class="ghu-trust-list" aria-label="Gizlilik özellikleri">
+                        <span>Sunucu yok</span>
+                        <span>Veritabanı yok</span>
+                        <span>Manuel onay</span>
+                    </div>
+                </div>
+
+                <div class="ghu-card ghu-connection-card">
+                    <div class="ghu-step-badge" aria-hidden="true">01</div>
+                    <div class="ghu-connection-content">
+                        <div class="ghu-card-heading">
+                            <div>
+                                <span class="ghu-kicker">GitHub bağlantısı</span>
+                                <h3>Hesabını analiz et</h3>
+                                <p>Token dağıtım dosyalarına eklenmez ve kalıcı olarak saklanmaz.</p>
+                            </div>
+                            <span class="ghu-privacy-pill"><span aria-hidden="true">●</span> Yerel işlem</span>
+                        </div>
+
+                        <form id="github-unfollower-token-form" class="ghu-token-form" novalidate>
+                            <label for="github-unfollower-token">Kişisel erişim tokeni</label>
+                            <div class="ghu-token-input-wrap">
+                                <input id="github-unfollower-token" name="token" type="password" inputmode="text"
+                                    autocomplete="new-password" spellcheck="false" placeholder="github_pat_••••••••••••••••"
+                                    aria-describedby="github-unfollower-token-help github-unfollower-token-error" required>
+                                <button id="github-unfollower-toggle-token" class="ghu-input-action" type="button" aria-label="Tokeni göster">Göster</button>
+                            </div>
+                            <p id="github-unfollower-token-error" class="ghu-field-error" role="alert" hidden></p>
+
+                            <div class="ghu-token-options">
+                                <label class="ghu-check-option">
+                                    <input id="github-unfollower-remember-token" type="checkbox">
+                                    <span aria-hidden="true"></span>
+                                    Tokeni yalnızca bu tarayıcı sekmesinde tut
+                                </label>
+                                <button id="github-unfollower-clear-token" class="ghu-text-button" type="button">Tokeni temizle</button>
+                            </div>
+
+                            <p id="github-unfollower-token-help" class="ghu-field-help">
+                                Fine-grained token için <strong>Followers: Read and write</strong>, klasik token için
+                                <strong>user:follow</strong> izni gerekir.
+                                <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">Token oluştur ↗</a>
+                            </p>
+
+                            <div class="ghu-form-actions">
+                                <button id="github-unfollower-analyze-button" class="primary-button" type="submit">Hesabı analiz et</button>
+                                <button id="github-unfollower-cancel-button" class="secondary-button" type="button" hidden>İptal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <section id="github-unfollower-activity-panel" class="ghu-activity-panel" aria-live="polite" hidden>
+                    <div class="ghu-activity-heading">
+                        <div class="ghu-activity-status">
+                            <span class="ghu-spinner" aria-hidden="true"></span>
+                            <div>
+                                <strong id="github-unfollower-activity-title">GitHub'a bağlanılıyor</strong>
+                                <span id="github-unfollower-activity-detail">Token ve hesap kontrol ediliyor…</span>
+                            </div>
+                        </div>
+                        <span id="github-unfollower-activity-percent" class="ghu-activity-percent">0%</span>
+                    </div>
+                    <progress id="github-unfollower-progress-track" class="ghu-progress-track" aria-label="İşlem ilerlemesi" max="100" value="0">0%</progress>
+                </section>
+
+                <section id="github-unfollower-results" class="ghu-results" aria-labelledby="github-unfollower-results-title" hidden>
+                    <div class="ghu-account-bar">
+                        <div class="ghu-account-identity">
+                            <img id="github-unfollower-account-avatar" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" width="48" height="48">
+                            <div>
+                                <span class="ghu-account-label">Bağlı hesap</span>
+                                <a id="github-unfollower-account-login" href="#" target="_blank" rel="noreferrer">@kullanici</a>
+                            </div>
+                        </div>
+                        <div class="ghu-rate-status">
+                            <span>API istekleri</span>
+                            <strong id="github-unfollower-rate-limit">—</strong>
+                        </div>
+                        <button id="github-unfollower-disconnect-button" class="secondary-button ghu-compact-button" type="button">Bağlantıyı kes</button>
+                    </div>
+
+                    <div class="ghu-stats-grid">
+                        <article class="ghu-stat-card">
+                            <span class="ghu-stat-icon is-blue" aria-hidden="true">↙</span>
+                            <div><span>Takipçiler</span><strong id="github-unfollower-followers-count">0</strong></div>
+                        </article>
+                        <article class="ghu-stat-card">
+                            <span class="ghu-stat-icon is-purple" aria-hidden="true">↗</span>
+                            <div><span>Takip edilenler</span><strong id="github-unfollower-following-count">0</strong></div>
+                        </article>
+                        <article class="ghu-stat-card is-accent">
+                            <span class="ghu-stat-icon is-accent" aria-hidden="true">⌁</span>
+                            <div><span>Geri takip etmiyor</span><strong id="github-unfollower-non-followers-count">0</strong></div>
+                        </article>
+                    </div>
+
+                    <div class="ghu-results-card">
+                        <div class="ghu-results-heading">
+                            <div>
+                                <span class="ghu-kicker">İnceleme</span>
+                                <h3 id="github-unfollower-results-title">Geri takip etmeyen hesaplar</h3>
+                                <p id="github-unfollower-results-description">Tespit edilen hesaplar varsayılan olarak seçilidir. Devam etmeden önce listeyi incele.</p>
+                            </div>
+                            <span id="github-unfollower-selected-badge" class="ghu-selected-badge">0 seçildi</span>
+                        </div>
+
+                        <div class="ghu-results-toolbar">
+                            <div class="ghu-search-wrap">
+                                <span aria-hidden="true">⌕</span>
+                                <label class="sr-only" for="github-unfollower-user-search">Kullanıcı ara</label>
+                                <input id="github-unfollower-user-search" type="search" placeholder="Kullanıcı adına göre ara…" autocomplete="off">
+                            </div>
+                            <div class="ghu-selection-actions" role="group" aria-label="Seçim denetimleri">
+                                <button id="github-unfollower-select-all" class="ghu-text-button" type="button">Tümünü seç</button>
+                                <span aria-hidden="true"></span>
+                                <button id="github-unfollower-clear-selection" class="ghu-text-button" type="button">Temizle</button>
+                            </div>
+                        </div>
+
+                        <ul id="github-unfollower-user-list" class="ghu-user-list"></ul>
+
+                        <div id="github-unfollower-empty-results" class="ghu-empty-results" hidden>
+                            <span aria-hidden="true">✓</span>
+                            <h3 id="github-unfollower-empty-results-title">Herkes seni geri takip ediyor</h3>
+                            <p id="github-unfollower-empty-results-copy">İncelenecek hesap bulunmuyor.</p>
+                        </div>
+
+                        <div id="github-unfollower-pagination" class="ghu-pagination" hidden>
+                            <button id="github-unfollower-previous-page" class="ghu-page-button" type="button" aria-label="Önceki sayfa">←</button>
+                            <span id="github-unfollower-page-label">Sayfa 1 / 1</span>
+                            <button id="github-unfollower-next-page" class="ghu-page-button" type="button" aria-label="Sonraki sayfa">→</button>
+                        </div>
+                    </div>
+
+                    <div id="github-unfollower-danger-zone" class="ghu-danger-zone">
+                        <div>
+                            <span class="ghu-danger-label">Hesabı değiştiren işlem</span>
+                            <h3>Seçilen hesapları takipten çıkar</h3>
+                            <p>İstekler GitHub'ın önerdiği aralıkla tek tek gönderilir. İşlemi istediğin zaman iptal edebilirsin; tamamlanan işlemler geri alınmaz.</p>
+                        </div>
+                        <button id="github-unfollower-unfollow-button" class="ghu-danger-button" type="button" disabled>Seçilenleri takipten çıkar</button>
+                    </div>
+                </section>
+
+                <dialog id="github-unfollower-confirm-dialog" class="ghu-confirm-dialog" aria-labelledby="github-unfollower-confirm-title">
+                    <form method="dialog">
+                        <div class="ghu-dialog-icon" aria-hidden="true">!</div>
+                        <h2 id="github-unfollower-confirm-title">Takipten çıkarma işlemini onayla</h2>
+                        <p><strong id="github-unfollower-confirm-count">0 hesabı</strong> takipten çıkarmak üzeresin. Bu işlem GitHub hesabını hemen değiştirir.</p>
+                        <label for="github-unfollower-confirm-input">Devam etmek için <strong>TAKİPTEN ÇIKAR</strong> yaz</label>
+                        <input id="github-unfollower-confirm-input" type="text" autocomplete="off" spellcheck="false">
+                        <div class="ghu-dialog-actions">
+                            <button class="secondary-button" type="submit" value="cancel">Geri dön</button>
+                            <button id="github-unfollower-confirm-unfollow" class="ghu-danger-button" type="submit" value="confirm" disabled>Takipten çıkarmayı onayla</button>
+                        </div>
+                    </form>
+                </dialog>
+
+                <div id="github-unfollower-toast" class="ghu-toast" role="status" aria-live="polite" hidden>
+                    <span id="github-unfollower-toast-icon" aria-hidden="true">✓</span>
+                    <span id="github-unfollower-toast-message"></span>
                 </div>
             </section>
 
@@ -2812,7 +2997,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=40"></script>
+    <script src="index.js?v=41"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
@@ -2822,6 +3007,7 @@
     <script src="tools/osint-arastirma/app.js?v=4"></script>
     <script src="tools/discord-emoji-indir/core.js?v=6"></script>
     <script src="tools/discord-emoji-indir/app.js?v=3"></script>
+    <script src="tools/github-unfollower/assets/js/app.mjs?v=1" type="module"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=4"></script>
     <script src="tools/nebuu/app.js?v=4"></script>
