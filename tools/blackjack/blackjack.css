@@ -979,6 +979,45 @@
     .blackjack-bottom-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 }
 
+/* Wide screens can still be vertically cramped. Keep the hands in separate
+   lanes by sizing the cards and their offsets from the viewport height too. */
+@media (min-width: 1181px) and (max-height: 905px) {
+    .blackjack-panel {
+        --blackjack-card-base-width: clamp(60px, calc(13dvh - 25px), 92px);
+    }
+
+    .blackjack-dealer-area {
+        top: clamp(56px, 8dvh, 72px);
+    }
+
+    .blackjack-player-area {
+        bottom: clamp(170px, 21dvh, 185px);
+    }
+
+    .blackjack-hand-heading {
+        min-height: 20px;
+        margin-bottom: 4px;
+    }
+
+    .blackjack-player-hand {
+        padding: 4px 7px 6px;
+    }
+
+    .blackjack-player-hand-meta {
+        min-height: 16px;
+        margin-bottom: 1px;
+    }
+
+    .blackjack-status {
+        margin-bottom: 4px;
+        padding: 3px 10px 4px;
+    }
+
+    .blackjack-player-hands:has(.blackjack-player-hand:nth-child(2)) {
+        --blackjack-player-card-width: min(var(--blackjack-card-base-width), clamp(52px, calc(11dvh - 18px), 79px));
+    }
+}
+
 @media (max-width: 1180px) {
     .blackjack-panel { min-height: 0; }
     .blackjack-app { padding: 0; }

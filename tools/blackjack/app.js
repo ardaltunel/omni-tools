@@ -37,7 +37,7 @@
     };
 
     const saved = loadSavedState();
-    const game = engine.createState({
+    const game = engine.restoreState(saved.game) || engine.createState({
         balance: saved.balance,
         lastBet: saved.lastBet,
         stats: saved.stats,
@@ -48,7 +48,14 @@
     let autoNextRoundTimer = 0;
     let shoeDealTimer = 0;
     let balanceDeltaTimer = 0;
-    let roundStartingBalance = 0;
+    let roundStartingBalance = getRoundStartingBalance();
+
+    function getRoundStartingBalance() {
+        if ([engine.PHASES.BETTING, engine.PHASES.ROUND_OVER].includes(game.phase)) return game.balance;
+        const handBets = game.playerHands.reduce((total, hand) => total + hand.bet, 0);
+        const insurancePayout = game.round?.insuranceWon ? game.insuranceBet * 3 : 0;
+        return game.balance + handBets + game.insuranceBet - insurancePayout;
+    }
 
     function createViewState() {
         return {
@@ -67,19 +74,22 @@
                 lastBet: Number.isInteger(value.lastBet) && value.lastBet >= 0 ? value.lastBet : 0,
                 stats: value.stats && typeof value.stats === "object" ? value.stats : {},
                 soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : true,
+                game: value.game && typeof value.game === "object" ? value.game : null,
             };
         } catch {
-            return { balance: engine.STARTING_BALANCE, lastBet: 0, stats: {}, soundEnabled: true };
+            return { balance: engine.STARTING_BALANCE, lastBet: 0, stats: {}, soundEnabled: true, game: null };
         }
     }
 
     function saveState() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                version: 2,
                 balance: game.balance,
                 lastBet: game.lastBet,
                 stats: game.stats,
                 soundEnabled,
+                game: engine.serializeState(game),
             }));
         } catch {
             // Private mode may block storage. The game remains fully playable.
@@ -451,6 +461,7 @@
         render();
         await revealDealerCard();
         const dealerCards = engine.dealerPlay(game);
+        saveState();
         view.dealerVisible = Math.min(2, game.dealerHand.length);
         render();
         for (const dealtCard of dealerCards) {
@@ -485,6 +496,7 @@
             busy = false;
             return;
         }
+        saveState();
         view = createViewState();
         view.dealerVisible = 2;
         view.playerVisible = [2];
@@ -501,6 +513,7 @@
         await delay(850);
         view.initialDeals.clear();
         const decision = engine.afterInitialDeal(game);
+        saveState();
         if (decision.type === "player-turn") {
             busy = false;
             render();
@@ -521,6 +534,7 @@
             render();
             return;
         }
+        saveState();
         if (accept) playSound("chip");
         if (decision.type === "player-turn") {
             busy = false;
@@ -540,6 +554,7 @@
             busy = false;
             return;
         }
+        saveState();
         view.playerVisible[activeIndex] = game.playerHands[activeIndex].cards.length;
         view.lastDealtCardId = result.card.id;
         render();
@@ -561,6 +576,7 @@
             busy = false;
             return;
         }
+        saveState();
         render();
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
         else {
@@ -578,6 +594,7 @@
             busy = false;
             return;
         }
+        saveState();
         view.playerVisible[activeIndex] = game.playerHands[activeIndex].cards.length;
         view.lastDealtCardId = result.card.id;
         render();
@@ -599,6 +616,7 @@
             busy = false;
             return;
         }
+        saveState();
         view.playerVisible = [2, 1];
         view.lastDealtCardId = result.cards[0].id;
         render();
@@ -637,6 +655,39 @@
         view = createViewState();
         saveState();
         render();
+    }
+
+    async function resumeSavedGame() {
+        if (game.phase === engine.PHASES.DEALING) {
+            busy = true;
+            view.dealerVisible = game.dealerHand.length;
+            view.playerVisible = game.playerHands.map((hand) => hand.cards.length);
+            const decision = engine.afterInitialDeal(game);
+            saveState();
+            if (["player-turn", "insurance"].includes(decision.type)) {
+                busy = false;
+                render();
+                return;
+            }
+            await resolveNaturalRound();
+            return;
+        }
+
+        if (game.phase === engine.PHASES.DEALER_TURN) {
+            await runDealerTurn();
+            return;
+        }
+
+        if (game.phase === engine.PHASES.RESOLVING) {
+            busy = true;
+            await completeRound();
+            busy = false;
+            render();
+            scheduleAutoNextRound();
+            return;
+        }
+
+        if (game.phase === engine.PHASES.ROUND_OVER) scheduleAutoNextRound();
     }
 
     function handleChipClick(event) {
@@ -686,6 +737,7 @@
         elements.insuranceTake.addEventListener("click", () => decideInsurance(true));
         elements.insuranceDecline.addEventListener("click", () => decideInsurance(false));
         window.addEventListener("resize", positionDealButton, { passive: true });
+        window.addEventListener("pagehide", saveState);
         elements.sound.addEventListener("click", () => {
             soundEnabled = !soundEnabled;
             saveState();
@@ -720,4 +772,5 @@
 
     bindEvents();
     render();
+    resumeSavedGame();
 })();

@@ -160,6 +160,123 @@
         };
     }
 
+    function serializeState(state) {
+        if (!state || typeof state !== "object") return null;
+        const cloneCards = (cards) => Array.isArray(cards) ? cards.map((card) => ({ ...card })) : [];
+        return {
+            version: 1,
+            deckCount: state.deckCount,
+            reshuffleAt: state.reshuffleAt,
+            dealerHitsSoft17: state.dealerHitsSoft17,
+            shoe: cloneCards(state.shoe),
+            balance: state.balance,
+            currentBet: state.currentBet,
+            lastBet: state.lastBet,
+            dealerHand: cloneCards(state.dealerHand),
+            dealerRevealed: state.dealerRevealed,
+            playerHands: Array.isArray(state.playerHands) ? state.playerHands.map((hand) => ({
+                ...hand,
+                cards: cloneCards(hand.cards),
+            })) : [],
+            activeHandIndex: state.activeHandIndex,
+            insuranceBet: state.insuranceBet,
+            phase: state.phase,
+            message: state.message,
+            round: state.round && typeof state.round === "object" ? { ...state.round } : null,
+            stats: state.stats && typeof state.stats === "object" ? { ...state.stats } : {},
+        };
+    }
+
+    function restoreState(snapshot) {
+        if (!snapshot || typeof snapshot !== "object" || snapshot.version !== 1) return null;
+
+        const restoreCard = (value) => {
+            if (!value || typeof value !== "object" || typeof value.id !== "string" || !value.id) return null;
+            const suit = SUITS.find((candidate) => candidate.id === value.suit);
+            if (!suit || !RANKS.includes(value.rank)) return null;
+            return {
+                id: value.id,
+                rank: value.rank,
+                suit: suit.id,
+                suitSymbol: suit.symbol,
+                suitName: suit.name,
+                color: suit.color,
+            };
+        };
+        const restoreCards = (values) => {
+            if (!Array.isArray(values)) return null;
+            const cards = values.map(restoreCard);
+            return cards.every(Boolean) ? cards : null;
+        };
+        const nonNegativeInteger = (value) => Number.isInteger(value) && value >= 0;
+        const validStatuses = new Set(["playing", "standing", "bust"]);
+        const validOutcomes = new Set([null, "blackjack", "win", "lose", "push", "bust", "dealer-bust"]);
+        const restoreHand = (value) => {
+            if (!value || typeof value !== "object" || typeof value.id !== "string" || !value.id) return null;
+            const cards = restoreCards(value.cards);
+            const outcome = value.outcome ?? null;
+            if (!cards || !cards.length || !nonNegativeInteger(value.bet) || !value.bet
+                || !validStatuses.has(value.status) || !validOutcomes.has(outcome)
+                || !nonNegativeInteger(value.payout || 0)) return null;
+            return {
+                id: value.id,
+                cards,
+                bet: value.bet,
+                status: value.status,
+                isSplit: Boolean(value.isSplit),
+                doubled: Boolean(value.doubled),
+                naturalBlackjack: Boolean(value.naturalBlackjack),
+                outcome,
+                payout: value.payout || 0,
+            };
+        };
+
+        const shoe = restoreCards(snapshot.shoe);
+        const dealerHand = restoreCards(snapshot.dealerHand);
+        const playerHands = Array.isArray(snapshot.playerHands) ? snapshot.playerHands.map(restoreHand) : null;
+        const phase = Object.values(PHASES).includes(snapshot.phase) ? snapshot.phase : null;
+        const deckCount = Math.max(1, Math.floor(Number(snapshot.deckCount) || DEFAULT_DECK_COUNT));
+        const balance = snapshot.balance;
+        const currentBet = snapshot.currentBet;
+        const lastBet = snapshot.lastBet;
+        const insuranceBet = snapshot.insuranceBet;
+        const activeHandIndex = snapshot.activeHandIndex;
+        if (!shoe || !dealerHand || !playerHands || playerHands.some((hand) => !hand) || !phase
+            || !nonNegativeInteger(balance) || !nonNegativeInteger(currentBet)
+            || !nonNegativeInteger(lastBet) || !nonNegativeInteger(insuranceBet)
+            || !nonNegativeInteger(activeHandIndex)) return null;
+
+        const isBetting = phase === PHASES.BETTING;
+        const round = snapshot.round && typeof snapshot.round === "object"
+            ? { ...snapshot.round }
+            : null;
+        if (isBetting) {
+            if (dealerHand.length || playerHands.length || round || currentBet > balance || activeHandIndex !== 0) return null;
+        } else if (dealerHand.length < 2 || !playerHands.length || !currentBet || !round
+            || activeHandIndex >= playerHands.length) {
+            return null;
+        }
+
+        return {
+            deckCount,
+            reshuffleAt: Math.min(0.9, Math.max(0.05, Number(snapshot.reshuffleAt) || DEFAULT_RESHUFFLE_AT)),
+            dealerHitsSoft17: Boolean(snapshot.dealerHitsSoft17),
+            shoe,
+            balance,
+            currentBet,
+            lastBet,
+            dealerHand,
+            dealerRevealed: Boolean(snapshot.dealerRevealed),
+            playerHands,
+            activeHandIndex,
+            insuranceBet,
+            phase,
+            message: typeof snapshot.message === "string" ? snapshot.message : "Oyun devam ediyor.",
+            round,
+            stats: createStats(snapshot.stats, balance),
+        };
+    }
+
     function clearBet(state) {
         if (!state || state.phase !== PHASES.BETTING) return false;
         state.currentBet = 0;
@@ -561,8 +678,10 @@
         prepareNextRound,
         refreshBalance,
         repeatBet,
+        restoreState,
         resolveHand,
         resolveRound,
+        serializeState,
         setBet,
         shuffle,
         split,

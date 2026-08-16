@@ -144,4 +144,22 @@ const lowShoe = engine.createState({ balance: 1000, shoe: [card("2"), card("3"),
 engine.setBet(lowShoe, 20);
 assert.equal(engine.beginRound(lowShoe).reshuffled, true);
 
-console.log("Blackjack motor testleri başarılı: shoe, As hesabı, doğal Blackjack, ödeme, split, insurance, double, bakiye sınırları, krupiye kuralları ve round çözümü.");
+const resumable = engine.createState({
+    balance: 1000,
+    deckCount: 1,
+    reshuffleAt: 0.05,
+    shoe: [card("4"), card("K"), card("6"), card("9"), card("7")],
+});
+engine.setBet(resumable, 200);
+engine.beginRound(resumable);
+engine.afterInitialDeal(resumable);
+const snapshot = engine.serializeState(resumable);
+const restored = engine.restoreState(snapshot);
+assert.deepEqual(restored, resumable);
+assert.notEqual(restored, resumable);
+assert.equal(engine.hit(restored).card.rank, "4");
+assert.equal(resumable.playerHands[0].cards.length, 2);
+assert.equal(snapshot.shoe.length, 1);
+assert.equal(engine.restoreState({ version: 1, phase: engine.PHASES.PLAYER_TURN }), null);
+
+console.log("Blackjack motor testleri başarılı: shoe, As hesabı, doğal Blackjack, ödeme, split, insurance, double, bakiye sınırları, round çözümü ve tur geri yükleme.");
