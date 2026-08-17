@@ -12,7 +12,6 @@
 }
 
 .discord-emoji-heading-copy,
-.discord-emoji-security-note,
 .discord-emoji-section-heading,
 .discord-emoji-browser-toolbar,
 .discord-emoji-assets-heading,
@@ -34,39 +33,6 @@
 
 .discord-emoji-heading-copy > div {
     min-width: 0;
-}
-
-.discord-emoji-security-note {
-    gap: 13px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(24, 169, 153, 0.34);
-    border-radius: 8px;
-    background: rgba(24, 169, 153, 0.07);
-    padding: 14px 16px;
-}
-
-.discord-emoji-security-mark {
-    display: grid;
-    flex: 0 0 34px;
-    width: 34px;
-    height: 34px;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #06110f;
-    font-weight: 900;
-}
-
-.discord-emoji-security-note strong,
-.discord-emoji-security-note p {
-    display: block;
-}
-
-.discord-emoji-security-note p {
-    margin: 3px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.45;
 }
 
 .discord-emoji-input-card,
@@ -936,10 +902,6 @@
 
 @media (max-width: 460px) {
     .discord-emoji-heading-copy {
-        align-items: flex-start;
-    }
-
-    .discord-emoji-security-note {
         align-items: flex-start;
     }
 

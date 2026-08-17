@@ -289,6 +289,11 @@ function updatePageMetadata(tool) {
             description: "Sizi geri takip etmeyen GitHub hesaplarını bulun, inceleyin ve seçerek takipten çıkarın.",
             keywords: "github unfollower, github takip etmeyenler, github takipten çıkarma, followers, following",
         },
+        "instagram-unfollower": {
+            title: "Instagram Unfollower | Omni Tools",
+            description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",
+            keywords: "instagram unfollower, instagram takip etmeyenler, instagram geri takip, takipten çıkarma",
+        },
         nebuu: {
             description: "Telefonunu alnına koy, arkadaşlarının ipuçlarıyla Türkçe kelimeleri hareket ederek tahmin et.",
             keywords: "nebuu, alnında ne var, kelime tahmin oyunu, telefon hareket oyunu, parti oyunu, heads up türkçe",

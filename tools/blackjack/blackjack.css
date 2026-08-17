@@ -92,7 +92,6 @@
     gap: 10px;
 }
 
-.blackjack-virtual-note,
 .blackjack-shortcuts,
 .blackjack-bet-note {
     border: 1px solid rgba(232, 188, 98, 0.24);
@@ -121,12 +120,6 @@
     border-color: var(--blackjack-gold);
     background: rgba(232, 188, 98, 0.18);
     transform: translateY(-1px);
-}
-
-.blackjack-header .blackjack-virtual-note {
-    border-color: var(--line);
-    background: var(--panel-2);
-    color: var(--muted);
 }
 
 .blackjack-header .blackjack-icon-button {
@@ -1110,7 +1103,6 @@
     .blackjack-header { margin: 1px 2px 13px; }
     .blackjack-heading h2 { font-size: 28px; }
     .blackjack-heading p { display: none; }
-    .blackjack-virtual-note { display: none; }
     .blackjack-table-shell { border-radius: 20px; padding: 6px; }
     .blackjack-table-rim { border-radius: 13px; padding: 3px; }
     .blackjack-table {

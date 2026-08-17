@@ -1,0 +1,301 @@
+.instagram-unfollower-panel {
+    --iuf-accent: var(--accent);
+    --iuf-accent-soft: rgba(24, 169, 153, 0.1);
+    --iuf-warning: #e9b658;
+}
+
+.instagram-unfollower-panel [hidden] {
+    display: none !important;
+}
+
+.instagram-unfollower-heading {
+    align-items: flex-start;
+}
+
+.iuf-layout {
+    display: grid;
+    width: min(100%, 1_080px);
+    grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.8fr);
+    gap: 16px;
+}
+
+.iuf-source-card,
+.iuf-guide-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.iuf-source-card {
+    padding: clamp(22px, 4vw, 34px);
+}
+
+.iuf-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.iuf-source-icon {
+    display: grid;
+    width: 56px;
+    height: 56px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(24, 169, 153, 0.38);
+    border-radius: 12px;
+    background: var(--iuf-accent-soft);
+    color: var(--iuf-accent);
+    font-size: 32px;
+    line-height: 1;
+}
+
+.iuf-kicker {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--iuf-accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.iuf-card-heading h3,
+.iuf-guide-card h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.iuf-card-heading p,
+.iuf-guide-note {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.iuf-source-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 25px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--panel-2);
+    padding: 13px 14px;
+}
+
+.iuf-state {
+    display: inline-flex;
+    min-height: 24px;
+    flex: 0 0 auto;
+    align-items: center;
+    border: 1px solid rgba(24, 169, 153, 0.3);
+    border-radius: 999px;
+    background: var(--iuf-accent-soft);
+    color: var(--accent-strong);
+    padding: 2px 9px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.iuf-state[data-state="checking"] {
+    color: var(--iuf-warning);
+}
+
+.iuf-state[data-state="cached"] {
+    border-color: rgba(118, 169, 255, 0.3);
+    background: rgba(118, 169, 255, 0.1);
+    color: #9bbfff;
+}
+
+.iuf-state[data-state="error"] {
+    border-color: rgba(255, 95, 109, 0.36);
+    background: rgba(255, 95, 109, 0.1);
+    color: #ff9da8;
+}
+
+.iuf-source-status p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.iuf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    margin-top: 18px;
+}
+
+.iuf-actions .primary-button {
+    background: var(--iuf-accent);
+}
+
+.iuf-actions .primary-button:hover:not(:disabled) {
+    background: var(--accent-strong);
+}
+
+.iuf-instagram-link,
+.iuf-refresh-button {
+    min-height: var(--control-height);
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.iuf-instagram-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iuf-refresh-button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 0 6px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.iuf-refresh-button:hover:not(:disabled) {
+    color: var(--iuf-accent);
+}
+
+.iuf-refresh-button:disabled,
+.iuf-actions .primary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.iuf-message,
+.iuf-error {
+    margin: 15px 0 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.iuf-message {
+    border: 1px solid rgba(24, 169, 153, 0.25);
+    background: var(--iuf-accent-soft);
+    color: var(--accent-strong);
+}
+
+.iuf-error {
+    border: 1px solid rgba(255, 95, 109, 0.32);
+    background: rgba(255, 95, 109, 0.08);
+    color: #ffadb5;
+}
+
+.iuf-guide-card {
+    padding: 26px;
+}
+
+.iuf-guide-card h3 {
+    margin-bottom: 20px;
+}
+
+.iuf-steps {
+    display: grid;
+    gap: 17px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.iuf-steps li {
+    display: grid;
+    grid-template-columns: 25px minmax(0, 1fr);
+    gap: 11px;
+}
+
+.iuf-steps li > span {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    border: 1px solid rgba(24, 169, 153, 0.35);
+    border-radius: 50%;
+    background: var(--iuf-accent-soft);
+    color: var(--accent-strong);
+    font-family: Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.iuf-steps p {
+    margin: 1px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.iuf-steps strong {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.iuf-steps kbd {
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    background: var(--panel-2);
+    color: var(--text);
+    padding: 1px 4px;
+    font: inherit;
+    font-size: 10px;
+}
+
+.iuf-guide-note {
+    margin-top: 22px;
+    border-top: 1px solid var(--line);
+    padding-top: 17px;
+}
+
+@media (max-width: 820px) {
+    .iuf-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .iuf-source-card,
+    .iuf-guide-card {
+        padding: 20px;
+    }
+
+    .iuf-card-heading {
+        gap: 12px;
+    }
+
+    .iuf-source-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 21px;
+    }
+
+    .iuf-source-status {
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .iuf-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .iuf-actions .primary-button,
+    .iuf-instagram-link {
+        width: 100%;
+    }
+
+    .iuf-refresh-button {
+        min-height: 36px;
+    }
+}

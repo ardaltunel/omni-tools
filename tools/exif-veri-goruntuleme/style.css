@@ -11,41 +11,6 @@
     align-items: flex-start;
 }
 
-.exif-viewer-privacy {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(24, 169, 153, 0.36);
-    border-radius: 8px;
-    background: rgba(24, 169, 153, 0.08);
-    padding: 14px 16px;
-}
-
-.exif-viewer-privacy-mark {
-    display: grid;
-    flex: 0 0 36px;
-    width: 36px;
-    height: 36px;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #06110f;
-    font-weight: 900;
-}
-
-.exif-viewer-privacy strong,
-.exif-viewer-privacy p {
-    display: block;
-}
-
-.exif-viewer-privacy p {
-    margin: 3px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.45;
-}
-
 .exif-viewer-upload,
 .exif-viewer-status,
 .exif-viewer-overview,
@@ -874,10 +839,6 @@
 }
 
 @media (max-width: 620px) {
-    .exif-viewer-privacy {
-        align-items: flex-start;
-    }
-
     .exif-viewer-drop-zone {
         min-height: 320px;
         padding: 26px 14px;

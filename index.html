@@ -21,12 +21,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=83">
-    <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=87">
+    <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=3">
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=3">
-    <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=6">
-    <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=3">
-    <link rel="stylesheet" href="tools/github-unfollower/style.css?v=1">
+    <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=7">
+    <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=4">
+    <link rel="stylesheet" href="tools/github-unfollower/style.css?v=2">
+    <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=5">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=37">
 </head>
@@ -75,6 +76,11 @@
                     data-search="github unfollower takip etmeyenler takipten çıkar followers following"
                     data-description="Seni takip etmeyen GitHub hesaplarını bul ve seçerek takipten çıkar." type="button">
                     <span>GitHub Unfollower</span>
+                </button>
+                <button class="nav-item" data-tool="instagram-unfollower"
+                    data-search="instagram unfollower takip etmeyenler geri takip takipten çıkar instagram takipçi"
+                    data-description="Instagram'da seni geri takip etmeyen hesapları güncel betikle incele." type="button">
+                    <span>Instagram Unfollower</span>
                 </button>
                 <button class="nav-item" data-tool="kullanici-adi-arastirma"
                     data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
@@ -228,7 +234,6 @@
                             <p>Altı destelik shoe ile klasik 21 masası.</p>
                         </div>
                         <div class="blackjack-header-actions">
-                            <span class="blackjack-virtual-note">Yalnızca sanal kredi</span>
                             <button id="blackjack-sound" class="blackjack-icon-button" type="button"
                                 aria-label="Oyun seslerini kapat" aria-pressed="true" title="Ses">
                                 <span aria-hidden="true">🔊</span>
@@ -1181,19 +1186,6 @@
                     </div>
                 </div>
 
-                <div class="ghu-privacy-note" role="note">
-                    <span class="ghu-privacy-mark" aria-hidden="true">✓</span>
-                    <div>
-                        <strong>Veriler tarayıcında kalır</strong>
-                        <p>Token yalnızca doğrudan GitHub API'ye gönderilir; takip listeleri bir sunucuya yüklenmez.</p>
-                    </div>
-                    <div class="ghu-trust-list" aria-label="Gizlilik özellikleri">
-                        <span>Sunucu yok</span>
-                        <span>Veritabanı yok</span>
-                        <span>Manuel onay</span>
-                    </div>
-                </div>
-
                 <div class="ghu-card ghu-connection-card">
                     <div class="ghu-step-badge" aria-hidden="true">01</div>
                     <div class="ghu-connection-content">
@@ -1349,6 +1341,54 @@
                 <div id="github-unfollower-toast" class="ghu-toast" role="status" aria-live="polite" hidden>
                     <span id="github-unfollower-toast-icon" aria-hidden="true">✓</span>
                     <span id="github-unfollower-toast-message"></span>
+                </div>
+            </section>
+
+            <section id="instagram-unfollower" class="tool-panel instagram-unfollower-panel" aria-labelledby="instagram-unfollower-title">
+                <div class="panel-heading instagram-unfollower-heading">
+                    <div>
+                        <h2 id="instagram-unfollower-title">Instagram Unfollower</h2>
+                        <p>Seni geri takip etmeyen hesapları, Instagram oturumunda çalışan güncel betikle incele.</p>
+                    </div>
+                </div>
+
+                <div class="iuf-layout">
+                    <section class="iuf-source-card" aria-labelledby="instagram-unfollower-source-title">
+                        <div class="iuf-card-heading">
+                            <div class="iuf-source-icon" aria-hidden="true">◎</div>
+                            <div>
+                                <span class="iuf-kicker">Güncel kaynak</span>
+                                <h3 id="instagram-unfollower-source-title">Tarama betiğini hazırla</h3>
+                                <p>Betik yalnızca GitHub kaynağından alınır. Omni Tools, Instagram hesabına bağlanmaz ve betiği bu sayfada çalıştırmaz.</p>
+                            </div>
+                        </div>
+
+                        <div class="iuf-source-status" aria-live="polite">
+                            <span id="instagram-unfollower-source-state" class="iuf-state" data-state="idle">Kontrol bekleniyor</span>
+                            <p id="instagram-unfollower-source-meta">Uygulama açıldığında güncel sürüm denetlenir; kod hazır değilse butona basınca hazırlanır.</p>
+                        </div>
+
+                        <div class="iuf-actions">
+                            <button id="instagram-unfollower-copy-button" class="primary-button" type="button">Güncel kodu kopyala</button>
+                            <a id="instagram-unfollower-open-instagram-button" class="secondary-button iuf-instagram-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram'ı aç ↗</a>
+                            <button id="instagram-unfollower-refresh-button" class="iuf-refresh-button" type="button">Güncellemeleri denetle</button>
+                        </div>
+
+                        <p id="instagram-unfollower-message" class="iuf-message" role="status" hidden></p>
+                        <p id="instagram-unfollower-error" class="iuf-error" role="alert" hidden></p>
+
+                    </section>
+
+                    <aside class="iuf-guide-card" aria-labelledby="instagram-unfollower-guide-title">
+                        <span class="iuf-kicker">Nasıl kullanılır</span>
+                        <h3 id="instagram-unfollower-guide-title">Üç adımda çalıştır</h3>
+                        <ol class="iuf-steps">
+                            <li><span>1</span><p><strong>Güncel kodu kopyala</strong><br>Kaynak sürümü 24 saatte bir denetlenir.</p></li>
+                            <li><span>2</span><p><strong>Instagram'ı aç</strong><br>Açılan sekmede hesabınla giriş yapmış ol.</p></li>
+                            <li><span>3</span><p><strong>Konsola yapıştır ve çalıştır</strong><br><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd> ile konsolu aç, kodu yapıştır ve Enter'a bas.</p></li>
+                        </ol>
+                        <p class="iuf-guide-note">Tarama ve takipten çıkarma işlemleri Instagram sekmesinde gerçekleşir. Sonuç listesini kontrol etmeden takipten çıkarma işlemini onaylama.</p>
+                    </aside>
                 </div>
             </section>
 
@@ -1544,11 +1584,6 @@
                     </div>
                 </header>
 
-                <div class="osint-safety-note" role="note">
-                    <span class="osint-safety-mark" aria-hidden="true">i</span>
-                    <p>Bu araç yalnızca herkese açık internet kaynaklarından teknik bilgi toplamak amacıyla tasarlanmıştır. Aktif tarama, port taraması veya hesap araştırması yapmaz.</p>
-                </div>
-
                 <section class="osint-quick-card" aria-labelledby="osint-quick-title">
                     <div class="osint-section-heading">
                         <div>
@@ -1675,14 +1710,6 @@
                             <h2 id="discord-emoji-title">Discord Emoji İndir</h2>
                             <p>Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve kolayca indirin.</p>
                         </div>
-                    </div>
-                </div>
-
-                <div class="discord-emoji-security-note" role="note">
-                    <span class="discord-emoji-security-mark" aria-hidden="true">✓</span>
-                    <div>
-                        <strong>Yalnızca resmi Discord bot token'ı kullanın</strong>
-                        <p>Normal Discord kullanıcı token'ları kabul edilmez. Bot token'ı yalnızca bağlantı süresince bellekte tutulur, doğrudan Discord HTTP API ve Gateway dışında hiçbir yere gönderilmez.</p>
                     </div>
                 </div>
 
@@ -2217,14 +2244,6 @@
                     <button id="exif-viewer-new" class="secondary-button" type="button" hidden>Yeni Fotoğraf Analiz Et</button>
                 </div>
 
-                <div class="exif-viewer-privacy" role="note">
-                    <span class="exif-viewer-privacy-mark" aria-hidden="true">✓</span>
-                    <div>
-                        <strong>Dosyanız cihazınızdan ayrılmaz.</strong>
-                        <p>Tüm EXIF ve metadata analizi doğrudan tarayıcınızda gerçekleştirilir. Tool dosyayı değiştirmez.</p>
-                    </div>
-                </div>
-
                 <section id="exif-viewer-upload" class="exif-viewer-upload" aria-labelledby="exif-viewer-upload-title">
                     <div id="exif-viewer-drop-zone" class="exif-viewer-drop-zone" tabindex="0">
                         <input id="exif-viewer-file-input" type="file"
@@ -2322,14 +2341,6 @@
                     <div>
                         <h2 id="metadata-cleaner-title">Medya Veri Temizleyici</h2>
                         <p>Fotoğraflarını değiştirmeden EXIF, XMP, IPTC, GPS ve diğer mahremiyet verilerini temizle.</p>
-                    </div>
-                </div>
-
-                <div class="metadata-privacy-note" role="note">
-                    <span class="metadata-privacy-icon" aria-hidden="true">✓</span>
-                    <div>
-                        <strong>Dosyalarınız cihazınızdan ayrılmaz.</strong>
-                        <p>Tüm işlemler tarayıcınızda gerçekleştirilir. Dosyalar herhangi bir sunucuya yüklenmez.</p>
                     </div>
                 </div>
 
@@ -2997,7 +3008,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=41"></script>
+    <script src="index.js?v=42"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
@@ -3008,6 +3019,7 @@
     <script src="tools/discord-emoji-indir/core.js?v=6"></script>
     <script src="tools/discord-emoji-indir/app.js?v=3"></script>
     <script src="tools/github-unfollower/assets/js/app.mjs?v=1" type="module"></script>
+    <script src="tools/instagram-unfollower/app.js?v=3"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=4"></script>
     <script src="tools/nebuu/app.js?v=4"></script>
@@ -3022,7 +3034,7 @@
     <script src="tools/parolla/script.js?v=4"></script>
     <script src="tools/valorant-crosshair/script.js?v=1"></script>
     <script src="tools/chess/script.js?v=3"></script>
-    <script src="tools/advanced-xox/script.js?v=3"></script>
+    <script src="tools/advanced-xox/script.js?v=6"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
     <script src="tools/sudoku/script.js?v=6"></script>
     <script src="tools/milyoner-bilgi-yarismasi/questions.js?v=2"></script>
