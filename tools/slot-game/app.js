@@ -75,7 +75,7 @@
     let currentGrid = engine.createGrid();
     let turboEnabled = saved.turboEnabled;
     let autoRemaining = 0;
-    let autoCount = Number(elements.autoCount.dataset.value) || 10;
+    let autoCount = Number(elements.autoCount.dataset.value) || 100;
     let nextSpinTimer = 0;
     let soundEnabled = saved.soundEnabled;
     let soundVolume = saved.soundVolume;
@@ -554,7 +554,7 @@
         const replenishedBeforeSpin = engine.replenishBalanceIfEmpty(state);
         if (replenishedBeforeSpin) {
             setPhase("Bakiye yenilendi");
-            setStatus("Otomatik kredi yüklendi", "Bakiyen tükendiği için 10.000 sanal kredi otomatik olarak yüklendi.");
+            setStatus("Otomatik kredi yüklendi", "Bakiyen 100 kredinin altına düştüğü için 10.000 sanal kredi otomatik olarak yüklendi.");
         }
         const willUsePaidSpin = state.freeSpins === 0;
         const context = engine.startRound(state);
@@ -620,7 +620,7 @@
 
             if (engine.replenishBalanceIfEmpty(state)) {
                 setPhase("Bakiye yenilendi");
-                setStatus("Otomatik kredi yüklendi", "Bakiyen tükendiği için 10.000 sanal kredi otomatik olarak yüklendi.");
+                setStatus("Otomatik kredi yüklendi", "Bakiyen 100 kredinin altına düştüğü için 10.000 sanal kredi otomatik olarak yüklendi.");
             }
         } catch (error) {
             state.isSpinning = false;
@@ -731,7 +731,7 @@
     updateSoundButton();
     if (engine.replenishBalanceIfEmpty(state)) {
         setPhase("Bakiye yenilendi");
-        setStatus("Otomatik kredi yüklendi", "Kayıtlı bakiyen tükendiği için 10.000 sanal kredi otomatik olarak yüklendi.");
+        setStatus("Otomatik kredi yüklendi", "Kayıtlı bakiyen 100 kredinin altında olduğu için 10.000 sanal kredi otomatik olarak yüklendi.");
     }
     updateHud();
     window.addEventListener("pagehide", saveState);

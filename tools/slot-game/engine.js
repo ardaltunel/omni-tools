@@ -13,6 +13,7 @@
     const ROWS = 5;
     const COLUMNS = 6;
     const STARTING_BALANCE = 10000;
+    const AUTO_REPLENISH_THRESHOLD = 100;
     const BET_OPTIONS = Object.freeze([
         20,
         50,
@@ -427,7 +428,7 @@
     }
 
     function replenishBalanceIfEmpty(state) {
-        if (!state || state.isSpinning || state.freeSpins > 0 || state.balance >= BET_OPTIONS[0]) return false;
+        if (!state || state.isSpinning || state.freeSpins > 0 || state.balance >= AUTO_REPLENISH_THRESHOLD) return false;
         state.balance = STARTING_BALANCE;
         if (state.bet > state.balance) state.bet = BET_OPTIONS[2];
         state.lastWin = 0;
@@ -435,6 +436,7 @@
     }
 
     return Object.freeze({
+        AUTO_REPLENISH_THRESHOLD,
         BET_OPTIONS,
         BONUS_BUY_COST_MULTIPLIER,
         BONUS_BUY_FREE_SPINS,

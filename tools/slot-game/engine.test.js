@@ -217,12 +217,16 @@ test("maksimum bahis 500.000 sanal krediye kadar çıkıyor", () => {
     assert.equal(engine.setBet(state, 500001), false);
 });
 
-test("oynanabilir bakiye bittiğinde sanal kredi otomatik yenileniyor", () => {
-    const state = engine.createState({ balance: 0, bet: 500000 });
+test("bakiye 100 kredinin altına düştüğünde sanal kredi otomatik yenileniyor", () => {
+    const state = engine.createState({ balance: 99, bet: 500000 });
     assert.equal(engine.replenishBalanceIfEmpty(state), true);
     assert.equal(state.balance, engine.STARTING_BALANCE);
     assert.equal(state.bet, 100, "yenilenen bakiyeyi aşan bahis güvenli varsayılana dönmeli");
     assert.equal(engine.replenishBalanceIfEmpty(state), false, "dolu bakiye yeniden yazılmamalı");
+
+    const thresholdBalance = engine.createState({ balance: engine.AUTO_REPLENISH_THRESHOLD, bet: 100 });
+    assert.equal(engine.replenishBalanceIfEmpty(thresholdBalance), false, "100 kredi yenileme eşiği değildir");
+    assert.equal(thresholdBalance.balance, engine.AUTO_REPLENISH_THRESHOLD);
 
     const activeBonus = engine.createState({ balance: 0, bet: 20, freeSpins: 1 });
     assert.equal(engine.replenishBalanceIfEmpty(activeBonus), false, "aktif Free Spin sırasında bakiye yenilenmemeli");
