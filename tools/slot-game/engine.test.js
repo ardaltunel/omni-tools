@@ -205,6 +205,21 @@ test("bahis seçenekleri, yetersiz bakiye ve reset güvenli çalışıyor", () =
     assert.equal(state.bet, 100);
 });
 
+test("normal spin için bahis, bakiye karşılanana kadar otomatik düşürülüyor", () => {
+    const state = engine.createState({ balance: 250, bet: 1000 });
+    assert.deepEqual(engine.reduceBetToBalance(state), { previousBet: 1000, bet: 200 });
+    assert.equal(state.bet, 200);
+    assert.equal(engine.startRound(state).bet, 200);
+
+    const belowMinimum = engine.createState({ balance: 19, bet: 100 });
+    assert.equal(engine.reduceBetToBalance(belowMinimum), null);
+    assert.equal(belowMinimum.bet, 100);
+
+    const freeSpin = engine.createState({ balance: 0, bet: 1000, freeSpins: 1 });
+    assert.equal(engine.reduceBetToBalance(freeSpin), null, "Free Spin sırasında bahis değiştirilmemeli");
+    assert.equal(freeSpin.bet, 1000);
+});
+
 test("maksimum bahis 500.000 sanal krediye kadar çıkıyor", () => {
     assert.equal(engine.BET_OPTIONS.at(-1), 500000);
     const state = engine.createState({ balance: 1000000, bet: 1000 });

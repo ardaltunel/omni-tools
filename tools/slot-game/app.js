@@ -551,12 +551,20 @@
 
     async function runSpin() {
         if (state.isSpinning || nextSpinTimer) return;
-        const replenishedBeforeSpin = engine.replenishBalanceIfEmpty(state);
+        const willUsePaidSpin = state.freeSpins === 0;
+        let adjustedBet = null;
+        if (willUsePaidSpin && state.balance < state.bet) {
+            adjustedBet = engine.reduceBetToBalance(state);
+        }
+        const replenishedBeforeSpin = !adjustedBet && engine.replenishBalanceIfEmpty(state);
         if (replenishedBeforeSpin) {
             setPhase("Bakiye yenilendi");
             setStatus("Otomatik kredi yüklendi", "Bakiyen 100 kredinin altına düştüğü için 10.000 sanal kredi otomatik olarak yüklendi.");
         }
-        const willUsePaidSpin = state.freeSpins === 0;
+        if (adjustedBet) {
+            setPhase("Bahis otomatik ayarlandı");
+            setStatus("Bahis bakiyene uyarlandı", `${formatCredit(adjustedBet.previousBet)} yerine ${formatCredit(adjustedBet.bet)} sanal krediyle spin başlatılıyor.`);
+        }
         const context = engine.startRound(state);
         if (!context) {
             stopAuto();

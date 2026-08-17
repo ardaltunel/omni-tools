@@ -324,6 +324,20 @@
         return true;
     }
 
+    function reduceBetToBalance(state) {
+        if (!state || state.isSpinning || state.freeSpins > 0 || state.balance >= state.bet) return null;
+
+        let betIndex = BET_OPTIONS.indexOf(state.bet);
+        while (betIndex > 0 && BET_OPTIONS[betIndex] > state.balance) betIndex -= 1;
+
+        const affordableBet = BET_OPTIONS[betIndex];
+        if (affordableBet > state.balance || affordableBet === state.bet) return null;
+
+        const previousBet = state.bet;
+        state.bet = affordableBet;
+        return Object.freeze({ previousBet, bet: affordableBet });
+    }
+
     function bonusBuyCost(bet) {
         return roundMoney(normalizeBet(bet) * BONUS_BUY_COST_MULTIPLIER);
     }
@@ -463,6 +477,7 @@
         listMultipliers,
         payoutFor,
         replenishBalanceIfEmpty,
+        reduceBetToBalance,
         resetState,
         resolveCascades,
         roundMoney,
