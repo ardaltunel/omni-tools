@@ -162,4 +162,9 @@ assert.equal(resumable.playerHands[0].cards.length, 2);
 assert.equal(snapshot.shoe.length, 1);
 assert.equal(engine.restoreState({ version: 1, phase: engine.PHASES.PLAYER_TURN }), null);
 
+const emptyBankroll = engine.createState({ balance: 0 });
+assert.equal(engine.replenishBalanceIfEmpty(emptyBankroll), true);
+assert.equal(emptyBankroll.balance, engine.STARTING_BALANCE);
+assert.equal(engine.replenishBalanceIfEmpty(emptyBankroll), false);
+
 console.log("Blackjack motor testleri başarılı: shoe, As hesabı, doğal Blackjack, ödeme, split, insurance, double, bakiye sınırları, round çözümü ve tur geri yükleme.");

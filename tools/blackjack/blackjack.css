@@ -805,8 +805,7 @@
 .blackjack-bet-actions { position: relative; }
 .blackjack-text-button,
 .blackjack-deal-button,
-.blackjack-action-button,
-.blackjack-refresh-credit {
+.blackjack-action-button {
     font: inherit;
     transition: transform 150ms ease, background 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease;
 }
@@ -854,21 +853,6 @@
     left: var(--blackjack-deal-left);
 }
 .blackjack-deal-button span { font-size: 13px; line-height: 0.8; }
-
-.blackjack-refresh-credit {
-    display: block;
-    width: 100%;
-    min-height: 36px;
-    margin-top: 8px;
-    border: 1px solid rgba(232, 188, 98, 0.64);
-    border-radius: 8px;
-    background: rgba(232, 188, 98, 0.12);
-    color: #f6d98f;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 800;
-}
-.blackjack-refresh-credit small { margin-left: 4px; color: #b7c9bd; font-size: 9px; font-weight: 600; }
 
 .blackjack-action-grid {
     display: grid;

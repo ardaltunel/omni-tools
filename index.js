@@ -303,6 +303,11 @@ function updatePageMetadata(tool) {
             description: "Sanal çiplerle, klasik Blackjack kurallarına göre tarayıcıda premium masa deneyimi yaşa.",
             keywords: "blackjack, iskambil, kart oyunu, casino masası, sanal kredi, 21 oyunu",
         },
+        "slot-game": {
+            title: "Slot Game | Omni Tools",
+            description: "6x5 grid, cascade sistemi, çarpanlar ve Free Spins ile özgün sanal slot oyununu ücretsiz oyna.",
+            keywords: "slot game, cascade, tumble, free spins, multiplier, sanal slot, arcade oyunu",
+        },
     };
     const metadata = toolMetadata[tool] || {};
     const title = metadata.title || defaultPageTitle;

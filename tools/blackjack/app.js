@@ -27,7 +27,6 @@
         clearBet: document.getElementById("blackjack-clear-bet"),
         repeatBet: document.getElementById("blackjack-repeat-bet"),
         deal: document.getElementById("blackjack-deal"),
-        refreshCredit: document.getElementById("blackjack-refresh-credit"),
         hit: document.getElementById("blackjack-hit"),
         stand: document.getElementById("blackjack-stand"),
         double: document.getElementById("blackjack-double"),
@@ -48,6 +47,7 @@
     let autoNextRoundTimer = 0;
     let shoeDealTimer = 0;
     let balanceDeltaTimer = 0;
+    let dealButtonPositionFrame = 0;
     let roundStartingBalance = getRoundStartingBalance();
 
     function getRoundStartingBalance() {
@@ -336,8 +336,6 @@
         elements.clearBet.disabled = !isBetting || !game.currentBet;
         elements.repeatBet.disabled = !isBetting || !game.lastBet || game.lastBet > game.balance;
         elements.deal.disabled = !isBetting || game.currentBet < MINIMUM_BET;
-        elements.refreshCredit.hidden = !(isBetting && game.balance < MINIMUM_BET);
-        elements.refreshCredit.disabled = !isBetting;
         elements.hit.disabled = !isPlayerTurn;
         elements.stand.disabled = !isPlayerTurn;
         elements.double.disabled = !isPlayerTurn || !engine.canDouble(hand) || game.balance < (hand?.bet || 0);
@@ -366,10 +364,12 @@
     }
 
     function positionDealButton() {
+        const blackjackPanel = app.closest(".tool-panel");
         const useDesktopTableLayout = window.matchMedia("(min-width: 1181px)").matches;
         const lastChip = elements.chips.at(-1);
-        if (!useDesktopTableLayout || !lastChip || !elements.bettingPanel) {
+        if (!blackjackPanel?.classList.contains("active") || !useDesktopTableLayout || !lastChip || !elements.bettingPanel) {
             elements.bettingPanel?.classList.remove("is-deal-positioned");
+            elements.bettingPanel?.style.removeProperty("--blackjack-deal-left");
             return;
         }
 
@@ -378,6 +378,14 @@
         const offset = Math.max(0, Math.round(chipRect.right - panelRect.left + 12));
         elements.bettingPanel.style.setProperty("--blackjack-deal-left", `${offset}px`);
         elements.bettingPanel.classList.add("is-deal-positioned");
+    }
+
+    function scheduleDealButtonPosition() {
+        window.cancelAnimationFrame(dealButtonPositionFrame);
+        dealButtonPositionFrame = window.requestAnimationFrame(() => {
+            dealButtonPositionFrame = 0;
+            positionDealButton();
+        });
     }
 
     function showBalanceDelta(delta) {
@@ -653,6 +661,7 @@
         clearAutoNextRound();
         if (busy || !engine.prepareNextRound(game)) return;
         view = createViewState();
+        replenishCreditsIfEmpty();
         saveState();
         render();
     }
@@ -716,12 +725,10 @@
         playSound("chip");
     }
 
-    function refreshCredits() {
-        if (busy || !engine.refreshBalance(game)) return;
-        view = createViewState();
-        saveState();
-        render();
-        playSound("click");
+    function replenishCreditsIfEmpty() {
+        if (!engine.replenishBalanceIfEmpty(game, MINIMUM_BET)) return false;
+        game.message = "Bakiyen tükendiği için 10.000 sanal kredi otomatik olarak yüklendi.";
+        return true;
     }
 
     function bindEvents() {
@@ -729,14 +736,16 @@
         elements.clearBet.addEventListener("click", clearBet);
         elements.repeatBet.addEventListener("click", repeatBet);
         elements.deal.addEventListener("click", beginDeal);
-        elements.refreshCredit.addEventListener("click", refreshCredits);
         elements.hit.addEventListener("click", takeHit);
         elements.stand.addEventListener("click", takeStand);
         elements.double.addEventListener("click", takeDouble);
         elements.split.addEventListener("click", takeSplit);
         elements.insuranceTake.addEventListener("click", () => decideInsurance(true));
         elements.insuranceDecline.addEventListener("click", () => decideInsurance(false));
-        window.addEventListener("resize", positionDealButton, { passive: true });
+        window.addEventListener("resize", scheduleDealButtonPosition, { passive: true });
+        document.addEventListener("tool-activated", (event) => {
+            if (event.detail?.tool === "blackjack") scheduleDealButtonPosition();
+        });
         window.addEventListener("pagehide", saveState);
         elements.sound.addEventListener("click", () => {
             soundEnabled = !soundEnabled;
@@ -770,6 +779,7 @@
         }
     }
 
+    if (replenishCreditsIfEmpty()) saveState();
     bindEvents();
     render();
     resumeSavedGame();

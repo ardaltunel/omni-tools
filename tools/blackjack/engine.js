@@ -309,6 +309,12 @@
         return true;
     }
 
+    function replenishBalanceIfEmpty(state, minimumBalance = 10 * MONEY_SCALE) {
+        const minimum = Math.max(1, Math.floor(Number(minimumBalance) || 0));
+        if (!state || state.phase !== PHASES.BETTING || state.balance >= minimum) return false;
+        return refreshBalance(state);
+    }
+
     function shouldReshuffle(state) {
         return state.shoe.length <= state.deckCount * 52 * state.reshuffleAt;
     }
@@ -677,6 +683,7 @@
         isBust,
         prepareNextRound,
         refreshBalance,
+        replenishBalanceIfEmpty,
         repeatBet,
         restoreState,
         resolveHand,

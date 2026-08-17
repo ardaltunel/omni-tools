@@ -29,7 +29,8 @@
     <link rel="stylesheet" href="tools/github-unfollower/style.css?v=2">
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=5">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
-    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=37">
+    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
+    <link rel="stylesheet" href="tools/slot-game/style.css?v=13">
 </head>
 
 <body>
@@ -39,7 +40,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>23 uygulama, tek panel</small>
+                    <small>33 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -54,6 +55,11 @@
                     data-category="Oyunlar" data-search="blackjack iskambil kart casino masa bahis krupiye 21 oyunlar"
                     data-description="Sanal çiplerle, klasik kurallara göre premium Blackjack oyna." type="button">
                     <span>Blackjack</span>
+                </button>
+                <button class="nav-item" data-tool="slot-game"
+                    data-category="Oyunlar" data-search="slot game casino arcade cascade tumble free spins çarpan"
+                    data-description="Cascade, çarpanlar ve Free Spins ile özgün bir sanal slot deneyimi." type="button">
+                    <span>Slot Game</span>
                 </button>
                 <button class="nav-item" data-tool="nebuu"
                     data-search="nebuu alnında ne var heads up kelime tahmin telefon hareket sensör parti oyun"
@@ -326,9 +332,6 @@
                                 <button id="blackjack-repeat-bet" class="blackjack-text-button" type="button">Son Bahsi Tekrarla</button>
                                 <button id="blackjack-deal" class="blackjack-deal-button" type="button">Dağıt <span aria-hidden="true">↗</span></button>
                             </div>
-                            <button id="blackjack-refresh-credit" class="blackjack-refresh-credit" type="button" hidden>
-                                Krediyi Yenile <small>10.000 sanal kredi</small>
-                            </button>
                         </section>
 
                         <section class="blackjack-actions-panel" aria-label="Oyun hamleleri">
@@ -350,6 +353,183 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="slot-game" class="tool-panel slot-game-panel" aria-labelledby="slot-game-title">
+                <div class="panel-heading slot-game-heading">
+                    <div>
+                        <h2 id="slot-game-title">Slot Game</h2>
+                        <p>6x5 grid, art arda cascade'ler, biriken çarpanlar ve Free Spins ile özgün bir arcade slot deneyimi.</p>
+                    </div>
+                    <div class="slot-game-audio-controls" aria-label="Ses ayarları">
+                        <label class="slot-game-volume-control" for="slot-game-volume">
+                            <span>Seviye</span>
+                            <input id="slot-game-volume" type="range" min="0" max="100" step="5" value="70" aria-label="Ses seviyesi">
+                            <output id="slot-game-volume-value" for="slot-game-volume">70%</output>
+                        </label>
+                        <button id="slot-game-sound" class="slot-game-sound-button" type="button" aria-pressed="true" aria-label="Oyun sesini kapat">
+                            <span class="slot-game-sound-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M4 10v4h4l5 4V6L8 10H4Z"></path>
+                                    <path class="slot-game-sound-waves" d="M16 9c1.6 1.7 1.6 4.3 0 6M18.5 6.5c3 3 3 8 0 11"></path>
+                                </svg>
+                            </span>
+                            <span>
+                                <strong>Ses</strong>
+                                <small>Açık</small>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="slot-game-app" class="slot-game-app" data-phase="idle">
+                    <div class="slot-game-hud" aria-label="Oyun bilgileri">
+                        <div class="slot-game-stat">
+                            <span>Bakiye</span>
+                            <strong id="slot-game-balance">10.000</strong>
+                            <small>Sanal kredi</small>
+                        </div>
+                        <div class="slot-game-stat is-win">
+                            <span>Kazanç</span>
+                            <strong id="slot-game-win">0</strong>
+                            <small id="slot-game-win-detail">Spin için hazır</small>
+                        </div>
+                        <div class="slot-game-stat">
+                            <span>Bahis</span>
+                            <strong id="slot-game-bet-hud">100</strong>
+                            <small>Spin başına</small>
+                        </div>
+                        <div id="slot-game-free-stat" class="slot-game-stat is-free">
+                            <span>Free Spins</span>
+                            <strong id="slot-game-free-spins">0</strong>
+                            <small id="slot-game-free-multiplier">Toplam çarpan x1</small>
+                        </div>
+                    </div>
+
+                    <div class="slot-game-layout">
+                        <section class="slot-game-machine" aria-label="Slot oyun makinesi">
+                            <div class="slot-game-machine-head">
+                                <div>
+                                    <span id="slot-game-phase-dot" class="slot-game-phase-dot" aria-hidden="true"></span>
+                                    <strong id="slot-game-phase">Hazır</strong>
+                                </div>
+                                <span id="slot-game-cascade-count">Cascade 0</span>
+                            </div>
+
+                            <div class="slot-game-grid-frame">
+                                <div id="slot-game-grid" class="slot-game-grid" role="grid" aria-label="6 sütun ve 5 satırlı sembol grid'i"></div>
+                                <div id="slot-game-effects" class="slot-game-effects" aria-hidden="true"></div>
+                                <div id="slot-game-celebration" class="slot-game-celebration" data-tier="big" hidden>
+                                    <span id="slot-game-celebration-label">BÜYÜK KAZANÇ</span>
+                                    <strong id="slot-game-celebration-value">0</strong>
+                                </div>
+                            </div>
+
+                            <div class="slot-game-controls">
+                                <div class="slot-game-bet-control" aria-label="Bahis miktarı">
+                                    <span>Bahis</span>
+                                    <div>
+                                        <button id="slot-game-bet-down" type="button" aria-label="Bahsi azalt">−</button>
+                                        <strong id="slot-game-bet">100</strong>
+                                        <button id="slot-game-bet-up" type="button" aria-label="Bahsi artır">+</button>
+                                    </div>
+                                </div>
+
+                                <button id="slot-game-spin" class="slot-game-spin-button" type="button" aria-label="Spin başlat">
+                                    <span class="slot-game-spin-ring" aria-hidden="true"></span>
+                                    <strong>SPIN</strong>
+                                    <small id="slot-game-spin-subtitle">Başlat</small>
+                                </button>
+
+                                <div class="slot-game-option-controls">
+                                    <button id="slot-game-turbo" class="slot-game-option-button" type="button" aria-pressed="false">
+                                        <span aria-hidden="true">»</span>
+                                        <strong>Turbo</strong>
+                                        <small>Kapalı</small>
+                                    </button>
+                                    <div class="slot-game-auto-control">
+                                        <span id="slot-game-auto-label">Auto Spin</span>
+                                        <div>
+                                            <div class="slot-game-auto-picker">
+                                                <button id="slot-game-auto-count" class="slot-game-auto-count-button" type="button" data-value="10" aria-labelledby="slot-game-auto-label slot-game-auto-count-value" aria-haspopup="menu" aria-expanded="false" aria-controls="slot-game-auto-menu">
+                                                    <span id="slot-game-auto-count-value">10</span>
+                                                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"></path></svg>
+                                                </button>
+                                                <div id="slot-game-auto-menu" class="slot-game-auto-menu" role="menu" aria-labelledby="slot-game-auto-label" hidden>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="10" aria-checked="true">10 spin</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="25" aria-checked="false">25 spin</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="50" aria-checked="false">50 spin</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="100" aria-checked="false">100 spin</button>
+                                                </div>
+                                            </div>
+                                            <button id="slot-game-auto" type="button">Başlat</button>
+                                        </div>
+                                    </div>
+                                    <button id="slot-game-buy-bonus" class="slot-game-bonus-button" type="button">
+                                        <span class="slot-game-bonus-symbol" aria-hidden="true"><i></i></span>
+                                        <strong>Bonus Al</strong>
+                                        <small><span id="slot-game-buy-cost">5.000</span> kredi</small>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <aside class="slot-game-sidebar">
+                            <section class="slot-game-info-card is-status" aria-labelledby="slot-game-status-title">
+                                <span class="slot-game-card-kicker">Son durum</span>
+                                <h3 id="slot-game-status-title">Kasa seni bekliyor</h3>
+                                <p id="slot-game-message" aria-live="polite">Bahsini seç ve kozmik sembolleri serbest bırak.</p>
+                                <div id="slot-game-collected" class="slot-game-collected" aria-label="Bu spinde toplanan çarpanlar">
+                                    <span>Spin çarpanı</span>
+                                    <strong>x1</strong>
+                                </div>
+                            </section>
+
+                            <section class="slot-game-info-card" aria-labelledby="slot-game-multipliers-title">
+                                <div class="slot-game-card-heading">
+                                    <div>
+                                        <span class="slot-game-card-kicker">Güç küreleri</span>
+                                        <h3 id="slot-game-multipliers-title">Çarpanlar</h3>
+                                    </div>
+                                    <span>Toplanır</span>
+                                </div>
+                                <div id="slot-game-multiplier-legend" class="slot-game-multiplier-legend" aria-label="Olası çarpan değerleri"></div>
+                                <p>Free Spins sırasında yakalanan her küre toplam çarpana eklenir ve sonraki spinlere taşınır.</p>
+                            </section>
+
+                            <section class="slot-game-info-card" aria-labelledby="slot-game-paytable-title">
+                                <div class="slot-game-card-heading">
+                                    <div>
+                                        <span class="slot-game-card-kicker">8+ her yerde</span>
+                                        <h3 id="slot-game-paytable-title">Sembol değerleri</h3>
+                                    </div>
+                                    <span>Bahis x</span>
+                                </div>
+                                <div id="slot-game-paytable" class="slot-game-paytable"></div>
+                            </section>
+
+                        </aside>
+                    </div>
+
+                    <div id="slot-game-buy-modal" class="slot-game-buy-modal" hidden>
+                        <button class="slot-game-buy-backdrop" type="button" aria-label="Bonus satın alma penceresini kapat" data-slot-buy-close></button>
+                        <section class="slot-game-buy-dialog" role="dialog" aria-modal="true" aria-labelledby="slot-game-buy-title" tabindex="-1">
+                            <div class="slot-game-buy-gates" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                            <span class="slot-game-card-kicker">Bonus Buy</span>
+                            <h3 id="slot-game-buy-title">Astral Geçidi Aç</h3>
+                            <p>Doğal spinde 4 nadir Geçit sembolü bu modu açar. İstersen 50x bahis bedeliyle doğrudan 10 Free Spins satın alabilirsin.</p>
+                            <div class="slot-game-buy-summary">
+                                <div><span>Paket</span><strong>10 Free Spins</strong></div>
+                                <div><span>Toplam bedel</span><strong><span id="slot-game-buy-confirm-cost">5.000</span> kredi</strong></div>
+                            </div>
+                            <p class="slot-game-buy-note">Free Spins boyunca güç küreleri toplam çarpana eklenmeye devam eder.</p>
+                            <div class="slot-game-buy-actions">
+                                <button id="slot-game-buy-confirm" type="button">Bonusu Satın Al</button>
+                                <button type="button" data-slot-buy-close>Vazgeç</button>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </section>
@@ -3008,7 +3188,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=42"></script>
+    <script src="index.js?v=43"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
@@ -3023,8 +3203,10 @@
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=4"></script>
     <script src="tools/nebuu/app.js?v=4"></script>
-    <script src="tools/blackjack/engine.js?v=5"></script>
-    <script src="tools/blackjack/app.js?v=15"></script>
+    <script src="tools/blackjack/engine.js?v=6"></script>
+    <script src="tools/blackjack/app.js?v=17"></script>
+    <script src="tools/slot-game/engine.js?v=4"></script>
+    <script src="tools/slot-game/app.js?v=5"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
