@@ -35,14 +35,14 @@
     const BONUS_BUY_FREE_SPINS = 10;
 
     const SYMBOLS = Object.freeze([
-        Object.freeze({ id: "spark", label: "Astral Kıvılcım", weight: 18, pays: Object.freeze([0.2, 0.35, 0.6, 1, 2, 5]) }),
-        Object.freeze({ id: "orbit", label: "Yörünge", weight: 16.5, pays: Object.freeze([0.25, 0.45, 0.75, 1.25, 2.5, 6]) }),
+        Object.freeze({ id: "spark", label: "Astral Kıvılcım", weight: 20, pays: Object.freeze([0.2, 0.35, 0.6, 1, 2, 5]) }),
+        Object.freeze({ id: "orbit", label: "Yörünge", weight: 17, pays: Object.freeze([0.25, 0.45, 0.75, 1.25, 2.5, 6]) }),
         Object.freeze({ id: "moon", label: "Hilal", weight: 14, pays: Object.freeze([0.3, 0.55, 0.9, 1.5, 3, 7.5]) }),
-        Object.freeze({ id: "prism", label: "Prizma", weight: 12.5, pays: Object.freeze([0.4, 0.75, 1.2, 2, 4, 10]) }),
-        Object.freeze({ id: "bloom", label: "Nebula Çiçeği", weight: 11, pays: Object.freeze([0.5, 1, 1.75, 3, 6, 15]) }),
-        Object.freeze({ id: "sigil", label: "Yıldız Mührü", weight: 10, pays: Object.freeze([0.75, 1.5, 2.5, 5, 10, 25]) }),
-        Object.freeze({ id: "rune", label: "Kozmik Rün", weight: 8, pays: Object.freeze([0.35, 0.65, 1.1, 1.8, 3.5, 9]) }),
-        Object.freeze({ id: "nova", label: "Nova Çekirdeği", weight: 6.6, pays: Object.freeze([0.6, 1.2, 2, 4, 8, 20]) }),
+        Object.freeze({ id: "prism", label: "Prizma", weight: 12, pays: Object.freeze([0.4, 0.75, 1.2, 2, 4, 10]) }),
+        Object.freeze({ id: "bloom", label: "Nebula Çiçeği", weight: 10, pays: Object.freeze([0.5, 1, 1.75, 3, 6, 15]) }),
+        Object.freeze({ id: "sigil", label: "Yıldız Mührü", weight: 9, pays: Object.freeze([0.75, 1.5, 2.5, 5, 10, 25]) }),
+        Object.freeze({ id: "rune", label: "Kozmik Rün", weight: 7, pays: Object.freeze([0.35, 0.65, 1.1, 1.8, 3.5, 9]) }),
+        Object.freeze({ id: "nova", label: "Nova Çekirdeği", weight: 5, pays: Object.freeze([0.6, 1.2, 2, 4, 8, 20]) }),
     ]);
 
     const SYMBOL_BY_ID = Object.freeze(Object.fromEntries(SYMBOLS.map((symbol) => [symbol.id, symbol])));
@@ -86,11 +86,13 @@
         return Object.freeze({ kind, id, value, uid });
     }
 
-    function createRandomCell(random = Math.random) {
+    function createCellWithFeatureWeights(random = Math.random, weights = {}) {
+        const scatterWeight = Number.isFinite(weights.scatter) ? weights.scatter : 2.2;
+        const multiplierWeight = Number.isFinite(weights.multiplier) ? weights.multiplier : 1.6;
         const type = weightedPick([
-            { kind: "regular", weight: 96.6 },
-            { kind: "scatter", weight: 1.8 },
-            { kind: "multiplier", weight: 1.6 },
+            { kind: "regular", weight: Math.max(0, 100 - scatterWeight - multiplierWeight) },
+            { kind: "scatter", weight: scatterWeight },
+            { kind: "multiplier", weight: multiplierWeight },
         ], random);
 
         if (type.kind === "scatter") return createCell("scatter", "gateway");
@@ -101,6 +103,14 @@
 
         const symbol = weightedPick(SYMBOLS, random);
         return createCell("regular", symbol.id);
+    }
+
+    function createRandomCell(random = Math.random) {
+        return createCellWithFeatureWeights(random);
+    }
+
+    function createFreeSpinCell(random = Math.random) {
+        return createCellWithFeatureWeights(random, { scatter: 2.4, multiplier: 1.8 });
     }
 
     function createGrid(random = Math.random, cellFactory = createRandomCell) {
@@ -290,7 +300,9 @@
             balance: Math.max(0, balance),
             bet,
             freeSpins: Math.max(0, Math.floor(options.freeSpins || 0)),
-            freeMultiplier: Math.max(1, Math.floor(options.freeMultiplier || 1)),
+            // Free Spin küreleri "x" değeri kadar eklenir. 0, henüz küre
+            // toplanmadığını; ödeme hesabında ise bunun doğal karşılığı x1'i ifade eder.
+            freeMultiplier: Math.max(0, Math.floor(options.freeMultiplier || 0)),
             isSpinning: false,
             lastWin: 0,
             stats: {
@@ -327,7 +339,7 @@
         const cost = bonusBuyCost(state.bet);
         state.balance = roundMoney(state.balance - cost);
         state.freeSpins = BONUS_BUY_FREE_SPINS;
-        state.freeMultiplier = 1;
+        state.freeMultiplier = 0;
         state.lastWin = 0;
         state.stats.bonusBuys += 1;
         return Object.freeze({
@@ -371,7 +383,7 @@
         let appliedMultiplier = 1;
         if (context.mode === "free") {
             state.freeMultiplier += landedMultiplier;
-            appliedMultiplier = state.freeMultiplier;
+            appliedMultiplier = Math.max(1, state.freeMultiplier);
         } else if (baseWin > 0 && landedMultiplier > 0) {
             appliedMultiplier = landedMultiplier;
         }
@@ -384,12 +396,12 @@
 
         if (awardedFreeSpins > 0) {
             state.freeSpins += awardedFreeSpins;
-            if (context.mode === "paid") state.freeMultiplier = 1;
+            if (context.mode === "paid") state.freeMultiplier = 0;
         }
 
-        const accumulatedMultiplier = state.freeMultiplier;
+        const accumulatedMultiplier = Math.max(1, state.freeMultiplier);
         const freeSessionEnded = context.mode === "free" && state.freeSpins === 0 && awardedFreeSpins === 0;
-        if (freeSessionEnded) state.freeMultiplier = 1;
+        if (freeSessionEnded) state.freeMultiplier = 0;
         state.isSpinning = false;
 
         return Object.freeze({
@@ -439,6 +451,7 @@
         cloneGrid,
         countScatters,
         createCell,
+        createFreeSpinCell,
         createGrid,
         createRandomCell,
         createState,

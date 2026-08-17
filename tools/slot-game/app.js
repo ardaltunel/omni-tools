@@ -81,13 +81,14 @@
     let soundVolume = saved.soundVolume;
     let audioContext = null;
     let buyModalOpen = false;
+    let lastCompletedFreeMultiplier = 1;
 
     function loadSavedState() {
         const fallback = {
             balance: engine.STARTING_BALANCE,
             bet: 100,
             freeSpins: 0,
-            freeMultiplier: 1,
+            freeMultiplier: 0,
             lastWin: 0,
             soundEnabled: true,
             soundVolume: 70,
@@ -95,11 +96,18 @@
         };
         try {
             const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+            const freeSpins = Number.isInteger(value.freeSpins) && value.freeSpins >= 0 ? value.freeSpins : 0;
+            const storedMultiplier = Number.isInteger(value.freeMultiplier) && value.freeMultiplier >= 0
+                ? value.freeMultiplier
+                : fallback.freeMultiplier;
+            // v1 kayıtlarında başlangıçtaki x1 de küre toplamına katılıyordu.
+            // Devam eden eski bonuslarda değeri bir kez yeni kurala taşırız.
+            const usesLegacyMultiplier = (!Number.isInteger(value.version) || value.version < 2) && freeSpins > 0;
             return {
                 balance: Number.isFinite(value.balance) && value.balance >= 0 ? value.balance : fallback.balance,
                 bet: engine.BET_OPTIONS.includes(value.bet) ? value.bet : fallback.bet,
-                freeSpins: Number.isInteger(value.freeSpins) && value.freeSpins >= 0 ? value.freeSpins : 0,
-                freeMultiplier: Number.isInteger(value.freeMultiplier) && value.freeMultiplier >= 1 ? value.freeMultiplier : 1,
+                freeSpins,
+                freeMultiplier: usesLegacyMultiplier ? Math.max(0, storedMultiplier - 1) : storedMultiplier,
                 lastWin: Number.isFinite(value.lastWin) && value.lastWin >= 0 ? value.lastWin : 0,
                 soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : true,
                 soundVolume: Number.isFinite(value.soundVolume) ? Math.min(100, Math.max(0, Math.round(value.soundVolume / 5) * 5)) : fallback.soundVolume,
@@ -113,7 +121,7 @@
     function saveState() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                version: 1,
+                version: 2,
                 balance: state.balance,
                 bet: state.bet,
                 freeSpins: state.freeSpins,
@@ -254,9 +262,10 @@
         elements.betHud.textContent = formatCredit(state.bet);
         elements.win.textContent = formatCredit(state.lastWin);
         elements.freeSpins.textContent = String(state.freeSpins);
-        const shownMultiplier = summary?.freeSessionEnded
-            ? summary.accumulatedMultiplier
-            : state.freeMultiplier;
+        if (summary?.freeSessionEnded) lastCompletedFreeMultiplier = summary.accumulatedMultiplier;
+        const shownMultiplier = state.freeSpins > 0
+            ? Math.max(1, state.freeMultiplier)
+            : lastCompletedFreeMultiplier;
         elements.freeMultiplier.textContent = `Toplam çarpan x${shownMultiplier}`;
         elements.buyCost.textContent = formatCredit(bonusCost);
         elements.buyConfirmCost.textContent = formatCredit(bonusCost);
@@ -454,7 +463,7 @@
 
     function showCollectedMultiplier(result, context) {
         const preview = context.mode === "free"
-            ? state.freeMultiplier + result.multiplierTotal
+            ? Math.max(1, state.freeMultiplier + result.multiplierTotal)
             : Math.max(1, result.multiplierTotal);
         elements.collected.querySelector("strong").textContent = `x${preview}`;
         elements.collected.classList.toggle("is-powered", result.multiplierTotal > 0);
@@ -558,16 +567,20 @@
         }
 
         if (willUsePaidSpin && autoRemaining > 0) autoRemaining -= 1;
+        if (context.mode === "paid") lastCompletedFreeMultiplier = 1;
         playSound("spin");
         elements.celebration.hidden = true;
-        elements.collected.querySelector("strong").textContent = context.mode === "free" ? `x${state.freeMultiplier}` : "x1";
+        elements.collected.querySelector("strong").textContent = context.mode === "free"
+            ? `x${Math.max(1, state.freeMultiplier)}`
+            : "x1";
         elements.collected.classList.remove("is-powered");
         elements.cascadeCount.textContent = "Cascade 0";
         updateHud();
 
         try {
-            const initialGrid = engine.createGrid();
-            const result = engine.resolveCascades(initialGrid, context.bet);
+            const cellFactory = context.mode === "free" ? engine.createFreeSpinCell : engine.createRandomCell;
+            const initialGrid = engine.createGrid(Math.random, cellFactory);
+            const result = engine.resolveCascades(initialGrid, context.bet, Math.random, { cellFactory });
             await animateRound(result, context);
             const summary = engine.settleRound(state, result, context);
             updateHud(summary);

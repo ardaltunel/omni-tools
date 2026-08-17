@@ -98,6 +98,12 @@ test("scatter sayısı 4, 5 ve 6+ için doğru Free Spins ödülünü veriyor", 
     assert.equal(engine.countScatters(gridFromCells(cells)), 4);
 });
 
+test("Free Spins sembol havuzu Geçit ve çarpanları daha görünür üretir", () => {
+    assert.equal(engine.createRandomCell(() => 0.955).kind, "regular");
+    assert.equal(engine.createFreeSpinCell(() => 0.965).kind, "scatter");
+    assert.equal(engine.createFreeSpinCell(() => 0.99).kind, "multiplier");
+});
+
 test("ücretli spin bahsi düşüyor, kazanç ve çarpan doğru bakiyeye ekleniyor", () => {
     const state = engine.createState({ balance: 10000, bet: 100 });
     const context = engine.startRound(state);
@@ -134,18 +140,18 @@ test("4 scatter ücretli spinden sonra 10 Free Spins açıyor ve ek bahis düşm
     assert.equal(state.freeSpins, 9);
 });
 
-test("Free Spins çarpanları spinler arasında birikiyor ve seri sonunda sıfırlanıyor", () => {
-    const state = engine.createState({ balance: 5000, bet: 100, freeSpins: 2, freeMultiplier: 1 });
+test("Free Spins çarpanları gerçek x değeriyle birikiyor ve seri sonunda sıfırlanıyor", () => {
+    const state = engine.createState({ balance: 5000, bet: 100, freeSpins: 2, freeMultiplier: 0 });
     const firstContext = engine.startRound(state);
     const first = engine.settleRound(state, {
         baseWin: 100,
         multiplierTotal: 5,
         maxScatterCount: 0,
     }, firstContext);
-    assert.equal(first.appliedMultiplier, 6);
-    assert.equal(first.totalWin, 600);
-    assert.equal(state.freeMultiplier, 6);
-    assert.equal(state.balance, 5600);
+    assert.equal(first.appliedMultiplier, 5, "5x küresi x1 tabanına fazladan eklenmemeli");
+    assert.equal(first.totalWin, 500);
+    assert.equal(state.freeMultiplier, 5);
+    assert.equal(state.balance, 5500);
 
     const secondContext = engine.startRound(state);
     const second = engine.settleRound(state, {
@@ -153,12 +159,12 @@ test("Free Spins çarpanları spinler arasında birikiyor ve seri sonunda sıfı
         multiplierTotal: 2,
         maxScatterCount: 0,
     }, secondContext);
-    assert.equal(second.appliedMultiplier, 8);
-    assert.equal(second.totalWin, 400);
-    assert.equal(second.accumulatedMultiplier, 8);
+    assert.equal(second.appliedMultiplier, 7);
+    assert.equal(second.totalWin, 350);
+    assert.equal(second.accumulatedMultiplier, 7);
     assert.equal(second.freeSessionEnded, true);
-    assert.equal(state.freeMultiplier, 1);
-    assert.equal(state.balance, 6000);
+    assert.equal(state.freeMultiplier, 0);
+    assert.equal(state.balance, 5850);
 });
 
 test("Bonus Buy 50x bahis bedeliyle 10 Free Spins paketini güvenli biçimde açıyor", () => {
@@ -171,6 +177,7 @@ test("Bonus Buy 50x bahis bedeliyle 10 Free Spins paketini güvenli biçimde aç
     assert.deepEqual(purchase, { cost: 5000, freeSpins: 10, balance: 5000 });
     assert.equal(state.balance, 5000);
     assert.equal(state.freeSpins, 10);
+    assert.equal(state.freeMultiplier, 0);
     assert.equal(state.stats.bonusBuys, 1);
     assert.equal(engine.buyBonus(state), null, "aktif bonus sırasında ikinci satın alma engellenmeli");
 
@@ -245,10 +252,10 @@ test("uzun vadeli kazanma ve bonus sıklığı hedeflenen dengeli aralıkta kal�
     const cascadeContinuationRate = continuedCascades / spinCount;
     const multiplierLandingRate = multiplierLandings / spinCount;
     const freeSpinTriggerRate = freeSpinTriggers / spinCount;
-    assert.ok(hitRate >= 0.32 && hitRate <= 0.39, `Kazanma sıklığı: ${hitRate}`);
-    assert.ok(cascadeContinuationRate < 0.15, `Devam cascade sıklığı: ${cascadeContinuationRate}`);
-    assert.ok(multiplierLandingRate >= 0.32 && multiplierLandingRate <= 0.48, `Çarpan sıklığı: ${multiplierLandingRate}`);
-    assert.ok(freeSpinTriggerRate < 0.01, `Free Spins sıklığı: ${freeSpinTriggerRate}`);
+    assert.ok(hitRate >= 0.44 && hitRate <= 0.52, `Kazanma sıklığı: ${hitRate}`);
+    assert.ok(cascadeContinuationRate < 0.26, `Devam cascade sıklığı: ${cascadeContinuationRate}`);
+    assert.ok(multiplierLandingRate >= 0.42 && multiplierLandingRate <= 0.52, `Çarpan sıklığı: ${multiplierLandingRate}`);
+    assert.ok(freeSpinTriggerRate >= 0.006 && freeSpinTriggerRate <= 0.012, `Free Spins sıklığı: ${freeSpinTriggerRate}`);
 });
 
 console.log("Slot Game motor testleri başarılı: 6x5 grid, ödeme, cascade, çarpan, scatter, Free Spins, bakiye ve spin kilidi.");
