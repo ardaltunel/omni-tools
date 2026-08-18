@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omni Tools yükleniyor…</title>
+</head>
+<body>
+    <p>Omni Tools yükleniyor…</p>
+    <script>
+        const projectPath = window.location.pathname.match(/^\/[^/]+\/?/)?.[0] || "/";
+        const projectBase = projectPath.endsWith("/") ? projectPath : `${projectPath}/`;
+
+        fetch(`${projectBase}index.html`)
+            .then((response) => {
+                if (!response.ok) throw new Error("Uygulama yüklenemedi.");
+                return response.text();
+            })
+            .then((appHtml) => {
+                document.open();
+                document.write(appHtml);
+                document.close();
+            })
+            .catch(() => {
+                document.body.innerHTML = "<p>Omni Tools yüklenemedi. Lütfen ana sayfaya dönüp tekrar dene.</p>";
+            });
+    </script>
+</body>
+</html>

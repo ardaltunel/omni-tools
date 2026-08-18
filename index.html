@@ -3,6 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
+    <script>
+        const githubPagesPath = window.location.hostname.endsWith(".github.io")
+            ? window.location.pathname.match(/^\/[^/]+\/?/)?.[0]
+            : null;
+        const githubPagesBase = githubPagesPath && (githubPagesPath.endsWith("/") ? githubPagesPath : `${githubPagesPath}/`);
+        const assetBase = document.createElement("base");
+        assetBase.href = window.location.protocol === "file:" ? "./" : (githubPagesBase || "/");
+        document.head.append(assetBase);
+    </script>
     <script>window.coi = { quiet: true };</script>
     <script src="coi-serviceworker.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -3189,7 +3198,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="index.js?v=43"></script>
+    <script src="index.js?v=44"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>

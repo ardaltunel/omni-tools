@@ -232,23 +232,50 @@ function initializeAppSearch(cards) {
 
 function initializeToolRouting() {
     window.addEventListener("popstate", () => {
-        const requestedTool = new URL(window.location.href).searchParams.get("tool");
+        const requestedTool = getRequestedToolFromLocation();
         if (requestedTool && activateTool(requestedTool)) return;
         clearActiveTool();
     });
 
     window.setTimeout(() => {
-        const requestedTool = new URL(window.location.href).searchParams.get("tool");
+        const requestedTool = getRequestedToolFromLocation();
         if (requestedTool && activateTool(requestedTool, { historyMode: "replace" })) return;
         updatePageMetadata(null);
     }, 0);
 }
 
+function getRequestedToolFromLocation() {
+    const url = new URL(window.location.href);
+    const legacyTool = url.searchParams.get("tool");
+    if (legacyTool) return legacyTool;
+
+    const appBasePath = getAppBasePath();
+    const routePath = url.pathname.startsWith(appBasePath)
+        ? url.pathname.slice(appBasePath.length)
+        : "";
+    const pathSegments = routePath.split("/").filter(Boolean);
+    if (pathSegments.length !== 1 || pathSegments[0] === "index.html") return null;
+
+    try {
+        return decodeURIComponent(pathSegments[0]);
+    } catch {
+        return null;
+    }
+}
+
+function getAppBasePath() {
+    const basePath = new URL(document.baseURI).pathname;
+    return basePath.endsWith("/") ? basePath : `${basePath}/`;
+}
+
 function updateToolHistory(tool, historyMode) {
     if (!historyMode || !["push", "replace"].includes(historyMode)) return;
+    if (window.location.protocol === "file:") return;
+
     const url = new URL(window.location.href);
-    if (tool) url.searchParams.set("tool", tool);
-    else url.searchParams.delete("tool");
+    url.searchParams.delete("tool");
+    const appBasePath = getAppBasePath();
+    url.pathname = tool ? `${appBasePath}${encodeURIComponent(tool)}` : appBasePath;
     const method = historyMode === "replace" ? "replaceState" : "pushState";
     window.history[method]({ tool: tool || null }, "", `${url.pathname}${url.search}${url.hash}`);
 }
