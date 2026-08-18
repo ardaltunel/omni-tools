@@ -1578,16 +1578,17 @@ input[type="color"] {
 
 .qr-output {
     display: grid;
-    min-height: 560px;
+    min-height: 420px;
     place-items: center;
     border: 1px solid #d8dee9;
     border-radius: 8px;
     background: #f8fafc;
-    padding: 24px;
+    padding: 20px;
 }
 
 .qr-output img,
 .qr-output canvas {
+    width: min(100%, 400px) !important;
     max-width: 100%;
     height: auto !important;
 }

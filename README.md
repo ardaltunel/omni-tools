@@ -45,6 +45,10 @@ The project mainly focuses on:
 ## Available Tools
 
 * QR Code Generator
+* QR Code Scanner
+* URL Cleaner
+* JSON Formatter
+* Image Compressor
 * Weather Application
 * Cryptocurrency Price Tracker
 * GitHub User Finder

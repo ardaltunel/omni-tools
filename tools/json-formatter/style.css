@@ -1,0 +1,261 @@
+/* JSON Formatter */
+.json-formatter-panel {
+    --json-formatter-accent-soft: rgba(24, 169, 153, 0.1);
+    --json-formatter-danger-soft: rgba(255, 95, 109, 0.1);
+    --json-token-property: #7ee7dc;
+    --json-token-string: #f4d35e;
+    --json-token-number: #9bc9ff;
+    --json-token-literal: #d7b3ff;
+}
+
+.json-formatter-panel [hidden] {
+    display: none !important;
+}
+
+.json-formatter-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.json-formatter-input-card,
+.json-formatter-result-card {
+    display: grid;
+    min-width: 0;
+    min-height: 440px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 18px;
+}
+
+.json-formatter-input-card {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 14px;
+}
+
+.json-formatter-result-card {
+    grid-template-rows: auto minmax(0, 1fr);
+}
+
+.json-formatter-card-heading,
+.json-formatter-output-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.json-formatter-card-heading > label,
+.json-formatter-card-heading > span:first-child {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.json-formatter-input-state,
+.json-formatter-result-state {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 9px;
+}
+
+.json-formatter-input-state.is-success,
+.json-formatter-result-state.is-success {
+    border-color: rgba(74, 222, 128, 0.42);
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--success);
+}
+
+.json-formatter-input-state.is-error,
+.json-formatter-result-state.is-error {
+    border-color: rgba(255, 95, 109, 0.42);
+    background: var(--json-formatter-danger-soft);
+    color: #ffb1b8;
+}
+
+.json-formatter-input-card textarea {
+    height: 100%;
+    min-height: 300px;
+    resize: vertical;
+    font: 500 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.json-formatter-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.json-formatter-actions button {
+    min-width: 0;
+}
+
+.json-formatter-input-help {
+    margin: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 13px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.json-formatter-empty,
+.json-formatter-error {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-content: center;
+    align-items: center;
+    gap: 14px;
+}
+
+.json-formatter-empty {
+    justify-self: center;
+    width: min(100%, 400px);
+}
+
+.json-formatter-empty-mark,
+.json-formatter-error-mark {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border-radius: 15px;
+    font-weight: 800;
+}
+
+.json-formatter-empty-mark {
+    border: 1px solid rgba(24, 169, 153, 0.42);
+    background: var(--json-formatter-accent-soft);
+    color: var(--accent-strong);
+    font: 800 18px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.json-formatter-error-mark {
+    border: 1px solid rgba(255, 95, 109, 0.45);
+    background: var(--json-formatter-danger-soft);
+    color: #ffb1b8;
+    font-size: 26px;
+}
+
+.json-formatter-empty strong,
+.json-formatter-error strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+
+.json-formatter-empty p,
+.json-formatter-error p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.json-formatter-error-location {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 9px !important;
+    border: 1px solid rgba(255, 95, 109, 0.35);
+    border-radius: 999px;
+    background: var(--json-formatter-danger-soft);
+    color: #ffb1b8 !important;
+    padding: 4px 8px;
+    font: 700 11px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.json-formatter-result {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-content: stretch;
+    min-height: 0;
+    gap: 12px;
+}
+
+.json-formatter-output-heading {
+    min-height: 24px;
+}
+
+.json-formatter-output-summary {
+    color: var(--success);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.json-formatter-output {
+    min-height: 264px;
+    max-height: 520px;
+    overflow: auto;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel-2);
+    padding: 14px;
+    color: var(--text);
+    font: 500 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    tab-size: 2;
+    white-space: pre;
+}
+
+.json-formatter-output code {
+    display: block;
+    min-width: fit-content;
+}
+
+.json-token-property {
+    color: var(--json-token-property);
+}
+
+.json-token-string {
+    color: var(--json-token-string);
+}
+
+.json-token-number {
+    color: var(--json-token-number);
+}
+
+.json-token-literal {
+    color: var(--json-token-literal);
+}
+
+.json-token-punctuation {
+    color: var(--muted);
+}
+
+@media (max-width: 900px) {
+    .json-formatter-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .json-formatter-input-card,
+    .json-formatter-result-card {
+        min-height: 0;
+    }
+
+    .json-formatter-input-card textarea {
+        height: auto;
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 620px) {
+    .json-formatter-input-card,
+    .json-formatter-result-card {
+        padding: 14px;
+    }
+
+    .json-formatter-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .json-formatter-output {
+        min-height: 230px;
+        padding: 12px;
+        font-size: 12px;
+    }
+}

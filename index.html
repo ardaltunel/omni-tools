@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=87">
+    <link rel="stylesheet" href="style.css?v=88">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=3">
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=3">
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=7">
@@ -40,6 +40,10 @@
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=13">
+    <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
+    <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
+    <link rel="stylesheet" href="tools/json-formatter/style.css?v=3">
+    <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
 </head>
 
 <body>
@@ -139,6 +143,26 @@
                 </button>
                 <button class="nav-item" data-tool="qr" data-description="Metin ve bağlantılar için renkli QR kodlar oluştur." type="button">
                     <span>QR Code Generator</span>
+                </button>
+                <button class="nav-item" data-tool="qr-code-scanner" data-category="Araçlar"
+                    data-search="qr code scanner tarayıcı kod okut görsel kamera barkod bağlantı url"
+                    data-description="Görsel yükleyerek veya kamerayla QR kodların içeriğini oku." type="button">
+                    <span>QR Code Scanner</span>
+                </button>
+                <button class="nav-item" data-tool="url-cleaner" data-category="Araçlar"
+                    data-search="url cleaner link temizle utm tracking takip parametre reklam fbclid gclid"
+                    data-description="Bağlantılardaki takip ve reklam parametrelerini tek tıkla temizle." type="button">
+                    <span>URL Cleaner</span>
+                </button>
+                <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
+                    data-search="json formatter validator beautify minify formatla doğrula syntax json düzenle"
+                    data-description="JSON metinlerini formatla, sıkıştır ve hataları satır bilgisiyle denetle." type="button">
+                    <span>JSON Formatter</span>
+                </button>
+                <button class="nav-item" data-tool="image-compressor" data-category="Araçlar"
+                    data-search="image compressor görsel sıkıştır jpg jpeg png webp quality kalite fotoğraf boyut küçült"
+                    data-description="Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin." type="button">
+                    <span>Image Compressor</span>
                 </button>
                 <button class="nav-item" data-tool="speech" data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
                     <span>Text To Speech</span>
@@ -617,6 +641,285 @@
                         <div id="qr-code" class="qr-output"></div>
                     </div>
                 </div>
+            </section>
+
+            <section id="qr-code-scanner" class="tool-panel qr-scanner-panel" aria-labelledby="qr-code-scanner-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="qr-code-scanner-title">QR Code Scanner</h2>
+                        <p>Bir görsel yükleyin veya cihaz kameranızı kullanarak QR kodun içeriğini tarayıcıda okuyun.</p>
+                    </div>
+                </div>
+
+                <div class="qr-scanner-layout">
+                    <section class="qr-scanner-upload-card" aria-labelledby="qr-scanner-upload-title">
+                        <input id="qr-scanner-file-input" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" hidden>
+                        <div id="qr-scanner-drop-zone" class="qr-scanner-drop-zone" tabindex="0" aria-labelledby="qr-scanner-upload-title" aria-describedby="qr-scanner-upload-help qr-scanner-status">
+                            <div class="qr-scanner-upload-icon" aria-hidden="true"><span>QR</span></div>
+                            <div>
+                                <h3 id="qr-scanner-upload-title">QR görselinizi buraya sürükleyin</h3>
+                                <p id="qr-scanner-upload-help">veya cihazınızdan bir dosya seçin</p>
+                            </div>
+                            <div class="qr-scanner-upload-actions">
+                                <button id="qr-scanner-browse" class="primary-button" type="button">Görsel Seç</button>
+                                <button id="qr-scanner-camera-toggle" class="secondary-button" type="button" hidden>Kamerayı Aç</button>
+                            </div>
+                            <small>PNG · JPG · JPEG · WEBP</small>
+                        </div>
+                        <p id="qr-scanner-status" class="qr-scanner-status" aria-live="polite">Dosyanız yalnızca bu cihazda işlenir.</p>
+
+                        <figure id="qr-scanner-preview" class="qr-scanner-preview" hidden>
+                            <figcaption>
+                                <span>Yüklenen görsel</span>
+                                <button id="qr-scanner-clear" class="ghost-button" type="button">Yeni Görsel</button>
+                            </figcaption>
+                            <img id="qr-scanner-preview-image" alt="Taramak için yüklenen görsel önizlemesi">
+                        </figure>
+                    </section>
+
+                    <aside class="qr-scanner-result-card" aria-labelledby="qr-scanner-result-title">
+                        <div class="qr-scanner-card-heading">
+                            <span id="qr-scanner-result-title">Tarama sonucu</span>
+                            <span id="qr-scanner-result-state" class="qr-scanner-result-state">Hazır</span>
+                        </div>
+                        <div id="qr-scanner-result-empty" class="qr-scanner-empty-result">
+                            <div class="qr-scanner-empty-copy">
+                                <div class="qr-scanner-empty-mark" aria-hidden="true"><span>QR</span></div>
+                                <div>
+                                    <strong>QR kod bekleniyor</strong>
+                                    <p>Bir görsel seçtiğinizde bulunan içerik burada gösterilir.</p>
+                                </div>
+                            </div>
+                            <p class="qr-scanner-empty-note"><span aria-hidden="true">✓</span> Görseliniz sunucuya gönderilmeden cihazınızda taranır.</p>
+                        </div>
+                        <div id="qr-scanner-result" class="qr-scanner-result" hidden>
+                            <span class="qr-scanner-result-label">QR içeriği</span>
+                            <pre id="qr-scanner-result-value" class="qr-scanner-result-value"></pre>
+                            <div class="qr-scanner-result-actions">
+                                <button id="qr-scanner-copy" class="primary-button" type="button">İçeriği Kopyala</button>
+                                <button id="qr-scanner-open-link" class="secondary-button" type="button" hidden>Bağlantıyı Aç</button>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+
+                <section id="qr-scanner-camera" class="qr-scanner-camera" aria-labelledby="qr-scanner-camera-title" hidden>
+                    <div class="qr-scanner-camera-heading">
+                        <div>
+                            <h3 id="qr-scanner-camera-title">Kamerayla tara</h3>
+                            <p id="qr-scanner-camera-status" aria-live="polite">QR kodu çerçevenin içinde tutun.</p>
+                        </div>
+                        <button id="qr-scanner-camera-close" class="ghost-button" type="button">Kamerayı Kapat</button>
+                    </div>
+                    <div class="qr-scanner-camera-frame">
+                        <video id="qr-scanner-video" autoplay muted playsinline></video>
+                        <div class="qr-scanner-camera-guide" aria-hidden="true"></div>
+                    </div>
+                    <canvas id="qr-scanner-camera-canvas" hidden></canvas>
+                </section>
+
+                <p id="qr-scanner-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="url-cleaner" class="tool-panel url-cleaner-panel" aria-labelledby="url-cleaner-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="url-cleaner-title">URL Cleaner</h2>
+                        <p>Bağlantılardaki takip ve reklam parametrelerini cihazınızda anında temizleyin.</p>
+                    </div>
+                </div>
+
+                <div class="url-cleaner-layout">
+                    <form id="url-cleaner-form" class="url-cleaner-input-card" novalidate>
+                        <div class="field-group">
+                            <label for="url-cleaner-input">Temizlenecek URL</label>
+                            <textarea id="url-cleaner-input" rows="6" spellcheck="false" autocapitalize="off" autocomplete="url"
+                                placeholder="https://ornek.com/?utm_source=newsletter&amp;fbclid=..."></textarea>
+                        </div>
+                        <div class="url-cleaner-input-footer">
+                            <p id="url-cleaner-input-hint">URL yazdıkça takip parametreleri otomatik temizlenir.</p>
+                            <button id="url-cleaner-clear" class="ghost-button" type="button" disabled>Temizle</button>
+                        </div>
+                    </form>
+
+                    <aside class="url-cleaner-result-card" aria-labelledby="url-cleaner-result-title">
+                        <div class="url-cleaner-card-heading">
+                            <span id="url-cleaner-result-title">Temizlenmiş URL</span>
+                            <span id="url-cleaner-result-state" class="url-cleaner-result-state">Hazır</span>
+                        </div>
+                        <div id="url-cleaner-empty" class="url-cleaner-empty">
+                            <div class="url-cleaner-empty-mark" aria-hidden="true">↗</div>
+                            <div>
+                                <strong>Bağlantı bekleniyor</strong>
+                                <p>Bir URL yapıştırdığınızda temizlenmiş sürümü burada gösterilir.</p>
+                            </div>
+                        </div>
+                        <div id="url-cleaner-error" class="url-cleaner-error" role="alert" hidden>
+                            <div class="url-cleaner-error-mark" aria-hidden="true">!</div>
+                            <div>
+                                <strong>URL okunamadı</strong>
+                                <p id="url-cleaner-error-message"></p>
+                            </div>
+                        </div>
+                        <div id="url-cleaner-result" class="url-cleaner-result" hidden>
+                            <p id="url-cleaner-summary" class="url-cleaner-summary"></p>
+                            <pre id="url-cleaner-result-value" class="url-cleaner-result-value"></pre>
+                            <button id="url-cleaner-copy" class="primary-button" type="button">URL’yi Kopyala</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <section id="url-cleaner-params-section" class="url-cleaner-params-card" aria-labelledby="url-cleaner-params-title" hidden>
+                    <div class="url-cleaner-params-heading">
+                        <div>
+                            <h3 id="url-cleaner-params-title">Query parametreleri</h3>
+                            <p id="url-cleaner-params-description">Orijinal URL’deki parametreler.</p>
+                        </div>
+                    </div>
+                    <ul id="url-cleaner-params" class="url-cleaner-params"></ul>
+                </section>
+
+                <p id="url-cleaner-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="json-formatter" class="tool-panel json-formatter-panel" aria-labelledby="json-formatter-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="json-formatter-title">JSON Formatter</h2>
+                        <p>JSON metninizi formatlayın, sıkıştırın ve sözdizimini tamamen tarayıcınızda doğrulayın.</p>
+                    </div>
+                </div>
+
+                <div class="json-formatter-layout">
+                    <form id="json-formatter-form" class="json-formatter-input-card" novalidate>
+                        <div class="json-formatter-card-heading">
+                            <label for="json-formatter-input">JSON metni</label>
+                            <span id="json-formatter-input-state" class="json-formatter-input-state">Düzenlemeye hazır</span>
+                        </div>
+                        <textarea id="json-formatter-input" rows="16" spellcheck="false" autocapitalize="off" autocomplete="off"
+                            aria-describedby="json-formatter-input-help" placeholder='{"ad": "Omni Tools", "aktif": true}'></textarea>
+                        <div class="json-formatter-actions">
+                            <button id="json-formatter-beautify" class="primary-button" type="submit">Formatla</button>
+                            <button id="json-formatter-minify" class="secondary-button" type="button">Minify</button>
+                            <button id="json-formatter-clear" class="ghost-button" type="button" disabled>Temizle</button>
+                        </div>
+                        <p id="json-formatter-input-help" class="json-formatter-input-help">İşlemler yalnızca bu cihazda yapılır; veriniz sunucuya gönderilmez.</p>
+                    </form>
+
+                    <aside class="json-formatter-result-card" aria-labelledby="json-formatter-result-title">
+                        <div class="json-formatter-card-heading">
+                            <span id="json-formatter-result-title">Önizleme</span>
+                            <span id="json-formatter-result-state" class="json-formatter-result-state">Hazır</span>
+                        </div>
+                        <div id="json-formatter-empty" class="json-formatter-empty">
+                            <div class="json-formatter-empty-mark" aria-hidden="true">{ }</div>
+                            <div>
+                                <strong>JSON çıktısı bekleniyor</strong>
+                                <p>Formatlanmış veya sıkıştırılmış JSON burada syntax highlighting ile gösterilir.</p>
+                            </div>
+                        </div>
+                        <div id="json-formatter-error" class="json-formatter-error" role="alert" hidden>
+                            <div class="json-formatter-error-mark" aria-hidden="true">!</div>
+                            <div>
+                                <strong>JSON geçersiz</strong>
+                                <p id="json-formatter-error-message"></p>
+                                <p id="json-formatter-error-location" class="json-formatter-error-location" hidden></p>
+                            </div>
+                        </div>
+                        <div id="json-formatter-result" class="json-formatter-result" hidden>
+                            <div class="json-formatter-output-heading">
+                                <span id="json-formatter-output-summary" class="json-formatter-output-summary">Geçerli JSON</span>
+                            </div>
+                            <pre id="json-formatter-output" class="json-formatter-output" aria-label="Formatlanmış JSON çıktısı"><code id="json-formatter-output-code"></code></pre>
+                            <button id="json-formatter-copy" class="primary-button" type="button">Çıktıyı Kopyala</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <p id="json-formatter-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="image-compressor" class="tool-panel image-compressor-panel" aria-labelledby="image-compressor-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="image-compressor-title">Image Compressor</h2>
+                        <p>Görsellerinizi kalite ayarıyla cihazınızda sıkıştırın, boyut farkını inceleyin ve indirin.</p>
+                    </div>
+                </div>
+
+                <div class="image-compressor-layout">
+                    <section class="image-compressor-upload-card" aria-labelledby="image-compressor-upload-title">
+                        <input id="image-compressor-file-input" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" hidden>
+                        <div id="image-compressor-drop-zone" class="image-compressor-drop-zone" tabindex="0" aria-labelledby="image-compressor-upload-title" aria-describedby="image-compressor-upload-help image-compressor-status">
+                            <div class="image-compressor-upload-icon" aria-hidden="true"><span>↓</span></div>
+                            <div>
+                                <h3 id="image-compressor-upload-title">Görselinizi buraya sürükleyin</h3>
+                                <p id="image-compressor-upload-help">veya cihazınızdan bir dosya seçin</p>
+                            </div>
+                            <button id="image-compressor-browse" class="primary-button" type="button">Görsel Seç</button>
+                            <small>JPG · JPEG · PNG · WEBP</small>
+                        </div>
+                        <p id="image-compressor-status" class="image-compressor-status" aria-live="polite">Görseliniz yalnızca bu cihazda işlenir.</p>
+
+                        <section id="image-compressor-options" class="image-compressor-options" aria-labelledby="image-compressor-quality-label" hidden>
+                            <div class="image-compressor-options-heading">
+                                <label id="image-compressor-quality-label" for="image-compressor-quality">Sıkıştırma kalitesi</label>
+                                <output id="image-compressor-quality-value" for="image-compressor-quality">80%</output>
+                            </div>
+                            <input id="image-compressor-quality" type="range" min="40" max="100" value="80" step="1">
+                            <p id="image-compressor-format-note">Çıkış formatı yüklenen görsele göre seçilir.</p>
+                        </section>
+
+                        <figure id="image-compressor-original-preview" class="image-compressor-preview" hidden>
+                            <figcaption>
+                                <span>Orijinal görsel</span>
+                                <button id="image-compressor-clear" class="ghost-button" type="button">Yeni Görsel</button>
+                            </figcaption>
+                            <img id="image-compressor-original-image" alt="Sıkıştırılacak orijinal görsel önizlemesi">
+                        </figure>
+                    </section>
+
+                    <aside class="image-compressor-result-card" aria-labelledby="image-compressor-result-title">
+                        <div class="image-compressor-card-heading">
+                            <span id="image-compressor-result-title">Sıkıştırma sonucu</span>
+                            <span id="image-compressor-result-state" class="image-compressor-result-state">Hazır</span>
+                        </div>
+                        <div id="image-compressor-result-empty" class="image-compressor-empty-result">
+                            <div class="image-compressor-empty-copy">
+                                <div class="image-compressor-empty-mark" aria-hidden="true">⇩</div>
+                                <div>
+                                    <strong>Görsel bekleniyor</strong>
+                                    <p>Bir görsel seçtiğinizde sıkıştırılmış sürümü ve boyut farkı burada gösterilir.</p>
+                                </div>
+                            </div>
+                            <p class="image-compressor-empty-note"><span aria-hidden="true">✓</span> Dosyanız sunucuya gönderilmeden tarayıcınızda sıkıştırılır.</p>
+                        </div>
+                        <div id="image-compressor-result" class="image-compressor-result" hidden>
+                            <p id="image-compressor-summary" class="image-compressor-summary"></p>
+                            <div class="image-compressor-stats" aria-label="Dosya boyutu karşılaştırması">
+                                <div>
+                                    <span>Orijinal boyut</span>
+                                    <strong id="image-compressor-original-size">—</strong>
+                                </div>
+                                <div>
+                                    <span>Sıkıştırılmış</span>
+                                    <strong id="image-compressor-compressed-size">—</strong>
+                                </div>
+                                <div class="image-compressor-savings">
+                                    <span>Kazanılan alan</span>
+                                    <strong id="image-compressor-savings">—</strong>
+                                </div>
+                            </div>
+                            <figure class="image-compressor-output-preview">
+                                <figcaption>Sıkıştırılmış önizleme</figcaption>
+                                <img id="image-compressor-output-image" alt="Sıkıştırılmış görsel önizlemesi">
+                            </figure>
+                            <button id="image-compressor-download" class="primary-button" type="button">Sıkıştırılmış Görseli İndir</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <p id="image-compressor-live" class="sr-only" aria-live="assertive"></p>
             </section>
 
             <section id="speech" class="tool-panel" aria-labelledby="speech-title">
@@ -3198,6 +3501,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
     <script src="index.js?v=44"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
@@ -3252,6 +3556,10 @@
     <script src="tools/exif-veri-goruntuleme/app.js?v=2"></script>
     <script src="tools/medya-veri-temizleyici/core.js?v=2"></script>
     <script src="tools/medya-veri-temizleyici/app.js?v=4"></script>
+    <script src="tools/qr-code-scanner/app.js?v=1"></script>
+    <script src="tools/url-cleaner/app.js?v=2"></script>
+    <script src="tools/json-formatter/app.js?v=3"></script>
+    <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="tools/chess-coach/jquery-1.12.4.min.js"></script>
     <script src="tools/chess-coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/chess-coach/chess.js?v=1"></script>
