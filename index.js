@@ -310,7 +310,12 @@ function updatePageMetadata(tool) {
         },
     };
     const metadata = toolMetadata[tool] || {};
-    const title = metadata.title || defaultPageTitle;
+    const toolName = Array.from(navItems)
+        .find((item) => item.dataset.tool === tool)
+        ?.querySelector("span")
+        ?.textContent
+        .trim();
+    const title = metadata.title || (toolName ? `${toolName} | Omni Tools` : defaultPageTitle);
     const description = metadata.description || defaultPageDescription;
     const keywords = metadata.keywords || defaultPageKeywords;
 

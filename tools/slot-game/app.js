@@ -75,7 +75,7 @@
     let currentGrid = engine.createGrid();
     let turboEnabled = saved.turboEnabled;
     let autoRemaining = 0;
-    let autoCount = Number(elements.autoCount.dataset.value) || 100;
+    let autoCount = parseAutoCount(elements.autoCount.dataset.value);
     let nextSpinTimer = 0;
     let soundEnabled = saved.soundEnabled;
     let soundVolume = saved.soundVolume;
@@ -303,12 +303,12 @@
         elements.buyBonus.classList.toggle("is-unavailable", bonusUnavailable);
         elements.buyBonus.title = bonusUnavailable ? "Bu bahis için sanal bakiye yetersiz" : "10 Free Spins bonusunu satın al";
         elements.buyConfirm.disabled = !engine.canBuyBonus(state);
-        elements.autoButton.textContent = autoRemaining > 0 ? `Durdur · ${autoRemaining}` : "Başlat";
+        elements.autoButton.textContent = autoRemaining > 0 ? `Durdur · ${formatAutoCount(autoRemaining)}` : "Başlat";
         elements.autoButton.classList.toggle("is-active", autoRemaining > 0);
         elements.spinSubtitle.textContent = state.freeSpins > 0
             ? `${state.freeSpins} ücretsiz`
             : autoRemaining > 0
-                ? `${autoRemaining} auto`
+                ? `${formatAutoCount(autoRemaining)} auto`
                 : "Başlat";
     }
 
@@ -334,19 +334,27 @@
         if (elements.autoCount.disabled) return;
         elements.autoCountMenu.hidden = false;
         elements.autoCount.setAttribute("aria-expanded", "true");
-        elements.autoCountOptions.find((option) => Number(option.dataset.slotAutoCount) === autoCount)?.focus();
+        elements.autoCountOptions.find((option) => parseAutoCount(option.dataset.slotAutoCount) === autoCount)?.focus();
     }
 
     function setAutoCount(value) {
-        const nextValue = Number(value);
-        if (![10, 25, 50, 100].includes(nextValue)) return;
+        const nextValue = parseAutoCount(value);
+        if (![10, 25, 50, 100, Infinity].includes(nextValue)) return;
         autoCount = nextValue;
-        elements.autoCount.dataset.value = String(autoCount);
-        elements.autoCountValue.textContent = String(autoCount);
+        elements.autoCount.dataset.value = Number.isFinite(autoCount) ? String(autoCount) : "infinite";
+        elements.autoCountValue.textContent = formatAutoCount(autoCount);
         elements.autoCountOptions.forEach((option) => {
-            option.setAttribute("aria-checked", String(Number(option.dataset.slotAutoCount) === autoCount));
+            option.setAttribute("aria-checked", String(parseAutoCount(option.dataset.slotAutoCount) === autoCount));
         });
         closeAutoCountMenu(true);
+    }
+
+    function parseAutoCount(value) {
+        return value === "infinite" ? Infinity : Number(value) || 100;
+    }
+
+    function formatAutoCount(value) {
+        return Number.isFinite(value) ? String(value) : "Sonsuz";
     }
 
     function timing(normal, turbo) {
@@ -705,7 +713,10 @@
         }
         autoRemaining = autoCount;
         closeAutoCountMenu();
-        setStatus("Auto Spin aktif", `${autoRemaining} spinlik seri başladı. İstediğin anda durdurabilirsin.`);
+        const autoSpinMessage = Number.isFinite(autoRemaining)
+            ? `${autoRemaining} spinlik seri başladı. İstediğin anda durdurabilirsin.`
+            : "Sonsuz spin serisi başladı. İstediğin anda durdurabilirsin.";
+        setStatus("Auto Spin aktif", autoSpinMessage);
         updateControls();
         runSpin();
     });
