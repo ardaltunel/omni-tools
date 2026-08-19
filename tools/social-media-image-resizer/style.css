@@ -1,0 +1,31 @@
+/* Media Image Resizer */
+.social-resizer-panel [hidden] { display: none !important; }
+.social-resizer-layout { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(320px, .98fr); gap: 18px; align-items: stretch; }
+.social-resizer-upload-card, .social-resizer-result-card { display: grid; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 18px; }
+.social-resizer-upload-card { align-content: start; gap: 14px; }
+.social-resizer-drop-zone { display: grid; min-height: 250px; place-items: center; align-content: center; gap: 13px; border: 1px dashed var(--line); border-radius: var(--radius); padding: 24px; cursor: pointer; outline: none; text-align: center; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
+.social-resizer-drop-zone:hover, .social-resizer-drop-zone.is-dragging { border-color: var(--accent); background: rgba(24,169,153,.1); }
+.social-resizer-drop-zone.is-dragging { transform: translateY(-2px); }
+.social-resizer-drop-zone:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(24,169,153,.18); }
+.social-resizer-upload-icon { display: grid; width: 64px; height: 64px; place-items: center; border: 1px solid rgba(24,169,153,.42); border-radius: 18px; background: rgba(24,169,153,.1); color: var(--accent-strong); font-size: 29px; font-weight: 800; }
+.social-resizer-drop-zone h3 { margin: 0 0 5px; font-size: 17px; }
+.social-resizer-drop-zone p, .social-resizer-status, .social-resizer-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.social-resizer-drop-zone small { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+.social-resizer-drop-zone .primary-button { min-width: 136px; }
+.social-resizer-status { min-height: 20px; }
+.social-resizer-status.is-success { color: var(--success); }.social-resizer-status.is-error { color:#ffb1b8; }
+.social-resizer-controls { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-2); padding: 14px; }
+.social-resizer-controls label { color: var(--muted); font-size: 12px; font-weight: 700; }
+.social-resizer-controls p { margin: 3px 0 0; color: var(--accent-strong); font-size: 12px; font-weight: 700; }
+.social-resizer-result-card { grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+.social-resizer-card-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.social-resizer-card-heading > span:first-child { color: var(--muted); font-size: 13px; font-weight: 700; }
+.social-resizer-state { border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.social-resizer-state.is-success { border-color: rgba(74,222,128,.42); background: rgba(74,222,128,.1); color: var(--success); }.social-resizer-state.is-error { border-color: rgba(255,95,109,.42); background: rgba(255,95,109,.1); color:#ffb1b8; }
+.social-resizer-empty { display: grid; grid-template-columns: auto minmax(0,1fr); align-content: center; align-items: center; gap: 14px; justify-self: center; width: min(100%,400px); }
+.social-resizer-empty-mark { display: grid; width: 58px; height: 58px; place-items: center; border: 1px solid rgba(24,169,153,.42); border-radius: 15px; background: rgba(24,169,153,.1); color: var(--accent-strong); font-size: 28px; }.social-resizer-empty strong { display:block; margin-bottom:5px; font-size:18px; }
+.social-resizer-result { display: grid; align-content: start; gap: 12px; min-height: 0; padding-top: 14px; }
+.social-resizer-result canvas { display: block; width: 100%; max-height: 420px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #20232a; object-fit: contain; }
+.social-resizer-result p { margin: 0; color: var(--success); font-size: 13px; font-weight: 700; }.social-resizer-result .primary-button { width:100%; }
+@media (max-width:900px) { .social-resizer-layout { grid-template-columns:minmax(0,1fr); }.social-resizer-result-card { min-height:330px; } }
+@media (max-width:620px) { .social-resizer-upload-card,.social-resizer-result-card { padding:14px; }.social-resizer-drop-zone { min-height:224px;padding:20px; } }

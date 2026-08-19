@@ -1,0 +1,24 @@
+/* Encoder / Decoder */
+.encoder-decoder-panel [hidden] { display: none !important; }
+.encoder-decoder-layout { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr); gap: 18px; align-items: stretch; }
+.encoder-decoder-input-card, .encoder-decoder-result-card { display: grid; min-width: 0; min-height: 410px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 18px; }
+.encoder-decoder-input-card { grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 12px; }
+.encoder-decoder-result-card { grid-template-rows: auto minmax(0, 1fr); }
+.encoder-decoder-card-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.encoder-decoder-card-heading > label, .encoder-decoder-card-heading > span:first-child, .encoder-decoder-input-label { color: var(--muted); font-size: 13px; font-weight: 700; }
+.encoder-decoder-state { border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; font-weight: 800; padding: 4px 9px; }
+.encoder-decoder-state.is-success { border-color: rgba(74,222,128,.42); background: rgba(74,222,128,.1); color: var(--success); }
+.encoder-decoder-state.is-error { border-color: rgba(255,95,109,.42); background: rgba(255,95,109,.1); color: #ffb1b8; }
+.encoder-decoder-input-card textarea { min-height: 232px; resize: vertical; font: 500 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.encoder-decoder-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; }
+.encoder-decoder-actions .ghost-button { padding-inline: 18px; }
+.encoder-decoder-empty, .encoder-decoder-error { display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: center; align-items: center; gap: 14px; justify-self: center; width: min(100%, 400px); }
+.encoder-decoder-empty-mark { display: grid; width: 58px; height: 58px; place-items: center; border: 1px solid rgba(24,169,153,.42); border-radius: 15px; background: rgba(24,169,153,.1); color: var(--accent-strong); font: 800 16px/1 ui-monospace, monospace; }
+.encoder-decoder-empty strong { display: block; margin-bottom: 5px; font-size: 18px; }
+.encoder-decoder-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.encoder-decoder-error { align-content: center; border: 1px solid rgba(255,95,109,.42); border-radius: var(--radius-sm); background: rgba(255,95,109,.08); color: #ffb1b8; padding: 14px; font-size: 13px; line-height: 1.5; }
+.encoder-decoder-result { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; gap: 12px; padding-top: 14px; }
+.encoder-decoder-output { min-height: 280px; max-height: 470px; overflow: auto; margin: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-2); padding: 14px; color: var(--text); font: 500 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; overflow-wrap: anywhere; white-space: pre-wrap; }
+.encoder-decoder-result .primary-button { width: 100%; }
+@media (max-width: 900px) { .encoder-decoder-layout { grid-template-columns: minmax(0,1fr); } .encoder-decoder-input-card, .encoder-decoder-result-card { min-height: 0; } }
+@media (max-width: 620px) { .encoder-decoder-input-card, .encoder-decoder-result-card { padding: 14px; } .encoder-decoder-actions { grid-template-columns: minmax(0,1fr); } .encoder-decoder-actions .ghost-button { width: 100%; } }

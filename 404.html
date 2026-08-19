@@ -3,6 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
+    <script>
+        (() => {
+            // Statik hostlar SPA yolunu fiziksel dosya gibi arar. Geçerli tek-segment
+            // araç yollarını ana uygulamaya iletip index.js router'ının yeniden kurmasını sağlarız.
+            const projectPath = window.location.hostname.endsWith(".github.io")
+                ? (window.location.pathname.match(/^\/[^/]+\/?/)?.[0] || "/")
+                : "/";
+            const requestedRoute = window.location.pathname
+                .slice(projectPath.length)
+                .replace(/^\/+|\/+$/g, "");
+
+            // Gerçek eksik dosyalar ve daha derin bilinmeyen yollar 404 ekranında kalır.
+            if (!requestedRoute || requestedRoute.includes("/") || requestedRoute.includes(".")) return;
+
+            const appUrl = new URL(projectPath, window.location.origin);
+            appUrl.searchParams.set("tool", requestedRoute);
+            window.location.replace(appUrl.href);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#101114">
     <meta name="robots" content="noindex">

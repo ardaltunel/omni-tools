@@ -49,6 +49,11 @@ The project mainly focuses on:
 * URL Cleaner
 * JSON Formatter
 * Image Compressor
+* PDF Toolbox
+* Encoder / Decoder
+* Timestamp Converter
+* Media Image Resizer
+* Link Preview Test
 * Weather Application
 * Cryptocurrency Price Tracker
 * GitHub User Finder

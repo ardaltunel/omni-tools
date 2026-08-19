@@ -1,0 +1,29 @@
+(function initSocialResizer(root) {
+    "use strict";
+    const panel = document.getElementById("social-media-image-resizer");
+    if (!panel) return;
+    const el = {}; ["social-resizer-file-input", "social-resizer-drop-zone", "social-resizer-browse", "social-resizer-status", "social-resizer-controls", "social-resizer-preset", "social-resizer-fit", "social-resizer-dimensions", "social-resizer-result-state", "social-resizer-empty", "social-resizer-result", "social-resizer-canvas", "social-resizer-summary", "social-resizer-download", "social-resizer-live"].forEach((id) => { el[id] = document.getElementById(id); });
+    const PRESETS = { "instagram-post": [1080,1080,"Instagram Post"], "instagram-story": [1080,1920,"Instagram Story / Reels"], "youtube-thumbnail": [1280,720,"YouTube Thumbnail"], "youtube-banner": [2560,1440,"YouTube Banner"], "x-post": [1600,900,"X / Twitter"], facebook: [1200,630,"Facebook"], linkedin: [1200,627,"LinkedIn"] };
+    const accepted = new Set(["image/jpeg","image/png","image/webp"]);
+    const state = { image: null, sourceUrl: "", outputUrl: "", outputBlob: null, fileName: "" };
+    el["social-resizer-browse"].addEventListener("click", (event) => { event.stopPropagation(); el["social-resizer-file-input"].click(); });
+    el["social-resizer-file-input"].addEventListener("change", () => useFile(el["social-resizer-file-input"].files?.[0]));
+    el["social-resizer-drop-zone"].addEventListener("click", () => el["social-resizer-file-input"].click());
+    el["social-resizer-drop-zone"].addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); el["social-resizer-file-input"].click(); } });
+    ["dragenter","dragover"].forEach((name) => el["social-resizer-drop-zone"].addEventListener(name, (event) => { event.preventDefault(); el["social-resizer-drop-zone"].classList.add("is-dragging"); }));
+    ["dragleave","drop"].forEach((name) => el["social-resizer-drop-zone"].addEventListener(name, (event) => { event.preventDefault(); el["social-resizer-drop-zone"].classList.remove("is-dragging"); }));
+    el["social-resizer-drop-zone"].addEventListener("drop", (event) => useFile(event.dataTransfer?.files?.[0]));
+    el["social-resizer-preset"].addEventListener("change", render);
+    el["social-resizer-fit"].addEventListener("change", render);
+    el["social-resizer-download"].addEventListener("click", download);
+
+    async function useFile(file) { if (!file) return; const extension = file.name.split(".").pop()?.toLowerCase(); if (!accepted.has(file.type) && !["jpg","jpeg","png","webp"].includes(extension)) return showError("JPG, JPEG, PNG veya WEBP görsel seçin."); dispose(); state.sourceUrl = URL.createObjectURL(file); state.fileName = file.name; try { state.image = await loadImage(state.sourceUrl); el["social-resizer-controls"].hidden = false; render(); } catch { showError("Görsel okunamadı."); } }
+    function loadImage(url) { return new Promise((resolve,reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = url; }); }
+    function render() { if (!state.image) return; const [width,height,label] = PRESETS[el["social-resizer-preset"].value]; const mode = el["social-resizer-fit"].value; const canvas = el["social-resizer-canvas"]; canvas.width = width; canvas.height = height; const context = canvas.getContext("2d"); context.fillStyle = "#20232a"; context.fillRect(0,0,width,height); const scale = mode === "crop" ? Math.max(width / state.image.naturalWidth, height / state.image.naturalHeight) : Math.min(width / state.image.naturalWidth, height / state.image.naturalHeight); const drawWidth = state.image.naturalWidth * scale; const drawHeight = state.image.naturalHeight * scale; context.drawImage(state.image, (width-drawWidth)/2, (height-drawHeight)/2, drawWidth, drawHeight); canvas.toBlob((blob) => { if (!blob) return showError("Görsel çıktısı oluşturulamadı."); if (state.outputUrl) URL.revokeObjectURL(state.outputUrl); state.outputBlob = blob; state.outputUrl = URL.createObjectURL(blob); el["social-resizer-dimensions"].textContent = `${label} · ${width} × ${height} px · ${mode === "crop" ? "Crop" : "Fit"}`; el["social-resizer-summary"].textContent = `${label} için JPEG çıktısı hazır.`; el["social-resizer-empty"].hidden = true; el["social-resizer-result"].hidden = false; setState("Hazır", "success"); setStatus("Görsel yeniden boyutlandırıldı.", "success"); announce(`${label} önizlemesi hazır.`); }, "image/jpeg", .92); }
+    function dispose() { if (state.sourceUrl) URL.revokeObjectURL(state.sourceUrl); if (state.outputUrl) URL.revokeObjectURL(state.outputUrl); state.image = null; state.sourceUrl = ""; state.outputUrl = ""; state.outputBlob = null; }
+    function download() { if (!state.outputUrl) return; const base = state.fileName.replace(/\.[^/.]+$/, "") || "social-image"; const anchor = document.createElement("a"); anchor.href = state.outputUrl; anchor.download = `${base}-${el["social-resizer-preset"].value}.jpg`; anchor.click(); announce("Görsel indiriliyor."); }
+    function showError(message) { el["social-resizer-result"].hidden = true; el["social-resizer-empty"].hidden = false; setState("Hata", "error"); setStatus(message,"error"); announce(message); }
+    function setState(message,tone="") { const node = el["social-resizer-result-state"]; node.textContent=message; node.classList.toggle("is-success",tone==="success");node.classList.toggle("is-error",tone==="error"); }
+    function setStatus(message,tone="") { const node=el["social-resizer-status"];node.textContent=message;node.classList.toggle("is-success",tone==="success");node.classList.toggle("is-error",tone==="error"); }
+    function announce(message) { el["social-resizer-live"].textContent = message; }
+}(window));

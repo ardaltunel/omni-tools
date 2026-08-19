@@ -44,6 +44,11 @@
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=3">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
+    <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=1">
+    <link rel="stylesheet" href="tools/encoder-decoder/style.css?v=1">
+    <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
+    <link rel="stylesheet" href="tools/social-media-image-resizer/style.css?v=1">
+    <link rel="stylesheet" href="tools/link-preview-tester/style.css?v=1">
 </head>
 
 <body>
@@ -163,6 +168,31 @@
                     data-search="image compressor görsel sıkıştır jpg jpeg png webp quality kalite fotoğraf boyut küçült"
                     data-description="Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin." type="button">
                     <span>Image Compressor</span>
+                </button>
+                <button class="nav-item" data-tool="pdf-toolbox" data-category="Araçlar"
+                    data-search="pdf toolbox birleştir böl split organize rotate delete reorder görsel pdf"
+                    data-description="PDF sayfalarını birleştirin, bölün, düzenleyin veya görsellerden PDF oluşturun." type="button">
+                    <span>PDF Toolbox</span>
+                </button>
+                <button class="nav-item" data-tool="encoder-decoder" data-category="Araçlar"
+                    data-search="encoder decoder base64 url html unicode jwt encode decode şifre çöz"
+                    data-description="Base64, URL, HTML, Unicode ve JWT metinlerini dönüştürün." type="button">
+                    <span>Encoder / Decoder</span>
+                </button>
+                <button class="nav-item" data-tool="timestamp-converter" data-category="Araçlar"
+                    data-search="timestamp unix tarih saat saniye milisaniye utc local epoch converter"
+                    data-description="Unix timestamp ve tarih/saat değerlerini anında dönüştürün." type="button">
+                    <span>Timestamp Converter</span>
+                </button>
+                <button class="nav-item" data-tool="social-media-image-resizer" data-category="Araçlar"
+                    data-search="social media image resizer instagram story reels youtube thumbnail banner x twitter facebook linkedin crop fit"
+                    data-description="Görselleri sosyal medya ölçülerine göre crop veya fit ile yeniden boyutlandırın." type="button">
+                    <span>Media Image Resizer</span>
+                </button>
+                <button class="nav-item" data-tool="link-preview-tester" data-category="Araçlar"
+                    data-search="link preview tester open graph og image favicon canonical twitter card metadata title description"
+                    data-description="Bir bağlantının paylaşım kartı ve metadata bilgilerini kontrol edin." type="button">
+                    <span>Link Preview Test</span>
                 </button>
                 <button class="nav-item" data-tool="speech" data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
                     <span>Text To Speech</span>
@@ -920,6 +950,272 @@
                 </div>
 
                 <p id="image-compressor-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="pdf-toolbox" class="tool-panel pdf-toolbox-panel" aria-labelledby="pdf-toolbox-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="pdf-toolbox-title">PDF Toolbox</h2>
+                        <p>PDF dosyalarını birleştirin, sayfalarını düzenleyin, bölün veya görsellerden PDF oluşturun.</p>
+                    </div>
+                </div>
+
+                <div class="pdf-toolbox-tabs" role="tablist" aria-label="PDF işlemleri">
+                    <button class="pdf-toolbox-tab is-active" type="button" role="tab" aria-selected="true" data-pdf-mode="merge">Birleştir</button>
+                    <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="split">Böl</button>
+                    <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="organize">Düzenle</button>
+                    <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="images">Görsel → PDF</button>
+                </div>
+
+                <div class="pdf-toolbox-layout">
+                    <section class="pdf-toolbox-upload-card" aria-labelledby="pdf-toolbox-upload-title">
+                        <input id="pdf-toolbox-file-input" type="file" multiple accept="application/pdf,.pdf" hidden>
+                        <div id="pdf-toolbox-drop-zone" class="pdf-toolbox-drop-zone" tabindex="0" aria-labelledby="pdf-toolbox-upload-title" aria-describedby="pdf-toolbox-upload-help pdf-toolbox-status">
+                            <div class="pdf-toolbox-upload-icon" aria-hidden="true">PDF</div>
+                            <div>
+                                <h3 id="pdf-toolbox-upload-title">PDF dosyalarınızı buraya sürükleyin</h3>
+                                <p id="pdf-toolbox-upload-help">veya cihazınızdan dosya seçin</p>
+                            </div>
+                            <button id="pdf-toolbox-browse" class="primary-button" type="button">Dosya Seç</button>
+                            <small id="pdf-toolbox-accepted-types">PDF · Birden çok dosya seçebilirsiniz</small>
+                        </div>
+                        <p id="pdf-toolbox-status" class="pdf-toolbox-status" aria-live="polite">Dosyalarınız yalnızca bu cihazda işlenir.</p>
+                        <ul id="pdf-toolbox-file-list" class="pdf-toolbox-file-list" aria-label="Yüklenen dosyalar"></ul>
+                    </section>
+
+                    <aside class="pdf-toolbox-options-card" aria-labelledby="pdf-toolbox-options-title">
+                        <div class="pdf-toolbox-card-heading">
+                            <span id="pdf-toolbox-options-title">İşlem ayarları</span>
+                            <span id="pdf-toolbox-result-state" class="pdf-toolbox-result-state">Hazır</span>
+                        </div>
+
+                        <div id="pdf-toolbox-empty-options" class="pdf-toolbox-empty-options">
+                            <div class="pdf-toolbox-empty-mark" aria-hidden="true">↗</div>
+                            <div>
+                                <strong>Dosya bekleniyor</strong>
+                                <p>Seçtiğiniz işleme göre gerekli ayarlar burada görünür.</p>
+                            </div>
+                        </div>
+
+                        <div id="pdf-toolbox-options" class="pdf-toolbox-options" hidden>
+                            <div id="pdf-toolbox-mode-merge" class="pdf-toolbox-mode-options">
+                                <strong>PDF’leri birleştir</strong>
+                                <p>Listede görünen sırayla tüm PDF sayfaları tek bir dosyada birleştirilir.</p>
+                            </div>
+                            <div id="pdf-toolbox-mode-split" class="pdf-toolbox-mode-options" hidden>
+                                <label for="pdf-toolbox-split-ranges">Bölünecek sayfa aralıkları</label>
+                                <input id="pdf-toolbox-split-ranges" class="text-input" type="text" placeholder="1-3, 4-6, 7">
+                                <p>Virgülle ayırdığınız her aralık ayrı bir PDF olarak indirilir.</p>
+                            </div>
+                            <div id="pdf-toolbox-mode-organize" class="pdf-toolbox-mode-options" hidden>
+                                <label for="pdf-toolbox-page-order">Yeni sayfa sırası</label>
+                                <input id="pdf-toolbox-page-order" class="text-input" type="text" placeholder="1, 2, 3">
+                                <label for="pdf-toolbox-delete-pages">Silinecek sayfalar</label>
+                                <input id="pdf-toolbox-delete-pages" class="text-input" type="text" placeholder="Örn: 2, 5-7">
+                                <div class="pdf-toolbox-rotation-row">
+                                    <label for="pdf-toolbox-rotate-pages">Döndürülecek sayfalar</label>
+                                    <label for="pdf-toolbox-rotation">Açı</label>
+                                    <input id="pdf-toolbox-rotate-pages" class="text-input" type="text" placeholder="Örn: 1, 3-4">
+                                    <select id="pdf-toolbox-rotation">
+                                        <option value="90">90°</option>
+                                        <option value="180">180°</option>
+                                        <option value="270">270°</option>
+                                    </select>
+                                </div>
+                                <p>Sayfa sırası boş bırakılırsa orijinal sıra korunur.</p>
+                            </div>
+                            <div id="pdf-toolbox-mode-images" class="pdf-toolbox-mode-options" hidden>
+                                <strong>Görsellerden PDF oluştur</strong>
+                                <p>Görseller seçtiğiniz sırayla A4 sayfalara yerleştirilir. PNG, JPG, JPEG ve WEBP desteklenir.</p>
+                            </div>
+                            <button id="pdf-toolbox-process" class="primary-button" type="button">PDF Oluştur</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <p id="pdf-toolbox-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="encoder-decoder" class="tool-panel encoder-decoder-panel" aria-labelledby="encoder-decoder-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="encoder-decoder-title">Encoder / Decoder</h2>
+                        <p>Metinleri Base64, URL, HTML, Unicode ve JWT biçimleri arasında tamamen tarayıcıda dönüştürün.</p>
+                    </div>
+                </div>
+
+                <div class="encoder-decoder-layout">
+                    <section class="encoder-decoder-input-card">
+                        <div class="encoder-decoder-card-heading">
+                            <label for="encoder-decoder-mode">Dönüşüm türü</label>
+                            <span id="encoder-decoder-input-state" class="encoder-decoder-state">Hazır</span>
+                        </div>
+                        <select id="encoder-decoder-mode">
+                            <option value="base64-encode">Base64 Encode</option>
+                            <option value="base64-decode">Base64 Decode</option>
+                            <option value="url-encode">URL Encode</option>
+                            <option value="url-decode">URL Decode</option>
+                            <option value="html-escape">HTML Escape</option>
+                            <option value="html-unescape">HTML Unescape</option>
+                            <option value="unicode-encode">Unicode Encode</option>
+                            <option value="unicode-decode">Unicode Decode</option>
+                            <option value="jwt-decode">JWT Decode</option>
+                        </select>
+                        <label class="encoder-decoder-input-label" for="encoder-decoder-input">Girdi</label>
+                        <textarea id="encoder-decoder-input" rows="13" spellcheck="false" placeholder="Dönüştürmek istediğiniz metni buraya yapıştırın."></textarea>
+                        <div class="encoder-decoder-actions">
+                            <button id="encoder-decoder-run" class="primary-button" type="button">Dönüştür</button>
+                            <button id="encoder-decoder-clear" class="ghost-button" type="button">Temizle</button>
+                        </div>
+                    </section>
+
+                    <aside class="encoder-decoder-result-card" aria-labelledby="encoder-decoder-result-title">
+                        <div class="encoder-decoder-card-heading">
+                            <span id="encoder-decoder-result-title">Çıktı</span>
+                            <span id="encoder-decoder-result-state" class="encoder-decoder-state">Bekleniyor</span>
+                        </div>
+                        <div id="encoder-decoder-empty" class="encoder-decoder-empty">
+                            <div class="encoder-decoder-empty-mark" aria-hidden="true">&lt;/&gt;</div>
+                            <div>
+                                <strong>Dönüştürülmüş metin bekleniyor</strong>
+                                <p>Bir işlem seçip girdinizi dönüştürdüğünüzde sonuç burada görünür.</p>
+                            </div>
+                        </div>
+                        <div id="encoder-decoder-error" class="encoder-decoder-error" role="alert" hidden></div>
+                        <div id="encoder-decoder-result" class="encoder-decoder-result" hidden>
+                            <pre id="encoder-decoder-output" class="encoder-decoder-output"></pre>
+                            <button id="encoder-decoder-copy" class="primary-button" type="button">Çıktıyı Kopyala</button>
+                        </div>
+                    </aside>
+                </div>
+                <p id="encoder-decoder-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="timestamp-converter" class="tool-panel timestamp-converter-panel" aria-labelledby="timestamp-converter-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="timestamp-converter-title">Timestamp Converter</h2>
+                        <p>Unix timestamp ile tarih/saat değerlerini saniye veya milisaniye hassasiyetinde dönüştürün.</p>
+                    </div>
+                </div>
+
+                <div class="timestamp-converter-layout">
+                    <form id="timestamp-converter-unix-form" class="timestamp-converter-card">
+                        <div class="timestamp-converter-card-heading"><span>Unix timestamp</span><span id="timestamp-converter-unix-state" class="timestamp-converter-state">Hazır</span></div>
+                        <label for="timestamp-converter-unix-input">Timestamp değeri</label>
+                        <input id="timestamp-converter-unix-input" class="text-input" type="text" inputmode="numeric" placeholder="Örn: 1710000000">
+                        <label for="timestamp-converter-unit">Birim</label>
+                        <select id="timestamp-converter-unit"><option value="seconds">Saniye</option><option value="milliseconds">Milisaniye</option></select>
+                        <button class="primary-button" type="submit">Tarihe Dönüştür</button>
+                    </form>
+
+                    <form id="timestamp-converter-date-form" class="timestamp-converter-card">
+                        <div class="timestamp-converter-card-heading"><span>Tarih / saat</span><span id="timestamp-converter-date-state" class="timestamp-converter-state">Yerel saat</span></div>
+                        <label for="timestamp-converter-date-input">Tarih ve saat</label>
+                        <input id="timestamp-converter-date-input" class="text-input" type="datetime-local">
+                        <p class="timestamp-converter-zone-note" id="timestamp-converter-zone-note"></p>
+                        <button class="primary-button" type="submit">Timestamp’e Dönüştür</button>
+                    </form>
+                </div>
+
+                <section class="timestamp-converter-results" aria-labelledby="timestamp-converter-results-title">
+                    <div class="timestamp-converter-results-heading">
+                        <div><h3 id="timestamp-converter-results-title">Dönüşüm sonucu</h3><p id="timestamp-converter-summary">Bir değer girerek dönüşümü başlatın.</p></div>
+                        <button id="timestamp-converter-copy" class="ghost-button" type="button" disabled>Sonucu Kopyala</button>
+                    </div>
+                    <div class="timestamp-converter-result-grid">
+                        <div><span>Yerel saat</span><strong id="timestamp-converter-local">—</strong></div>
+                        <div><span>UTC</span><strong id="timestamp-converter-utc">—</strong></div>
+                        <div><span>Saniye</span><strong id="timestamp-converter-seconds">—</strong></div>
+                        <div><span>Milisaniye</span><strong id="timestamp-converter-milliseconds">—</strong></div>
+                    </div>
+                </section>
+
+                <section class="timestamp-converter-current" aria-label="Güncel Unix timestamp">
+                    <div><span>Güncel Unix timestamp</span><strong id="timestamp-converter-current-seconds">—</strong><small id="timestamp-converter-current-milliseconds">—</small></div>
+                    <button id="timestamp-converter-copy-current" class="secondary-button" type="button">Güncel Değeri Kopyala</button>
+                </section>
+                <p id="timestamp-converter-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="social-media-image-resizer" class="tool-panel social-resizer-panel" aria-labelledby="social-resizer-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="social-resizer-title">Media Image Resizer</h2>
+                        <p>Görsellerinizi sosyal medya platformlarına uygun ölçülerde crop veya fit ile yeniden boyutlandırın.</p>
+                    </div>
+                </div>
+
+                <div class="social-resizer-layout">
+                    <section class="social-resizer-upload-card" aria-labelledby="social-resizer-upload-title">
+                        <input id="social-resizer-file-input" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" hidden>
+                        <div id="social-resizer-drop-zone" class="social-resizer-drop-zone" tabindex="0" aria-labelledby="social-resizer-upload-title" aria-describedby="social-resizer-upload-help social-resizer-status">
+                            <div class="social-resizer-upload-icon" aria-hidden="true">▣</div>
+                            <div><h3 id="social-resizer-upload-title">Görselinizi buraya sürükleyin</h3><p id="social-resizer-upload-help">veya cihazınızdan bir dosya seçin</p></div>
+                            <button id="social-resizer-browse" class="primary-button" type="button">Görsel Seç</button>
+                            <small>JPG · JPEG · PNG · WEBP</small>
+                        </div>
+                        <p id="social-resizer-status" class="social-resizer-status" aria-live="polite">Görseliniz yalnızca bu cihazda işlenir.</p>
+                        <div id="social-resizer-controls" class="social-resizer-controls" hidden>
+                            <label for="social-resizer-preset">Platform ölçüsü</label>
+                            <select id="social-resizer-preset">
+                                <option value="instagram-post">Instagram Post · 1080×1080</option>
+                                <option value="instagram-story">Instagram Story / Reels · 1080×1920</option>
+                                <option value="youtube-thumbnail">YouTube Thumbnail · 1280×720</option>
+                                <option value="youtube-banner">YouTube Banner · 2560×1440</option>
+                                <option value="x-post">X / Twitter · 1600×900</option>
+                                <option value="facebook">Facebook · 1200×630</option>
+                                <option value="linkedin">LinkedIn · 1200×627</option>
+                            </select>
+                            <label for="social-resizer-fit">Yerleştirme</label>
+                            <select id="social-resizer-fit"><option value="crop">Crop · alanı doldur</option><option value="fit">Fit · tamamını sığdır</option></select>
+                            <p id="social-resizer-dimensions"></p>
+                        </div>
+                    </section>
+
+                    <aside class="social-resizer-result-card" aria-labelledby="social-resizer-result-title">
+                        <div class="social-resizer-card-heading"><span id="social-resizer-result-title">Önizleme</span><span id="social-resizer-result-state" class="social-resizer-state">Hazır</span></div>
+                        <div id="social-resizer-empty" class="social-resizer-empty"><div class="social-resizer-empty-mark" aria-hidden="true">▣</div><div><strong>Görsel bekleniyor</strong><p>Bir görsel seçtiğinizde seçili platform ölçüsündeki önizleme burada gösterilir.</p></div></div>
+                        <div id="social-resizer-result" class="social-resizer-result" hidden>
+                            <canvas id="social-resizer-canvas" aria-label="Yeniden boyutlandırılmış görsel önizlemesi"></canvas>
+                            <p id="social-resizer-summary"></p>
+                            <button id="social-resizer-download" class="primary-button" type="button">Görseli İndir</button>
+                        </div>
+                    </aside>
+                </div>
+                <p id="social-resizer-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="link-preview-tester" class="tool-panel link-preview-panel" aria-labelledby="link-preview-title">
+                <div class="panel-heading">
+                    <div>
+                        <h2 id="link-preview-title">Link Preview Test</h2>
+                        <p>Bir bağlantının paylaşım kartını, Open Graph ve Twitter Card metadata bilgilerini kontrol edin.</p>
+                    </div>
+                </div>
+
+                <form id="link-preview-form" class="link-preview-form" novalidate>
+                    <label for="link-preview-input">URL</label>
+                    <div><input id="link-preview-input" class="text-input" type="url" inputmode="url" placeholder="https://ornek.com"><button class="primary-button" type="submit">Önizlemeyi Test Et</button></div>
+                    <p>Analiz doğrudan tarayıcınızdan yapılır. Bazı siteler CORS nedeniyle metadata erişimine izin vermeyebilir.</p>
+                </form>
+
+                <div id="link-preview-error" class="link-preview-error" role="alert" hidden></div>
+                <div id="link-preview-results" class="link-preview-results" hidden>
+                    <section class="link-preview-card" aria-labelledby="link-preview-share-title">
+                        <div class="link-preview-card-heading"><span id="link-preview-share-title">Paylaşım kartı</span><span id="link-preview-state" class="link-preview-state">Bulundu</span></div>
+                        <div class="link-preview-social-card">
+                            <div id="link-preview-image-wrap" class="link-preview-image-wrap"><img id="link-preview-image" alt="Open Graph görseli" hidden><span id="link-preview-image-fallback" aria-hidden="true">↗</span></div>
+                            <div class="link-preview-social-copy"><small id="link-preview-domain">—</small><strong id="link-preview-card-title">Başlık bulunamadı</strong><p id="link-preview-card-description">Açıklama bulunamadı.</p></div>
+                        </div>
+                    </section>
+
+                    <section class="link-preview-card" aria-labelledby="link-preview-meta-title">
+                        <div class="link-preview-card-heading"><span id="link-preview-meta-title">Metadata bilgileri</span><span id="link-preview-missing-count" class="link-preview-state">—</span></div>
+                        <dl id="link-preview-meta-list" class="link-preview-meta-list"></dl>
+                    </section>
+                </div>
+                <p id="link-preview-live" class="sr-only" aria-live="assertive"></p>
             </section>
 
             <section id="speech" class="tool-panel" aria-labelledby="speech-title">
@@ -3560,6 +3856,12 @@
     <script src="tools/url-cleaner/app.js?v=2"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="tools/pdf-toolbox/app.js?v=1"></script>
+    <script src="tools/encoder-decoder/app.js?v=1"></script>
+    <script src="tools/timestamp-converter/app.js?v=2"></script>
+    <script src="tools/social-media-image-resizer/app.js?v=1"></script>
+    <script src="tools/link-preview-tester/app.js?v=1"></script>
     <script src="tools/chess-coach/jquery-1.12.4.min.js"></script>
     <script src="tools/chess-coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/chess-coach/chess.js?v=1"></script>
