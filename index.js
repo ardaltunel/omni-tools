@@ -335,6 +335,11 @@ function updatePageMetadata(tool) {
             description: "6x5 grid, cascade sistemi, çarpanlar ve Free Spins ile özgün sanal slot oyununu ücretsiz oyna.",
             keywords: "slot game, cascade, tumble, free spins, multiplier, sanal slot, arcade oyunu",
         },
+        "doviz-kurlari": {
+            title: "Döviz Kurları ve Para Birimi Dönüştürücü | Omni Tools",
+            description: "Dünya para birimlerinin güncel TL karşılıklarını görüntüleyin ve herhangi iki para birimi arasında anında dönüşüm yapın.",
+            keywords: "döviz kurları, kur çevirici, para birimi dönüştürücü, dolar tl, euro tl, güncel kurlar",
+        },
     };
     const metadata = toolMetadata[tool] || {};
     const toolName = Array.from(navItems)

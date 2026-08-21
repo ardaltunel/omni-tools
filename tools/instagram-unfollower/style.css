@@ -105,9 +105,14 @@
 }
 
 .iuf-state[data-state="cached"] {
-    border-color: rgba(118, 169, 255, 0.3);
+    border-color: #fff;
     background: rgba(118, 169, 255, 0.1);
-    color: #9bbfff;
+    color: #fff;
+}
+
+.iuf-state[data-state="ready"] {
+    border-color: #fff;
+    color: #fff;
 }
 
 .iuf-state[data-state="error"] {

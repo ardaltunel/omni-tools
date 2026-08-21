@@ -56,6 +56,7 @@ The project mainly focuses on:
 * Link Preview Test
 * Weather Application
 * Cryptocurrency Price Tracker
+* Currency Rates & Converter
 * GitHub User Finder
 * Unit Converter
 * Text-to-Speech

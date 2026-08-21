@@ -31,18 +31,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="style.css?v=88">
+    <link rel="stylesheet" href="tools/doviz-kurlari/style.css?v=5">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=3">
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=3">
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=7">
     <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=4">
     <link rel="stylesheet" href="tools/github-unfollower/style.css?v=2">
-    <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=5">
+    <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=13">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
-    <link rel="stylesheet" href="tools/json-formatter/style.css?v=3">
+    <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=1">
     <link rel="stylesheet" href="tools/encoder-decoder/style.css?v=1">
@@ -58,7 +59,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>33 uygulama, tek panel</small>
+                    <small>43 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -92,6 +93,11 @@
                 </button>
                 <button class="nav-item" data-tool="crypto" data-description="Popüler kripto para fiyatlarını ve değişimleri takip et." type="button">
                     <span>Crypto Price</span>
+                </button>
+                <button class="nav-item" data-tool="doviz-kurlari" data-category="Finans"
+                    data-search="döviz kurları kur çevirici para birimi tl try usd eur gbp forex finans"
+                    data-description="Dünya para birimlerinin güncel TL karşılığını görüntüle ve kur dönüşümü yap." type="button">
+                    <span>Döviz Kurları</span>
                 </button>
                 <button class="nav-item" data-tool="github-user" data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
                     <span>GitHub User</span>
@@ -623,6 +629,107 @@
                         </div>
                     </aside>
                 </div>
+            </section>
+
+            <section id="doviz-kurlari" class="tool-panel currency-rates-panel" aria-labelledby="currency-rates-title">
+                <div class="panel-heading currency-rates-heading">
+                    <div>
+                        <h2 id="currency-rates-title">Döviz Kurları</h2>
+                        <p>Dünya para birimlerinin güncel TL karşılıklarını incele.</p>
+                    </div>
+                    <button id="currency-rates-refresh" class="primary-button" type="button">Kurları Yenile</button>
+                </div>
+
+                <div id="currency-rates-notice" class="currency-rates-notice" role="status" aria-live="polite" hidden></div>
+
+                <div class="currency-rates-layout">
+                    <form id="currency-converter-form" class="currency-converter-card">
+                        <div class="currency-card-heading">
+                            <div>
+                                <span class="currency-eyebrow">DÖNÜŞTÜRÜCÜ</span>
+                                <h3>Para birimi dönüştür</h3>
+                            </div>
+                            <span id="currency-converter-status" class="currency-data-badge">Veri bekleniyor</span>
+                        </div>
+
+                        <label class="currency-amount-field" for="currency-amount">
+                            <span>Miktar</span>
+                            <input id="currency-amount" class="text-input" type="number" min="0" step="any"
+                                inputmode="decimal" value="1" placeholder="Örn: 50">
+                        </label>
+
+                        <div class="currency-pair-grid">
+                            <label for="currency-from">
+                                <span>Kaynak para birimi</span>
+                                <select id="currency-from" disabled>
+                                    <option>Yükleniyor…</option>
+                                </select>
+                            </label>
+
+                            <button id="currency-swap" class="currency-swap-button" type="button" disabled
+                                aria-label="Para birimlerini yer değiştir" title="Para birimlerini yer değiştir">
+                                <span aria-hidden="true">⇄</span>
+                            </button>
+
+                            <label for="currency-to">
+                                <span>Hedef para birimi</span>
+                                <select id="currency-to" disabled>
+                                    <option>Yükleniyor…</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div id="currency-converter-result" class="currency-converter-result" aria-live="polite">
+                            <span>Dönüşüm sonucu</span>
+                            <strong>—</strong>
+                            <small>Güncel kurlar yüklendiğinde otomatik hesaplanır.</small>
+                        </div>
+                    </form>
+
+                    <aside class="currency-data-card" aria-label="Kur bilgileri">
+                        <span class="currency-eyebrow">VERİ DURUMU</span>
+                        <h3>Güncel piyasa özeti</h3>
+                        <div class="currency-data-list">
+                            <div>
+                                <span>Kur tarihi</span>
+                                <strong id="currency-rate-date">—</strong>
+                            </div>
+                            <div>
+                                <span>Son güncelleme</span>
+                                <strong id="currency-last-updated">—</strong>
+                            </div>
+                            <div>
+                                <span>Listelenen</span>
+                                <strong id="currency-total-count">—</strong>
+                            </div>
+                        </div>
+                        <p>Referans kurlar, merkez bankaları ve kurumsal kaynakları bir araya getiren Frankfurter API üzerinden sağlanır.</p>
+                        <a href="https://frankfurter.dev/" target="_blank" rel="noopener noreferrer">Frankfurter veri kaynağı ↗</a>
+                    </aside>
+                </div>
+
+                <section class="currency-directory" aria-labelledby="currency-directory-title">
+                    <div class="currency-directory-heading">
+                        <div>
+                            <h3 id="currency-directory-title">1 birimin TL karşılığı</h3>
+                            <p id="currency-directory-summary">Kurlar yükleniyor…</p>
+                        </div>
+                        <label class="currency-search" for="currency-search-input">
+                            <span class="sr-only">Para birimlerinde ara</span>
+                            <span class="currency-search-icon" aria-hidden="true"></span>
+                            <input id="currency-search-input" type="search" placeholder="Kod veya para birimi ara…"
+                                autocomplete="off" spellcheck="false" disabled>
+                            <button id="currency-search-clear" type="button" aria-label="Aramayı temizle" hidden>×</button>
+                        </label>
+                    </div>
+
+                    <div id="currency-rates-list" class="currency-rates-list" aria-live="polite" aria-busy="true">
+                        <div class="currency-rates-empty is-loading">
+                            <strong>Kurlar yükleniyor</strong>
+                            <span>Güncel para birimi verileri alınıyor.</span>
+                        </div>
+                    </div>
+                </section>
             </section>
 
             <section id="qr" class="tool-panel" aria-labelledby="qr-title">
@@ -3798,7 +3905,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=44"></script>
+    <script src="index.js?v=45"></script>
+    <script src="tools/doviz-kurlari/core.js?v=3"></script>
+    <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
