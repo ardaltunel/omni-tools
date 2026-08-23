@@ -9,8 +9,8 @@
     const HISTORY_KEY = "omniTools.osintHistory.v1";
     const MODULES = {
         domain: {
-            title: "Domain Intelligence",
-            kicker: "DOMAIN",
+            title: "Alan Adı Araştırması",
+            kicker: "ALAN ADI",
             description: "Alan adının kayıt, DNS, IPv4 ve IPv6 bilgilerini birlikte inceleyin.",
             label: "Alan adı",
             placeholder: "github.com",
@@ -23,47 +23,47 @@
             placeholder: "google.com",
         },
         dns: {
-            title: "DNS Lookup",
-            kicker: "DNS-OVER-HTTPS",
+            title: "DNS Sorgulama",
+            kicker: "HTTPS ÜZERİNDEN DNS",
             description: "A, AAAA, MX, NS, TXT, CNAME, SOA ve CAA kayıtlarını sorgulayın.",
             label: "Alan adı",
             placeholder: "cloudflare.com",
             dnsType: true,
         },
         ip: {
-            title: "IP Lookup",
-            kicker: "IP INTELLIGENCE",
-            description: "Public IPv4/IPv6 adresinin ağ, ASN, reverse DNS ve yaklaşık konum verilerini inceleyin.",
+            title: "IP Sorgulama",
+            kicker: "IP ARAŞTIRMASI",
+            description: "Herkese açık IPv4/IPv6 adresinin ağ, ASN, ters DNS ve yaklaşık konum verilerini inceleyin.",
             label: "IPv4 veya IPv6",
             placeholder: "8.8.8.8",
         },
         subdomains: {
-            title: "Subdomain Discovery",
-            kicker: "PASSIVE CT",
-            description: "Aktif brute-force yapmadan Certificate Transparency kayıtlarındaki subdomainleri araştırın.",
+            title: "Alt Alan Adı Keşfi",
+            kicker: "PASİF SERTİFİKA TARAMASI",
+            description: "Etkin kaba kuvvet taraması yapmadan Sertifika Şeffaflığı kayıtlarındaki alt alan adlarını araştırın.",
             label: "Alan adı",
             placeholder: "example.com",
         },
         url: {
-            title: "URL Analyzer",
-            kicker: "LOCAL ANALYSIS",
-            description: "URL yapısını, query parametrelerini, credentials ve punycode sinyallerini yerel olarak analiz edin.",
+            title: "URL Çözümleyici",
+            kicker: "YEREL ANALİZ",
+            description: "URL yapısını, sorgu parametrelerini, kimlik bilgilerini ve Punycode sinyallerini yerel olarak analiz edin.",
             label: "HTTP veya HTTPS URL",
             placeholder: "https://github.com/search?q=osint&lang=tr",
         },
         "user-agent": {
-            title: "User-Agent Analyzer",
-            kicker: "LOCAL ANALYSIS",
+            title: "Kullanıcı Aracısı Çözümleyici",
+            kicker: "YEREL ANALİZ",
             description: "Tarayıcı, işletim sistemi, cihaz, mimari ve bot sinyallerini yerel olarak analiz edin.",
-            label: "User-Agent metni",
+            label: "Kullanıcı Aracısı metni",
             placeholder: "Mozilla/5.0 ...",
             multiline: true,
             currentUa: true,
         },
         email: {
-            title: "Email Intelligence",
-            kicker: "EMAIL DOMAIN",
-            description: "E-posta biçimini ve alan adının public DNS/MX durumunu, posta kutusunu sorgulamadan inceleyin.",
+            title: "E-posta Araştırması",
+            kicker: "E-POSTA ALAN ADI",
+            description: "E-posta biçimini ve alan adının herkese açık DNS/MX durumunu, posta kutusunu sorgulamadan inceleyin.",
             label: "E-posta adresi",
             placeholder: "test@gmail.com",
         },
@@ -211,7 +211,7 @@
         if (!input) throw new TypeError("Sorgu alanı boş bırakılamaz.");
         if (["domain", "whois", "dns", "subdomains"].includes(moduleId)) {
             const domain = Core.normalizeDomain(input);
-            if (!Core.isValidDomain(domain)) throw new TypeError("Geçersiz domain.");
+            if (!Core.isValidDomain(domain)) throw new TypeError("Geçersiz alan adı.");
             return domain;
         }
         if (moduleId === "ip") {
@@ -289,7 +289,7 @@
         elements.submit.disabled = false;
         elements.submit.textContent = busy ? "Yeni Araştırma" : "Araştır";
         elements.progressTitle.textContent = moduleId === "subdomains" ? "Pasif kaynaklar taranıyor..." : "Araştırılıyor...";
-        elements.progressDetail.textContent = moduleId === "subdomains" ? "Certificate Transparency kayıtları alınıyor" : "Public kaynaklara bağlanılıyor";
+        elements.progressDetail.textContent = moduleId === "subdomains" ? "Sertifika Şeffaflığı kayıtları alınıyor" : "Herkese açık kaynaklara bağlanılıyor";
     }
 
     function updateSubdomainProgress(completed, total) {
@@ -311,7 +311,7 @@
 
     function renderLoading() {
         const box = createElement("div", "osint-empty-state");
-        box.append(createElement("span", "", "..."), createElement("strong", "", "Public kaynaklar araştırılıyor"));
+        box.append(createElement("span", "", "..."), createElement("strong", "", "Herkese açık kaynaklar araştırılıyor"));
         box.append(createElement("p", "", "Modüller birbirinden bağımsız çalışır; erişilemeyen bir kaynak diğer sonuçları engellemez."));
         elements.results.replaceChildren(box);
     }
@@ -508,7 +508,7 @@
     }
 
     function renderDnsSection(result) {
-        const section = makeSection("DNS Kayıtları", "Sorgular HTTPS üzerinden Google Public DNS JSON API'ye gönderilir.");
+        const section = makeSection("DNS Kayıtları", "Sorgular HTTPS üzerinden Google Genel DNS JSON API'sine gönderilir.");
         Object.entries(result.errors || {}).forEach(([type, error]) => section.body.append(warning(`${type}: ${error.message}`)));
         const rows = [];
         Object.entries(result.records).forEach(([type, group]) => {
@@ -533,7 +533,7 @@
                 { label: "IP", value: result.ip },
                 { label: "Sürüm", value: `IPv${result.version}` },
                 { label: "Tür", value: "Private / Yerel", tone: "warning" },
-                { label: "Public Konum", value: "Bulunmaz" },
+                { label: "Herkese Açık Konum", value: "Bulunmaz" },
             ]));
             fragment.append(warning(result.note));
             return fragment;
@@ -590,12 +590,12 @@
             { label: "Pasif Kaynak", value: result.source },
         ]));
         if (result.limited) fragment.append(warning(`${result.total} benzersiz sonuç bulundu. Tarayıcı yükünü sınırlamak için ilk ${result.limit} kayıt DNS üzerinden kontrol edildi.`));
-        const section = makeSection(`${result.total} Subdomain Bulundu`, "Wildcard ve duplicate kayıtlar temizlendi; aktif brute-force yapılmadı.");
+        const section = makeSection(`${result.total} Alt Alan Adı Bulundu`, "Joker ve yinelenen kayıtlar temizlendi; etkin kaba kuvvet taraması yapılmadı.");
         const controls = createElement("div", "osint-subdomain-controls");
         const input = createElement("input", "osint-subdomain-filter");
         input.type = "search";
-        input.placeholder = "Subdomain ara...";
-        input.setAttribute("aria-label", "Subdomain sonuçlarında ara");
+        input.placeholder = "Alt alan adı ara...";
+        input.setAttribute("aria-label", "Alt alan adı sonuçlarında ara");
         const sortButton = createElement("button", "secondary-button", "A → Z");
         sortButton.type = "button";
         controls.append(input, sortButton);
@@ -607,7 +607,7 @@
                 .filter((item) => item.subdomain.toLocaleLowerCase("tr-TR").includes(query))
                 .sort((a, b) => (ascending ? 1 : -1) * a.subdomain.localeCompare(b.subdomain))
                 .map((item) => [item.subdomain, item.ips.join(", ") || "—", item.dnsStatus]);
-            tableHost.replaceChildren(table(["Subdomain", "Resolved IP", "DNS Status"], rows));
+            tableHost.replaceChildren(table(["Alt Alan Adı", "Çözümlenen IP", "DNS Durumu"], rows));
         };
         input.addEventListener("input", redraw);
         sortButton.addEventListener("click", () => {
@@ -640,7 +640,7 @@
             { label: "Port", value: result.port },
             { label: "Pathname", value: result.pathname },
             { label: "Fragment", value: result.fragment },
-            { label: "Top-level domain", value: result.tld },
+            { label: "Üst düzey alan adı", value: result.tld },
             { label: "Encoded karakter", value: result.encodedCharacterCount },
             { label: "Punycode", value: result.hasPunycode ? "Var" : "Yok" },
         ]));
@@ -692,7 +692,7 @@
             { label: "Domain", value: result.domain },
             { label: "TLD", value: result.tld },
             { label: "MX Availability", value: result.mxAvailable ? "Mevcut" : "Bulunamadı" },
-            { label: "Domain DNS Status", value: result.domainDnsActive ? "Aktif" : "Kayıt bulunamadı" },
+            { label: "Alan Adı DNS Durumu", value: result.domainDnsActive ? "Etkin" : "Kayıt bulunamadı" },
             { label: "Disposable Domain", value: result.disposable ? "Bilinen listede" : "Bilinen listede değil" },
         ]));
         section.body.append(makeSectionBlock("MX Sunucuları", result.mxServers.length

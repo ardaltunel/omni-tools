@@ -214,7 +214,7 @@
             const missingCount = guilds.length - gatewayResult.guilds.length;
             const message = missingCount
                 ? `${connection.bot.username} botuyla ${gatewayResult.guilds.length} sunucu yüklendi; ${missingCount} sunucu geçici olarak alınamadı.`
-                : `${connection.bot.username} botuyla ${guilds.length} sunucunun emoji ve sticker verileri yüklendi.`;
+                : `${connection.bot.username} botuyla ${guilds.length} sunucunun emoji ve çıkartma verileri yüklendi.`;
             acceptGuilds(
                 core.sortGuilds(guilds),
                 message,
@@ -370,7 +370,7 @@
             button.setAttribute("aria-pressed", String(active));
         });
         elements.guildName.textContent = guild.name;
-        elements.guildSummary.textContent = `${guild.emojis.length} emoji · ${guild.stickers.length} sticker`;
+        elements.guildSummary.textContent = `${guild.emojis.length} emoji · ${guild.stickers.length} çıkartma`;
         elements.assetBrowser.hidden = false;
         elements.progress.hidden = true;
         elements.retryButton.hidden = true;
@@ -398,8 +398,8 @@
         elements.itemEmpty.hidden = visibleItems.length > 0;
         if (!visibleItems.length) {
             elements.itemEmpty.textContent = state.items.length
-                ? "Aramanızla eşleşen emoji veya sticker bulunamadı."
-                : "Bu sunucuda özel emoji veya sticker bulunmuyor.";
+                ? "Aramanızla eşleşen emoji veya çıkartma bulunamadı."
+                : "Bu sunucuda özel emoji veya çıkartma bulunmuyor.";
         }
     }
 
@@ -457,7 +457,7 @@
 
         copy.className = "discord-expression-copy";
         name.textContent = item.name;
-        details.textContent = `${item.type === "emoji" ? "Emoji" : "Sticker"} · ${item.formatLabel}`;
+        details.textContent = `${item.type === "emoji" ? "Emoji" : "Çıkartma"} · ${item.formatLabel}`;
         if (!item.available) details.textContent += " · Şu anda kullanılamıyor";
         copy.append(name, details);
 
@@ -467,7 +467,7 @@
         download.textContent = "İndir";
         download.disabled = !downloadable || state.isDownloading;
         download.setAttribute("aria-label", `${item.name} dosyasını indir`);
-        if (!downloadable) download.title = "Bu sticker formatı desteklenmiyor.";
+        if (!downloadable) download.title = "Bu çıkartma biçimi desteklenmiyor.";
 
         card.append(selection, preview, copy, download);
         return card;

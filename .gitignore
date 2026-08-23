@@ -2,3 +2,5 @@ server.log
 server.err.log
 /tools/kullanici-adi-arastirma/worker/node_modules/
 /tools/kullanici-adi-arastirma/worker/.wrangler/
+/tools/github-md-generator/worker/node_modules/
+/tools/github-md-generator/worker/.wrangler/

@@ -541,7 +541,7 @@
     }
 
     function makeJpegSegment(marker, payload) {
-        if (payload.length + 2 > 0xffff) throw new Error("JPEG metadata segmenti çok büyük.");
+        if (payload.length + 2 > 0xffff) throw new Error("JPEG üst veri bölümü çok büyük.");
         const output = new Uint8Array(payload.length + 4);
         output[0] = 0xff;
         output[1] = marker;
@@ -931,7 +931,7 @@
         else if (format === "png") dimensions = inspectPng(bytes, collector);
         else dimensions = inspectWebp(bytes, collector);
         if (!dimensions.width || !dimensions.height) collector.warnings.push("Görsel çözünürlüğü container verisinden okunamadı.");
-        if (collector.metadata.length >= MAX_METADATA_FIELDS) collector.warnings.push("Metadata listesi güvenlik amacıyla sınırlandırıldı.");
+        if (collector.metadata.length >= MAX_METADATA_FIELDS) collector.warnings.push("Üst veri listesi güvenlik amacıyla sınırlandırıldı.");
 
         return {
             ...info,

@@ -1,6 +1,6 @@
 "use strict";
 
-importScripts("core.js?v=2");
+importScripts("core.js?v=3");
 
 self.addEventListener("message", (event) => {
     const { id, action, buffer, files } = event.data || {};

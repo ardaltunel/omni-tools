@@ -139,7 +139,7 @@
             case "bluesky": {
                 const expectedHandle = `${username}.bsky.social`;
                 if (status === 200 && equalsUsername(data?.handle, expectedHandle)) {
-                    return verdict("found", "Bluesky public API kullanıcı adını doğruladı.");
+                    return verdict("found", "Bluesky herkese açık API'si kullanıcı adını doğruladı.");
                 }
                 if (status === 400 && data?.error === "InvalidRequest" && /profile not found/i.test(String(data?.message || ""))) {
                     return verdict("notFound", "Bluesky profili bulunamadı.");
@@ -309,7 +309,7 @@
 
     async function checkPlatformViaBackend(platform, username, options = {}) {
         const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-        if (!apiBaseUrl) throw new Error("Backend adresi yapılandırılmamış.");
+        if (!apiBaseUrl) throw new Error("Sunucu hizmeti adresi yapılandırılmamış.");
 
         const startedAt = Date.now();
         const parentSignal = options.signal;
@@ -332,14 +332,14 @@
                 referrerPolicy: "no-referrer",
                 headers: { Accept: "application/json" },
             });
-            if (!response.ok) throw new Error(`Backend HTTP ${response.status}`);
+            if (!response.ok) throw new Error(`Sunucu hizmeti HTTP ${response.status}`);
             const payload = await response.json();
             const validStatuses = ["found", "notFound", "unknown", "error"];
             if (payload?.platform !== platform.id
                 || payload?.username !== username
                 || !validStatuses.includes(payload?.status)
                 || typeof payload?.detail !== "string") {
-                throw new Error("Backend geçersiz yanıt döndürdü.");
+                throw new Error("Sunucu hizmeti geçersiz yanıt döndürdü.");
             }
             return {
                 id: platform.id,
@@ -380,7 +380,7 @@
             browserResult.source = "browser-fallback";
             if (["found", "notFound"].includes(browserResult.status)) return browserResult;
             if (!backendResult) {
-                browserResult.detail = `Backend'e ulaşılamadı. ${browserResult.detail}`;
+                browserResult.detail = `Sunucu hizmetine ulaşılamadı. ${browserResult.detail}`;
                 return browserResult;
             }
         }
@@ -388,7 +388,7 @@
         if (backendResult) return backendResult;
         const fallbackResult = await checkPlatform(platform, username, options);
         fallbackResult.source = "browser-fallback";
-        fallbackResult.detail = `Backend'e ulaşılamadı. ${fallbackResult.detail}`;
+        fallbackResult.detail = `Sunucu hizmetine ulaşılamadı. ${fallbackResult.detail}`;
         return fallbackResult;
     }
 

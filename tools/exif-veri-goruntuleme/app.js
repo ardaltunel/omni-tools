@@ -152,7 +152,7 @@
             setStatus("Analiz tamamlandı.", 100);
             renderResult();
             window.setTimeout(() => { elements["exif-viewer-status"].hidden = true; }, 350);
-            announce(`${state.analysis.metadataCount} metadata alanı analiz edildi.`);
+            announce(`${state.analysis.metadataCount} üst veri alanı analiz edildi.`);
         } catch (error) {
             if (generation !== state.generation) return;
             showError(error.message || "Dosya analiz edilemedi.");
@@ -174,7 +174,7 @@
     function ensureWorker() {
         if (state.worker || typeof Worker === "undefined") return state.worker;
         try {
-            state.worker = new Worker(new URL("tools/exif-veri-goruntuleme/worker.js?v=1", document.baseURI));
+            state.worker = new Worker(new URL("tools/exif-veri-goruntuleme/worker.js?v=2", document.baseURI));
             state.worker.addEventListener("message", (event) => {
                 const request = state.pending.get(event.data?.id);
                 if (!request) return;
@@ -233,7 +233,7 @@
             ["Format", analysis.label],
             ["Boyut", analysis.file.sizeDisplay],
             ["Çözünürlük", analysis.file.resolution],
-            ["Metadata", `${analysis.metadataCount} alan`],
+            ["Üst veri", `${analysis.metadataCount} alan`],
             ["GPS", analysis.gpsCoordinates ? "Var" : "Yok"],
             ["Kamera", analysis.camera],
             ["Tarih", analysis.hasDate ? "Var" : "Bulunamadı"],
@@ -334,7 +334,7 @@
         overview.append(createElement("span", "", "Gizlilik Riski"), createElement("strong", "", privacy.label));
         wrapper.append(overview);
         if (!privacy.reasons.length) {
-            wrapper.append(createElement("p", "exif-empty-category", "Hassasiyet değerlendirmesi yapmaya yetecek metadata bulunamadı."));
+            wrapper.append(createElement("p", "exif-empty-category", "Hassasiyet değerlendirmesi yapmaya yetecek üst veri bulunamadı."));
         } else {
             const list = createElement("div", "exif-risk-list");
             privacy.reasons.forEach((reason) => {
@@ -352,7 +352,7 @@
         wrapper.append(createElement("strong", credentials.detected ? "is-detected" : "", credentials.detected ? "Content Credentials bilgisi tespit edildi." : "Content Credentials kaydı tespit edilmedi."));
         if (credentials.types.length) wrapper.append(createElement("p", "", `Tür: ${credentials.types.join(", ")}`));
         credentials.details.forEach((detail) => wrapper.append(createElement("p", "", detail)));
-        wrapper.append(createElement("small", "", "Bu bölüm yalnızca container/metadata marker'larını tespit eder; kriptografik C2PA doğrulaması yapmaz. Metadata veya Content Credentials bulunmaması, görselin nasıl üretildiği konusunda kesin sonuç vermez."));
+        wrapper.append(createElement("small", "", "Bu bölüm yalnızca kapsayıcı ve üst veri işaretlerini tespit eder; kriptografik C2PA doğrulaması yapmaz. Üst veri veya İçerik Kimlik Bilgileri bulunmaması, görselin nasıl üretildiği konusunda kesin sonuç vermez."));
         return { node: wrapper, countLabel: credentials.detected ? `${credentials.types.length} işaret` : "Kayıt yok" };
     }
 
@@ -416,7 +416,7 @@
         body.replaceChildren();
         if (!filtered.length) {
             const row = document.createElement("tr");
-            const cell = createElement("td", "exif-raw-empty", query ? "Aramayla eşleşen metadata bulunamadı." : "Metadata bulunamadı.");
+            const cell = createElement("td", "exif-raw-empty", query ? "Aramayla eşleşen üst veri bulunamadı." : "Üst veri bulunamadı.");
             cell.colSpan = 3;
             row.append(cell);
             body.append(row);
@@ -448,7 +448,7 @@
         const lines = [
             "EXIF VERİ RAPORU", "", `Dosya: ${analysis.file.name}`, `Format: ${analysis.label}`,
             `Boyut: ${analysis.file.sizeDisplay}`, `Çözünürlük: ${analysis.file.resolution}`,
-            `Metadata: ${analysis.metadataCount} alan`, `Gizlilik Riski: ${analysis.privacy.label}`, "",
+            `Üst veri: ${analysis.metadataCount} alan`, `Gizlilik Riski: ${analysis.privacy.label}`, "",
         ];
         const reportSections = [
             ["KAMERA", (field) => field.category === "camera"], ["GPS", (field) => field.category === "gps"],
@@ -465,7 +465,7 @@
             fields.forEach((field) => lines.push(`${field.label} (${field.key}): ${field.value}`));
             lines.push("");
         });
-        lines.push("CONTENT CREDENTIALS", analysis.contentCredentials.detected ? `Tespit edildi: ${analysis.contentCredentials.types.join(", ")}` : "Kayıt tespit edilmedi.", "", "Not: Bu rapor yalnızca dosyanın içinde gerçekten bulunan metadata bilgilerini gösterir; görselin üretim yöntemi hakkında pixel tabanlı tahmin yapmaz.");
+        lines.push("İÇERİK KİMLİK BİLGİLERİ", analysis.contentCredentials.detected ? `Tespit edildi: ${analysis.contentCredentials.types.join(", ")}` : "Kayıt tespit edilmedi.", "", "Not: Bu rapor yalnızca dosyanın içinde gerçekten bulunan üst veri bilgilerini gösterir; görselin üretim yöntemi hakkında piksel tabanlı tahmin yapmaz.");
         return lines.join("\n");
     }
 
@@ -483,7 +483,7 @@
         const name = safeName(state.file?.name || "fotoğraf");
         const dot = name.lastIndexOf(".");
         const base = dot > 0 ? name.slice(0, dot) : name;
-        return `${base || "fotoğraf"}-metadata.${extension}`;
+        return `${base || "fotoğraf"}-ust-veri.${extension}`;
     }
 
     function downloadBlob(blob, name) {

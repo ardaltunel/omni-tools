@@ -274,13 +274,13 @@
         if (summary?.totalWin > 0) {
             elements.winDetail.textContent = summary.appliedMultiplier > 1
                 ? `${formatCredit(summary.baseWin)} × ${summary.appliedMultiplier}`
-                : `${summary.mode === "free" ? "Free Spin" : "Spin"} kazancı`;
+                : `${summary.mode === "free" ? "Ücretsiz dönüş" : "Dönüş"} kazancı`;
         } else {
             elements.winDetail.textContent = state.isSpinning
                 ? "Semboller düşüyor"
                 : state.lastWin > 0
-                    ? "Son spin kazancı"
-                    : "Spin için hazır";
+                    ? "Son dönüş kazancı"
+                    : "Dönüş için hazır";
         }
         updateControls();
         saveState();
@@ -301,14 +301,14 @@
         elements.autoButton.disabled = autoRemaining === 0 && (state.isSpinning || state.freeSpins > 0 || sequencePending || buyModalOpen);
         elements.buyBonus.disabled = betLocked || bonusUnavailable;
         elements.buyBonus.classList.toggle("is-unavailable", bonusUnavailable);
-        elements.buyBonus.title = bonusUnavailable ? "Bu bahis için sanal bakiye yetersiz" : "10 Free Spins bonusunu satın al";
+        elements.buyBonus.title = bonusUnavailable ? "Bu bahis için sanal bakiye yetersiz" : "10 ücretsiz dönüş ödülünü satın al";
         elements.buyConfirm.disabled = !engine.canBuyBonus(state);
         elements.autoButton.textContent = autoRemaining > 0 ? `Durdur · ${formatAutoCount(autoRemaining)}` : "Başlat";
         elements.autoButton.classList.toggle("is-active", autoRemaining > 0);
         elements.spinSubtitle.textContent = state.freeSpins > 0
             ? `${state.freeSpins} ücretsiz`
             : autoRemaining > 0
-                ? `${formatAutoCount(autoRemaining)} auto`
+                ? `${formatAutoCount(autoRemaining)} otomatik`
                 : "Başlat";
     }
 
@@ -368,7 +368,7 @@
 
     function openBonusModal() {
         if (!engine.canBuyBonus(state)) {
-            setStatus("Bonus alınamıyor", `${formatCredit(engine.bonusBuyCost(state.bet))} sanal kredi gerekli.`);
+            setStatus("Ödül alınamıyor", `${formatCredit(engine.bonusBuyCost(state.bet))} sanal kredi gerekli.`);
             return;
         }
         buyModalOpen = true;
@@ -410,7 +410,7 @@
         const purchase = engine.buyBonus(state);
         if (!purchase) {
             closeBonusModal(false);
-            setStatus("Bonus alınamadı", "Sanal bakiyeni ve aktif oyun durumunu kontrol et.");
+            setStatus("Ödül alınamadı", "Sanal bakiyeni ve etkin oyun durumunu kontrol et.");
             updateHud();
             return;
         }
@@ -422,8 +422,8 @@
         elements.collected.querySelector("strong").textContent = "x1";
         elements.collected.classList.remove("is-powered");
         elements.cascadeCount.textContent = "4 Geçit";
-        setPhase("Bonus satın alındı", true);
-        setStatus("Geçit çağrılıyor", `${formatCredit(purchase.cost)} sanal kredi karşılığında ${purchase.freeSpins} Free Spins hazırlanıyor…`);
+        setPhase("Ödül satın alındı", true);
+        setStatus("Geçit çağrılıyor", `${formatCredit(purchase.cost)} sanal kredi karşılığında ${purchase.freeSpins} ücretsiz dönüş hazırlanıyor…`);
         elements.machine.classList.add("is-spinning");
         renderGrid(currentGrid, { incomingUids });
         playSound("spin");
@@ -433,9 +433,9 @@
         elements.grid.querySelectorAll(".is-scatter").forEach((cell) => cell.classList.add("is-feature-trigger"));
         createBurst(30);
         await wait(timing(460, 100));
-        await showCelebration("BONUS AÇILDI", `${purchase.freeSpins} FREE SPIN`, "free");
-        setPhase("Free Spins açıldı");
-        setStatus("Astral Geçit aktif", `Satın alınan ${purchase.freeSpins} Free Spins otomatik olarak başlıyor.`);
+        await showCelebration("ÖDÜL AÇILDI", `${purchase.freeSpins} ÜCRETSİZ DÖNÜŞ`, "free");
+        setPhase("Ücretsiz dönüşler açıldı");
+        setStatus("Astral Geçit etkin", `Satın alınan ${purchase.freeSpins} ücretsiz dönüş otomatik olarak başlıyor.`);
         updateHud();
         scheduleNextSpin(timing(700, 160));
     }
@@ -495,8 +495,8 @@
 
         let runningBaseWin = 0;
         for (const step of result.steps) {
-            elements.cascadeCount.textContent = `Cascade ${step.index}`;
-            setPhase(`Cascade ${step.index}`, true);
+            elements.cascadeCount.textContent = `Zincirleme düşüş ${step.index}`;
+            setPhase(`Zincirleme düşüş ${step.index}`, true);
             runningBaseWin = engine.roundMoney(runningBaseWin + step.cascadeWin);
             elements.win.textContent = formatCredit(runningBaseWin);
             elements.winDetail.textContent = `${step.wins.map((win) => `${win.count} ${win.label}`).join(" · ")}`;
@@ -513,7 +513,7 @@
         }
 
         if (!result.steps.length) {
-            elements.cascadeCount.textContent = "Cascade 0";
+            elements.cascadeCount.textContent = "Zincirleme düşüş 0";
             await wait(timing(260, 60));
         }
         currentGrid = result.finalGrid;
@@ -571,7 +571,7 @@
         }
         if (adjustedBet) {
             setPhase("Bahis otomatik ayarlandı");
-            setStatus("Bahis bakiyene uyarlandı", `${formatCredit(adjustedBet.previousBet)} yerine ${formatCredit(adjustedBet.bet)} sanal krediyle spin başlatılıyor.`);
+            setStatus("Bahis bakiyene uyarlandı", `${formatCredit(adjustedBet.previousBet)} yerine ${formatCredit(adjustedBet.bet)} sanal krediyle dönüş başlatılıyor.`);
         }
         const context = engine.startRound(state);
         if (!context) {
@@ -590,7 +590,7 @@
             ? `x${Math.max(1, state.freeMultiplier)}`
             : "x1";
         elements.collected.classList.remove("is-powered");
-        elements.cascadeCount.textContent = "Cascade 0";
+        elements.cascadeCount.textContent = "Zincirleme düşüş 0";
         updateHud();
 
         try {
@@ -602,7 +602,7 @@
             updateHud(summary);
 
             if (summary.awardedFreeSpins > 0) {
-                await showCelebration("FREE SPINS", `${summary.awardedFreeSpins} SPIN`, "free");
+                await showCelebration("ÜCRETSİZ DÖNÜŞLER", `${summary.awardedFreeSpins} DÖNÜŞ`, "free");
             }
 
             const winRatio = summary.totalWin / context.bet;
@@ -617,21 +617,21 @@
             }
 
             if (summary.awardedFreeSpins > 0) {
-                setPhase("Free Spins açıldı");
-                setStatus("Kozmik geçit aktif", `${summary.scatterCount} geçit sembolü ${summary.awardedFreeSpins} Free Spins kazandırdı.`);
+                setPhase("Ücretsiz dönüşler açıldı");
+                setStatus("Kozmik geçit etkin", `${summary.scatterCount} geçit sembolü ${summary.awardedFreeSpins} ücretsiz dönüş kazandırdı.`);
             } else if (summary.totalWin > 0) {
-                setPhase(summary.mode === "free" ? "Free Spin kazancı" : "Kazandın");
-                setStatus("Kasa ışıldıyor", `${result.steps.length} cascade sonunda ${formatCredit(summary.totalWin)} sanal kredi kazandın.`);
+                setPhase(summary.mode === "free" ? "Ücretsiz dönüş kazancı" : "Kazandın");
+                setStatus("Kasa ışıldıyor", `${result.steps.length} zincirleme düşüş sonunda ${formatCredit(summary.totalWin)} sanal kredi kazandın.`);
             } else if (summary.freeSessionEnded) {
-                setPhase("Free Spins tamamlandı");
-                setStatus("Geçit kapandı", `Free Spins serisi x${summary.accumulatedMultiplier} toplam çarpanla tamamlandı.`);
+                setPhase("Ücretsiz dönüşler tamamlandı");
+                setStatus("Geçit kapandı", `Ücretsiz dönüş serisi x${summary.accumulatedMultiplier} toplam çarpanla tamamlandı.`);
             } else {
                 setPhase("Tekrar dene");
-                setStatus("Yörünge değişti", "Bu spinde eşleşme yok. Yeni bir dizilim için tekrar döndür.");
+                setStatus("Yörünge değişti", "Bu dönüşte eşleşme yok. Yeni bir dizilim için tekrar döndür.");
             }
 
             if (result.capped) {
-                setStatus("Cascade sınırı", "Uzun zincir güvenli şekilde tamamlandı ve kazancın hesabına eklendi.");
+                setStatus("Zincirleme düşüş sınırı", "Uzun zincir güvenli şekilde tamamlandı ve kazancın hesabına eklendi.");
             }
 
             if (engine.replenishBalanceIfEmpty(state)) {
@@ -642,7 +642,7 @@
             state.isSpinning = false;
             stopAuto();
             setPhase("Oyun durdu");
-            setStatus("Spin tamamlanamadı", "Beklenmeyen bir sorun oluştu. Lütfen tekrar dene.");
+            setStatus("Dönüş tamamlanamadı", "Beklenmeyen bir sorun oluştu. Lütfen tekrar dene.");
             console.error("Slot Game spin error:", error);
         }
 
@@ -708,15 +708,15 @@
     elements.autoButton.addEventListener("click", () => {
         if (autoRemaining > 0) {
             stopAuto();
-            setStatus("Auto Spin durduruldu", "Devam eden spin tamamlandıktan sonra seri sona erecek.");
+            setStatus("Otomatik dönüş durduruldu", "Devam eden dönüş tamamlandıktan sonra seri sona erecek.");
             return;
         }
         autoRemaining = autoCount;
         closeAutoCountMenu();
         const autoSpinMessage = Number.isFinite(autoRemaining)
-            ? `${autoRemaining} spinlik seri başladı. İstediğin anda durdurabilirsin.`
-            : "Sonsuz spin serisi başladı. İstediğin anda durdurabilirsin.";
-        setStatus("Auto Spin aktif", autoSpinMessage);
+            ? `${autoRemaining} dönüşlük seri başladı. İstediğin anda durdurabilirsin.`
+            : "Sonsuz dönüş serisi başladı. İstediğin anda durdurabilirsin.";
+        setStatus("Otomatik dönüş etkin", autoSpinMessage);
         updateControls();
         runSpin();
     });

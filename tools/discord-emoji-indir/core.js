@@ -175,7 +175,7 @@
             discordApiRequest(`/guilds/${guildId}/stickers`, token, options),
         ]);
         if (!Array.isArray(emojis) || !Array.isArray(stickers)) {
-            throw new DiscordEmojiError("invalid_response", "Discord emoji veya sticker listesi geçersiz.");
+            throw new DiscordEmojiError("invalid_response", "Discord emoji veya çıkartma listesi geçersiz.");
         }
         const [normalized] = parseGuildJson({
             id: guildId,
@@ -456,7 +456,7 @@
 
         const expressionCount = guilds.reduce((count, guild) => count + guild.emojis.length + guild.stickers.length, 0);
         if (expressionCount > MAX_EXPRESSIONS) {
-            throw new DiscordEmojiError("too_many_expressions", `En fazla ${MAX_EXPRESSIONS} emoji ve sticker aynı anda yüklenebilir.`);
+            throw new DiscordEmojiError("too_many_expressions", `En fazla ${MAX_EXPRESSIONS} emoji ve çıkartma aynı anda yüklenebilir.`);
         }
 
         return sortGuilds(mergeGuildCollections(guilds));

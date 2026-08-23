@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=7">
     <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=4">
     <link rel="stylesheet" href="tools/github-unfollower/style.css?v=2">
+    <link rel="stylesheet" href="tools/github-md-generator/style.css?v=2">
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
@@ -59,7 +60,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>43 uygulama, tek panel</small>
+                    <small>44 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -76,12 +77,12 @@
                 </button>
                 <button class="nav-item" data-tool="blackjack"
                     data-category="Oyunlar" data-search="blackjack 21 yirmi bir iskambil kart casino kumarhane masa bahis krupiye deste el oyun"
-                    data-description="Sanal çiplerle, klasik kurallara göre premium Blackjack oyna." type="button">
+                    data-description="Sanal çiplerle, klasik kurallara göre üst düzey Blackjack oyna." type="button">
                     <span>Blackjack</span>
                 </button>
                 <button class="nav-item" data-tool="slot-game"
                     data-category="Oyunlar" data-search="slot game slot makinesi casino kumarhane şans oyunu çevirme makinesi arcade cascade tumble free spins bedava dönüş çarpan"
-                    data-description="Cascade, çarpanlar ve Free Spins ile özgün bir sanal slot deneyimi." type="button">
+                    data-description="Zincirleme düşüş, çarpanlar ve ücretsiz dönüşlerle özgün bir sanal slot deneyimi." type="button">
                     <span>Slot Oyunu</span>
                 </button>
                 <button class="nav-item" data-tool="nebuu" data-category="Oyunlar"
@@ -114,6 +115,11 @@
                     data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
                     <span>GitHub Kullanıcı</span>
                 </button>
+                <button class="nav-item" data-tool="github-md-generator" data-category="Geliştirici"
+                    data-search="github md generator markdown oluşturucu dokümantasyon belge readme security support contributing code of conduct repository repo analiz proje dokümanı geliştirici açık kaynak"
+                    data-description="Herkese açık GitHub depolarını analiz ederek projeye özel Markdown belgeleri oluştur." type="button">
+                    <span>GitHub MD Oluşturucu</span>
+                </button>
                 <button class="nav-item" data-tool="github-unfollower" data-category="Sosyal Medya"
                     data-search="github unfollower geri takip etmeyenler takibi bırakan takipçi analizi takipten çıkar followers following non followers sosyal medya"
                     data-description="Seni takip etmeyen GitHub hesaplarını bul ve seçerek takipten çıkar." type="button">
@@ -136,7 +142,7 @@
                 </button>
                 <button class="nav-item" data-tool="discord-emoji-indir" data-category="Sosyal Medya"
                     data-search="discord emoji emote sticker çıkartma sunucu guild özel emoji paket toplu zip indir indirme download animated hareketli gif apng lottie sosyal medya"
-                    data-description="Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve ZIP olarak indirin." type="button">
+                    data-description="Discord sunucularındaki özel emoji ve çıkartmaları görüntüleyin ve ZIP olarak indirin." type="button">
                     <span>Discord Emoji İndir</span>
                 </button>
                 <button class="nav-item" data-tool="gradient" data-category="Tasarım"
@@ -151,7 +157,7 @@
                 </button>
                 <button class="nav-item" data-tool="medya-veri-temizleyici" data-category="Gizlilik"
                     data-search="metadata cleaner medya veri temizleyici metadata silme exif kaldırma xmp iptc gps konum kamera bilgi fotoğraf resim mahremiyet gizlilik kişisel veri"
-                    data-description="Fotoğraflardaki mahremiyet metadata bilgilerini kayıpsız temizle." type="button">
+                    data-description="Fotoğraflardaki mahremiyet üst verilerini kayıpsız temizle." type="button">
                     <span>Medya Veri Temizleyici</span>
                 </button>
                 <button class="nav-item" data-tool="exif-veri-goruntuleme" data-category="Medya"
@@ -211,17 +217,17 @@
                 </button>
                 <button class="nav-item" data-tool="timestamp-converter" data-category="Araçlar"
                     data-search="timestamp converter unix epoch zaman damgası tarih saat dönüştürme çevirme saniye milisaniye utc yerel local timezone saat dilimi geliştirici"
-                    data-description="Unix timestamp ve tarih/saat değerlerini anında dönüştürün." type="button">
+                    data-description="Unix zaman damgası ve tarih/saat değerlerini anında dönüştürün." type="button">
                     <span>Timestamp Dönüştürücü</span>
                 </button>
                 <button class="nav-item" data-tool="social-media-image-resizer" data-category="Araçlar"
                     data-search="social media image resizer sosyal medya görsel boyutlandırma yeniden boyutlandırma ölçü kırpma crop fit instagram post story reels youtube thumbnail küçük resim kapak banner x twitter facebook linkedin tiktok"
-                    data-description="Görselleri sosyal medya ölçülerine göre crop veya fit ile yeniden boyutlandırın." type="button">
+                    data-description="Görselleri sosyal medya ölçülerine göre kırparak veya sığdırarak yeniden boyutlandırın." type="button">
                     <span>Medya Boyutlandırıcı</span>
                 </button>
                 <button class="nav-item" data-tool="link-preview-tester" data-category="Araçlar"
                     data-search="link preview tester bağlantı önizleme test kontrol paylaşım kartı sosyal medya open graph og image görsel favicon canonical twitter card metadata başlık title açıklama description seo geliştirici"
-                    data-description="Bir bağlantının paylaşım kartı ve metadata bilgilerini kontrol edin." type="button">
+                    data-description="Bir bağlantının paylaşım kartı ve üst veri bilgilerini kontrol edin." type="button">
                     <span>Bağlantı Önizleme Testi</span>
                 </button>
                 <button class="nav-item" data-tool="speech" data-category="Erişilebilirlik"
@@ -475,7 +481,7 @@
                 <div class="panel-heading slot-game-heading">
                     <div>
                         <h2 id="slot-game-title">Slot Oyunu</h2>
-                        <p>6x5 grid, art arda cascade'ler, biriken çarpanlar ve Free Spins ile özgün bir arcade slot deneyimi.</p>
+                        <p>6x5 ızgara, art arda zincirleme düşüşler, biriken çarpanlar ve ücretsiz dönüşlerle özgün bir salon tipi slot deneyimi.</p>
                     </div>
                     <div class="slot-game-audio-controls" aria-label="Ses ayarları">
                         <label class="slot-game-volume-control" for="slot-game-volume">
@@ -508,15 +514,15 @@
                         <div class="slot-game-stat is-win">
                             <span>Kazanç</span>
                             <strong id="slot-game-win">0</strong>
-                            <small id="slot-game-win-detail">Spin için hazır</small>
+                            <small id="slot-game-win-detail">Dönüş için hazır</small>
                         </div>
                         <div class="slot-game-stat">
                             <span>Bahis</span>
                             <strong id="slot-game-bet-hud">100</strong>
-                            <small>Spin başına</small>
+                            <small>Dönüş başına</small>
                         </div>
                         <div id="slot-game-free-stat" class="slot-game-stat is-free">
-                            <span>Free Spins</span>
+                            <span>Ücretsiz Dönüşler</span>
                             <strong id="slot-game-free-spins">0</strong>
                             <small id="slot-game-free-multiplier">Toplam çarpan x1</small>
                         </div>
@@ -529,7 +535,7 @@
                                     <span id="slot-game-phase-dot" class="slot-game-phase-dot" aria-hidden="true"></span>
                                     <strong id="slot-game-phase">Hazır</strong>
                                 </div>
-                                <span id="slot-game-cascade-count">Cascade 0</span>
+                                <span id="slot-game-cascade-count">Zincirleme düşüş 0</span>
                             </div>
 
                             <div class="slot-game-grid-frame">
@@ -551,9 +557,9 @@
                                     </div>
                                 </div>
 
-                                <button id="slot-game-spin" class="slot-game-spin-button" type="button" aria-label="Spin başlat">
+                                <button id="slot-game-spin" class="slot-game-spin-button" type="button" aria-label="Dönüş başlat">
                                     <span class="slot-game-spin-ring" aria-hidden="true"></span>
-                                    <strong>SPIN</strong>
+                                    <strong>DÖNDÜR</strong>
                                     <small id="slot-game-spin-subtitle">Başlat</small>
                                 </button>
 
@@ -564,7 +570,7 @@
                                         <small>Kapalı</small>
                                     </button>
                                     <div class="slot-game-auto-control">
-                                        <span id="slot-game-auto-label">Auto Spin</span>
+                                        <span id="slot-game-auto-label">Otomatik Dönüş</span>
                                         <div>
                                             <div class="slot-game-auto-picker">
                                                 <button id="slot-game-auto-count" class="slot-game-auto-count-button" type="button" data-value="100" aria-labelledby="slot-game-auto-label slot-game-auto-count-value" aria-haspopup="menu" aria-expanded="false" aria-controls="slot-game-auto-menu">
@@ -572,10 +578,10 @@
                                                     <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"></path></svg>
                                                 </button>
                                                 <div id="slot-game-auto-menu" class="slot-game-auto-menu" role="menu" aria-labelledby="slot-game-auto-label" hidden>
-                                                    <button type="button" role="menuitemradio" data-slot-auto-count="10" aria-checked="false">10 spin</button>
-                                                    <button type="button" role="menuitemradio" data-slot-auto-count="25" aria-checked="false">25 spin</button>
-                                                    <button type="button" role="menuitemradio" data-slot-auto-count="50" aria-checked="false">50 spin</button>
-                                                    <button type="button" role="menuitemradio" data-slot-auto-count="100" aria-checked="true">100 spin</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="10" aria-checked="false">10 dönüş</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="25" aria-checked="false">25 dönüş</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="50" aria-checked="false">50 dönüş</button>
+                                                    <button type="button" role="menuitemradio" data-slot-auto-count="100" aria-checked="true">100 dönüş</button>
                                                     <button type="button" role="menuitemradio" data-slot-auto-count="infinite" aria-checked="false">Sonsuz</button>
                                                 </div>
                                             </div>
@@ -584,7 +590,7 @@
                                     </div>
                                     <button id="slot-game-buy-bonus" class="slot-game-bonus-button" type="button">
                                         <span class="slot-game-bonus-symbol" aria-hidden="true"><i></i></span>
-                                        <strong>Bonus Al</strong>
+                                        <strong>Ödül Al</strong>
                                         <small><span id="slot-game-buy-cost">5.000</span> kredi</small>
                                     </button>
                                 </div>
@@ -596,8 +602,8 @@
                                 <span class="slot-game-card-kicker">Son durum</span>
                                 <h3 id="slot-game-status-title">Kasa seni bekliyor</h3>
                                 <p id="slot-game-message" aria-live="polite">Bahsini seç ve kozmik sembolleri serbest bırak.</p>
-                                <div id="slot-game-collected" class="slot-game-collected" aria-label="Bu spinde toplanan çarpanlar">
-                                    <span>Spin çarpanı</span>
+                                <div id="slot-game-collected" class="slot-game-collected" aria-label="Bu dönüşte toplanan çarpanlar">
+                                    <span>Dönüş çarpanı</span>
                                     <strong>x1</strong>
                                 </div>
                             </section>
@@ -611,7 +617,7 @@
                                     <span>Toplanır</span>
                                 </div>
                                 <div id="slot-game-multiplier-legend" class="slot-game-multiplier-legend" aria-label="Olası çarpan değerleri"></div>
-                                <p>Free Spins sırasında yakalanan her küre toplam çarpana eklenir ve sonraki spinlere taşınır.</p>
+                                <p>Ücretsiz dönüşler sırasında yakalanan her küre toplam çarpana eklenir ve sonraki dönüşlere taşınır.</p>
                             </section>
 
                             <section class="slot-game-info-card" aria-labelledby="slot-game-paytable-title">
@@ -629,19 +635,19 @@
                     </div>
 
                     <div id="slot-game-buy-modal" class="slot-game-buy-modal" hidden>
-                        <button class="slot-game-buy-backdrop" type="button" aria-label="Bonus satın alma penceresini kapat" data-slot-buy-close></button>
+                        <button class="slot-game-buy-backdrop" type="button" aria-label="Ödül satın alma penceresini kapat" data-slot-buy-close></button>
                         <section class="slot-game-buy-dialog" role="dialog" aria-modal="true" aria-labelledby="slot-game-buy-title" tabindex="-1">
                             <div class="slot-game-buy-gates" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-                            <span class="slot-game-card-kicker">Bonus Buy</span>
+                            <span class="slot-game-card-kicker">Ödül Satın Alma</span>
                             <h3 id="slot-game-buy-title">Astral Geçidi Aç</h3>
-                            <p>Doğal spinde 4 nadir Geçit sembolü bu modu açar. İstersen 50x bahis bedeliyle doğrudan 10 Free Spins satın alabilirsin.</p>
+                            <p>Doğal dönüşte 4 nadir Geçit sembolü bu modu açar. İstersen 50 kat bahis bedeliyle doğrudan 10 ücretsiz dönüş satın alabilirsin.</p>
                             <div class="slot-game-buy-summary">
-                                <div><span>Paket</span><strong>10 Free Spins</strong></div>
+                                <div><span>Paket</span><strong>10 Ücretsiz Dönüş</strong></div>
                                 <div><span>Toplam bedel</span><strong><span id="slot-game-buy-confirm-cost">5.000</span> kredi</strong></div>
                             </div>
-                            <p class="slot-game-buy-note">Free Spins boyunca güç küreleri toplam çarpana eklenmeye devam eder.</p>
+                            <p class="slot-game-buy-note">Ücretsiz dönüşler boyunca güç küreleri toplam çarpana eklenmeye devam eder.</p>
                             <div class="slot-game-buy-actions">
-                                <button id="slot-game-buy-confirm" type="button">Bonusu Satın Al</button>
+                                <button id="slot-game-buy-confirm" type="button">Ödülü Satın Al</button>
                                 <button type="button" data-slot-buy-close>Vazgeç</button>
                             </div>
                         </section>
@@ -954,7 +960,7 @@
                 <section id="url-cleaner-params-section" class="url-cleaner-params-card" aria-labelledby="url-cleaner-params-title" hidden>
                     <div class="url-cleaner-params-heading">
                         <div>
-                            <h3 id="url-cleaner-params-title">Query parametreleri</h3>
+                            <h3 id="url-cleaner-params-title">Sorgu parametreleri</h3>
                             <p id="url-cleaner-params-description">Orijinal URL’deki parametreler.</p>
                         </div>
                     </div>
@@ -997,7 +1003,7 @@
                             <div class="json-formatter-empty-mark" aria-hidden="true">{ }</div>
                             <div>
                                 <strong>JSON çıktısı bekleniyor</strong>
-                                <p>Formatlanmış veya sıkıştırılmış JSON burada syntax highlighting ile gösterilir.</p>
+                                <p>Biçimlendirilmiş veya sıkıştırılmış JSON burada sözdizimi renklendirmesiyle gösterilir.</p>
                             </div>
                         </div>
                         <div id="json-formatter-error" class="json-formatter-error" role="alert" hidden>
@@ -1049,7 +1055,7 @@
                                 <output id="image-compressor-quality-value" for="image-compressor-quality">80%</output>
                             </div>
                             <input id="image-compressor-quality" type="range" min="40" max="100" value="80" step="1">
-                            <p id="image-compressor-format-note">Çıkış formatı yüklenen görsele göre seçilir.</p>
+                            <p id="image-compressor-format-note">Çıkış biçimi yüklenen görsele göre seçilir.</p>
                         </section>
 
                         <figure id="image-compressor-original-preview" class="image-compressor-preview" hidden>
@@ -1342,13 +1348,13 @@
                 <div class="panel-heading">
                     <div>
                         <h2 id="timestamp-converter-title">Timestamp Dönüştürücü</h2>
-                        <p>Unix timestamp ile tarih/saat değerlerini saniye veya milisaniye hassasiyetinde dönüştürün.</p>
+                        <p>Unix zaman damgası ile tarih/saat değerlerini saniye veya milisaniye hassasiyetinde dönüştürün.</p>
                     </div>
                 </div>
 
                 <div class="timestamp-converter-layout">
                     <form id="timestamp-converter-unix-form" class="timestamp-converter-card">
-                        <div class="timestamp-converter-card-heading"><span>Unix timestamp</span><span id="timestamp-converter-unix-state" class="timestamp-converter-state">Hazır</span></div>
+                        <div class="timestamp-converter-card-heading"><span>Unix zaman damgası</span><span id="timestamp-converter-unix-state" class="timestamp-converter-state">Hazır</span></div>
                         <label for="timestamp-converter-unix-input">Timestamp değeri</label>
                         <input id="timestamp-converter-unix-input" class="text-input" type="text" inputmode="numeric" placeholder="Örn: 1710000000">
                         <label for="timestamp-converter-unit">Birim</label>
@@ -1378,8 +1384,8 @@
                     </div>
                 </section>
 
-                <section class="timestamp-converter-current" aria-label="Güncel Unix timestamp">
-                    <div><span>Güncel Unix timestamp</span><strong id="timestamp-converter-current-seconds">—</strong><small id="timestamp-converter-current-milliseconds">—</small></div>
+                <section class="timestamp-converter-current" aria-label="Güncel Unix zaman damgası">
+                    <div><span>Güncel Unix zaman damgası</span><strong id="timestamp-converter-current-seconds">—</strong><small id="timestamp-converter-current-milliseconds">—</small></div>
                     <button id="timestamp-converter-copy-current" class="secondary-button" type="button">Güncel Değeri Kopyala</button>
                 </section>
                 <p id="timestamp-converter-live" class="sr-only" aria-live="assertive"></p>
@@ -1389,7 +1395,7 @@
                 <div class="panel-heading">
                     <div>
                         <h2 id="social-resizer-title">Medya Boyutlandırıcı</h2>
-                        <p>Görsellerinizi sosyal medya platformlarına uygun ölçülerde crop veya fit ile yeniden boyutlandırın.</p>
+                        <p>Görsellerinizi sosyal medya platformlarına uygun ölçülerde kırparak veya sığdırarak yeniden boyutlandırın.</p>
                     </div>
                 </div>
 
@@ -1415,7 +1421,7 @@
                                 <option value="linkedin">LinkedIn · 1200×627</option>
                             </select>
                             <label for="social-resizer-fit">Yerleştirme</label>
-                            <select id="social-resizer-fit"><option value="crop">Crop · alanı doldur</option><option value="fit">Fit · tamamını sığdır</option></select>
+                            <select id="social-resizer-fit"><option value="crop">Kırp · alanı doldur</option><option value="fit">Sığdır · tamamını göster</option></select>
                             <p id="social-resizer-dimensions"></p>
                         </div>
                     </section>
@@ -1437,14 +1443,14 @@
                 <div class="panel-heading">
                     <div>
                         <h2 id="link-preview-title">Bağlantı Önizleme Testi</h2>
-                        <p>Bir bağlantının paylaşım kartını, Open Graph ve Twitter Card metadata bilgilerini kontrol edin.</p>
+                        <p>Bir bağlantının paylaşım kartını, Open Graph ve Twitter Kartı üst verilerini kontrol edin.</p>
                     </div>
                 </div>
 
                 <form id="link-preview-form" class="link-preview-form" novalidate>
                     <label for="link-preview-input">URL</label>
                     <div><input id="link-preview-input" class="text-input" type="url" inputmode="url" placeholder="https://ornek.com"><button class="primary-button" type="submit">Önizlemeyi Test Et</button></div>
-                    <p>Analiz doğrudan tarayıcınızdan yapılır. Bazı siteler CORS nedeniyle metadata erişimine izin vermeyebilir.</p>
+                    <p>Analiz doğrudan tarayıcınızdan yapılır. Bazı siteler CORS nedeniyle üst veri erişimine izin vermeyebilir.</p>
                 </form>
 
                 <div id="link-preview-error" class="link-preview-error" role="alert" hidden></div>
@@ -1458,7 +1464,7 @@
                     </section>
 
                     <section class="link-preview-card" aria-labelledby="link-preview-meta-title">
-                        <div class="link-preview-card-heading"><span id="link-preview-meta-title">Metadata bilgileri</span><span id="link-preview-missing-count" class="link-preview-state">—</span></div>
+                        <div class="link-preview-card-heading"><span id="link-preview-meta-title">Üst veri bilgileri</span><span id="link-preview-missing-count" class="link-preview-state">—</span></div>
                         <dl id="link-preview-meta-list" class="link-preview-meta-list"></dl>
                     </section>
                 </div>
@@ -1593,7 +1599,7 @@
                                 <label for="translate-lang-one">From</label>
                                 <div class="translate-select-wrap">
                                     <select id="translate-lang-one" name="translate-lang-one">
-                                        <option value="auto">Auto Detect</option>
+                                        <option value="auto">Otomatik Algıla</option>
                                         <option value="af">Afrikaans</option>
                                         <option value="sq">Albanian</option>
                                         <option value="ar">Arabic</option>
@@ -1747,7 +1753,7 @@
                         </div>
 
                         <div class="field-group translate-text-field">
-                            <label for="translate-text">Text</label>
+                            <label for="translate-text">Metin</label>
                             <textarea id="translate-text" name="translate-text" placeholder="Çevirmek istediğin metni yaz..."></textarea>
                         </div>
 
@@ -1763,7 +1769,7 @@
                         <strong>Çeviri Akışı</strong>
                         <p>Kaynak dili otomatik algılayabilir veya elle seçebilirsin. Sonuç aynı metin alanında gösterilir.</p>
                         <div class="translate-side-list">
-                            <span>Auto Detect</span>
+                            <span>Otomatik Algıla</span>
                             <span>Google endpoint</span>
                             <span>Statik yapı</span>
                         </div>
@@ -2186,7 +2192,7 @@
                             </div>
                             <div>
                                 <strong>Son repolar</strong>
-                                <span>Güncel public projeler</span>
+                                <span>Güncel herkese açık projeler</span>
                             </div>
                         </div>
                     </div>
@@ -2214,6 +2220,135 @@
                 </div>
             </section>
 
+            <section id="github-md-generator" class="tool-panel github-md-panel" aria-labelledby="github-md-title">
+                <div class="panel-heading github-md-heading">
+                    <div>
+                        <h2 id="github-md-title">GitHub MD Oluşturucu</h2>
+                        <p>Herkese açık GitHub deponuzu analiz edin; projeye özel README, güvenlik, destek veya katkı belgesi oluşturun.</p>
+                    </div>
+                    <span class="github-md-local-badge"><span aria-hidden="true">●</span> Yapay zekâ isteğe bağlı · anahtarsız da çalışır</span>
+                </div>
+
+                <form id="github-md-form" class="github-md-form" novalidate>
+                    <div class="github-md-form-grid">
+                        <label class="github-md-field github-md-field-wide" for="github-md-url">
+                            <span>GitHub Depo Adresi</span>
+                            <input id="github-md-url" class="text-input" name="repository-url" type="url"
+                                inputmode="url" autocomplete="url" spellcheck="false"
+                                placeholder="https://github.com/username/project" required>
+                            <small>Yalnızca herkese açık depoların ana bağlantıları desteklenir.</small>
+                        </label>
+
+                        <label class="github-md-field" for="github-md-language">
+                            <span>Çıktı Dili</span>
+                            <select id="github-md-language" name="language">
+                                <option value="en">English</option>
+                                <option value="tr" selected>Türkçe</option>
+                                <option value="de">Deutsch</option>
+                                <option value="fr">Français</option>
+                                <option value="es">Español</option>
+                                <option value="it">Italiano</option>
+                                <option value="pt">Português</option>
+                            </select>
+                        </label>
+
+                        <label class="github-md-field" for="github-md-file">
+                            <span>Oluşturulacak Dosya</span>
+                            <select id="github-md-file" name="file-name">
+                                <option value="README.md">README.md</option>
+                                <option value="SECURITY.md">SECURITY.md</option>
+                                <option value="SUPPORT.md">SUPPORT.md</option>
+                                <option value="CONTRIBUTING.md">CONTRIBUTING.md</option>
+                                <option value="CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</option>
+                            </select>
+                        </label>
+
+                        <label class="github-md-field github-md-field-wide" for="github-md-additional">
+                            <span>Ek Bilgi <em>İsteğe bağlı</em></span>
+                            <textarea id="github-md-additional" name="additional-information" rows="5"
+                                placeholder="Projenin amacı, doğrulanmış özellikleri, kurulum notları veya dokümana eklenmesini istediğiniz diğer bilgiler…"></textarea>
+                            <small>API analizi başarısız olursa bu açıklama kullanılarak akıllı şablonla devam edilebilir.</small>
+                        </label>
+                    </div>
+
+                    <div class="github-md-form-footer">
+                        <p><strong>Gizlilik:</strong> Depo bilgileri tarayıcınızdan GitHub'ın herkese açık API'siyle alınır. Yapay zekâ yapılandırılmışsa doğrulanmış proje verileri ve taslak güvenli ara katman üzerinden OpenAI'ye gönderilir; API anahtarı tarayıcıya aktarılmaz. Yapay zekâ kullanılamazsa akıllı şablon otomatik olarak devreye girer.</p>
+                        <button id="github-md-submit" class="primary-button" type="submit">Analiz Et ve Oluştur</button>
+                    </div>
+                </form>
+
+                <div id="github-md-status" class="github-md-status is-idle" role="status" aria-live="polite">
+                    <span class="github-md-status-icon" aria-hidden="true"></span>
+                    <div>
+                        <strong id="github-md-status-title">Depo bekleniyor</strong>
+                        <span id="github-md-status-detail">Herkese açık GitHub depo adresini girerek başlayın.</span>
+                    </div>
+                </div>
+
+                <section id="github-md-summary" class="github-md-summary" aria-label="Depo analiz özeti" hidden>
+                    <article>
+                        <span>Depo</span>
+                        <strong id="github-md-summary-name">—</strong>
+                    </article>
+                    <article>
+                        <span>Dil</span>
+                        <strong id="github-md-summary-language">—</strong>
+                    </article>
+                    <article>
+                        <span>Lisans</span>
+                        <strong id="github-md-summary-license">—</strong>
+                    </article>
+                    <article class="github-md-summary-tech">
+                        <span>Algılanan Teknolojiler</span>
+                        <strong id="github-md-summary-tech">—</strong>
+                    </article>
+                </section>
+
+                <section id="github-md-editor" class="github-md-editor" aria-labelledby="github-md-editor-file" hidden>
+                    <header class="github-md-editor-header">
+                        <div class="github-md-editor-identity">
+                            <span class="github-md-file-mark" aria-hidden="true">MD</span>
+                            <div>
+                                <strong id="github-md-editor-file">README.md</strong>
+                                <span id="github-md-provider">Arda GitHub Belgeleri v1</span>
+                            </div>
+                        </div>
+                        <div class="github-md-editor-actions">
+                            <button id="github-md-copy" class="secondary-button" type="button">Markdown'ı Kopyala</button>
+                            <button id="github-md-download" class="primary-button" type="button">Dosyayı İndir</button>
+                        </div>
+                    </header>
+
+                    <div class="github-md-tabs" role="tablist" aria-label="Markdown görünümü">
+                        <button id="github-md-edit-tab" class="github-md-tab is-active" type="button" role="tab"
+                            aria-selected="true" aria-controls="github-md-edit-pane">Düzenle</button>
+                        <button id="github-md-preview-tab" class="github-md-tab" type="button" role="tab"
+                            aria-selected="false" aria-controls="github-md-preview-pane">Önizleme</button>
+                    </div>
+
+                    <div id="github-md-edit-pane" class="github-md-edit-pane" role="tabpanel" aria-labelledby="github-md-edit-tab">
+                        <div class="github-md-code-editor">
+                            <pre class="github-md-highlight-layer" aria-hidden="true"><code id="github-md-highlight"></code></pre>
+                            <textarea id="github-md-input" aria-label="Markdown editörü" autocomplete="off" autocapitalize="off"
+                                spellcheck="false" wrap="off"></textarea>
+                        </div>
+                    </div>
+                    <div id="github-md-preview-pane" class="github-md-preview-pane" role="tabpanel"
+                        aria-labelledby="github-md-preview-tab" hidden>
+                        <article id="github-md-preview" class="github-md-preview"></article>
+                    </div>
+
+                    <footer class="github-md-editor-footer">
+                        <span>Çıktıyı indirmeden önce doğruluk ve proje politikaları açısından gözden geçirin.</span>
+                        <div>
+                            <button id="github-md-regenerate" class="secondary-button" type="button">Yeniden Oluştur</button>
+                            <button id="github-md-clear" class="ghost-button" type="button">Temizle</button>
+                        </div>
+                    </footer>
+                </section>
+                <p id="github-md-live" class="sr-only" aria-live="polite"></p>
+            </section>
+
             <section id="github-unfollower" class="tool-panel github-unfollower-panel" aria-labelledby="github-unfollower-title">
                 <div class="panel-heading github-unfollower-heading">
                     <div>
@@ -2229,13 +2364,13 @@
                             <div>
                                 <span class="ghu-kicker">GitHub bağlantısı</span>
                                 <h3>Hesabını analiz et</h3>
-                                <p>Token dağıtım dosyalarına eklenmez ve kalıcı olarak saklanmaz.</p>
+                                <p>Belirteç dağıtım dosyalarına eklenmez ve kalıcı olarak saklanmaz.</p>
                             </div>
                             <span class="ghu-privacy-pill"><span aria-hidden="true">●</span> Yerel işlem</span>
                         </div>
 
                         <form id="github-unfollower-token-form" class="ghu-token-form" novalidate>
-                            <label for="github-unfollower-token">Kişisel erişim tokeni</label>
+                            <label for="github-unfollower-token">Kişisel erişim belirteci</label>
                             <div class="ghu-token-input-wrap">
                                 <input id="github-unfollower-token" name="token" type="password" inputmode="text"
                                     autocomplete="new-password" spellcheck="false" placeholder="github_pat_••••••••••••••••"
@@ -2254,9 +2389,9 @@
                             </div>
 
                             <p id="github-unfollower-token-help" class="ghu-field-help">
-                                Fine-grained token için <strong>Followers: Read and write</strong>, klasik token için
+                                Ayrıntılı belirteç için <strong>Followers: Read and write (Takipçiler: Okuma ve yazma)</strong>, klasik belirteç için
                                 <strong>user:follow</strong> izni gerekir.
-                                <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">Token oluştur ↗</a>
+                                <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">Belirteç oluştur ↗</a>
                             </p>
 
                             <div class="ghu-form-actions">
@@ -2273,7 +2408,7 @@
                             <span class="ghu-spinner" aria-hidden="true"></span>
                             <div>
                                 <strong id="github-unfollower-activity-title">GitHub'a bağlanılıyor</strong>
-                                <span id="github-unfollower-activity-detail">Token ve hesap kontrol ediliyor…</span>
+                                <span id="github-unfollower-activity-detail">Belirteç ve hesap denetleniyor…</span>
                             </div>
                         </div>
                         <span id="github-unfollower-activity-percent" class="ghu-activity-percent">0%</span>
@@ -2589,7 +2724,7 @@
                     </div>
 
                     <div id="username-search-export" class="username-search-export" hidden>
-                        <label for="username-search-export-format">Format</label>
+                            <label for="username-search-export-format">Biçim</label>
                         <select id="username-search-export-format">
                             <option value="json">JSON</option>
                             <option value="csv">CSV</option>
@@ -2607,14 +2742,14 @@
 
                 <footer class="username-search-note">
                     <p>Bu araç yalnızca herkese açık profil bilgilerini kontrol eder. Sonuçlar platformların erişilebilirliğine göre değişebilir.</p>
-                    <p>Backend etkinse yalnızca kullanıcı adı ve platform kimliği geçici kontrol isteği olarak Worker'a iletilir; sonuçlar kalıcı olarak saklanmaz. Backend yoksa tarayıcı kontrolü kullanılır.</p>
+                    <p>Sunucu hizmeti etkinse yalnızca kullanıcı adı ve platform kimliği geçici denetim isteği olarak arka plan işleyicisine iletilir; sonuçlar kalıcı olarak saklanmaz. Sunucu hizmeti yoksa tarayıcı denetimi kullanılır.</p>
                 </footer>
             </section>
 
             <section id="osint-arastirma" class="tool-panel osint-panel" aria-labelledby="osint-title">
                 <header class="panel-heading osint-heading">
                     <div>
-                        <span class="osint-eyebrow">PUBLIC INTERNET INTELLIGENCE</span>
+                        <span class="osint-eyebrow">HERKESE AÇIK İNTERNET ARAŞTIRMASI</span>
                         <h2 id="osint-title">OSINT Araştırma</h2>
                         <p>Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın.</p>
                     </div>
@@ -2646,28 +2781,28 @@
                     </div>
                     <div class="osint-module-grid">
                         <button class="osint-module-card active" data-osint-module="domain" type="button" aria-pressed="true">
-                            <span class="osint-module-code">DI</span><span><strong>Domain Intelligence</strong><small>WHOIS, DNS, IPv4 ve IPv6 kayıtları</small></span>
+                            <span class="osint-module-code">AD</span><span><strong>Alan Adı Araştırması</strong><small>WHOIS, DNS, IPv4 ve IPv6 kayıtları</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="whois" type="button" aria-pressed="false">
-                            <span class="osint-module-code">WH</span><span><strong>WHOIS</strong><small>RDAP kayıt ve domain yaşı bilgileri</small></span>
+                            <span class="osint-module-code">WH</span><span><strong>WHOIS</strong><small>RDAP kayıt ve alan adı yaşı bilgileri</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="dns" type="button" aria-pressed="false">
-                            <span class="osint-module-code">DN</span><span><strong>DNS Lookup</strong><small>A, AAAA, MX, NS, TXT, CNAME, SOA, CAA</small></span>
+                            <span class="osint-module-code">DN</span><span><strong>DNS Sorgulama</strong><small>A, AAAA, MX, NS, TXT, CNAME, SOA, CAA</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="ip" type="button" aria-pressed="false">
-                            <span class="osint-module-code">IP</span><span><strong>IP Lookup</strong><small>ASN, ağ, reverse DNS ve yaklaşık konum</small></span>
+                            <span class="osint-module-code">IP</span><span><strong>IP Sorgulama</strong><small>ASN, ağ, ters DNS ve yaklaşık konum</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="subdomains" type="button" aria-pressed="false">
-                            <span class="osint-module-code">SD</span><span><strong>Subdomain Discovery</strong><small>Pasif Certificate Transparency sonuçları</small></span>
+                            <span class="osint-module-code">AA</span><span><strong>Alt Alan Adı Keşfi</strong><small>Pasif Sertifika Şeffaflığı sonuçları</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="url" type="button" aria-pressed="false">
-                            <span class="osint-module-code">UA</span><span><strong>URL Analyzer</strong><small>URL yapısı ve query parametreleri</small></span>
+                            <span class="osint-module-code">UÇ</span><span><strong>URL Çözümleyici</strong><small>URL yapısı ve sorgu parametreleri</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="user-agent" type="button" aria-pressed="false">
                             <span class="osint-module-code">AG</span><span><strong>User-Agent</strong><small>Tarayıcı, işletim sistemi ve cihaz analizi</small></span>
                         </button>
                         <button class="osint-module-card" data-osint-module="email" type="button" aria-pressed="false">
-                            <span class="osint-module-code">EM</span><span><strong>Email Intelligence</strong><small>Biçim, domain ve public MX kayıtları</small></span>
+                            <span class="osint-module-code">EP</span><span><strong>E-posta Araştırması</strong><small>Biçim, alan adı ve herkese açık MX kayıtları</small></span>
                         </button>
                     </div>
                 </section>
@@ -2676,8 +2811,8 @@
                     <section class="osint-workbench" aria-labelledby="osint-workbench-title">
                         <div class="osint-workbench-head">
                             <div>
-                                <span id="osint-active-kicker" class="osint-kicker">DOMAIN</span>
-                                <h3 id="osint-workbench-title">Domain Intelligence</h3>
+                                <span id="osint-active-kicker" class="osint-kicker">ALAN ADI</span>
+                                <h3 id="osint-workbench-title">Alan Adı Araştırması</h3>
                                 <p id="osint-workbench-description">Alan adının kayıt, DNS, IPv4 ve IPv6 bilgilerini birlikte inceleyin.</p>
                             </div>
                             <button id="osint-cancel" class="secondary-button" type="button" hidden>İptal Et</button>
@@ -2703,7 +2838,7 @@
                         <p id="osint-form-error" class="osint-inline-error" role="alert" hidden></p>
 
                         <div id="osint-progress" class="osint-progress" hidden>
-                            <div><strong id="osint-progress-title">Araştırılıyor...</strong><span id="osint-progress-detail">Public kaynaklara bağlanılıyor</span></div>
+                            <div><strong id="osint-progress-title">Araştırılıyor...</strong><span id="osint-progress-detail">Herkese açık kaynaklara bağlanılıyor</span></div>
                             <div class="osint-progress-track" role="progressbar" aria-label="Araştırma ilerlemesi"><span></span></div>
                         </div>
 
@@ -2735,7 +2870,7 @@
                 </div>
 
                 <footer class="osint-footer-note">
-                    <span>Veri kaynakları: Google Public DNS, IANA/registry RDAP, Team Cymru, ipwho.is/FreeIPAPI ve Certificate Transparency servisleri.</span>
+                    <span>Veri kaynakları: Google Genel DNS, IANA/kayıt kuruluşu RDAP, Team Cymru, ipwho.is/FreeIPAPI ve Sertifika Şeffaflığı hizmetleri.</span>
                 </footer>
             </section>
 
@@ -2744,7 +2879,7 @@
                     <div class="discord-emoji-heading-copy">
                         <div>
                             <h2 id="discord-emoji-title">Discord Emoji İndir</h2>
-                            <p>Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve kolayca indirin.</p>
+                            <p>Discord sunucularındaki özel emoji ve çıkartmaları görüntüleyin ve kolayca indirin.</p>
                         </div>
                     </div>
                 </div>
@@ -2768,10 +2903,10 @@
                     <div id="discord-emoji-bot-panel" class="discord-emoji-input-panel discord-emoji-bot-panel" role="tabpanel" aria-labelledby="discord-emoji-bot-tab" data-discord-input-panel="bot">
                         <div class="discord-emoji-bot-copy">
                             <strong>Botunuzun bulunduğu sunucuları otomatik yükleyin</strong>
-                            <p>Discord Developer Portal'dan oluşturduğunuz botu sunucularınıza ekleyin, ardından bot token'ını aşağıya girin.</p>
+                            <p>Discord Geliştirici Portalı'ndan oluşturduğunuz botu sunucularınıza ekleyin, ardından bot belirtecini aşağıya girin.</p>
                         </div>
                         <div class="discord-emoji-token-row">
-                            <label for="discord-emoji-bot-token">Bot token</label>
+                            <label for="discord-emoji-bot-token">Bot belirteci</label>
                             <div class="discord-emoji-token-control">
                                 <input id="discord-emoji-bot-token" type="password" placeholder="Bot token'ını girin"
                                     autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true"
@@ -2780,8 +2915,8 @@
                             </div>
                         </div>
                         <div class="discord-emoji-bot-help" id="discord-emoji-bot-help">
-                            <p>Token kaydedilmez veya loglanmaz; sunucu verileri Gateway'den gelince bellekten temizlenir.</p>
-                            <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer">Discord Developer Portal'ı Aç</a>
+                            <p>Belirteç kaydedilmez veya günlüğe yazılmaz; sunucu verileri Ağ Geçidi'nden gelince bellekten temizlenir.</p>
+                            <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer">Discord Geliştirici Portalı'nı Aç</a>
                         </div>
                     </div>
 
@@ -2835,12 +2970,12 @@
                             <header class="discord-emoji-assets-heading">
                                 <div>
                                     <h3 id="discord-emoji-current-guild">Sunucu</h3>
-                                    <p id="discord-emoji-current-summary">0 emoji · 0 sticker</p>
+                                    <p id="discord-emoji-current-summary">0 emoji · 0 çıkartma</p>
                                 </div>
                                 <label class="discord-emoji-search discord-emoji-item-search">
-                                    <span class="sr-only">Emoji veya sticker ara</span>
+                                    <span class="sr-only">Emoji veya çıkartma ara</span>
                                     <span class="discord-emoji-search-icon" aria-hidden="true"></span>
-                                    <input id="discord-emoji-item-search" type="search" placeholder="Emoji veya sticker ara..." autocomplete="off" spellcheck="false">
+                                    <input id="discord-emoji-item-search" type="search" placeholder="Emoji veya çıkartma ara..." autocomplete="off" spellcheck="false">
                                 </label>
                             </header>
 
@@ -2848,7 +2983,7 @@
                                 <div class="discord-emoji-filter-tabs" role="group" aria-label="Öğe türüne göre filtrele">
                                     <button class="discord-emoji-filter-tab active" data-discord-item-filter="all" type="button" aria-pressed="true">Tümü <span>0</span></button>
                                     <button class="discord-emoji-filter-tab" data-discord-item-filter="emoji" type="button" aria-pressed="false">Emojiler <span>0</span></button>
-                                    <button class="discord-emoji-filter-tab" data-discord-item-filter="sticker" type="button" aria-pressed="false">Sticker'lar <span>0</span></button>
+                                    <button class="discord-emoji-filter-tab" data-discord-item-filter="sticker" type="button" aria-pressed="false">Çıkartmalar <span>0</span></button>
                                 </div>
                                 <div class="discord-emoji-selection-actions">
                                     <button id="discord-emoji-select-all" class="secondary-button" type="button">Tümünü Seç</button>
@@ -2859,7 +2994,7 @@
                             <div class="discord-emoji-download-bar">
                                 <div class="discord-emoji-selected-copy">
                                     <strong id="discord-emoji-selected-count">0 öğe seçildi</strong>
-                                    <span>Emoji ve sticker seçimleri aynı ZIP içinde korunur.</span>
+                                    <span>Emoji ve çıkartma seçimleri aynı ZIP içinde korunur.</span>
                                 </div>
                                 <div class="discord-emoji-download-actions">
                                     <button id="discord-emoji-retry" class="secondary-button" type="button" hidden>Başarısızları Tekrar Dene</button>
@@ -2878,7 +3013,7 @@
                                 </div>
                             </div>
 
-                            <div id="discord-emoji-grid" class="discord-emoji-grid" role="list" aria-label="Emoji ve sticker listesi"></div>
+                            <div id="discord-emoji-grid" class="discord-emoji-grid" role="list" aria-label="Emoji ve çıkartma listesi"></div>
                             <p id="discord-emoji-items-empty" class="discord-emoji-items-empty" hidden></p>
                         </div>
                     </div>
@@ -2886,12 +3021,12 @@
 
                 <footer class="discord-emoji-footer">
                     <p>Dosyalar doğrudan Discord CDN'inden alınır, yeniden kodlanmadan tarayıcıda ZIP'e eklenir. Rastgele CORS proxy servisi kullanılmaz.</p>
-                    <p>Bot bağlantısı Discord'un resmi HTTP API ve Gateway WebSocket akışını kullanır; normal kullanıcı token'ı ve self-bot yöntemi desteklenmez. Lottie sticker'lar JSON olarak korunur; tarayıcı CORS nedeniyle belleğe alamazsa orijinal CDN dosyası ayrı sekmede açılır.</p>
+                    <p>Bot bağlantısı Discord'un resmî HTTP API ve Ağ Geçidi WebSocket akışını kullanır; normal kullanıcı belirteci ve kullanıcı hesabını bot gibi kullanma yöntemi desteklenmez. Lottie çıkartmaları JSON olarak korunur; tarayıcı CORS nedeniyle belleğe alamazsa özgün CDN dosyası ayrı sekmede açılır.</p>
                     <div class="discord-emoji-footer-links">
                         <a href="https://docs.discord.com/developers/platform/oauth2-and-permissions" target="_blank" rel="noopener noreferrer">Bot Kurulum Rehberi</a>
-                        <a href="https://docs.discord.com/developers/events/gateway" target="_blank" rel="noopener noreferrer">Discord Gateway API</a>
+                        <a href="https://docs.discord.com/developers/events/gateway" target="_blank" rel="noopener noreferrer">Discord Ağ Geçidi API'si</a>
                         <a href="https://docs.discord.com/developers/resources/emoji" target="_blank" rel="noopener noreferrer">Discord Emoji API</a>
-                        <a href="https://docs.discord.com/developers/resources/sticker" target="_blank" rel="noopener noreferrer">Discord Sticker API</a>
+                        <a href="https://docs.discord.com/developers/resources/sticker" target="_blank" rel="noopener noreferrer">Discord Çıkartma API'si</a>
                     </div>
                 </footer>
                 <p id="discord-emoji-live" class="sr-only" aria-live="polite"></p>
@@ -3275,7 +3410,7 @@
                 <div class="panel-heading exif-viewer-heading">
                     <div>
                         <h2 id="exif-viewer-title">EXIF Veri Görüntüleme</h2>
-                        <p>Fotoğrafın içindeki EXIF, GPS, kamera, tarih, XMP, IPTC ve teknik metadata alanlarını ayrıntılı incele.</p>
+                        <p>Fotoğrafın içindeki EXIF, GPS, kamera, tarih, XMP, IPTC ve teknik üst veri alanlarını ayrıntılı incele.</p>
                     </div>
                     <button id="exif-viewer-new" class="secondary-button" type="button" hidden>Yeni Fotoğraf Analiz Et</button>
                 </div>
@@ -3329,7 +3464,7 @@
                     <section class="exif-viewer-details" aria-labelledby="exif-viewer-details-title">
                         <div class="exif-viewer-section-heading">
                             <div>
-                                <h3 id="exif-viewer-details-title">Metadata Ayrıntıları</h3>
+                                <h3 id="exif-viewer-details-title">Üst Veri Ayrıntıları</h3>
                                 <p>Kaynağına ve kullanım amacına göre gruplandırılmış alanlar.</p>
                             </div>
                         </div>
@@ -3358,7 +3493,7 @@
                     <section id="exif-viewer-json" class="exif-viewer-json" aria-labelledby="exif-viewer-json-title" hidden>
                         <div class="exif-viewer-json-heading">
                             <div>
-                                <h3 id="exif-viewer-json-title">Structured Metadata JSON</h3>
+                                <h3 id="exif-viewer-json-title">Yapılandırılmış Üst Veri JSON'u</h3>
                                 <p>Dosya, EXIF, GPS, XMP, IPTC, ICC ve container alanları.</p>
                             </div>
                             <button id="exif-viewer-copy-json" class="secondary-button" type="button">JSON'u Kopyala</button>
@@ -3366,7 +3501,7 @@
                         <pre id="exif-viewer-json-output"></pre>
                     </section>
 
-                    <p class="exif-viewer-disclaimer">Bu araç bir AI detector değildir. Metadata veya Content Credentials bulunmaması, görselin nasıl üretildiği konusunda kesin sonuç vermez.</p>
+                    <p class="exif-viewer-disclaimer">Bu araç bir yapay zekâ algılayıcısı değildir. Üst veri veya İçerik Kimlik Bilgileri bulunmaması, görselin nasıl üretildiği konusunda kesin sonuç vermez.</p>
                 </div>
 
                 <p id="exif-viewer-live" class="sr-only" aria-live="assertive"></p>
@@ -3430,7 +3565,7 @@
                         <div id="metadata-file-list" class="metadata-file-list"></div>
                     </section>
 
-                    <section id="metadata-selection" class="metadata-selection" aria-label="Metadata analizi ve karşılaştırma"></section>
+                    <section id="metadata-selection" class="metadata-selection" aria-label="Üst veri analizi ve karşılaştırma"></section>
                 </div>
 
                 <div id="metadata-live" class="sr-only" aria-live="assertive"></div>
@@ -4045,18 +4180,24 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=50"></script>
+    <script src="index.js?v=53"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
-    <script src="tools/kullanici-adi-arastirma/platforms.js?v=5"></script>
-    <script src="tools/kullanici-adi-arastirma/core.js?v=3"></script>
+    <script src="tools/kullanici-adi-arastirma/platforms.js?v=6"></script>
+    <script src="tools/kullanici-adi-arastirma/core.js?v=4"></script>
     <script src="tools/kullanici-adi-arastirma/app.js?v=4"></script>
     <script src="tools/osint-arastirma/core.js?v=4"></script>
-    <script src="tools/osint-arastirma/services.js?v=4"></script>
-    <script src="tools/osint-arastirma/app.js?v=4"></script>
-    <script src="tools/discord-emoji-indir/core.js?v=6"></script>
-    <script src="tools/discord-emoji-indir/app.js?v=3"></script>
+    <script src="tools/osint-arastirma/services.js?v=5"></script>
+    <script src="tools/osint-arastirma/app.js?v=5"></script>
+    <script src="tools/discord-emoji-indir/core.js?v=7"></script>
+    <script src="tools/discord-emoji-indir/app.js?v=4"></script>
+    <script src="tools/github-md-generator/config.js?v=1"></script>
+    <script src="tools/github-md-generator/services.js?v=3"></script>
+    <script src="tools/github-md-generator/style-profile.js?v=2"></script>
+    <script src="tools/github-md-generator/templates.js?v=3"></script>
+    <script src="tools/github-md-generator/providers.js?v=4"></script>
+    <script src="tools/github-md-generator/app.js?v=4"></script>
     <script src="tools/github-unfollower/assets/js/app.mjs?v=1" type="module"></script>
     <script src="tools/instagram-unfollower/app.js?v=5"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
@@ -4065,7 +4206,7 @@
     <script src="tools/blackjack/engine.js?v=6"></script>
     <script src="tools/blackjack/app.js?v=17"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
-    <script src="tools/slot-game/app.js?v=7"></script>
+    <script src="tools/slot-game/app.js?v=8"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
@@ -4087,7 +4228,7 @@
     <script src="tools/var-misin-yok-musun/script.js?v=7"></script>
     <script src="tools/tabu/cards.js?v=1"></script>
     <script src="tools/tabu/script.js?v=10"></script>
-    <script src="tools/uzanti-donusturucu/registry.js?v=7"></script>
+    <script src="tools/uzanti-donusturucu/registry.js?v=8"></script>
     <script src="tools/uzanti-donusturucu/services.js?v=2"></script>
     <script src="tools/uzanti-donusturucu/adapters.js?v=3"></script>
     <script src="tools/uzanti-donusturucu/ffmpeg-adapter.js?v=7"></script>
@@ -4097,10 +4238,10 @@
     <script src="tools/uzanti-donusturucu/ebook-adapter.js?v=2"></script>
     <script src="tools/uzanti-donusturucu/engine.js?v=3"></script>
     <script src="tools/uzanti-donusturucu/app.js?v=5"></script>
-    <script src="tools/exif-veri-goruntuleme/core.js?v=1"></script>
-    <script src="tools/exif-veri-goruntuleme/app.js?v=2"></script>
-    <script src="tools/medya-veri-temizleyici/core.js?v=2"></script>
-    <script src="tools/medya-veri-temizleyici/app.js?v=4"></script>
+    <script src="tools/exif-veri-goruntuleme/core.js?v=2"></script>
+    <script src="tools/exif-veri-goruntuleme/app.js?v=3"></script>
+    <script src="tools/medya-veri-temizleyici/core.js?v=3"></script>
+    <script src="tools/medya-veri-temizleyici/app.js?v=5"></script>
     <script src="tools/qr-code-scanner/app.js?v=1"></script>
     <script src="tools/url-cleaner/app.js?v=2"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
@@ -4109,9 +4250,9 @@
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
     <script src="tools/pdf-toolbox/app.js?v=3"></script>
     <script src="tools/encoder-decoder/app.js?v=1"></script>
-    <script src="tools/timestamp-converter/app.js?v=2"></script>
-    <script src="tools/social-media-image-resizer/app.js?v=1"></script>
-    <script src="tools/link-preview-tester/app.js?v=1"></script>
+    <script src="tools/timestamp-converter/app.js?v=3"></script>
+    <script src="tools/social-media-image-resizer/app.js?v=2"></script>
+    <script src="tools/link-preview-tester/app.js?v=2"></script>
     <script src="tools/chess-coach/jquery-1.12.4.min.js"></script>
     <script src="tools/chess-coach/chessboard-1.0.0.min.js"></script>
     <script src="tools/chess-coach/chess.js?v=1"></script>

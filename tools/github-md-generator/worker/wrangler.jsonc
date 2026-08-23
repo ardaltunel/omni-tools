@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "omni-tools-github-md-ai",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-24",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://ardaltunel.github.io,http://localhost:8765,http://127.0.0.1:8765",
+    "OPENAI_MODEL": "gpt-5.4-mini",
+    "OPENAI_TIMEOUT_MS": "40000",
+    "RATE_LIMIT_MAX": "8",
+    "RATE_LIMIT_WINDOW_MS": "60000"
+  }
+}

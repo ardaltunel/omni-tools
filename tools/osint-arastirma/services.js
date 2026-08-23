@@ -109,7 +109,7 @@
 
         async function lookupDns(domainValue, type = "ALL", signal) {
             const domain = Core.normalizeDomain(domainValue);
-            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz domain.", "INVALID_INPUT");
+            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz alan adı.", "INVALID_INPUT");
             const types = type === "ALL" ? Core.DNS_TYPES : [String(type).toUpperCase()];
             if (types.some((recordType) => !Core.DNS_TYPES.includes(recordType))) {
                 throw new OsintServiceError("Desteklenmeyen DNS kayıt türü.", "INVALID_INPUT");
@@ -152,7 +152,7 @@
 
         async function lookupWhois(domainValue, signal) {
             const domain = Core.normalizeDomain(domainValue);
-            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz domain.", "INVALID_INPUT");
+            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz alan adı.", "INVALID_INPUT");
             let primaryError = null;
             try {
                 const baseUrl = await getDomainRdapBase(domain, signal);
@@ -316,7 +316,7 @@
             const version = Core.getIpVersion(ip);
             if (!version) throw new OsintServiceError("Geçersiz IP adresi.", "INVALID_INPUT");
             if (Core.isPrivateIp(ip)) {
-                return { ip, version, isPrivate: true, note: "Bu özel/private bir IP adresidir ve public internet konum bilgisi bulunmaz." };
+                return { ip, version, isPrivate: true, note: "Bu özel bir IP adresidir ve herkese açık internet konum bilgisi bulunmaz." };
             }
 
             const [geoResult, ptrResult, rdapResult, cymruResult] = await Promise.allSettled([
@@ -367,7 +367,7 @@
             try {
                 const issuances = await requestJson(certSpotterUrl, { signal, cacheKey: `ct:certspotter:${domain}` });
                 return {
-                    source: "Cert Spotter Certificate Transparency",
+                    source: "Cert Spotter Sertifika Şeffaflığı",
                     names: (issuances || []).flatMap((issuance) => issuance.dns_names || []),
                 };
             } catch (primaryError) {
@@ -376,12 +376,12 @@
                     const crtUrl = `${CRTSH_ENDPOINT}?q=${encodeURIComponent(`%.${domain}`)}&output=json`;
                     const rows = await requestJson(crtUrl, { signal, cacheKey: `ct:crtsh:${domain}` });
                     return {
-                        source: "crt.sh Certificate Transparency",
+                        source: "crt.sh Sertifika Şeffaflığı",
                         names: (rows || []).flatMap((row) => String(row.name_value || "").split(/\r?\n/)),
                     };
                 } catch (fallbackError) {
                     throw new OsintServiceError(
-                        "Certificate Transparency kaynağı tarayıcıdan erişilemiyor veya şu anda yanıt vermiyor.",
+                        "Sertifika Şeffaflığı kaynağına tarayıcıdan erişilemiyor veya kaynak şu anda yanıt vermiyor.",
                         fallbackError.code || primaryError.code || "CT_UNAVAILABLE",
                         { primary: serializeError(primaryError), fallback: serializeError(fallbackError) },
                     );
@@ -409,7 +409,7 @@
 
         async function discoverSubdomains(domainValue, signal, onProgress) {
             const domain = Core.normalizeDomain(domainValue);
-            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz domain.", "INVALID_INPUT");
+            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz alan adı.", "INVALID_INPUT");
             const certificates = await requestCertificateNames(domain, signal);
             const uniqueNames = Array.from(new Set(certificates.names.map((name) => Core.cleanSubdomain(name, domain)).filter(Boolean))).sort();
             const limitedNames = uniqueNames.slice(0, 200);
@@ -453,13 +453,13 @@
                 mxServers: mx,
                 domainDnsActive: mx.length > 0 || addresses.length > 0,
                 dnsErrors: dns.errors,
-                privacyNotice: "Bu kontrol posta kutusunun varlığını sorgulamaz; yalnızca e-posta biçimini ve alan adının public DNS kayıtlarını inceler.",
+                privacyNotice: "Bu denetim posta kutusunun varlığını sorgulamaz; yalnızca e-posta biçimini ve alan adının herkese açık DNS kayıtlarını inceler.",
             };
         }
 
         async function researchDomain(domainValue, signal) {
             const domain = Core.normalizeDomain(domainValue);
-            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz domain.", "INVALID_INPUT");
+            if (!Core.isValidDomain(domain)) throw new OsintServiceError("Geçersiz alan adı.", "INVALID_INPUT");
             const [whoisResult, dnsResult] = await Promise.allSettled([
                 lookupWhois(domain, signal),
                 lookupDns(domain, "ALL", signal),

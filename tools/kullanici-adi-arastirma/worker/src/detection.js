@@ -217,7 +217,7 @@ function evaluate(platform, response, body, data, username) {
         }
         case "bluesky": {
             if (status === 200 && equalsUsername(data?.handle, `${username}.bsky.social`)) {
-                return verdict("found", "Bluesky public API kullanıcı adını doğruladı.");
+                return verdict("found", "Bluesky herkese açık API'si kullanıcı adını doğruladı.");
             }
             if (status === 400 && data?.error === "InvalidRequest" && /profile not found/i.test(String(data?.message || ""))) {
                 return verdict("notFound", "Bluesky profili bulunamadı.");

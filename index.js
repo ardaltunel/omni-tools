@@ -375,17 +375,22 @@ function updatePageMetadata(tool) {
             keywords: "kullanıcı adı araştırma, username search, OSINT, sosyal medya hesap bulma, profil araştırma",
         },
         "osint-arastirma": {
-            description: "Alan adı, IP, DNS, WHOIS/RDAP, URL, subdomain, User-Agent ve e-posta domain bilgilerini herkese açık kaynaklarla araştırın.",
+            description: "Alan adı, IP, DNS, WHOIS/RDAP, URL, alt alan adı, kullanıcı aracısı ve e-posta alan adı bilgilerini herkese açık kaynaklarla araştırın.",
             keywords: "osint, ip lookup, domain intelligence, dns lookup, whois rdap, url analyzer, subdomain discovery, email intelligence, user agent",
         },
         "discord-emoji-indir": {
-            description: "Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin, seçin ve doğrudan tarayıcınızda ZIP olarak indirin.",
+            description: "Discord sunucularındaki özel emoji ve çıkartmaları görüntüleyin, seçin ve doğrudan tarayıcınızda ZIP olarak indirin.",
             keywords: "discord emoji indir, discord sticker indir, bot token, guild json, emoji zip, animated emoji gif, lottie sticker",
         },
         "github-unfollower": {
             title: "GitHub Takip Etmeyenler | Omni Tools",
             description: "Sizi geri takip etmeyen GitHub hesaplarını bulun, inceleyin ve seçerek takipten çıkarın.",
             keywords: "github unfollower, github takip etmeyenler, github takipten çıkarma, followers, following",
+        },
+        "github-md-generator": {
+            title: "GitHub MD Oluşturucu | Omni Tools",
+            description: "Herkese açık GitHub depolarını analiz ederek README, SECURITY, SUPPORT, CONTRIBUTING ve CODE OF CONDUCT Markdown dosyaları oluşturun.",
+            keywords: "github md generator, readme generator, markdown oluşturucu, security md, contributing md, github dokümantasyon",
         },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
@@ -398,12 +403,12 @@ function updatePageMetadata(tool) {
         },
         blackjack: {
             title: "Blackjack | Omni Tools",
-            description: "Sanal çiplerle, klasik Blackjack kurallarına göre tarayıcıda premium masa deneyimi yaşa.",
+            description: "Sanal çiplerle, klasik Blackjack kurallarına göre tarayıcıda üst düzey masa deneyimi yaşa.",
             keywords: "blackjack, iskambil, kart oyunu, casino masası, sanal kredi, 21 oyunu",
         },
         "slot-game": {
             title: "Slot Oyunu | Omni Tools",
-            description: "6x5 grid, cascade sistemi, çarpanlar ve Free Spins ile özgün sanal slot oyununu ücretsiz oyna.",
+            description: "6x5 ızgara, zincirleme düşüş sistemi, çarpanlar ve ücretsiz dönüşlerle özgün sanal slot oyununu ücretsiz oyna.",
             keywords: "slot game, cascade, tumble, free spins, multiplier, sanal slot, arcade oyunu",
         },
         "doviz-kurlari": {
@@ -504,7 +509,7 @@ async function searchGithubProfile() {
             </div>
             <p class="github-bio">${escapeHtml(data.bio || "Bu hesabın biyografisi yok.")}</p>
             <div class="github-stats">
-                <div><span>Repo</span><strong>${data.public_repos}</strong></div>
+                <div><span>Depo</span><strong>${data.public_repos}</strong></div>
                 <div><span>Takipçi</span><strong>${data.followers}</strong></div>
                 <div><span>Takip</span><strong>${data.following}</strong></div>
                 <div><span>Gist</span><strong>${data.public_gists}</strong></div>
@@ -574,20 +579,20 @@ function renderGithubRepos(result) {
     }
 
     if (!result.items.length) {
-        return '<div class="github-repo-card is-empty"><strong>Public repo bulunamadı</strong><p>Bu kullanıcının herkese açık bir reposu yok.</p></div>';
+        return '<div class="github-repo-card is-empty"><strong>Herkese açık depo bulunamadı</strong><p>Bu kullanıcının herkese açık bir deposu yok.</p></div>';
     }
 
     return result.items.map((repo) => `
         <article class="github-repo-card">
             <div class="github-repo-heading">
                 <a href="${escapeHtml(repo.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(repo.name)}</a>
-                ${repo.fork ? '<span class="github-repo-badge">Fork</span>' : ""}
+                ${repo.fork ? '<span class="github-repo-badge">Çatallanmış</span>' : ""}
             </div>
             <p>${escapeHtml(repo.description || "Açıklama yok.")}</p>
             <div class="github-repo-meta">
                 <span>${escapeHtml(repo.language || "Dil yok")}</span>
                 <span>★ ${repo.stargazers_count}</span>
-                <span>Fork ${repo.forks_count}</span>
+                <span>Çatal ${repo.forks_count}</span>
                 <time datetime="${escapeHtml(repo.pushed_at || "")}">${formatGithubRepoDate(repo.pushed_at)}</time>
             </div>
         </article>

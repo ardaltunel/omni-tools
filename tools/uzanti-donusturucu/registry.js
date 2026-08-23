@@ -45,7 +45,7 @@
         capabilityTitle: "Tarayıcıda hazır",
         capabilityText: "Görseller cihazınızdan ayrılmadan Canvas ve tarayıcının yerel görsel çözücüsüyle işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "image/jpeg", [
+            select("outputFormat", "Çıkış Biçimi", "image/jpeg", [
                 option("image/png", "PNG"), recommended("image/jpeg", "JPG"), option("image/webp", "WEBP"),
                 option("image/bmp", "BMP"), option("image/x-icon", "ICO"), option("image/svg+xml", "SVG"),
             ]),
@@ -67,7 +67,7 @@
         capabilityTitle: "FFmpeg ile tarayıcıda hazır",
         capabilityText: "Ses dönüşümleri cihazınızdan ayrılmadan yerel FFmpeg çekirdeğinde işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "mp3", [recommended("mp3", "MP3"), ...["WAV", "FLAC", "AAC", "M4A", "OGG", "AIFF", "WMA"].map((value) => option(value.toLowerCase(), value))]),
+            select("outputFormat", "Çıkış Biçimi", "mp3", [recommended("mp3", "MP3"), ...["WAV", "FLAC", "AAC", "M4A", "OGG", "AIFF", "WMA"].map((value) => option(value.toLowerCase(), value))]),
             select("bitrate", "Bit Hızı", "auto", [recommended("auto", "Otomatik"), ...["96", "128", "192", "256", "320"].map((value) => option(value, `${value} kbps`))]),
             select("channels", "Kanal", "original", [recommended("original", "Özgün"), option("mono", "Mono"), option("stereo", "Stereo")]),
             select("sampleRate", "Örnekleme Hızı", "original", [recommended("original", "Özgün"), option("44100", "44,1 kHz"), option("48000", "48 kHz"), option("96000", "96 kHz")]),
@@ -96,7 +96,7 @@
         capabilityTitle: "FFmpeg ile tarayıcıda hazır",
         capabilityText: "Video dönüşümleri cihazınızdan ayrılmadan yerel FFmpeg çekirdeğinde işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "mp4", [recommended("mp4", "MP4"), ...["AVI", "MKV", "MOV", "MPEG", "M4V", "3GP"].map((value) => option(value.toLowerCase(), value))]),
+            select("outputFormat", "Çıkış Biçimi", "mp4", [recommended("mp4", "MP4"), ...["AVI", "MKV", "MOV", "MPEG", "M4V", "3GP"].map((value) => option(value.toLowerCase(), value))]),
             select("codec", "Kodlayıcı", "h264", [recommended("h264", "H.264")]),
             select("videoQuality", "Video Kalitesi", "auto", [recommended("auto", "Otomatik"), option("high", "Yüksek"), option("balanced", "Dengeli"), option("compact", "Küçük Dosya")]),
             select("fps", "Kare Hızı", "original", [recommended("original", "Özgün"), option("24", "24"), option("30", "30"), option("60", "60")]),
@@ -119,7 +119,7 @@
         capabilityTitle: "LibreOffice ile tarayıcıda hazır",
         capabilityText: "Belgeler cihazınızdan ayrılmadan yerel LibreOffice WebAssembly çekirdeğinde işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "pdf", [recommended("pdf", "PDF"), ...["DOCX", "ODT", "RTF", "TXT", "HTML", "CSV", "XLSX", "ODS"].map((value) => option(value.toLowerCase(), value))]),
+            select("outputFormat", "Çıkış Biçimi", "pdf", [recommended("pdf", "PDF"), ...["DOCX", "ODT", "RTF", "TXT", "HTML", "CSV", "XLSX", "ODS"].map((value) => option(value.toLowerCase(), value))]),
             select("pageSize", "Sayfa Boyutu", "original", [recommended("original", "Özgün"), option("a4", "A4"), option("letter", "ABD Mektup")]),
             toggle("preserveLayout", "Düzeni koru", "Yazı tipleri, tablolar ve sayfa yapısını mümkün olduğunca korur.", true),
         ],
@@ -139,7 +139,7 @@
         capabilityText: "Arşivler cihazınızdan ayrılmadan libarchive ve 7-Zip WebAssembly çekirdekleriyle işlenir.",
         settings: [
             select("operation", "İşlem", "repack", [option("compress", "Sıkıştır"), option("extract", "Çıkart"), recommended("repack", "Yeniden paketle")]),
-            select("outputFormat", "Çıkış Formatı", "zip", [recommended("zip", "ZIP"), option("7z", "7Z"), option("tar", "TAR"), option("tar.gz", "TAR.GZ")]),
+            select("outputFormat", "Çıkış Biçimi", "zip", [recommended("zip", "ZIP"), option("7z", "7Z"), option("tar", "TAR"), option("tar.gz", "TAR.GZ")]),
             select("compression", "Sıkıştırma Düzeyi", "balanced", [option("fast", "Hızlı"), recommended("balanced", "Dengeli"), option("maximum", "En yüksek")]),
         ],
     });
@@ -157,7 +157,7 @@
         capabilityTitle: "LibreOffice ile tarayıcıda hazır",
         capabilityText: "Sunumlar cihazınızdan ayrılmadan yerel LibreOffice WebAssembly çekirdeğinde işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "pdf", [option("pptx", "PPTX"), option("odp", "ODP"), recommended("pdf", "PDF")]),
+            select("outputFormat", "Çıkış Biçimi", "pdf", [option("pptx", "PPTX"), option("odp", "ODP"), recommended("pdf", "PDF")]),
             select("slideSize", "Slayt Oranı", "original", [recommended("original", "Özgün"), option("16:9", "16:9"), option("4:3", "4:3")]),
             toggle("includeNotes", "Konuşmacı notları", "Destekleniyorsa konuşmacı notlarını çıktıya ekler.", false),
         ],
@@ -176,7 +176,7 @@
         capabilityTitle: "Yazı tipi motoru tarayıcıda hazır",
         capabilityText: "Yazı tipleri cihazınızdan ayrılmadan fonteditor-core ve yerel WOFF2 WebAssembly çekirdeğiyle işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "woff2", [option("ttf", "TTF"), option("woff", "WOFF"), recommended("woff2", "WOFF2"), option("eot", "EOT")]),
+            select("outputFormat", "Çıkış Biçimi", "woff2", [option("ttf", "TTF"), option("woff", "WOFF"), recommended("woff2", "WOFF2"), option("eot", "EOT")]),
             toggle("keepMetadata", "Meta verileri koru", "Yazı tipi adı ve lisans alanlarını mümkün olduğunca korur.", true),
         ],
     });
@@ -194,7 +194,7 @@
         capabilityTitle: "E-kitap motoru tarayıcıda hazır",
         capabilityText: "EPUB, MOBI, AZW, FB2 ve çizgi roman paketleri cihazınızdan ayrılmadan yerel olarak işlenir.",
         settings: [
-            select("outputFormat", "Çıkış Formatı", "epub", [recommended("epub", "EPUB"), option("pdf", "PDF"), option("html", "HTML"), option("txt", "TXT"), option("fb2", "FB2")]),
+            select("outputFormat", "Çıkış Biçimi", "epub", [recommended("epub", "EPUB"), option("pdf", "PDF"), option("html", "HTML"), option("txt", "TXT"), option("fb2", "FB2")]),
             toggle("keepCover", "Kapağı koru", "Varsa özgün kapak görselini çıktıda tutar.", true),
             toggle("keepContents", "İçindekileri koru", "Bölüm ve içindekiler yapısını korur.", true),
         ],

@@ -21,16 +21,16 @@ export const PLATFORMS = Object.freeze([
     platform("reddit", "^[A-Za-z0-9_-]{3,20}$", "https://oauth.reddit.com/user/{username}/about?raw_json=1", "jsonExact", {
         identityPath: "data.name", notFoundStatuses: [404], requestAdapter: "redditOAuth",
         requiredVariables: ["redditClientId", "redditClientSecret"],
-        missingVariableReason: "Reddit kesin profil kontrolü için Worker'da REDDIT_CLIENT_ID ve REDDIT_CLIENT_SECRET secret'larını gerektiriyor.",
+        missingVariableReason: "Reddit kesin profil denetimi için arka plan işleyicisinde REDDIT_CLIENT_ID ve REDDIT_CLIENT_SECRET gizli değişkenlerini gerektiriyor.",
     }),
-    unsupported("instagram", "^[A-Za-z0-9._]{1,30}$", "Instagram kişisel profiller için anonim veya uygulama-kimlikli rastgele kullanıcı adı sorgusu sunmuyor; web endpoint'i tüm Worker isteklerini reddediyor."),
+    unsupported("instagram", "^[A-Za-z0-9._]{1,30}$", "Instagram kişisel profiller için anonim veya uygulama kimlikli rastgele kullanıcı adı sorgusu sunmuyor; web uç noktası tüm arka plan işleyicisi isteklerini reddediyor."),
     platform("tiktok", "^[A-Za-z0-9._]{2,24}$", "https://www.tiktok.com/oembed?url=https%3A%2F%2Fwww.tiktok.com%2F%40{username}", "oembedExact", {
         identityPath: "author_url", expectedUrl: "https://www.tiktok.com/@{username}", missingCodePath: "code", missingCode: 400,
     }),
     platform("youtube", "^[A-Za-z0-9._-]{3,30}$", "https://www.youtube.com/@{username}", "status", { notFoundStatuses: [404] }),
     platform("x", "^[A-Za-z0-9_]{1,15}$", "https://x.com/{username}", "status", { notFoundStatuses: [404] }),
     unsupported("facebook", "^[A-Za-z0-9.]{5,50}$", "Facebook anonim profil isteklerinde hesap varlığına göre değişmeyen bir engel yanıtı döndürüyor."),
-    unsupported("linkedin", "^[A-Za-z0-9][A-Za-z0-9-]{2,63}$", "LinkedIn API başka üyeleri vanity kullanıcı adıyla anonim aramaya açmıyor; public profil sayfası Worker isteklerini HTTP 999 ile engelliyor."),
+    unsupported("linkedin", "^[A-Za-z0-9][A-Za-z0-9-]{2,63}$", "LinkedIn API başka üyeleri özel kullanıcı adıyla anonim aramaya açmıyor; herkese açık profil sayfası arka plan işleyicisi isteklerini HTTP 999 ile engelliyor."),
     platform("twitch", "^[A-Za-z0-9_]{3,25}$", "https://www.twitch.tv/{username}", "message", {
         missingMarkers: ["Twitch is the world&#39;s leading video platform and community for gamers."],
         foundTemplates: ["<meta property=\"al:ios:url\" content=\"twitch.tv/{username}\""],
@@ -66,14 +66,14 @@ export const PLATFORMS = Object.freeze([
     platform("deviantart", "^[A-Za-z][A-Za-z0-9_-]{2,19}$", "https://www.deviantart.com/api/v1/oauth2/user/friends/search?query={username}&access_token={accessToken}", "deviantArtSearch", {
         requestAdapter: "deviantArtOAuth",
         requiredVariables: ["deviantArtClientId", "deviantArtClientSecret"],
-        missingVariableReason: "DeviantArt kesin profil kontrolü için Worker'da DEVIANTART_CLIENT_ID ve DEVIANTART_CLIENT_SECRET secret'larını gerektiriyor.",
+        missingVariableReason: "DeviantArt kesin profil denetimi için arka plan işleyicisinde DEVIANTART_CLIENT_ID ve DEVIANTART_CLIENT_SECRET gizli değişkenlerini gerektiriyor.",
     }),
     platform("flickr", "^[A-Za-z0-9@._-]{1,64}$", "https://www.flickr.com/people/{username}", "status", { notFoundStatuses: [404] }),
     platform("tumblr", "^[A-Za-z0-9-]{1,32}$", "https://{username}.tumblr.com/", "status", { notFoundStatuses: [404] }),
     platform("about-me", "^[A-Za-z0-9_-]{1,30}$", "https://about.me/{username}", "status", { notFoundStatuses: [404] }),
     platform("last-fm", "^[A-Za-z0-9_-]{2,15}$", "https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user={username}&api_key={apiKey}&format=json", "lastFm", {
         requiredVariables: ["apiKey"],
-        missingVariableReason: "Last.fm kesin profil kontrolü için Worker'da LASTFM_API_KEY secret'ı gerektiriyor.",
+        missingVariableReason: "Last.fm kesin profil denetimi için arka plan işleyicisinde LASTFM_API_KEY gizli değişkenini gerektiriyor.",
     }),
     platform("docker-hub", "^[a-z0-9][a-z0-9_-]{1,29}$", "https://registry.hub.docker.com/v2/users/{username}/", "dockerHub", { notFoundStatuses: [404] }),
     platform("npm", "^[a-z0-9][a-z0-9._-]{0,63}$", "https://registry.npmjs.org/-/v1/search?text=maintainer%3A{username}&size=1", "npmMaintainer"),

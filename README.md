@@ -54,6 +54,7 @@ The project mainly focuses on:
 * Kripto Kurları
 * Döviz Kurları
 * GitHub Kullanıcı
+* GitHub MD Oluşturucu
 * GitHub Takip Etmeyenler
 * Insta Takip Etmeyenler
 * Kullanıcı Adı Araştırma

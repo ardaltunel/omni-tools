@@ -36,7 +36,7 @@
         0x011c: ["PlanarConfiguration", "Düzlemsel Yapılandırma", "color"],
         0x0128: ["ResolutionUnit", "Çözünürlük Birimi", "technical"],
         0x0131: ["Software", "Yazılım", "software"],
-        0x0132: ["ModifyDate", "Metadata Değiştirme Tarihi", "date"],
+        0x0132: ["ModifyDate", "Üst Veri Değiştirme Tarihi", "date"],
         0x013b: ["Artist", "Sanatçı / Yazar", "rights"],
         0x013c: ["HostComputer", "Ana Bilgisayar", "software"],
         0x013e: ["WhitePoint", "Beyaz Nokta", "color"],
@@ -58,7 +58,7 @@
         0x9000: ["ExifVersion", "EXIF Sürümü", "technical"],
         0x9003: ["DateTimeOriginal", "Fotoğrafın Çekildiği Tarih", "date"],
         0x9004: ["DateTimeDigitized", "Dijitalleştirme Tarihi", "date"],
-        0x9010: ["OffsetTime", "Metadata Saat Dilimi", "date"],
+        0x9010: ["OffsetTime", "Üst Veri Saat Dilimi", "date"],
         0x9011: ["OffsetTimeOriginal", "Çekim Saat Dilimi", "date"],
         0x9012: ["OffsetTimeDigitized", "Dijitalleştirme Saat Dilimi", "date"],
         0x9101: ["ComponentsConfiguration", "Bileşen Yapılandırması", "technical"],
@@ -76,7 +76,7 @@
         0x9214: ["SubjectArea", "Nesne Alanı", "capture"],
         0x927c: ["MakerNote", "Üretici Notu", "technical"],
         0x9286: ["UserComment", "Kullanıcı Yorumu", "description"],
-        0x9290: ["SubSecTime", "Metadata Alt Saniyesi", "date"],
+        0x9290: ["SubSecTime", "Üst Veri Alt Saniyesi", "date"],
         0x9291: ["SubSecTimeOriginal", "Çekim Alt Saniyesi", "date"],
         0x9292: ["SubSecTimeDigitized", "Dijitalleştirme Alt Saniyesi", "date"],
         0x9c9b: ["XPTitle", "Windows Başlığı", "description"],
@@ -1018,10 +1018,10 @@
         const reasons = [];
         const has = (pattern) => fields.some((field) => pattern.test(`${field.key} ${field.label}`));
         if (gpsCoordinates) reasons.push({ level: "high", title: "Kesin konum bilgisi", detail: "Fotoğraf GPS enlem ve boylam koordinatları içeriyor." });
-        else if (fields.some((field) => field.source === "GPS" || field.category === "gps")) reasons.push({ level: "medium", title: "Konumla ilişkili metadata", detail: "Dosyada GPS veya konumla ilişkili alanlar bulunuyor." });
+        else if (fields.some((field) => field.source === "GPS" || field.category === "gps")) reasons.push({ level: "medium", title: "Konumla ilişkili üst veri", detail: "Dosyada GPS veya konumla ilişkili alanlar bulunuyor." });
         if (has(/serialnumber|serial number|seri numarası/i)) reasons.push({ level: "high", title: "Cihaz seri numarası", detail: "Kamera veya lensi benzersiz olarak tanımlayabilecek seri numarası mevcut." });
         if (has(/ownername|artist|author|creator|byline|camera sahibi|yazar/i)) reasons.push({ level: "high", title: "Kişi veya sahip bilgisi", detail: "Yazar, fotoğrafçı ya da cihaz sahibi bilgisi bulunuyor." });
-        if (has(/datetimeoriginal|datecreated|çekildiği tarih|oluşturma tarihi/i)) reasons.push({ level: "medium", title: "Çekim tarihi ve saati", detail: "Fotoğrafın ne zaman çekildiğini gösterebilen metadata mevcut." });
+        if (has(/datetimeoriginal|datecreated|çekildiği tarih|oluşturma tarihi/i)) reasons.push({ level: "medium", title: "Çekim tarihi ve saati", detail: "Fotoğrafın ne zaman çekildiğini gösterebilen üst veri mevcut." });
         if (has(/\bmake\b|\bmodel\b|camera model|kamera modeli|lensmodel|lens model/i)) reasons.push({ level: "medium", title: "Kamera veya lens modeli", detail: "Kullanılan cihaz ya da lens modeli kayıtlı." });
         if (has(/software|creatortool|processingsoftware|yazılım/i)) reasons.push({ level: "low", title: "Yazılım bilgisi", detail: "Dosyayı oluşturan veya düzenleyen yazılım bilgisi bulunuyor." });
         if (has(/icc|color profile|renk profili/i)) reasons.push({ level: "info", title: "Renk profili", detail: "Teknik renk profili bilgisi mevcut." });
@@ -1092,7 +1092,7 @@
     function analyze(input, fileInfo = {}) {
         const bytes = toBytes(input);
         const detected = sniffFormat(bytes);
-        if (detected === "heic") throw new Error("HEIC/HEIF metadata analizi bu sürümde güvenilir biçimde desteklenmiyor.");
+        if (detected === "heic") throw new Error("HEIC/HEIF üst veri analizi bu sürümde güvenilir biçimde desteklenmiyor.");
         if (!detected) throw new Error("Desteklenmeyen veya tanınmayan dosya. JPEG, PNG ya da WebP seçin.");
         const collector = createCollector();
         let info;
@@ -1102,7 +1102,7 @@
         else if (detected === "png") { info = parsePng(bytes, collector); actualMime = "image/png"; label = "PNG"; }
         else { info = parseWebp(bytes, collector); actualMime = "image/webp"; label = "WebP"; }
         if (!info.width || !info.height) collector.warnings.push("Görsel çözünürlüğü dosya container'ından okunamadı.");
-        if (collector.fields.length >= MAX_FIELDS) collector.warnings.push("Metadata alanları güvenlik amacıyla sınırlandırıldı.");
+        if (collector.fields.length >= MAX_FIELDS) collector.warnings.push("Üst veri alanları güvenlik amacıyla sınırlandırıldı.");
         const file = buildFileDetails({ ...fileInfo, size: fileInfo.size ?? bytes.length }, label, info, actualMime);
         if (file.mimeMismatch) collector.warnings.push(`Bildirilen MIME (${file.declaredMime}) ile gerçek format (${actualMime}) eşleşmiyor.`);
         const gpsCoordinates = info.gpsCoordinates || findCoordinatesInFields(collector.fields);

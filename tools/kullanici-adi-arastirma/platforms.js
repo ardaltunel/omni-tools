@@ -374,7 +374,7 @@
             usernamePattern: "^[A-Za-z0-9_-]{2,15}$",
             detection: {
                 method: "unavailable",
-                reason: "Last.fm kullanıcı kontrolü resmi API anahtarının Worker secret'ı olarak yapılandırılmasını gerektiriyor.",
+                reason: "Last.fm kullanıcı denetimi, resmî API anahtarının arka plan işleyicisi gizli değişkeni olarak yapılandırılmasını gerektiriyor.",
             },
         },
         {

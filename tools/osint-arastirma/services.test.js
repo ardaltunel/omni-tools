@@ -97,19 +97,19 @@ async function test(name, fn) {
         assert.equal(result.resolvedCount, 2);
     });
 
-    await test("e-posta araştırması sadece domain DNS/MX bilgisi toplar", async () => {
+    await test("e-posta araştırması yalnızca alan adı DNS/MX bilgisi toplar", async () => {
         const result = await services.lookupEmail("test@gmail.com");
         assert.equal(result.mxAvailable, true);
         assert.equal(result.localPart, "test");
         assert.equal(Object.prototype.hasOwnProperty.call(result, "mailboxExists"), false);
     });
 
-    await test("geçersiz girdiler network çağrısından önce reddedilir", async () => {
-        await assert.rejects(() => services.lookupDns("example..com", "A"), /Geçersiz domain/);
+    await test("geçersiz girdiler ağ çağrısından önce reddedilir", async () => {
+        await assert.rejects(() => services.lookupDns("example..com", "A"), /Geçersiz alan adı/);
         await assert.rejects(() => services.lookupIp("999.999.999.999"), /Geçersiz IP/);
     });
 
-    await test("geolocation rate limitinde ikinci anahtarsız kaynağa geçer", async () => {
+    await test("konum hizmeti istek sınırında ikinci anahtarsız kaynağa geçer", async () => {
         const fallbackFetch = async (url) => {
             const value = String(url);
             if (value === "https://ipwho.is/8.8.4.4") return json({ message: "limit" }, 429);

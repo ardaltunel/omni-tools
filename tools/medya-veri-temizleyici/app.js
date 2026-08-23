@@ -153,7 +153,7 @@
     }
 
     async function analyzeItem(item) {
-        item.status = "Metadata tespit ediliyor...";
+        item.status = "Üst veri tespit ediliyor...";
         item.state = "analyzing";
         render();
         try {
@@ -163,7 +163,7 @@
             item.state = "ready";
             item.status = response.analysis.metadataCount
                 ? `${response.analysis.metadataCount} meta veri alanı bulundu`
-                : "Metadata bulunmadı";
+                : "Üst veri bulunmadı";
             const extension = getExtension(item.file.name);
             if (!extensionMatches(extension, response.analysis.format)) {
                 item.warning = joinWarning(item.warning, `Dosya uzantısı içerikle eşleşmiyor; içerik ${response.analysis.label} olarak algılandı.`);
@@ -180,7 +180,7 @@
     async function cleanItem(item, options = {}) {
         if (!item?.analysis || item.state === "cleaning" || item.outputBlob) return false;
         item.state = "cleaning";
-        item.status = "Metadata temizleniyor...";
+        item.status = "Üst veri temizleniyor...";
         item.error = "";
         render();
         try {
@@ -301,7 +301,7 @@
         const values = [
             ["Boyut", formatBytes(item.file.size)],
             ["Format", item.analysis?.label || (getExtension(item.file.name).toUpperCase() || "—")],
-            ["Metadata", item.analysis ? `${item.analysis.metadataCount} alan` : "İnceleniyor"],
+            ["Üst veri", item.analysis ? `${item.analysis.metadataCount} alan` : "İnceleniyor"],
             ["GPS", item.analysis ? (item.analysis.gps ? "Var" : "Yok") : "—"],
             ["Durum", item.status],
         ];
@@ -397,7 +397,7 @@
             const verification = createElement("div", "metadata-verification");
             verification.append(
                 createElement("strong", "", "Çıktı yeniden analiz edilerek doğrulandı"),
-                createElement("span", "", `${item.result.removedCount} metadata alanı kaldırıldı.${item.result.gpsRemoved ? " GPS bilgisi kaldırıldı." : ""}`),
+                createElement("span", "", `${item.result.removedCount} üst veri alanı kaldırıldı.${item.result.gpsRemoved ? " GPS bilgisi kaldırıldı." : ""}`),
                 createElement("span", "", "Görüntü verisi yeniden sıkıştırılmadı."),
             );
             if (item.result.orientationRetained) verification.append(createElement("small", "", "Görselin yanlış dönmemesi için yalnızca teknik yön bilgisi korundu."));
@@ -419,7 +419,7 @@
         const rows = [
             ["Dosya boyutu", formatBytes(size)],
             ["Çözünürlük", analysis.width && analysis.height ? `${analysis.width} × ${analysis.height}` : "Okunamadı"],
-            ["Metadata", cleaned ? (analysis.removableCount ? `${analysis.removableCount} alan kaldı` : "Mahremiyet verileri temizlendi") : `${analysis.metadataCount} alan`],
+            ["Üst veri", cleaned ? (analysis.removableCount ? `${analysis.removableCount} alan kaldı` : "Mahremiyet verileri temizlendi") : `${analysis.metadataCount} alan`],
             ["GPS", analysis.gps ? "Var" : "Yok"],
             ["Kalite", cleaned ? "Orijinal" : "—"],
         ];
@@ -453,7 +453,7 @@
         const summary = createElement("summary", "", `Bulunan Bilgiler (${analysis.metadataCount})`);
         details.append(summary);
         if (!analysis.metadata.length) {
-            details.append(createElement("p", "metadata-details-empty", "Dosyada gösterilebilir metadata alanı bulunmadı."));
+            details.append(createElement("p", "metadata-details-empty", "Dosyada gösterilebilir üst veri alanı bulunmadı."));
             return details;
         }
         const groups = new Map();
@@ -568,7 +568,7 @@
     function ensureWorker() {
         if (worker || typeof Worker === "undefined") return worker;
         try {
-            const url = new URL("tools/medya-veri-temizleyici/worker.js?v=2", document.baseURI);
+            const url = new URL("tools/medya-veri-temizleyici/worker.js?v=3", document.baseURI);
             worker = new Worker(url);
             worker.addEventListener("message", (event) => {
                 const request = workerRequests.get(event.data?.id);
