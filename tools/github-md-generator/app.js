@@ -123,8 +123,11 @@
             ? ` Dosyanın bazı bölümleri kısmi verilerle hazırlandı: ${repository.warnings.join(" ")}`
             : "";
         const manualMessage = analysisWarning ? ` GitHub analizi kullanılamadı: ${analysisWarning}` : "";
+        const providerFailureMessage = Array.from(new Set(
+            (result.providerFailures || []).map((failure) => failure.message).filter(Boolean),
+        )).join(" ");
         const providerMessage = result.providerFailures?.length
-            ? ` Öncelikli yapay zekâ sağlayıcısı kullanılamadı; ${result.providerLabel} ile güvenli biçimde devam edildi.`
+            ? ` Öncelikli yapay zekâ sağlayıcısı kullanılamadı: ${providerFailureMessage || "Bilinmeyen sağlayıcı hatası."} ${result.providerLabel} ile güvenli biçimde devam edildi.`
             : "";
         const hasWarning = Boolean(analysisWarning || repository.warnings.length || result.providerFailures?.length);
         if (hasWarning) {
