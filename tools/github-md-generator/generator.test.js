@@ -106,3 +106,21 @@ test("lisans bulunmadığında kullanım hakkı uydurmaz", () => {
     assert.match(markdown, /No recognized license was detected/);
     assert.doesNotMatch(markdown, /licensed under the MIT/i);
 });
+
+test("proje amacı analizi için temsilî kaynak dosyalarını güvenli biçimde seçer", () => {
+    const selected = window.GithubMdServices.selectAnalysisFiles([
+        { type: "blob", path: "src/app.js", sha: "app", size: 4200 },
+        { type: "blob", path: "src/routes/posts.js", sha: "routes", size: 2600 },
+        { type: "blob", path: "tests/app.test.js", sha: "test", size: 1800 },
+        { type: "blob", path: ".env.production", sha: "env", size: 120 },
+        { type: "blob", path: "public/vendor.min.js", sha: "min", size: 9000 },
+        { type: "blob", path: "index.html", sha: "html", size: 3200 },
+    ]);
+    const paths = selected.map((item) => item.path);
+    assert.ok(paths.includes("src/app.js"));
+    assert.ok(paths.includes("src/routes/posts.js"));
+    assert.ok(paths.includes("index.html"));
+    assert.ok(!paths.includes("tests/app.test.js"));
+    assert.ok(!paths.includes(".env.production"));
+    assert.ok(!paths.includes("public/vendor.min.js"));
+});

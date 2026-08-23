@@ -208,20 +208,6 @@
     content: "";
 }
 
-.github-md-status.is-success {
-    border-color: color-mix(in srgb, var(--success) 40%, var(--line));
-}
-
-.github-md-status.is-success .github-md-status-icon {
-    border-color: color-mix(in srgb, var(--success) 42%, var(--line));
-    background: color-mix(in srgb, var(--success) 12%, transparent);
-    color: var(--success);
-}
-
-.github-md-status.is-success .github-md-status-icon::before {
-    content: "✓";
-}
-
 .github-md-status.is-warning {
     border-color: color-mix(in srgb, var(--accent-2) 42%, var(--line));
     background: var(--github-md-warning-soft);

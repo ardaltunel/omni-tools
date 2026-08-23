@@ -18,6 +18,10 @@ const repository = {
     projectStructure: [{ path: "src", type: "directory" }],
     detectedTech: ["JavaScript"],
     readme: "# Sample",
+    packageSummary: { name: "sample-project", description: "Belge üreten örnek uygulama." },
+    dependencies: { runtime: ["express"], development: ["typescript"] },
+    filePaths: ["src/app.js", "src/routes.js"],
+    sourceExcerpts: [{ path: "src/app.js", excerpt: "export function createProjectDocumentation() { return 'README'; }" }],
 };
 const fallbackMarkdown = [
     "# sample-project",
@@ -107,6 +111,9 @@ test("OpenAI Responses API çıktısını Markdown olarak döndürür", async ()
     assert.equal(upstreamRequest.url, "https://api.openai.com/v1/responses");
     assert.equal(upstreamRequest.options.headers.authorization, "Bearer test-key");
     assert.equal(upstreamRequest.body.store, false);
+    assert.match(upstreamRequest.body.instructions, /Ek bilgi boşsa projenin amacını/);
+    assert.match(upstreamRequest.body.input, /createProjectDocumentation/);
+    assert.match(upstreamRequest.body.input, /Belge üreten örnek uygulama/);
     assert.doesNotMatch(upstreamRequest.body.input, /test-key/);
 });
 

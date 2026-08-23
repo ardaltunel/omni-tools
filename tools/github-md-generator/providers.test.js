@@ -28,6 +28,10 @@ const repository = {
     projectStructure: [{ path: "src", type: "directory" }],
     detectedTech: ["JavaScript"],
     readme: "# Sample",
+    packageSummary: { name: "sample-project", description: "Örnek uygulama." },
+    dependencies: { runtime: ["express"], development: [] },
+    files: ["src/app.js", "src/routes.js"],
+    sourceExcerpts: [{ path: "src/app.js", excerpt: "export function createProjectDocumentation() {}" }],
 };
 
 function context(overrides = {}) {
@@ -75,6 +79,8 @@ test("güvenli ara katmandan gelen OpenAI çıktısını kullanır", async () =>
         assert.equal(options.headers.authorization, undefined);
         const body = JSON.parse(options.body);
         assert.equal(body.fileName, "README.md");
+        assert.equal(body.repository.sourceExcerpts[0].path, "src/app.js");
+        assert.equal(body.repository.packageSummary.description, "Örnek uygulama.");
         return new Response(JSON.stringify({ markdown: validMarkdown(), model: "gpt-5.4-mini" }), {
             status: 200,
             headers: { "content-type": "application/json" },

@@ -4,6 +4,9 @@
     const API_ROOT = "https://api.github.com";
     const API_VERSION = "2026-03-10";
     const MAX_TREE_ITEMS = 180;
+    const MAX_ANALYSIS_FILES = 8;
+    const MAX_SOURCE_EXCERPT = 2600;
+    const MAX_SOURCE_TOTAL = 16000;
 
     class GithubApiError extends Error {
         constructor(message, details = {}) {
@@ -67,7 +70,8 @@
         const readmeResult = settledValue(supplemental[1]);
         const packageResult = settledValue(supplemental[2]);
         const languagesResult = settledValue(supplemental[3]);
-        const tree = normalizeTree(treeResult?.tree || []);
+        const rawTree = treeResult?.tree || [];
+        const tree = normalizeTree(rawTree);
         const packageJson = parsePackageJson(packageResult);
         const warnings = supplemental
             .map((result, index) => result.status === "rejected" ? getSupplementalWarning(index, result.reason) : null)
@@ -76,6 +80,9 @@
         if (treeResult?.truncated) {
             warnings.push("Depo ağacı GitHub API sınırı nedeniyle kısmi analiz edildi.");
         }
+
+        const sourceAnalysis = await fetchSourceExcerpts(selectAnalysisFiles(rawTree), basePath, request);
+        if (sourceAnalysis.warning) warnings.push(sourceAnalysis.warning);
 
         const languages = Object.keys(languagesResult || {});
         const analysis = {
@@ -99,6 +106,7 @@
             hasPages: Boolean(repo.has_pages),
             readme: decodeGithubContent(readmeResult).slice(0, 16000),
             packageJson,
+            packageSummary: createPackageSummary(packageJson),
             dependencies: packageJson ? {
                 runtime: Object.keys(packageJson.dependencies || {}),
                 development: Object.keys(packageJson.devDependencies || {}),
@@ -107,6 +115,7 @@
             files: tree.files,
             directories: tree.directories,
             projectStructure: tree.projectStructure,
+            sourceExcerpts: sourceAnalysis.excerpts,
             treeTruncated: Boolean(treeResult?.truncated || tree.truncated),
             warnings,
         };
@@ -138,11 +147,13 @@
             hasPages: false,
             readme: "",
             packageJson: null,
+            packageSummary: null,
             dependencies: { runtime: [], development: [] },
             scripts: {},
             files: [],
             directories: [],
             projectStructure: [],
+            sourceExcerpts: [],
             treeTruncated: false,
             detectedTech: [],
             warnings: ["GitHub analizi kullanılamadığı için yalnızca manuel proje bilgileri kullanıldı."],
@@ -240,6 +251,72 @@
         }
     }
 
+    function createPackageSummary(packageJson) {
+        if (!packageJson) return null;
+        return {
+            name: String(packageJson.name || "").slice(0, 160),
+            description: String(packageJson.description || "").slice(0, 600),
+            keywords: Array.isArray(packageJson.keywords) ? packageJson.keywords.slice(0, 20).map(String) : [],
+            type: String(packageJson.type || "").slice(0, 40),
+            engines: packageJson.engines && typeof packageJson.engines === "object" ? packageJson.engines : {},
+        };
+    }
+
+    function selectAnalysisFiles(entries) {
+        const textExtension = /\.(?:c|cc|cpp|cs|css|go|html?|java|js|jsx|json|kt|mjs|php|py|rb|rs|svelte|toml|ts|tsx|vue|xml|ya?ml)$/i;
+        const ignored = /(^|\/)(?:node_modules|vendor|dist|build|coverage|\.git|assets|public|static|docs?|examples?|fixtures?|migrations?|__tests__|tests?|specs?)(?:\/|$)/i;
+        const sensitive = /(^|\/)(?:\.env(?:\.|$)|[^/]*(?:secret|credential|private[-_.]?key|access[-_.]?token)[^/]*)/i;
+        const generated = /(?:\.min\.[^.]+$|(?:^|\/)(?:package-lock|pnpm-lock|yarn\.lock|bun\.lockb|composer\.lock)$)/i;
+        const entryName = /(^|\/)(?:index|main|app|server|client|worker|routes?|router|controller|service|manifest|config)\.[^.]+$/i;
+
+        return entries
+            .filter((entry) => entry?.type === "blob" && entry.sha && entry.path && textExtension.test(entry.path))
+            .filter((entry) => Number(entry.size) > 0 && Number(entry.size) <= 120000)
+            .filter((entry) => !ignored.test(entry.path) && !sensitive.test(entry.path) && !generated.test(entry.path))
+            .map((entry) => {
+                const depth = entry.path.split("/").length - 1;
+                let score = Math.max(0, 28 - (depth * 7));
+                if (entryName.test(entry.path)) score += 100;
+                if (/^(?:src|app|pages|lib)\//i.test(entry.path)) score += 35;
+                if (/(?:route|component|screen|view|handler|schema|model)/i.test(entry.path)) score += 24;
+                if (/^(?:index\.html|pyproject\.toml|requirements\.txt|cargo\.toml|go\.mod|composer\.json)$/i.test(entry.path)) score += 70;
+                return { path: entry.path, sha: entry.sha, score };
+            })
+            .sort((left, right) => right.score - left.score || left.path.localeCompare(right.path))
+            .slice(0, MAX_ANALYSIS_FILES);
+    }
+
+    async function fetchSourceExcerpts(files, basePath, request) {
+        const excerpts = [];
+        let totalLength = 0;
+        let rateLimited = false;
+
+        for (const file of files) {
+            if (totalLength >= MAX_SOURCE_TOTAL) break;
+            try {
+                const payload = await request(`${basePath}/git/blobs/${encodeURIComponent(file.sha)}`);
+                const content = decodeGithubContent(payload).replace(/\u0000/g, "").trim();
+                if (!content) continue;
+                const excerpt = content.slice(0, Math.min(MAX_SOURCE_EXCERPT, MAX_SOURCE_TOTAL - totalLength));
+                excerpts.push({ path: file.path, excerpt });
+                totalLength += excerpt.length;
+            } catch (error) {
+                if (error?.name === "AbortError") throw error;
+                if (error?.code === "RATE_LIMIT") {
+                    rateLimited = true;
+                    break;
+                }
+            }
+        }
+
+        return {
+            excerpts,
+            warning: files.length && !excerpts.length
+                ? `Temsilî proje dosyaları alınamadı${rateLimited ? " (API limiti)" : ""}.`
+                : "",
+        };
+    }
+
     function normalizeTree(entries) {
         const ignored = /(^|\/)(?:node_modules|vendor|dist|build|coverage|\.git|\.idea|\.vscode)(?:\/|$)/i;
         const safeEntries = entries.filter((entry) => entry?.path && !ignored.test(entry.path));
@@ -304,5 +381,6 @@
         analyzeRepository,
         createManualRepository,
         parseRepositoryUrl,
+        selectAnalysisFiles,
     });
 }(window));

@@ -59,7 +59,7 @@
         state.controller = new AbortController();
         setBusy(true);
         hideResults();
-        showStatus("loading", "Depo analiz ediliyor", "GitHub üst verileri, README, bağımlılıklar ve klasör yapısı inceleniyor…");
+        showStatus("loading", "Depo analiz ediliyor", "GitHub üst verileri, README, bağımlılıklar, klasör yapısı ve temsilî proje dosyaları inceleniyor…");
 
         let repository;
         let analysisWarning = "";
@@ -127,7 +127,11 @@
             ? ` Öncelikli yapay zekâ sağlayıcısı kullanılamadı; ${result.providerLabel} ile güvenli biçimde devam edildi.`
             : "";
         const hasWarning = Boolean(analysisWarning || repository.warnings.length || result.providerFailures?.length);
-        showStatus(hasWarning ? "warning" : "success", `${formValues.fileName} oluşturuldu`, `${result.providerLabel} kullanıldı.${providerMessage}${manualMessage}${partialMessage}`);
+        if (hasWarning) {
+            showStatus("warning", `${formValues.fileName} uyarılarla oluşturuldu`, `${result.providerLabel} kullanıldı.${providerMessage}${manualMessage}${partialMessage}`);
+        } else {
+            hideStatus();
+        }
         announce(`${formValues.fileName} oluşturuldu.`);
     }
 
@@ -375,7 +379,7 @@
         state.sourceUrl = "";
         state.controller = null;
         hideResults();
-        showStatus("idle", "Depo bekleniyor", "Herkese açık GitHub depo adresini girerek başlayın.");
+        hideStatus();
         setBusy(false);
         setEditorTab("edit");
         resetCopyButton();
@@ -392,6 +396,12 @@
         elements["github-md-status-title"].textContent = title;
         elements["github-md-status-detail"].textContent = detail;
         status.hidden = false;
+    }
+
+    function hideStatus() {
+        const status = elements["github-md-status"];
+        status.hidden = true;
+        status.className = "github-md-status";
     }
 
     function setBusy(isBusy) {

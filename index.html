@@ -37,7 +37,7 @@
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=7">
     <link rel="stylesheet" href="tools/discord-emoji-indir/style.css?v=4">
     <link rel="stylesheet" href="tools/github-unfollower/style.css?v=2">
-    <link rel="stylesheet" href="tools/github-md-generator/style.css?v=2">
+    <link rel="stylesheet" href="tools/github-md-generator/style.css?v=3">
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
@@ -2267,17 +2267,17 @@
                             <span>Ek Bilgi <em>İsteğe bağlı</em></span>
                             <textarea id="github-md-additional" name="additional-information" rows="5"
                                 placeholder="Projenin amacı, doğrulanmış özellikleri, kurulum notları veya dokümana eklenmesini istediğiniz diğer bilgiler…"></textarea>
-                            <small>API analizi başarısız olursa bu açıklama kullanılarak akıllı şablonla devam edilebilir.</small>
+                            <small>Boş bırakabilirsiniz; README, manifest ve temsilî proje dosyaları incelenerek projenin amacı çıkarılır.</small>
                         </label>
                     </div>
 
                     <div class="github-md-form-footer">
-                        <p><strong>Gizlilik:</strong> Depo bilgileri tarayıcınızdan GitHub'ın herkese açık API'siyle alınır. Yapay zekâ yapılandırılmışsa doğrulanmış proje verileri ve taslak güvenli ara katman üzerinden OpenAI'ye gönderilir; API anahtarı tarayıcıya aktarılmaz. Yapay zekâ kullanılamazsa akıllı şablon otomatik olarak devreye girer.</p>
+                        <p><strong>Gizlilik:</strong> Depo bilgileri ve seçilen herkese açık proje dosyalarının sınırlı bölümleri GitHub API'siyle alınır. Yapay zekâ yapılandırılmışsa bu proje kanıtları ve taslak güvenli ara katman üzerinden OpenAI'ye gönderilir; API anahtarı tarayıcıya aktarılmaz. Yapay zekâ kullanılamazsa akıllı şablon otomatik olarak devreye girer.</p>
                         <button id="github-md-submit" class="primary-button" type="submit">Analiz Et ve Oluştur</button>
                     </div>
                 </form>
 
-                <div id="github-md-status" class="github-md-status is-idle" role="status" aria-live="polite">
+                <div id="github-md-status" class="github-md-status" role="status" aria-live="polite" hidden>
                     <span class="github-md-status-icon" aria-hidden="true"></span>
                     <div>
                         <strong id="github-md-status-title">Depo bekleniyor</strong>
@@ -4193,11 +4193,11 @@
     <script src="tools/discord-emoji-indir/core.js?v=7"></script>
     <script src="tools/discord-emoji-indir/app.js?v=4"></script>
     <script src="tools/github-md-generator/config.js?v=1"></script>
-    <script src="tools/github-md-generator/services.js?v=3"></script>
+    <script src="tools/github-md-generator/services.js?v=4"></script>
     <script src="tools/github-md-generator/style-profile.js?v=2"></script>
     <script src="tools/github-md-generator/templates.js?v=3"></script>
-    <script src="tools/github-md-generator/providers.js?v=4"></script>
-    <script src="tools/github-md-generator/app.js?v=4"></script>
+    <script src="tools/github-md-generator/providers.js?v=5"></script>
+    <script src="tools/github-md-generator/app.js?v=5"></script>
     <script src="tools/github-unfollower/assets/js/app.mjs?v=1" type="module"></script>
     <script src="tools/instagram-unfollower/app.js?v=5"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
