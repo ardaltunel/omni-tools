@@ -21,6 +21,15 @@ const legacyToolRoutes = Object.freeze({
     weather: "weather-app",
     "deal-game": "var-misin-yok-musun",
 });
+const preferredToolRoutes = Object.freeze(Object.fromEntries(
+    Array.from(navItems, (item) => [
+        item.dataset.tool,
+        createToolRouteSlug(item.querySelector("span")?.textContent || item.textContent),
+    ]),
+));
+const preferredRouteTools = Object.freeze(Object.fromEntries(
+    Object.entries(preferredToolRoutes).map(([tool, route]) => [route, tool]),
+));
 document.body.classList.add("is-app-home");
 const homeAppCards = createAppHomeCards();
 initializeAppSearch(homeAppCards);
@@ -42,7 +51,7 @@ initializeToolRouting();
 
 function activateTool(tool, options = {}) {
     const requestedTool = tool;
-    tool = legacyToolRoutes[tool] || tool;
+    tool = resolveToolRoute(tool);
     const matchingPanel = document.getElementById(tool);
     const matchingNavItem = Array.from(navItems).find((item) => item.dataset.tool === tool);
     if (!matchingPanel || !matchingNavItem) return false;
@@ -154,7 +163,14 @@ function initializeAppSearch(cards) {
     const searchableItems = Array.from(navItems, (item, index) => ({
         navItem: item,
         homeCard: cards[index],
-        name: normalizeAppSearchText(`${item.querySelector("span")?.textContent || item.textContent} ${item.dataset.search || ""} ${item.dataset.description || ""}`),
+        searchText: normalizeAppSearchText([
+            item.querySelector("span")?.textContent || item.textContent,
+            item.dataset.tool,
+            preferredToolRoutes[item.dataset.tool],
+            item.dataset.category,
+            item.dataset.search,
+            item.dataset.description,
+        ].filter(Boolean).join(" ")),
     }));
     const totalAppCount = searchableItems.length;
 
@@ -163,10 +179,11 @@ function initializeAppSearch(cards) {
     const filterApps = (value = "") => {
         const rawValue = String(value);
         const query = normalizeAppSearchText(rawValue.trim());
+        const queryTokens = query.split(" ").filter(Boolean);
         let visibleCount = 0;
 
-        searchableItems.forEach(({ homeCard, name }) => {
-            const isMatch = !query || name.includes(query);
+        searchableItems.forEach(({ homeCard, searchText }) => {
+            const isMatch = !query || queryTokens.every((token) => searchText.includes(token));
             if (homeCard) homeCard.hidden = !isMatch;
             if (isMatch) {
                 visibleCount += 1;
@@ -231,11 +248,23 @@ function initializeAppSearch(cards) {
 }
 
 function initializeToolRouting() {
-    window.addEventListener("popstate", () => {
+    const restoreRoute = () => {
         const requestedTool = getRequestedToolFromLocation();
         if (requestedTool && activateTool(requestedTool)) return;
         clearActiveTool();
-    });
+    };
+
+    window.addEventListener("popstate", restoreRoute);
+    if (window.location.protocol === "file:") {
+        window.addEventListener("hashchange", () => {
+            const requestedTool = getRequestedToolFromLocation();
+            const activeTool = document.querySelector(".nav-item.active")?.dataset.tool;
+            const normalizedTool = resolveToolRoute(requestedTool);
+            if (requestedTool && activeTool === normalizedTool && appHome?.hidden) return;
+            if (!requestedTool && appHome && !appHome.hidden) return;
+            restoreRoute();
+        });
+    }
 
     window.setTimeout(() => {
         const requestedTool = getRequestedToolFromLocation();
@@ -246,6 +275,17 @@ function initializeToolRouting() {
 
 function getRequestedToolFromLocation() {
     const url = new URL(window.location.href);
+    if (url.protocol === "file:" && url.hash) {
+        const hashSegments = url.hash.slice(1).split("/").filter(Boolean);
+        if (hashSegments.length === 1) {
+            try {
+                return decodeURIComponent(hashSegments[0]);
+            } catch {
+                return null;
+            }
+        }
+    }
+
     const legacyTool = url.searchParams.get("tool");
     if (legacyTool) return legacyTool;
 
@@ -268,14 +308,45 @@ function getAppBasePath() {
     return basePath.endsWith("/") ? basePath : `${basePath}/`;
 }
 
+function createToolRouteSlug(value) {
+    return String(value)
+        .toLocaleLowerCase("tr-TR")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ı/g, "i")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+function resolveToolRoute(route) {
+    return legacyToolRoutes[route] || preferredRouteTools[route] || route;
+}
+
+function getPreferredToolRoute(tool) {
+    return preferredToolRoutes[tool] || tool;
+}
+
 function updateToolHistory(tool, historyMode) {
     if (!historyMode || !["push", "replace"].includes(historyMode)) return;
-    if (window.location.protocol === "file:") return;
+
+    const route = tool ? getPreferredToolRoute(tool) : "";
+
+    if (window.location.protocol === "file:") {
+        const routeHash = route ? `#/${encodeURIComponent(route)}` : "";
+        if (window.location.hash === routeHash) return;
+
+        if (historyMode === "replace") {
+            window.location.replace(routeHash || window.location.href.split("#")[0]);
+        } else {
+            window.location.hash = routeHash;
+        }
+        return;
+    }
 
     const url = new URL(window.location.href);
     url.searchParams.delete("tool");
     const appBasePath = getAppBasePath();
-    url.pathname = tool ? `${appBasePath}${encodeURIComponent(tool)}` : appBasePath;
+    url.pathname = route ? `${appBasePath}${encodeURIComponent(route)}` : appBasePath;
     const method = historyMode === "replace" ? "replaceState" : "pushState";
     window.history[method]({ tool: tool || null }, "", `${url.pathname}${url.search}${url.hash}`);
 }
@@ -312,12 +383,12 @@ function updatePageMetadata(tool) {
             keywords: "discord emoji indir, discord sticker indir, bot token, guild json, emoji zip, animated emoji gif, lottie sticker",
         },
         "github-unfollower": {
-            title: "GitHub Unfollower | Omni Tools",
+            title: "GitHub Takip Etmeyenler | Omni Tools",
             description: "Sizi geri takip etmeyen GitHub hesaplarını bulun, inceleyin ve seçerek takipten çıkarın.",
             keywords: "github unfollower, github takip etmeyenler, github takipten çıkarma, followers, following",
         },
         "instagram-unfollower": {
-            title: "Instagram Unfollower | Omni Tools",
+            title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",
             keywords: "instagram unfollower, instagram takip etmeyenler, instagram geri takip, takipten çıkarma",
         },
@@ -331,7 +402,7 @@ function updatePageMetadata(tool) {
             keywords: "blackjack, iskambil, kart oyunu, casino masası, sanal kredi, 21 oyunu",
         },
         "slot-game": {
-            title: "Slot Game | Omni Tools",
+            title: "Slot Oyunu | Omni Tools",
             description: "6x5 grid, cascade sistemi, çarpanlar ve Free Spins ile özgün sanal slot oyununu ücretsiz oyna.",
             keywords: "slot game, cascade, tumble, free spins, multiplier, sanal slot, arcade oyunu",
         },
@@ -363,7 +434,9 @@ function normalizeAppSearchText(value) {
         .toLocaleLowerCase("tr-TR")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/ı/g, "i");
+        .replace(/ı/g, "i")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
 }
 
 const githubForm = document.getElementById("github-form");

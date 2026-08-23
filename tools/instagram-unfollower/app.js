@@ -177,7 +177,7 @@ async function fetchLatestSource({ force = false } = {}) {
     try {
         const { source, sourceLabel } = await fetchSourceFromGitHub();
         if (!isUsableInstagramUnfollowerSource(source)) {
-            throw new Error("İndirilen kaynak beklenen Instagram Unfollower betiği değil.");
+            throw new Error("İndirilen kaynak beklenen Insta Takip Etmeyenler betiği değil.");
         }
 
         const nextCache = {

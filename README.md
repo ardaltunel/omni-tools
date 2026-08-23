@@ -44,29 +44,49 @@ The project mainly focuses on:
 
 ## Available Tools
 
-* QR Code Generator
-* QR Code Scanner
-* URL Cleaner
-* JSON Formatter
-* Image Compressor
-* PDF Toolbox
-* Encoder / Decoder
-* Timestamp Converter
-* Media Image Resizer
-* Link Preview Test
-* Weather Application
-* Cryptocurrency Price Tracker
-* Currency Rates & Converter
-* GitHub User Finder
-* Unit Converter
-* Text-to-Speech
-* Translator
+* 2048
+* Gelişmiş XOX
+* Blackjack
+* Slot Oyunu
+* Nebuu
+* Satranç
+* Satranç Koçu
+* Kripto Kurları
+* Döviz Kurları
+* GitHub Kullanıcı
+* GitHub Takip Etmeyenler
+* Insta Takip Etmeyenler
+* Kullanıcı Adı Araştırma
+* OSINT Araştırma
+* Discord Emoji İndir
+* Gradient Oluşturucu
+* Uzantı Dönüştürücü
+* Medya Veri Temizleyici
+* EXIF Veri Görüntüleme
+* Numble
+* Şifre Oluşturucu
 * Parolla
+* QR Kod Oluşturucu
+* QR Kod Okuyucu
+* URL Temizleyici
+* JSON Biçimlendirici
+* Görüntü Sıkıştırıcı
+* PDF Araç Kutusu
+* Kodlayıcı / Kod Çözücü
+* Timestamp Dönüştürücü
+* Medya Boyutlandırıcı
+* Bağlantı Önizleme Testi
+* Yazıyı Sese Dönüştür
 * Sudoku
-* Taboo
-* Deal or No Deal
-* Millionaire Quiz
-* Utility Calculators
+* Tabu
+* Hızlı Yazma Testi
+* Çeviri
+* Var Mısın Yok Musun
+* Milyoner Bilgi Yarışması
+* Valorant Nişangâhı
+* Hava Durumu
+* Wordle
+* Wordle Bulucu
 
 ---
 

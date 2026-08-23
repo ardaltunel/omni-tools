@@ -45,7 +45,7 @@
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
-    <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=1">
+    <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=3">
     <link rel="stylesheet" href="tools/encoder-decoder/style.css?v=1">
     <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
     <link rel="stylesheet" href="tools/social-media-image-resizer/style.css?v=1">
@@ -64,175 +64,220 @@
             </div>
 
             <nav id="tool-nav" class="tool-nav" aria-label="Uygulamalar">
-                <button class="nav-item" data-tool="game-2048" data-description="Aynı sayıları birleştir, 2048 taşına ulaş." type="button">
+                <button class="nav-item" data-tool="game-2048" data-category="Oyunlar"
+                    data-search="2048 sayı birleştirme sayı oyunu karo taş kutu kaydırma bulmaca zeka matematik puzzle merge numbers game"
+                    data-description="Aynı sayıları birleştir, 2048 taşına ulaş." type="button">
                     <span>2048</span>
                 </button>
-                <button class="nav-item" data-tool="advanced-xox" data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
-                    <span>Advanced XOX</span>
+                <button class="nav-item" data-tool="advanced-xox" data-category="Oyunlar"
+                    data-search="advanced xox x o x tic tac toe üç taş üçlü sıra strateji bot bilgisayar yapay zeka masa oyunu"
+                    data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
+                    <span>Gelişmiş XOX</span>
                 </button>
                 <button class="nav-item" data-tool="blackjack"
-                    data-category="Oyunlar" data-search="blackjack iskambil kart casino masa bahis krupiye 21 oyunlar"
+                    data-category="Oyunlar" data-search="blackjack 21 yirmi bir iskambil kart casino kumarhane masa bahis krupiye deste el oyun"
                     data-description="Sanal çiplerle, klasik kurallara göre premium Blackjack oyna." type="button">
                     <span>Blackjack</span>
                 </button>
                 <button class="nav-item" data-tool="slot-game"
-                    data-category="Oyunlar" data-search="slot game casino arcade cascade tumble free spins çarpan"
+                    data-category="Oyunlar" data-search="slot game slot makinesi casino kumarhane şans oyunu çevirme makinesi arcade cascade tumble free spins bedava dönüş çarpan"
                     data-description="Cascade, çarpanlar ve Free Spins ile özgün bir sanal slot deneyimi." type="button">
-                    <span>Slot Game</span>
+                    <span>Slot Oyunu</span>
                 </button>
-                <button class="nav-item" data-tool="nebuu"
-                    data-search="nebuu alnında ne var heads up kelime tahmin telefon hareket sensör parti oyun"
+                <button class="nav-item" data-tool="nebuu" data-category="Oyunlar"
+                    data-search="nebuu alnında ne var heads up kelime tahmin kimim ben sessiz sinema anlat bakalım tabu charades telefon hareket sensör parti aile arkadaş grup oyun"
                     data-description="Telefonunu alnına koy, kelimeyi tahmin et!" type="button">
                     <span>Nebuu</span>
                 </button>
-                <button class="nav-item" data-tool="chess" data-description="Farklı zorluklardaki bota karşı satranç oyna." type="button">
-                    <span>Chess</span>
+                <button class="nav-item" data-tool="chess" data-category="Oyunlar"
+                    data-search="chess satranç tahta taş şah mat bot bilgisayar rakip strateji zeka masa oyunu"
+                    data-description="Farklı zorluklardaki bota karşı satranç oyna." type="button">
+                    <span>Satranç</span>
                 </button>
-                <button class="nav-item" data-tool="chess-coach" data-description="Hamlelerini analiz et, aday hamlelerle oyununu geliştir." type="button">
-                    <span>Chess Coach</span>
+                <button class="nav-item" data-tool="chess-coach" data-category="Oyunlar"
+                    data-search="chess coach satranç koçu antrenör analiz hamle önerisi aday hamle motor stockfish açılış taktik strateji oyun geliştirme"
+                    data-description="Hamlelerini analiz et, aday hamlelerle oyununu geliştir." type="button">
+                    <span>Satranç Koçu</span>
                 </button>
-                <button class="nav-item" data-tool="crypto" data-description="Popüler kripto para fiyatlarını ve değişimleri takip et." type="button">
-                    <span>Crypto Price</span>
+                <button class="nav-item" data-tool="crypto" data-category="Finans"
+                    data-search="crypto kripto para coin bitcoin ethereum btc eth altcoin fiyat kur piyasa market canlı değer değişim yükselen düşen finans takip"
+                    data-description="Popüler kripto para fiyatlarını ve değişimleri takip et." type="button">
+                    <span>Kripto Kurları</span>
                 </button>
                 <button class="nav-item" data-tool="doviz-kurlari" data-category="Finans"
-                    data-search="döviz kurları kur çevirici para birimi tl try usd eur gbp forex finans"
+                    data-search="döviz kurları güncel kur kur çevirici para birimi dönüştürücü dolar euro sterlin tl try usd eur gbp forex finans hesaplama"
                     data-description="Dünya para birimlerinin güncel TL karşılığını görüntüle ve kur dönüşümü yap." type="button">
                     <span>Döviz Kurları</span>
                 </button>
-                <button class="nav-item" data-tool="github-user" data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
-                    <span>GitHub User</span>
+                <button class="nav-item" data-tool="github-user" data-category="Geliştirici"
+                    data-search="github user kullanıcı profil hesap sorgulama geliştirici yazılımcı repo repository depo katkı takipçi inceleme bulma"
+                    data-description="GitHub kullanıcı profillerini ve hesap bilgilerini incele." type="button">
+                    <span>GitHub Kullanıcı</span>
                 </button>
-                <button class="nav-item" data-tool="github-unfollower"
-                    data-search="github unfollower takip etmeyenler takipten çıkar followers following"
+                <button class="nav-item" data-tool="github-unfollower" data-category="Sosyal Medya"
+                    data-search="github unfollower geri takip etmeyenler takibi bırakan takipçi analizi takipten çıkar followers following non followers sosyal medya"
                     data-description="Seni takip etmeyen GitHub hesaplarını bul ve seçerek takipten çıkar." type="button">
-                    <span>GitHub Unfollower</span>
+                    <span>GitHub Takip Etmeyenler</span>
                 </button>
-                <button class="nav-item" data-tool="instagram-unfollower"
-                    data-search="instagram unfollower takip etmeyenler geri takip takipten çıkar instagram takipçi"
+                <button class="nav-item" data-tool="instagram-unfollower" data-category="Sosyal Medya"
+                    data-search="instagram unfollower geri takip etmeyenler takibi bırakan takipçi analizi takipten çıkar followers following non followers sosyal medya"
                     data-description="Instagram'da seni geri takip etmeyen hesapları güncel betikle incele." type="button">
-                    <span>Instagram Unfollower</span>
+                    <span>Insta Takip Etmeyenler</span>
                 </button>
-                <button class="nav-item" data-tool="kullanici-adi-arastirma"
-                    data-search="kullanıcı adı OSINT sosyal medya username profil araştırma hesap bulma"
+                <button class="nav-item" data-tool="kullanici-adi-arastirma" data-category="OSINT"
+                    data-search="kullanıcı adı username nick nickname rumuz sorgulama kontrol arama bulucu osint sosyal medya sosyal ağ profil araştırma hesap bulma kişi araştırma"
                     data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
                     <span>Kullanıcı Adı Araştırma</span>
                 </button>
-                <button class="nav-item" data-tool="osint-arastirma"
-                    data-search="osint ip domain alan adı dns whois url subdomain email e-posta user agent network website rdap"
+                <button class="nav-item" data-tool="osint-arastirma" data-category="OSINT"
+                    data-search="osint açık kaynak istihbarat internet araştırma ip adres domain alan adı dns whois url bağlantı subdomain alt alan adı email e-posta user agent network ağ website web sitesi rdap güvenlik"
                     data-description="Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın." type="button">
                     <span>OSINT Araştırma</span>
                 </button>
-                <button class="nav-item" data-tool="discord-emoji-indir"
-                    data-search="discord emoji sticker sunucu guild zip indir download animated gif apng lottie"
+                <button class="nav-item" data-tool="discord-emoji-indir" data-category="Sosyal Medya"
+                    data-search="discord emoji emote sticker çıkartma sunucu guild özel emoji paket toplu zip indir indirme download animated hareketli gif apng lottie sosyal medya"
                     data-description="Discord sunucularındaki özel emoji ve sticker'ları görüntüleyin ve ZIP olarak indirin." type="button">
                     <span>Discord Emoji İndir</span>
                 </button>
-                <button class="nav-item" data-tool="gradient" data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
-                    <span>Gradient Generator</span>
+                <button class="nav-item" data-tool="gradient" data-category="Tasarım"
+                    data-search="gradient generator renk geçişi gradyan css linear radial conic arka plan background tasarım kod oluşturucu renk paleti"
+                    data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
+                    <span>Gradient Oluşturucu</span>
                 </button>
-                <button class="nav-item" data-tool="uzanti-donusturucu" data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
+                <button class="nav-item" data-tool="uzanti-donusturucu" data-category="Araçlar"
+                    data-search="uzantı dönüştürücü dosya format çevirici converter dönüştürme video ses audio müzik görsel resim fotoğraf belge doküman pdf arşiv font ebook"
+                    data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
                     <span>Uzantı Dönüştürücü</span>
                 </button>
-                <button class="nav-item" data-tool="medya-veri-temizleyici"
-                    data-search="metadata cleaner medya veri temizleyici exif xmp iptc gps fotoğraf mahremiyet"
+                <button class="nav-item" data-tool="medya-veri-temizleyici" data-category="Gizlilik"
+                    data-search="metadata cleaner medya veri temizleyici metadata silme exif kaldırma xmp iptc gps konum kamera bilgi fotoğraf resim mahremiyet gizlilik kişisel veri"
                     data-description="Fotoğraflardaki mahremiyet metadata bilgilerini kayıpsız temizle." type="button">
                     <span>Medya Veri Temizleyici</span>
                 </button>
-                <button class="nav-item" data-tool="exif-veri-goruntuleme"
-                    data-search="exif metadata viewer görüntüleme gps kamera tarih iptc xmp icc"
+                <button class="nav-item" data-tool="exif-veri-goruntuleme" data-category="Medya"
+                    data-search="exif metadata viewer okuyucu görüntüleme bilgi detay özellik gps konum koordinat kamera model lens tarih fotoğraf resim iptc xmp icc"
                     data-description="Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin." type="button">
                     <span>EXIF Veri Görüntüleme</span>
                 </button>
-                <button class="nav-item" data-tool="numble" data-description="Beş haneli gizli sayıyı altı tahminde bul." type="button">
+                <button class="nav-item" data-tool="numble" data-category="Oyunlar"
+                    data-search="numble oyun sayı tahmin oyunu sayı bulmaca sayı bulma gizli sayı rakam basamak beş hane 5 haneli mantık zeka sayısal wordle mastermind"
+                    data-description="Beş haneli gizli sayıyı altı tahminde bul." type="button">
                     <span>Numble</span>
                 </button>
-                <button class="nav-item" data-tool="password" data-description="Güçlü ve özelleştirilebilir parolalar oluştur." type="button">
-                    <span>Pass Generator</span>
+                <button class="nav-item" data-tool="password" data-category="Güvenlik"
+                    data-search="password pass parola şifre generator oluşturucu üretici güçlü güvenli rastgele random karmaşık karakter harf sayı sembol kişisel güvenlik"
+                    data-description="Güçlü ve özelleştirilebilir parolalar oluştur." type="button">
+                    <span>Şifre Oluşturucu</span>
                 </button>
-                <button class="nav-item" data-tool="parolla" data-description="Kelime ve genel kültür sorularını süre dolmadan çöz." type="button">
+                <button class="nav-item" data-tool="parolla" data-category="Oyunlar"
+                    data-search="parolla parola kelime oyunu bilgi yarışması quiz soru cevap genel kültür süre zaman harf ipucu bulmaca tahmin oyun"
+                    data-description="Kelime ve genel kültür sorularını süre dolmadan çöz." type="button">
                     <span>Parolla</span>
                 </button>
-                <button class="nav-item" data-tool="qr" data-description="Metin ve bağlantılar için renkli QR kodlar oluştur." type="button">
-                    <span>QR Code Generator</span>
+                <button class="nav-item" data-tool="qr" data-category="Araçlar"
+                    data-search="qr code generator qr kod karekod oluşturma üretme yapma link url bağlantı metin wifi renkli indir barkod"
+                    data-description="Metin ve bağlantılar için renkli QR kodlar oluştur." type="button">
+                    <span>QR Kod Oluşturucu</span>
                 </button>
                 <button class="nav-item" data-tool="qr-code-scanner" data-category="Araçlar"
-                    data-search="qr code scanner tarayıcı kod okut görsel kamera barkod bağlantı url"
+                    data-search="qr code scanner qr kod tarayıcı karekod okuyucu okutma çözme görsel fotoğraf yükleme kamera barkod bağlantı link url"
                     data-description="Görsel yükleyerek veya kamerayla QR kodların içeriğini oku." type="button">
-                    <span>QR Code Scanner</span>
+                    <span>QR Kod Okuyucu</span>
                 </button>
                 <button class="nav-item" data-tool="url-cleaner" data-category="Araçlar"
-                    data-search="url cleaner link temizle utm tracking takip parametre reklam fbclid gclid"
+                    data-search="url cleaner link bağlantı adres temizleme sadeleştirme utm tracking takip izleme parametre reklam kampanya gizlilik fbclid gclid paylaşılabilir"
                     data-description="Bağlantılardaki takip ve reklam parametrelerini tek tıkla temizle." type="button">
-                    <span>URL Cleaner</span>
+                    <span>URL Temizleyici</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
-                    data-search="json formatter validator beautify minify formatla doğrula syntax json düzenle"
+                    data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
                     data-description="JSON metinlerini formatla, sıkıştır ve hataları satır bilgisiyle denetle." type="button">
-                    <span>JSON Formatter</span>
+                    <span>JSON Biçimlendirici</span>
                 </button>
                 <button class="nav-item" data-tool="image-compressor" data-category="Araçlar"
-                    data-search="image compressor görsel sıkıştır jpg jpeg png webp quality kalite fotoğraf boyut küçült"
+                    data-search="image compressor görsel resim fotoğraf sıkıştırma küçültme optimize hafifletme dosya boyutu azaltma jpg jpeg png webp quality kalite çözünürlük medya"
                     data-description="Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin." type="button">
-                    <span>Image Compressor</span>
+                    <span>Görüntü Sıkıştırıcı</span>
                 </button>
                 <button class="nav-item" data-tool="pdf-toolbox" data-category="Araçlar"
-                    data-search="pdf toolbox birleştir böl split organize rotate delete reorder görsel pdf"
-                    data-description="PDF sayfalarını birleştirin, bölün, düzenleyin veya görsellerden PDF oluşturun." type="button">
-                    <span>PDF Toolbox</span>
+                    data-search="pdf toolbox araç kutusu pdf düzenleme birleştirme bölme split organize sayfa döndürme rotate silme delete sıralama reorder ayırma görsel resim pdf oluşturma belge imza imzalama signature filigran watermark metin yazı ekleme damga"
+                    data-description="PDF sayfalarını birleştirin, bölün, düzenleyin; metin, filigran veya imza ekleyin." type="button">
+                    <span>PDF Araç Kutusu</span>
                 </button>
                 <button class="nav-item" data-tool="encoder-decoder" data-category="Araçlar"
-                    data-search="encoder decoder base64 url html unicode jwt encode decode şifre çöz"
+                    data-search="encoder decoder kodlayıcı kod çözücü base64 url html unicode jwt encode decode kodlama çözme dönüştürme metin token geliştirici"
                     data-description="Base64, URL, HTML, Unicode ve JWT metinlerini dönüştürün." type="button">
-                    <span>Encoder / Decoder</span>
+                    <span>Kodlayıcı / Kod Çözücü</span>
                 </button>
                 <button class="nav-item" data-tool="timestamp-converter" data-category="Araçlar"
-                    data-search="timestamp unix tarih saat saniye milisaniye utc local epoch converter"
+                    data-search="timestamp converter unix epoch zaman damgası tarih saat dönüştürme çevirme saniye milisaniye utc yerel local timezone saat dilimi geliştirici"
                     data-description="Unix timestamp ve tarih/saat değerlerini anında dönüştürün." type="button">
-                    <span>Timestamp Converter</span>
+                    <span>Timestamp Dönüştürücü</span>
                 </button>
                 <button class="nav-item" data-tool="social-media-image-resizer" data-category="Araçlar"
-                    data-search="social media image resizer instagram story reels youtube thumbnail banner x twitter facebook linkedin crop fit"
+                    data-search="social media image resizer sosyal medya görsel boyutlandırma yeniden boyutlandırma ölçü kırpma crop fit instagram post story reels youtube thumbnail küçük resim kapak banner x twitter facebook linkedin tiktok"
                     data-description="Görselleri sosyal medya ölçülerine göre crop veya fit ile yeniden boyutlandırın." type="button">
-                    <span>Media Image Resizer</span>
+                    <span>Medya Boyutlandırıcı</span>
                 </button>
                 <button class="nav-item" data-tool="link-preview-tester" data-category="Araçlar"
-                    data-search="link preview tester open graph og image favicon canonical twitter card metadata title description"
+                    data-search="link preview tester bağlantı önizleme test kontrol paylaşım kartı sosyal medya open graph og image görsel favicon canonical twitter card metadata başlık title açıklama description seo geliştirici"
                     data-description="Bir bağlantının paylaşım kartı ve metadata bilgilerini kontrol edin." type="button">
-                    <span>Link Preview Test</span>
+                    <span>Bağlantı Önizleme Testi</span>
                 </button>
-                <button class="nav-item" data-tool="speech" data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
-                    <span>Text To Speech</span>
+                <button class="nav-item" data-tool="speech" data-category="Erişilebilirlik"
+                    data-search="text to speech tts metin seslendirme yazıyı sese çevirme sesli okuma okutma konuşma telaffuz dinleme erişilebilirlik"
+                    data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
+                    <span>Yazıyı Sese Dönüştür</span>
                 </button>
-                <button class="nav-item" data-tool="sudoku" data-description="Kolay, orta ve zor seviyelerde klasik Sudoku çöz." type="button">
+                <button class="nav-item" data-tool="sudoku" data-category="Oyunlar"
+                    data-search="sudoku sayı bulmaca mantık zeka kare tablo 9x9 kolay orta zor çözme oyun"
+                    data-description="Kolay, orta ve zor seviyelerde klasik Sudoku çöz." type="button">
                     <span>Sudoku</span>
                 </button>
-                <button class="nav-item" data-tool="tabu" data-description="Takımını kur, yasak kelimelere takılmadan puan topla." type="button">
+                <button class="nav-item" data-tool="tabu" data-category="Oyunlar"
+                    data-search="tabu taboo yasak kelime anlatma tahmin takım grup arkadaş aile parti kutu oyunu süre puan oyun"
+                    data-description="Takımını kur, yasak kelimelere takılmadan puan topla." type="button">
                     <span>Tabu</span>
                 </button>
-                <button class="nav-item" data-tool="typing" data-description="Türkçe metinlerle yazma hızını ve doğruluğunu ölç." type="button">
-                    <span>Type Test</span>
+                <button class="nav-item" data-tool="typing" data-category="Verimlilik"
+                    data-search="type test typing yazma testi klavye hız testi hızlı yazma on parmak wpm kelime dakika doğruluk pratik alıştırma türkçe"
+                    data-description="Türkçe metinlerle yazma hızını ve doğruluğunu ölç." type="button">
+                    <span>Hızlı Yazma Testi</span>
                 </button>
-                <button class="nav-item" data-tool="translate" data-description="Metinleri farklı diller arasında hızlıca çevir." type="button">
-                    <span>Translate</span>
+                <button class="nav-item" data-tool="translate" data-category="Dil"
+                    data-search="translate translator çeviri tercüme dil çevirmen metin çevirme türkçe ingilizce almanca fransızca yabancı dil anlam"
+                    data-description="Metinleri farklı diller arasında hızlıca çevir." type="button">
+                    <span>Çeviri</span>
                 </button>
-                <button class="nav-item" data-tool="var-misin-yok-musun" data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
+                <button class="nav-item" data-tool="var-misin-yok-musun" data-category="Oyunlar"
+                    data-search="var mısın yok musun deal or no deal kutu kasa açma yarışma banka teklifi para ödül şans televizyon oyun"
+                    data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
                     <span>Var Mısın Yok Musun</span>
                 </button>
-                <button class="nav-item" data-tool="milyoner-bilgi-yarismasi" data-search="milyoner bilgi yarışma quiz soru genel kültür millionaire"
+                <button class="nav-item" data-tool="milyoner-bilgi-yarismasi" data-category="Oyunlar"
+                    data-search="milyoner kim milyoner olmak ister bilgi yarışması quiz soru cevap genel kültür joker ödül para televizyon millionaire oyun"
                     data-description="15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş." type="button">
                     <span>Milyoner Bilgi Yarışması</span>
                 </button>
-                <button class="nav-item" data-tool="valorant-crosshair" data-description="Valorant nişangâhlarını incele ve kodunu kopyala." type="button">
-                    <span>Valorant Crosshair</span>
+                <button class="nav-item" data-tool="valorant-crosshair" data-category="Oyunlar"
+                    data-search="valorant crosshair nişangah nişangâh aim hedef artı imleç kod pro oyuncu fps riot oyun ayar"
+                    data-description="Valorant nişangâhlarını incele ve kodunu kopyala." type="button">
+                    <span>Valorant Nişangâhı</span>
                 </button>
-                <button class="nav-item" data-tool="weather-app" data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
-                    <span>Weather App</span>
+                <button class="nav-item" data-tool="weather-app" data-category="Hava Durumu"
+                    data-search="weather app hava durumu tahmin meteoroloji sıcaklık derece yağmur kar rüzgar nem şehir günlük güncel forecast"
+                    data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
+                    <span>Hava Durumu</span>
                 </button>
-                <button class="nav-item" data-tool="wordle" data-description="Beş harfli Türkçe kelimeyi altı denemede tahmin et." type="button">
+                <button class="nav-item" data-tool="wordle" data-category="Oyunlar"
+                    data-search="wordle kelime tahmin oyunu beş harf 5 harf altı deneme harf bulmaca türkçe günlük zeka oyun"
+                    data-description="Beş harfli Türkçe kelimeyi altı denemede tahmin et." type="button">
                     <span>Wordle</span>
                 </button>
-                <button class="nav-item" data-tool="wordle-finder" data-description="Wordle ipuçlarına uyan olası Türkçe kelimeleri bul." type="button">
-                    <span>Wordle Finder</span>
+                <button class="nav-item" data-tool="wordle-finder" data-category="Oyun Yardımcısı"
+                    data-search="wordle finder çözücü yardımcı kelime bulucu tahmin öneri beş harf 5 harf yeşil sarı gri harf ipucu olası türkçe hile"
+                    data-description="Wordle ipuçlarına uyan olası Türkçe kelimeleri bul." type="button">
+                    <span>Wordle Bulucu</span>
                 </button>
             </nav>
         </aside>
@@ -243,7 +288,7 @@
                     <div class="app-search app-home-search" role="search" data-app-search>
                         <label class="sr-only" for="home-app-search">Uygulama ara</label>
                         <span class="app-search-icon" aria-hidden="true"></span>
-                        <input id="home-app-search" class="app-search-input" type="search" placeholder="Uygulama ara…"
+                        <input id="home-app-search" class="app-search-input" type="search" placeholder="Uygulama, oyun veya ihtiyacını ara…"
                             autocomplete="off" spellcheck="false" aria-controls="app-home-grid"
                             aria-describedby="home-app-search-status" data-app-search-input>
                         <kbd class="app-search-shortcut" aria-hidden="true">/</kbd>
@@ -429,7 +474,7 @@
             <section id="slot-game" class="tool-panel slot-game-panel" aria-labelledby="slot-game-title">
                 <div class="panel-heading slot-game-heading">
                     <div>
-                        <h2 id="slot-game-title">Slot Game</h2>
+                        <h2 id="slot-game-title">Slot Oyunu</h2>
                         <p>6x5 grid, art arda cascade'ler, biriken çarpanlar ve Free Spins ile özgün bir arcade slot deneyimi.</p>
                     </div>
                     <div class="slot-game-audio-controls" aria-label="Ses ayarları">
@@ -607,7 +652,7 @@
             <section id="crypto" class="tool-panel" aria-labelledby="crypto-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="crypto-title">Crypto Price</h2>
+                        <h2 id="crypto-title">Kripto Kurları</h2>
                         <p>Popüler coin fiyatları ve 24 saatlik değişim.</p>
                     </div>
                     <button id="refresh-crypto" class="primary-button" type="button">Fiyatları Yenile</button>
@@ -735,7 +780,7 @@
             <section id="qr" class="tool-panel" aria-labelledby="qr-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="qr-title">QR Code Generator</h2>
+                        <h2 id="qr-title">QR Kod Oluşturucu</h2>
                         <p>Metin veya bağlantı için renkli QR kod üret.</p>
                     </div>
                 </div>
@@ -783,7 +828,7 @@
             <section id="qr-code-scanner" class="tool-panel qr-scanner-panel" aria-labelledby="qr-code-scanner-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="qr-code-scanner-title">QR Code Scanner</h2>
+                        <h2 id="qr-code-scanner-title">QR Kod Okuyucu</h2>
                         <p>Bir görsel yükleyin veya cihaz kameranızı kullanarak QR kodun içeriğini tarayıcıda okuyun.</p>
                     </div>
                 </div>
@@ -861,7 +906,7 @@
             <section id="url-cleaner" class="tool-panel url-cleaner-panel" aria-labelledby="url-cleaner-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="url-cleaner-title">URL Cleaner</h2>
+                        <h2 id="url-cleaner-title">URL Temizleyici</h2>
                         <p>Bağlantılardaki takip ve reklam parametrelerini cihazınızda anında temizleyin.</p>
                     </div>
                 </div>
@@ -922,7 +967,7 @@
             <section id="json-formatter" class="tool-panel json-formatter-panel" aria-labelledby="json-formatter-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="json-formatter-title">JSON Formatter</h2>
+                        <h2 id="json-formatter-title">JSON Biçimlendirici</h2>
                         <p>JSON metninizi formatlayın, sıkıştırın ve sözdizimini tamamen tarayıcınızda doğrulayın.</p>
                     </div>
                 </div>
@@ -979,7 +1024,7 @@
             <section id="image-compressor" class="tool-panel image-compressor-panel" aria-labelledby="image-compressor-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="image-compressor-title">Image Compressor</h2>
+                        <h2 id="image-compressor-title">Görüntü Sıkıştırıcı</h2>
                         <p>Görsellerinizi kalite ayarıyla cihazınızda sıkıştırın, boyut farkını inceleyin ve indirin.</p>
                     </div>
                 </div>
@@ -1062,8 +1107,8 @@
             <section id="pdf-toolbox" class="tool-panel pdf-toolbox-panel" aria-labelledby="pdf-toolbox-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="pdf-toolbox-title">PDF Toolbox</h2>
-                        <p>PDF dosyalarını birleştirin, sayfalarını düzenleyin, bölün veya görsellerden PDF oluşturun.</p>
+                        <h2 id="pdf-toolbox-title">PDF Araç Kutusu</h2>
+                        <p>PDF dosyalarını birleştirin, düzenleyin; metin, filigran veya imza ekleyin ve görsellerden PDF oluşturun.</p>
                     </div>
                 </div>
 
@@ -1071,6 +1116,7 @@
                     <button class="pdf-toolbox-tab is-active" type="button" role="tab" aria-selected="true" data-pdf-mode="merge">Birleştir</button>
                     <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="split">Böl</button>
                     <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="organize">Düzenle</button>
+                    <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="annotate">Metin &amp; İmza</button>
                     <button class="pdf-toolbox-tab" type="button" role="tab" aria-selected="false" data-pdf-mode="images">Görsel → PDF</button>
                 </div>
 
@@ -1131,11 +1177,105 @@
                                 </div>
                                 <p>Sayfa sırası boş bırakılırsa orijinal sıra korunur.</p>
                             </div>
+                            <div id="pdf-toolbox-mode-annotate" class="pdf-toolbox-mode-options pdf-toolbox-annotate-options" hidden>
+                                <strong>PDF’ye içerik ekle</strong>
+                                <p>Yalnızca kullanmak istediğiniz seçeneği açın; tek bir seçenek yeterlidir. Metin yazdığınızda, filigran girdiğinizde veya imza seçtiğinizde ilgili seçenek otomatik açılır.</p>
+
+                                <section class="pdf-toolbox-annotation-group" aria-labelledby="pdf-toolbox-text-heading">
+                                    <label class="pdf-toolbox-feature-toggle" id="pdf-toolbox-text-heading">
+                                        <input id="pdf-toolbox-add-text" type="checkbox">
+                                        <span>Metin ekle</span>
+                                    </label>
+                                    <div class="pdf-toolbox-annotation-grid">
+                                        <label class="is-wide" for="pdf-toolbox-text">Metin
+                                            <input id="pdf-toolbox-text" class="text-input" type="text" maxlength="240" placeholder="Eklenecek metni yazın">
+                                        </label>
+                                        <label for="pdf-toolbox-text-pages">Sayfalar
+                                            <input id="pdf-toolbox-text-pages" class="text-input" type="text" placeholder="Örn: 1, 3-5">
+                                        </label>
+                                        <label for="pdf-toolbox-text-position">Konum
+                                            <select id="pdf-toolbox-text-position">
+                                                <option value="top-left">Sol üst</option>
+                                                <option value="top-center">Üst orta</option>
+                                                <option value="top-right">Sağ üst</option>
+                                                <option value="center">Orta</option>
+                                                <option value="bottom-left">Sol alt</option>
+                                                <option value="bottom-center">Alt orta</option>
+                                                <option value="bottom-right">Sağ alt</option>
+                                            </select>
+                                        </label>
+                                        <label for="pdf-toolbox-text-size">Boyut
+                                            <input id="pdf-toolbox-text-size" class="text-input" type="number" min="8" max="72" value="14">
+                                        </label>
+                                        <label for="pdf-toolbox-text-color">Renk
+                                            <input id="pdf-toolbox-text-color" type="color" value="#111827">
+                                        </label>
+                                    </div>
+                                </section>
+
+                                <section class="pdf-toolbox-annotation-group" aria-labelledby="pdf-toolbox-watermark-heading">
+                                    <label class="pdf-toolbox-feature-toggle" id="pdf-toolbox-watermark-heading">
+                                        <input id="pdf-toolbox-add-watermark" type="checkbox">
+                                        <span>Filigran ekle</span>
+                                    </label>
+                                    <div class="pdf-toolbox-annotation-grid">
+                                        <label class="is-wide" for="pdf-toolbox-watermark-text">Filigran metni
+                                            <input id="pdf-toolbox-watermark-text" class="text-input" type="text" maxlength="120" placeholder="Örn: GİZLİ veya TASLAK">
+                                        </label>
+                                        <label for="pdf-toolbox-watermark-pages">Sayfalar
+                                            <input id="pdf-toolbox-watermark-pages" class="text-input" type="text" placeholder="Boşsa tümü">
+                                        </label>
+                                        <label for="pdf-toolbox-watermark-size">Boyut
+                                            <input id="pdf-toolbox-watermark-size" class="text-input" type="number" min="18" max="120" value="48">
+                                        </label>
+                                        <label for="pdf-toolbox-watermark-opacity">Saydamlık (%)
+                                            <input id="pdf-toolbox-watermark-opacity" class="text-input" type="number" min="5" max="80" value="18">
+                                        </label>
+                                        <label for="pdf-toolbox-watermark-angle">Açı
+                                            <input id="pdf-toolbox-watermark-angle" class="text-input" type="number" min="-75" max="75" value="45">
+                                        </label>
+                                        <label for="pdf-toolbox-watermark-color">Renk
+                                            <input id="pdf-toolbox-watermark-color" type="color" value="#64748b">
+                                        </label>
+                                    </div>
+                                </section>
+
+                                <section class="pdf-toolbox-annotation-group" aria-labelledby="pdf-toolbox-signature-heading">
+                                    <label class="pdf-toolbox-feature-toggle" id="pdf-toolbox-signature-heading">
+                                        <input id="pdf-toolbox-add-signature" type="checkbox">
+                                        <span>İmza görseli ekle</span>
+                                    </label>
+                                    <div class="pdf-toolbox-annotation-grid">
+                                        <label class="is-wide" for="pdf-toolbox-signature-file">İmza dosyası
+                                            <input id="pdf-toolbox-signature-file" class="pdf-toolbox-signature-file" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp">
+                                        </label>
+                                        <label for="pdf-toolbox-signature-pages">Sayfalar
+                                            <input id="pdf-toolbox-signature-pages" class="text-input" type="text" placeholder="Boşsa son sayfa">
+                                        </label>
+                                        <label for="pdf-toolbox-signature-position">Konum
+                                            <select id="pdf-toolbox-signature-position">
+                                                <option value="bottom-right">Sağ alt</option>
+                                                <option value="bottom-left">Sol alt</option>
+                                                <option value="bottom-center">Alt orta</option>
+                                                <option value="center">Orta</option>
+                                                <option value="top-right">Sağ üst</option>
+                                                <option value="top-left">Sol üst</option>
+                                            </select>
+                                        </label>
+                                        <label for="pdf-toolbox-signature-width">Genişlik
+                                            <input id="pdf-toolbox-signature-width" class="text-input" type="number" min="40" max="300" value="140">
+                                        </label>
+                                        <label for="pdf-toolbox-signature-opacity">Saydamlık (%)
+                                            <input id="pdf-toolbox-signature-opacity" class="text-input" type="number" min="10" max="100" value="100">
+                                        </label>
+                                    </div>
+                                </section>
+                            </div>
                             <div id="pdf-toolbox-mode-images" class="pdf-toolbox-mode-options" hidden>
                                 <strong>Görsellerden PDF oluştur</strong>
                                 <p>Görseller seçtiğiniz sırayla A4 sayfalara yerleştirilir. PNG, JPG, JPEG ve WEBP desteklenir.</p>
                             </div>
-                            <button id="pdf-toolbox-process" class="primary-button" type="button">PDF Oluştur</button>
+                            <button id="pdf-toolbox-process" class="primary-button" type="button">Seçili İşlemi Uygula</button>
                         </div>
                     </aside>
                 </div>
@@ -1146,7 +1286,7 @@
             <section id="encoder-decoder" class="tool-panel encoder-decoder-panel" aria-labelledby="encoder-decoder-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="encoder-decoder-title">Encoder / Decoder</h2>
+                        <h2 id="encoder-decoder-title">Kodlayıcı / Kod Çözücü</h2>
                         <p>Metinleri Base64, URL, HTML, Unicode ve JWT biçimleri arasında tamamen tarayıcıda dönüştürün.</p>
                     </div>
                 </div>
@@ -1201,7 +1341,7 @@
             <section id="timestamp-converter" class="tool-panel timestamp-converter-panel" aria-labelledby="timestamp-converter-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="timestamp-converter-title">Timestamp Converter</h2>
+                        <h2 id="timestamp-converter-title">Timestamp Dönüştürücü</h2>
                         <p>Unix timestamp ile tarih/saat değerlerini saniye veya milisaniye hassasiyetinde dönüştürün.</p>
                     </div>
                 </div>
@@ -1248,7 +1388,7 @@
             <section id="social-media-image-resizer" class="tool-panel social-resizer-panel" aria-labelledby="social-resizer-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="social-resizer-title">Media Image Resizer</h2>
+                        <h2 id="social-resizer-title">Medya Boyutlandırıcı</h2>
                         <p>Görsellerinizi sosyal medya platformlarına uygun ölçülerde crop veya fit ile yeniden boyutlandırın.</p>
                     </div>
                 </div>
@@ -1296,7 +1436,7 @@
             <section id="link-preview-tester" class="tool-panel link-preview-panel" aria-labelledby="link-preview-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="link-preview-title">Link Preview Test</h2>
+                        <h2 id="link-preview-title">Bağlantı Önizleme Testi</h2>
                         <p>Bir bağlantının paylaşım kartını, Open Graph ve Twitter Card metadata bilgilerini kontrol edin.</p>
                     </div>
                 </div>
@@ -1328,7 +1468,7 @@
             <section id="speech" class="tool-panel" aria-labelledby="speech-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="speech-title">Text To Speech</h2>
+                        <h2 id="speech-title">Yazıyı Sese Dönüştür</h2>
                         <p>Yazıyı tarayıcının konuşma motoruyla seslendir.</p>
                     </div>
                 </div>
@@ -1361,7 +1501,7 @@
             <section id="gradient" class="tool-panel gradient-panel" aria-labelledby="gradient-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="gradient-title">Gradient Generator</h2>
+                        <h2 id="gradient-title">Gradient Oluşturucu</h2>
                         <p>CSS linear-gradient kodu oluştur ve kopyala.</p>
                     </div>
                 </div>
@@ -1411,7 +1551,7 @@
             <section id="typing" class="tool-panel" aria-labelledby="typing-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="typing-title">Type Test</h2>
+                        <h2 id="typing-title">Hızlı Yazma Testi</h2>
                         <p>Yazmaya başladığında otomatik başlayan Türkçe yazma testi.</p>
                     </div>
                     <button id="new-quote" class="secondary-button" type="button">Yeni Deneme</button>
@@ -1442,7 +1582,7 @@
             <section id="translate" class="tool-panel" aria-labelledby="translate-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="translate-title">Translate</h2>
+                        <h2 id="translate-title">Çeviri</h2>
                         <p>Metni kaynak dilden hedef dile statik Google Translate endpoint'i ile çevir.</p>
                     </div>
                 </div>
@@ -1634,8 +1774,8 @@
             <section id="valorant-crosshair" class="tool-panel" aria-labelledby="valorant-crosshair-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="valorant-crosshair-title">Valorant Crosshair</h2>
-                        <p>Valorant crosshair görsellerinden istediğin kodu tek tıkla kopyala.</p>
+                        <h2 id="valorant-crosshair-title">Valorant Nişangâhı</h2>
+                        <p>Valorant nişangâh görsellerinden istediğin kodu tek tıkla kopyala.</p>
                     </div>
                 </div>
                 <div class="valorant-crosshair-layout">
@@ -1648,12 +1788,12 @@
                                 <span>Önizleme</span>
                                 <strong id="valorant-crosshair-preview-name">Hazır</strong>
                             </div>
-                            <div id="valorant-crosshair-preview" class="valorant-crosshair-preview" aria-label="Crosshair önizlemesi"></div>
+                            <div id="valorant-crosshair-preview" class="valorant-crosshair-preview" aria-label="Nişangâh önizlemesi"></div>
                         </div>
                         <div class="valorant-crosshair-code-card">
                             <div class="field-group">
-                                <label for="valorant-crosshair-code">Crosshair kodu</label>
-                                <textarea id="valorant-crosshair-code" rows="6" placeholder="Valorant crosshair kodunu yapıştır"></textarea>
+                                <label for="valorant-crosshair-code">Nişangâh kodu</label>
+                                <textarea id="valorant-crosshair-code" rows="6" placeholder="Valorant nişangâh kodunu yapıştır"></textarea>
                             </div>
                             <div class="button-row valorant-crosshair-actions">
                                 <button id="valorant-crosshair-copy" class="primary-button" type="button">Kodu Kopyala</button>
@@ -1668,7 +1808,7 @@
             <section id="password" class="tool-panel" aria-labelledby="password-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="password-title">Pass Generator</h2>
+                        <h2 id="password-title">Şifre Oluşturucu</h2>
                         <p>Güvenli, özelleştirilebilir parola üretici.</p>
                     </div>
                     <button id="generate-password" class="primary-button" type="button">Yeni Parola</button>
@@ -1893,7 +2033,7 @@
             <section id="wordle-finder" class="tool-panel" aria-labelledby="wordle-finder-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="wordle-finder-title">Wordle Finder</h2>
+                        <h2 id="wordle-finder-title">Wordle Bulucu</h2>
                         <p>WordleTR için yeşil, sarı ve gri ipuçlarıyla 5 harfli Türkçe kelime bul.</p>
                     </div>
                     <button id="wordle-finder-clear" class="secondary-button" type="button">Filtreleri Temizle</button>
@@ -1904,7 +2044,7 @@
                             <span>Canlı filtre</span>
                             <strong><span id="wordle-finder-count">0</span> sonuç</strong>
                         </div>
-                        <div id="wordle-finder-grid" class="wordle-finder-grid" aria-label="Wordle Finder denemeleri"></div>
+                        <div id="wordle-finder-grid" class="wordle-finder-grid" aria-label="Wordle Bulucu denemeleri"></div>
                         <div class="button-row wordle-finder-actions">
                             <button id="wordle-finder-add" class="primary-button" type="button">Denemeyi Ekle</button>
                         </div>
@@ -1927,7 +2067,7 @@
             <section id="weather-app" class="tool-panel" aria-labelledby="weather-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="weather-title">Weather App</h2>
+                        <h2 id="weather-title">Hava Durumu</h2>
                         <p>Şehir veya mevcut konuma göre anlık hava durumunu göster.</p>
                     </div>
                 </div>
@@ -2000,7 +2140,7 @@
                             <span>Anlık hava</span>
                             <strong>Konum veya şehir adıyla sorgula.</strong>
                         </div>
-                        <div class="weather-flow" aria-label="Weather App işlem akışı">
+                        <div class="weather-flow" aria-label="Hava Durumu işlem akışı">
                             <div>
                                 <span>01</span>
                                 <p>Panel açılınca arama için hazır bekler.</p>
@@ -2022,7 +2162,7 @@
             <section id="github-user" class="tool-panel" aria-labelledby="github-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="github-title">GitHub User</h2>
+                        <h2 id="github-title">GitHub Kullanıcı</h2>
                         <p>GitHub kullanıcı profilini API üzerinden getir.</p>
                     </div>
                 </div>
@@ -2077,7 +2217,7 @@
             <section id="github-unfollower" class="tool-panel github-unfollower-panel" aria-labelledby="github-unfollower-title">
                 <div class="panel-heading github-unfollower-heading">
                     <div>
-                        <h2 id="github-unfollower-title">GitHub Unfollower</h2>
+                        <h2 id="github-unfollower-title">GitHub Takip Etmeyenler</h2>
                         <p>Seni geri takip etmeyen hesapları bul, listeyi incele ve yalnızca seçtiklerini takipten çıkar.</p>
                     </div>
                 </div>
@@ -2243,7 +2383,7 @@
             <section id="instagram-unfollower" class="tool-panel instagram-unfollower-panel" aria-labelledby="instagram-unfollower-title">
                 <div class="panel-heading instagram-unfollower-heading">
                     <div>
-                        <h2 id="instagram-unfollower-title">Instagram Unfollower</h2>
+                        <h2 id="instagram-unfollower-title">Insta Takip Etmeyenler</h2>
                         <p>Seni geri takip etmeyen hesapları, Instagram oturumunda çalışan güncel betikle incele.</p>
                     </div>
                 </div>
@@ -2291,7 +2431,7 @@
             <section id="chess" class="tool-panel" aria-labelledby="chess-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="chess-title">Chess</h2>
+                        <h2 id="chess-title">Satranç</h2>
                         <p>Beyaz taşlarla oyna, siyah bot zorluk seviyesine göre cevap versin.</p>
                     </div>
                     <div class="button-row panel-actions">
@@ -2329,7 +2469,7 @@
             <section id="chess-coach" class="tool-panel" aria-labelledby="coach-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="coach-title">Chess Coach</h2>
+                        <h2 id="coach-title">Satranç Koçu</h2>
                         <p>Satranç oynarken anlık değerlendirme, aday hamle ve sade koç notları al.</p>
                     </div>
                     <div class="button-row panel-actions">
@@ -2343,7 +2483,7 @@
                             <span id="coach-status">Beyaz oynar.</span>
                             <strong id="coach-eval">0.00</strong>
                         </div>
-                        <div id="coach-board" class="coach-board" aria-label="Chess Coach tahtası"></div>
+                        <div id="coach-board" class="coach-board" aria-label="Satranç Koçu tahtası"></div>
                     </div>
                     <aside class="coach-side">
                         <strong>Koç Önerisi</strong>
@@ -3855,7 +3995,7 @@
             <section id="advanced-xox" class="tool-panel" aria-labelledby="xox-title">
                 <div class="panel-heading">
                     <div>
-                        <h2 id="xox-title">Advanced XOX</h2>
+                        <h2 id="xox-title">Gelişmiş XOX</h2>
                         <p>Botlu, akan tahtalı XOX oyunu. Her tarafın 4. hamlesinde kendi en eski taşı silinir.</p>
                     </div>
                     <div class="button-row panel-actions">
@@ -3868,7 +4008,7 @@
                             <span id="xox-status">Sıra sende.</span>
                             <strong id="xox-turn">Oyuncu</strong>
                         </div>
-                        <div class="xox-board" aria-label="Advanced XOX tahtası">
+                        <div class="xox-board" aria-label="Gelişmiş XOX tahtası">
                             <button class="xox-cell" data-xox-cell type="button" aria-label="1. kare"></button>
                             <button class="xox-cell" data-xox-cell type="button" aria-label="2. kare"></button>
                             <button class="xox-cell" data-xox-cell type="button" aria-label="3. kare"></button>
@@ -3905,7 +4045,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=45"></script>
+    <script src="index.js?v=50"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -3918,7 +4058,7 @@
     <script src="tools/discord-emoji-indir/core.js?v=6"></script>
     <script src="tools/discord-emoji-indir/app.js?v=3"></script>
     <script src="tools/github-unfollower/assets/js/app.mjs?v=1" type="module"></script>
-    <script src="tools/instagram-unfollower/app.js?v=3"></script>
+    <script src="tools/instagram-unfollower/app.js?v=5"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=4"></script>
     <script src="tools/nebuu/app.js?v=4"></script>
@@ -3933,7 +4073,7 @@
     <script src="tools/translate/script.js?v=1"></script>
     <script src="tools/parolla/questions.js?v=4"></script>
     <script src="tools/parolla/script.js?v=4"></script>
-    <script src="tools/valorant-crosshair/script.js?v=1"></script>
+    <script src="tools/valorant-crosshair/script.js?v=2"></script>
     <script src="tools/chess/script.js?v=3"></script>
     <script src="tools/advanced-xox/script.js?v=6"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
@@ -3966,7 +4106,8 @@
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="tools/pdf-toolbox/app.js?v=1"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <script src="tools/pdf-toolbox/app.js?v=3"></script>
     <script src="tools/encoder-decoder/app.js?v=1"></script>
     <script src="tools/timestamp-converter/app.js?v=2"></script>
     <script src="tools/social-media-image-resizer/app.js?v=1"></script>

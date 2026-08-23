@@ -177,7 +177,7 @@ function renderValorantPreview(code, image = valorantSelectedImage, name = valor
 }
 
 function createValorantImageMarkup(item) {
-    return `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)} crosshair önizlemesi" loading="lazy">`;
+    return `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)} nişangâh önizlemesi" loading="lazy">`;
 }
 
 function createValorantPreviewMarkup(code) {
