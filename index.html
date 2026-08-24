@@ -48,6 +48,7 @@
     <link rel="stylesheet" href="tools/sitemap-olusturucu/style.css?v=7">
     <link rel="stylesheet" href="tools/robots-txt-olusturucu/style.css?v=1">
     <link rel="stylesheet" href="tools/meta-etiket-olusturucu/style.css?v=1">
+    <link rel="stylesheet" href="tools/metin-duzeltici/style.css?v=1">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
@@ -67,7 +68,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>51 uygulama, tek panel</small>
+                    <small>52 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -231,6 +232,11 @@
                     data-search="meta etiket oluşturucu meta tag generator seo başlık açıklama description keywords anahtar kelime canonical robots theme color author yazar open graph og twitter x card sosyal medya paylaşım önizleme html head web sitesi google arama sonucu"
                     data-description="Web siteniz için SEO, Open Graph ve Twitter/X meta etiketlerini oluşturun ve paylaşım önizlemelerini kontrol edin." type="button">
                     <span>Meta Etiket Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="text-corrector" data-category="Yapay Zekâ"
+                    data-search="metin düzeltici ai metin düzeltme yapay zeka yazım imla dilbilgisi noktalama anlatım bozukluğu cümle düzenleme akıcı profesyonel samimi resmi kibar kısalt sadeleştir güçlendir editör proofreading grammar spelling rewrite türkçe yazı"
+                    data-description="Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin." type="button">
+                    <span>Metin Düzeltici</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
                     data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
@@ -1070,6 +1076,99 @@
                 </section>
 
                 <p id="url-cleaner-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="text-corrector" class="tool-panel text-corrector-panel" aria-labelledby="text-corrector-title">
+                <div class="panel-heading text-corrector-heading">
+                    <div>
+                        <span class="text-corrector-eyebrow">Yapay Zekâ Aracı</span>
+                        <h2 id="text-corrector-title">Metin Düzeltici</h2>
+                        <p>Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin.</p>
+                    </div>
+                </div>
+
+                <section class="text-corrector-settings" aria-label="Düzeltme ayarları">
+                    <div class="text-corrector-field">
+                        <label for="text-corrector-type">Düzeltme Türü</label>
+                        <select id="text-corrector-type"></select>
+                    </div>
+                    <div class="text-corrector-field">
+                        <label for="text-corrector-tone">Ton</label>
+                        <select id="text-corrector-tone"></select>
+                    </div>
+                    <div class="text-corrector-field">
+                        <label for="text-corrector-language">Dil</label>
+                        <select id="text-corrector-language"></select>
+                    </div>
+                </section>
+
+                <div class="text-corrector-layout">
+                    <section class="text-corrector-editor-card" aria-labelledby="text-corrector-input-title">
+                        <div class="text-corrector-editor-heading">
+                            <div><span class="text-corrector-kicker">Girdi</span><h3 id="text-corrector-input-title">Orijinal Metin</h3></div>
+                            <span id="text-corrector-input-count" class="text-corrector-count">0 karakter · 0 kelime</span>
+                        </div>
+                        <label class="sr-only" for="text-corrector-input">Düzeltilecek metin</label>
+                        <textarea id="text-corrector-input" maxlength="10000" rows="10" placeholder="Düzeltmek istediğiniz metni buraya yazın veya yapıştırın…"></textarea>
+                        <div class="text-corrector-card-actions">
+                            <div class="text-corrector-button-group">
+                                <button id="text-corrector-generate" class="primary-button" type="button">Metni Düzelt</button>
+                                <button id="text-corrector-sample" class="ghost-button" type="button">Örnek Metin Yükle</button>
+                                <button id="text-corrector-clear" class="ghost-button" type="button">Temizle</button>
+                            </div>
+                            <div class="text-corrector-action-meta">
+                                <span id="text-corrector-loading" class="text-corrector-loading" role="status" hidden><span class="text-corrector-spinner" aria-hidden="true"></span>Metniniz düzeltiliyor…</span>
+                                <p class="text-corrector-hint">Kısayol: Ctrl + Enter veya Cmd + Enter</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="text-corrector-editor-card" aria-labelledby="text-corrector-result-title">
+                        <div class="text-corrector-editor-heading">
+                            <div><span class="text-corrector-kicker">Sonuç</span><h3 id="text-corrector-result-title">Düzeltilmiş Metin</h3></div>
+                            <span id="text-corrector-result-count" class="text-corrector-count">0 karakter · 0 kelime</span>
+                        </div>
+                        <div id="text-corrector-result-empty" class="text-corrector-empty">
+                            <div><strong>Sonuç burada görünecek</strong><p>Metni ve ayarları hazırladıktan sonra “Metni Düzelt” butonunu kullanın.</p></div>
+                        </div>
+                        <label class="sr-only" for="text-corrector-result">Düzeltilmiş ve düzenlenebilir metin</label>
+                        <textarea id="text-corrector-result" maxlength="30000" rows="10" aria-describedby="text-corrector-result-help" hidden></textarea>
+                        <span id="text-corrector-result-help" class="sr-only">Yapay zekâ sonucunu bu alanda elle düzenleyebilirsiniz.</span>
+                        <div id="text-corrector-result-actions" class="text-corrector-result-actions" hidden>
+                            <button id="text-corrector-copy" class="primary-button" type="button">Kopyala</button>
+                            <button id="text-corrector-repeat" class="secondary-button" type="button">Tekrar Düzelt</button>
+                            <button id="text-corrector-use-result" class="secondary-button" type="button">Sonucu Girdi Olarak Kullan</button>
+                        </div>
+                    </section>
+                </div>
+
+                <p id="text-corrector-status" class="text-corrector-status" role="status" aria-live="polite" hidden></p>
+
+                <section id="text-corrector-changes-card" class="text-corrector-changes-card" aria-labelledby="text-corrector-changes-title" hidden>
+                    <div>
+                        <span class="text-corrector-kicker">Özet</span>
+                        <h3 id="text-corrector-changes-title">Yapılan Değişiklikler</h3>
+                        <ul id="text-corrector-changes" class="text-corrector-changes"></ul>
+                    </div>
+                    <div>
+                        <div class="text-corrector-diff-toolbar">
+                            <span id="text-corrector-diff-label" class="text-corrector-kicker" hidden>Karşılaştırma</span>
+                            <button id="text-corrector-diff-toggle" class="ghost-button" type="button" aria-controls="text-corrector-diff" aria-expanded="false">Değişiklikleri Göster</button>
+                        </div>
+                        <div id="text-corrector-diff" class="text-corrector-diff" aria-label="Orijinal ve düzeltilmiş metin farkları" hidden></div>
+                    </div>
+                </section>
+
+                <section id="text-corrector-quick-wrap" class="text-corrector-quick-wrap" aria-labelledby="text-corrector-quick-title" hidden>
+                    <strong id="text-corrector-quick-title">Hızlı İşlemler</strong>
+                    <div id="text-corrector-quick-actions" class="text-corrector-quick-actions" hidden>
+                        <button class="ghost-button" data-text-corrector-quick data-correction-type="shorten" type="button">Daha Kısa</button>
+                        <button class="ghost-button" data-text-corrector-quick data-correction-type="professional" data-tone="professional" type="button">Daha Profesyonel</button>
+                        <button class="ghost-button" data-text-corrector-quick data-correction-type="friendly" data-tone="friendly" type="button">Daha Samimi</button>
+                        <button class="ghost-button" data-text-corrector-quick data-correction-type="clarify" data-tone="direct" type="button">Daha Net</button>
+                        <button class="ghost-button" data-text-corrector-quick type="button">Tekrar Düzelt</button>
+                    </div>
+                </section>
             </section>
 
             <section id="meta-tag-generator" class="tool-panel meta-tag-panel" aria-labelledby="meta-tag-title">
@@ -4809,7 +4908,7 @@ Disallow:</code></pre>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=60"></script>
+    <script src="index.js?v=61"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4881,6 +4980,9 @@ Disallow:</code></pre>
     <script src="tools/robots-txt-olusturucu/app.js?v=1"></script>
     <script src="tools/meta-etiket-olusturucu/core.js?v=1"></script>
     <script src="tools/meta-etiket-olusturucu/app.js?v=1"></script>
+    <script src="tools/metin-duzeltici/config.js?v=1"></script>
+    <script src="tools/metin-duzeltici/core.js?v=1"></script>
+    <script src="tools/metin-duzeltici/app.js?v=1"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>

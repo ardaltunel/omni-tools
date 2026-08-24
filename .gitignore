@@ -4,3 +4,8 @@ server.err.log
 /tools/kullanici-adi-arastirma/worker/.wrangler/
 /tools/github-md-generator/worker/node_modules/
 /tools/github-md-generator/worker/.wrangler/
+/tools/metin-duzeltici/worker/node_modules/
+/tools/metin-duzeltici/worker/.wrangler/
+/tools/metin-duzeltici/worker/.wrangler-dry-run/
+/tools/metin-duzeltici/worker/.dev.vars
+/tools/metin-duzeltici/worker/.env*

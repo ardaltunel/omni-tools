@@ -1,0 +1,177 @@
+.text-corrector-panel {
+    --text-corrector-surface: var(--surface, #11141a);
+    --text-corrector-raised: var(--surface-raised, #20232a);
+    --text-corrector-line: var(--line, #303542);
+    --text-corrector-muted: var(--muted, #aab0bf);
+    --text-corrector-success: var(--success, #4ade80);
+    --text-corrector-danger: var(--danger, #ff5f6d);
+}
+.text-corrector-panel [hidden] { display: none !important; }
+.text-corrector-heading { align-items: flex-start; }
+.text-corrector-eyebrow,
+.text-corrector-kicker {
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.text-corrector-eyebrow { display: block; margin-bottom: 6px; }
+.text-corrector-settings,
+.text-corrector-editor-card,
+.text-corrector-changes-card {
+    border: 1px solid var(--text-corrector-line);
+    border-radius: var(--radius-lg, 10px);
+    background: var(--text-corrector-surface);
+}
+.text-corrector-settings {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 14px;
+}
+.text-corrector-field { display: grid; min-width: 0; gap: 6px; }
+.text-corrector-field label { color: var(--text); font-size: 10px; font-weight: 700; }
+.text-corrector-field select {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--text-corrector-line);
+    border-radius: var(--radius, 8px);
+    outline: 0;
+    background: var(--text-corrector-raised);
+    color: var(--text);
+    padding: 0 12px;
+}
+.text-corrector-field select:focus,
+.text-corrector-editor-card textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.text-corrector-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}
+.text-corrector-editor-card { display: flex; min-width: 0; min-height: 360px; flex-direction: column; padding: 14px; }
+.text-corrector-editor-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.text-corrector-editor-heading h3 { margin: 2px 0 0; color: var(--text); font-size: 16px; }
+.text-corrector-count { flex: 0 0 auto; color: var(--text-corrector-muted); font-size: 9px; font-weight: 700; white-space: nowrap; }
+.text-corrector-editor-card textarea {
+    width: 100%;
+    min-height: 245px;
+    flex: 1;
+    resize: vertical;
+    border: 1px solid var(--text-corrector-line);
+    border-radius: var(--radius, 8px);
+    outline: 0;
+    background: var(--text-corrector-raised);
+    color: var(--text);
+    padding: 13px 14px;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.65;
+}
+.text-corrector-editor-card textarea::placeholder { color: color-mix(in srgb, var(--text-corrector-muted) 70%, transparent); opacity: 1; }
+.text-corrector-result-actions,
+.text-corrector-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.text-corrector-card-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 14px;
+    margin-top: 10px;
+}
+.text-corrector-button-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.text-corrector-action-meta { display: grid; min-width: 210px; align-content: center; justify-items: end; gap: 4px; }
+.text-corrector-empty {
+    display: grid;
+    min-height: 245px;
+    flex: 1;
+    place-items: center;
+    border: 1px dashed var(--text-corrector-line);
+    border-radius: var(--radius, 8px);
+    color: var(--text-corrector-muted);
+    padding: 24px;
+    text-align: center;
+}
+.text-corrector-empty div { max-width: 290px; }
+.text-corrector-empty strong { display: block; margin-bottom: 6px; color: var(--text); font-size: 14px; }
+.text-corrector-empty p { margin: 0; font-size: 11px; line-height: 1.55; }
+.text-corrector-hint { margin: 0; color: var(--text-corrector-muted); font-size: 10px; text-align: right; white-space: nowrap; }
+.text-corrector-loading { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-size: 11px; font-weight: 700; }
+.text-corrector-spinner { width: 14px; height: 14px; border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent); border-top-color: var(--accent); border-radius: 50%; animation: text-corrector-spin .7s linear infinite; }
+@keyframes text-corrector-spin { to { transform: rotate(1turn); } }
+.text-corrector-status { margin: 12px 0 0; border-radius: 7px; padding: 9px 11px; font-size: 10px; font-weight: 700; }
+.text-corrector-status.is-success { background: color-mix(in srgb, var(--text-corrector-success) 10%, transparent); color: var(--text-corrector-success); }
+.text-corrector-status.is-error { background: color-mix(in srgb, var(--text-corrector-danger) 10%, transparent); color: var(--text-corrector-danger); }
+.text-corrector-changes-card { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 14px; margin-top: 14px; padding: 14px; }
+.text-corrector-changes-card h3 { margin: 3px 0 10px; color: var(--text); font-size: 15px; }
+.text-corrector-changes { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.text-corrector-changes li { display: flex; align-items: flex-start; gap: 8px; color: var(--text-corrector-muted); font-size: 11px; line-height: 1.45; }
+.text-corrector-changes li > span:first-child { color: var(--text-corrector-success); font-weight: 800; }
+.text-corrector-diff-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.text-corrector-diff-toolbar #text-corrector-diff-toggle { margin-left: auto; }
+.text-corrector-diff {
+    display: grid;
+    gap: 8px;
+    max-height: 220px;
+    overflow: auto;
+    padding-right: 3px;
+}
+.text-corrector-diff-block {
+    border: 1px solid var(--text-corrector-line);
+    border-left-width: 3px;
+    border-radius: var(--radius, 8px);
+    background: var(--text-corrector-raised);
+    padding: 10px 12px;
+}
+.text-corrector-diff-block.is-original { border-left-color: var(--text-corrector-danger); }
+.text-corrector-diff-block.is-corrected { border-left-color: var(--text-corrector-success); }
+.text-corrector-diff-block > strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-corrector-muted);
+    font-size: 9px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+.text-corrector-diff-block p {
+    margin: 0;
+    color: var(--text);
+    font-size: 11px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.text-corrector-diff del { border-radius: 3px; background: rgba(255, 95, 109, .14); color: #ff9ca5; padding-inline: 2px; text-decoration-thickness: 1px; }
+.text-corrector-diff ins { border-radius: 3px; background: rgba(74, 222, 128, .14); color: #8ff0b2; padding-inline: 2px; text-decoration: none; border-bottom: 1px solid currentColor; }
+.text-corrector-result-actions { margin-top: 14px; }
+.text-corrector-quick-wrap { margin-top: 14px; border-top: 1px solid var(--text-corrector-line); padding-top: 14px; }
+.text-corrector-quick-wrap strong { display: block; margin-bottom: 9px; color: var(--text); font-size: 11px; }
+
+@media (max-width: 900px) {
+    .text-corrector-layout,
+    .text-corrector-changes-card { grid-template-columns: 1fr; }
+    .text-corrector-editor-card { min-height: 310px; }
+}
+@media (max-width: 620px) {
+    .text-corrector-settings { grid-template-columns: 1fr; }
+    .text-corrector-footer { align-items: stretch; flex-direction: column; }
+    .text-corrector-result-actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+    .text-corrector-result-actions > * { width: 100%; }
+    .text-corrector-card-actions { grid-template-columns: 1fr; }
+    .text-corrector-button-group { display: grid; grid-template-columns: 1fr; }
+    .text-corrector-button-group > * { width: 100%; }
+    .text-corrector-action-meta { min-width: 0; justify-items: start; }
+    .text-corrector-hint { text-align: left; white-space: normal; }
+    .text-corrector-editor-heading { align-items: stretch; flex-direction: column; gap: 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .text-corrector-spinner { animation: none; }
+}

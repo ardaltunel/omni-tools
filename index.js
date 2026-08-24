@@ -427,6 +427,11 @@ function updatePageMetadata(tool) {
             description: "Web siteniz için SEO, Open Graph ve Twitter/X meta etiketlerini oluşturun ve paylaşım önizlemelerini kontrol edin.",
             keywords: "meta etiket oluşturucu, meta tag generator, seo başlık, meta description, open graph, twitter card, canonical, robots meta, sosyal medya önizleme",
         },
+        "text-corrector": {
+            title: "Metin Düzeltici | Omni Tools",
+            description: "Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin.",
+            keywords: "metin düzeltici, ai metin düzeltme, yazım denetimi, dilbilgisi, noktalama, anlatım bozukluğu, profesyonel metin, türkçe editör",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",
