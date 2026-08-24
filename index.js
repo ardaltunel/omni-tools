@@ -432,6 +432,11 @@ function updatePageMetadata(tool) {
             description: "Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin.",
             keywords: "metin düzeltici, ai metin düzeltme, yazım denetimi, dilbilgisi, noktalama, anlatım bozukluğu, profesyonel metin, türkçe editör",
         },
+        "prompt-developer": {
+            title: "Prompt Geliştirici | Omni Tools",
+            description: "Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün.",
+            keywords: "prompt geliştirici, prompt iyileştirme, prompt mühendisliği, codex prompt, yapay zekâ talimatı, görev tanımı, prompt detaylandırma",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",

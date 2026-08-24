@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "omni-tools-prompt-developer",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "secrets": {
+    "required": ["OPENAI_API_KEY"]
+  },
+  "ratelimits": [
+    {
+      "name": "PROMPT_RATE_LIMITER",
+      "namespace_id": "1202",
+      "simple": {
+        "limit": 8,
+        "period": 60
+      }
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://ardaltunel.github.io,http://localhost:8765,http://127.0.0.1:8765,null",
+    "OPENAI_PROMPT_MODEL": "gpt-5.4-mini",
+    "OPENAI_TIMEOUT_MS": "45000",
+    "OPENAI_MAX_OUTPUT_TOKENS": "5000"
+  }
+}

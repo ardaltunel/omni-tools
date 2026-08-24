@@ -9,3 +9,8 @@ server.err.log
 /tools/metin-duzeltici/worker/.wrangler-dry-run/
 /tools/metin-duzeltici/worker/.dev.vars
 /tools/metin-duzeltici/worker/.env*
+/tools/prompt-gelistirici/worker/node_modules/
+/tools/prompt-gelistirici/worker/.wrangler/
+/tools/prompt-gelistirici/worker/.wrangler-dry-run/
+/tools/prompt-gelistirici/worker/.dev.vars
+/tools/prompt-gelistirici/worker/.env*

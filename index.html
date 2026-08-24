@@ -49,6 +49,7 @@
     <link rel="stylesheet" href="tools/robots-txt-olusturucu/style.css?v=1">
     <link rel="stylesheet" href="tools/meta-etiket-olusturucu/style.css?v=1">
     <link rel="stylesheet" href="tools/metin-duzeltici/style.css?v=1">
+    <link rel="stylesheet" href="tools/prompt-gelistirici/style.css?v=1">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
@@ -68,7 +69,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>52 uygulama, tek panel</small>
+                    <small>53 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -237,6 +238,11 @@
                     data-search="metin düzeltici ai metin düzeltme yapay zeka yazım imla dilbilgisi noktalama anlatım bozukluğu cümle düzenleme akıcı profesyonel samimi resmi kibar kısalt sadeleştir güçlendir editör proofreading grammar spelling rewrite türkçe yazı"
                     data-description="Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin." type="button">
                     <span>Metin Düzeltici</span>
+                </button>
+                <button class="nav-item" data-tool="prompt-developer" data-category="Yapay Zekâ"
+                    data-search="prompt geliştirici prompt iyileştirme prompt mühendisliği yapay zeka ai komut talimat görev tanımı codex kodlama araştırma görsel oluşturma sosyal medya seo eğitim kariyer pazarlama beyin fırtınası detaylandır netleştir profesyonel teknik yaratıcı sistem mesajı"
+                    data-description="Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün." type="button">
+                    <span>Prompt Geliştirici</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
                     data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
@@ -1169,6 +1175,83 @@
                         <button class="ghost-button" data-text-corrector-quick type="button">Tekrar Düzelt</button>
                     </div>
                 </section>
+            </section>
+
+            <section id="prompt-developer" class="tool-panel prompt-developer-panel" aria-labelledby="prompt-developer-title">
+                <div class="panel-heading prompt-developer-heading">
+                    <div>
+                        <span class="prompt-developer-eyebrow">Yapay Zekâ Aracı</span>
+                        <h2 id="prompt-developer-title">Prompt Geliştirici</h2>
+                        <p>Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün.</p>
+                    </div>
+                </div>
+
+                <section class="prompt-developer-settings" aria-label="Prompt geliştirme ayarları">
+                    <div class="prompt-developer-field">
+                        <label for="prompt-developer-type">Prompt Türü</label>
+                        <select id="prompt-developer-type"></select>
+                    </div>
+                    <div class="prompt-developer-field">
+                        <label for="prompt-developer-detail">Detay Seviyesi</label>
+                        <select id="prompt-developer-detail"></select>
+                    </div>
+                    <div class="prompt-developer-field">
+                        <label for="prompt-developer-format">Çıktı Formatı</label>
+                        <select id="prompt-developer-format"></select>
+                    </div>
+                </section>
+
+                <div class="prompt-developer-layout">
+                    <section class="prompt-developer-editor-card" aria-labelledby="prompt-developer-input-title">
+                        <div class="prompt-developer-editor-heading">
+                            <div><span class="prompt-developer-kicker">Girdi</span><h3 id="prompt-developer-input-title">Orijinal Prompt</h3></div>
+                            <span id="prompt-developer-input-count" class="prompt-developer-count">0 karakter · 0 kelime</span>
+                        </div>
+                        <label class="sr-only" for="prompt-developer-input">Geliştirilecek prompt</label>
+                        <textarea id="prompt-developer-input" maxlength="5000" rows="10" placeholder="Geliştirmek istediğiniz promptu buraya yazın veya yapıştırın…"></textarea>
+                        <div class="prompt-developer-actions prompt-developer-input-actions">
+                            <div class="prompt-developer-button-group">
+                                <button id="prompt-developer-generate" class="primary-button" type="button">Promptu Geliştir</button>
+                                <button id="prompt-developer-sample" class="ghost-button" data-prompt-developer-action type="button">Örnek Prompt</button>
+                                <button id="prompt-developer-clear" class="ghost-button" type="button">Temizle</button>
+                            </div>
+                            <div class="prompt-developer-action-meta">
+                                <span id="prompt-developer-loading" class="prompt-developer-loading" role="status" hidden><span class="prompt-developer-spinner" aria-hidden="true"></span>Promptunuz geliştiriliyor…</span>
+                                <p class="prompt-developer-hint">Kısayol: Ctrl + Enter veya Cmd + Enter</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="prompt-developer-editor-card" aria-labelledby="prompt-developer-result-title">
+                        <div class="prompt-developer-editor-heading">
+                            <div><span class="prompt-developer-kicker">Sonuç</span><h3 id="prompt-developer-result-title">Geliştirilmiş Prompt</h3></div>
+                            <span id="prompt-developer-result-count" class="prompt-developer-count">0 karakter · 0 kelime</span>
+                        </div>
+                        <div id="prompt-developer-result-empty" class="prompt-developer-empty">
+                            <div><strong>Geliştirilmiş prompt burada görünecek</strong><p>Promptunuzu ve ayarları hazırladıktan sonra “Promptu Geliştir” butonunu kullanın.</p></div>
+                        </div>
+                        <label class="sr-only" for="prompt-developer-result">Geliştirilmiş ve düzenlenebilir prompt</label>
+                        <textarea id="prompt-developer-result" maxlength="40000" rows="10" hidden></textarea>
+                        <div id="prompt-developer-result-actions" class="prompt-developer-result-actions prompt-developer-actions" hidden>
+                            <button id="prompt-developer-copy" class="primary-button" type="button">Kopyala</button>
+                            <button id="prompt-developer-repeat" class="secondary-button" data-prompt-developer-action type="button">Tekrar Geliştir</button>
+                            <button id="prompt-developer-shorter" class="secondary-button" data-prompt-developer-action type="button">Daha Kısa Yap</button>
+                            <button id="prompt-developer-detailed" class="secondary-button" data-prompt-developer-action type="button">Daha Detaylı Yap</button>
+                            <button id="prompt-developer-use-result" class="secondary-button" type="button">Sonucu Girdi Olarak Kullan</button>
+                        </div>
+                    </section>
+                </div>
+
+                <p id="prompt-developer-status" class="prompt-developer-status" role="status" aria-live="polite" hidden></p>
+
+                <section id="prompt-developer-summary" class="prompt-developer-summary" aria-labelledby="prompt-developer-summary-title" hidden>
+                    <div>
+                        <span class="prompt-developer-kicker">Özet</span>
+                        <h3 id="prompt-developer-summary-title">Neler Geliştirildi?</h3>
+                        <ul id="prompt-developer-improvements" class="prompt-developer-improvements"></ul>
+                    </div>
+                </section>
+
             </section>
 
             <section id="meta-tag-generator" class="tool-panel meta-tag-panel" aria-labelledby="meta-tag-title">
@@ -4908,7 +4991,7 @@ Disallow:</code></pre>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=61"></script>
+    <script src="index.js?v=62"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4983,6 +5066,9 @@ Disallow:</code></pre>
     <script src="tools/metin-duzeltici/config.js?v=1"></script>
     <script src="tools/metin-duzeltici/core.js?v=1"></script>
     <script src="tools/metin-duzeltici/app.js?v=1"></script>
+    <script src="tools/prompt-gelistirici/config.js?v=1"></script>
+    <script src="tools/prompt-gelistirici/core.js?v=1"></script>
+    <script src="tools/prompt-gelistirici/app.js?v=1"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
