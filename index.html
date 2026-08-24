@@ -46,6 +46,7 @@
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=7">
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
     <link rel="stylesheet" href="tools/sitemap-olusturucu/style.css?v=7">
+    <link rel="stylesheet" href="tools/robots-txt-olusturucu/style.css?v=1">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
@@ -65,7 +66,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>49 uygulama, tek panel</small>
+                    <small>50 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -219,6 +220,11 @@
                     data-search="sitemap oluşturucu sitemap generator sitemap xml site haritası seo url listesi robots txt sitemap index google arama motoru web sitesi sayfa dizin harita"
                     data-description="URL listenizden SEO uyumlu bir sitemap.xml dosyası oluşturun." type="button">
                     <span>Sitemap Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="robots-txt-generator" data-category="SEO"
+                    data-search="robots txt oluşturucu robots.txt generator bot arama motoru tarama crawler crawl user agent user-agent googlebot bingbot duckduckbot yandex bot baidu applebot allow izin ver disallow engelle sitemap crawl delay seo site indeksleme dizin gizleme"
+                    data-description="Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun." type="button">
+                    <span>Robots.txt Oluşturucu</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
                     data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
@@ -868,7 +874,6 @@
                         <h2 id="microphone-test-title">Mikrofon Testi</h2>
                         <p>Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın.</p>
                     </div>
-                    <span id="microphone-test-active" class="microphone-test-active" hidden>🎙 Mikrofon Aktif</span>
                 </div>
 
                 <div id="microphone-test-file-warning" class="microphone-test-file-warning" role="alert" hidden>
@@ -1059,6 +1064,93 @@
                 </section>
 
                 <p id="url-cleaner-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="robots-txt-generator" class="tool-panel robots-txt-panel" aria-labelledby="robots-txt-title">
+                <div class="panel-heading robots-txt-heading">
+                    <div>
+                        <span class="robots-txt-eyebrow">SEO Aracı</span>
+                        <h2 id="robots-txt-title">Robots.txt Oluşturucu</h2>
+                        <p>Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun.</p>
+                    </div>
+                </div>
+
+                <div class="robots-txt-template-bar">
+                    <label for="robots-txt-template">Hazır Şablon
+                        <select id="robots-txt-template">
+                            <option value="allow">Tüm Botlara İzin Ver</option>
+                            <option value="block">Tüm Botları Engelle</option>
+                            <option value="admin">Admin Panelini Engelle</option>
+                            <option value="wordpress">WordPress (Örnek)</option>
+                            <option value="ecommerce">E-Ticaret (Örnek)</option>
+                            <option value="custom">Özel Yapılandırma</option>
+                        </select>
+                    </label>
+                    <button id="robots-txt-apply-template" class="secondary-button" type="button">Şablonu Uygula</button>
+                </div>
+
+                <div class="robots-txt-layout">
+                    <section class="robots-txt-card" aria-labelledby="robots-txt-settings-title">
+                        <div class="robots-txt-card-heading"><div><span class="robots-txt-section-label">Ayarlar</span><h3 id="robots-txt-settings-title">Tarama kurallarını belirleyin</h3></div></div>
+
+                        <div class="robots-txt-field">
+                            <label for="robots-txt-site-url">Site Adresi</label>
+                            <input id="robots-txt-site-url" type="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com" required>
+                            <p id="robots-txt-site-error" class="robots-txt-field-error" hidden></p>
+                        </div>
+
+                        <div id="robots-txt-groups" class="robots-txt-groups"></div>
+                        <button id="robots-txt-add-group" class="secondary-button robots-txt-add-group" type="button">Yeni Bot Grubu Ekle</button>
+
+                        <div class="robots-txt-field">
+                            <label for="robots-txt-sitemaps">Sitemap Adresleri <small>(İsteğe Bağlı)</small></label>
+                            <textarea id="robots-txt-sitemaps" rows="3" autocapitalize="off" spellcheck="false" placeholder="https://example.com/sitemap.xml&#10;https://example.com/sitemap-products.xml"></textarea>
+                            <small>Her satıra bir HTTP veya HTTPS sitemap adresi girin.</small>
+                            <small id="robots-txt-sitemap-suggestion" hidden></small>
+                        </div>
+                    </section>
+
+                    <section class="robots-txt-card robots-txt-preview-card" aria-labelledby="robots-txt-preview-title">
+                        <div class="robots-txt-card-heading"><div><span class="robots-txt-section-label">Canlı Çıktı</span><h3 id="robots-txt-preview-title">robots.txt Önizleme</h3></div></div>
+                        <pre class="robots-txt-code"><code id="robots-txt-preview">User-agent: *
+Disallow:</code></pre>
+                        <div id="robots-txt-validation" class="robots-txt-validation" aria-live="polite" hidden></div>
+                        <div class="robots-txt-actions">
+                            <button id="robots-txt-generate" class="primary-button" type="button">robots.txt Oluştur</button>
+                            <button id="robots-txt-copy" class="secondary-button" type="button">Kopyala</button>
+                            <button id="robots-txt-download" class="secondary-button" type="button">robots.txt İndir</button>
+                            <button id="robots-txt-sample" class="ghost-button" type="button">Örnek Yükle</button>
+                            <button id="robots-txt-clear" class="ghost-button" type="button">Temizle</button>
+                        </div>
+                        <p id="robots-txt-status" class="robots-txt-status" aria-live="polite" hidden></p>
+                        <div class="robots-txt-sitemap-link"><span>Henüz sitemap’iniz yok mu?</span><button id="robots-txt-open-sitemap" class="ghost-button" type="button">Sitemap Oluşturucu’yu Açın</button></div>
+                    </section>
+                </div>
+
+                <template id="robots-txt-group-template">
+                    <article class="robots-txt-group" data-robots-group>
+                        <div class="robots-txt-group-heading"><h4>Bot Grubu <span data-group-number></span></h4><button class="ghost-button" data-remove-group type="button">Grubu Sil</button></div>
+                        <div class="robots-txt-field">
+                            <span>User-agent</span>
+                            <div class="robots-txt-agent-grid">
+                                <label><input data-agent type="checkbox" value="*"> Tüm Botlar (*)</label>
+                                <label><input data-agent type="checkbox" value="Googlebot"> Googlebot</label>
+                                <label><input data-agent type="checkbox" value="Googlebot-Image"> Googlebot-Image</label>
+                                <label><input data-agent type="checkbox" value="Bingbot"> Bingbot</label>
+                                <label><input data-agent type="checkbox" value="DuckDuckBot"> DuckDuckBot</label>
+                                <label><input data-agent type="checkbox" value="YandexBot"> YandexBot</label>
+                                <label><input data-agent type="checkbox" value="Baiduspider"> Baiduspider</label>
+                                <label><input data-agent type="checkbox" value="Applebot"> Applebot</label>
+                            </div>
+                        </div>
+                        <div class="robots-txt-field"><label>Özel Botlar <small>(İsteğe Bağlı)</small></label><input data-field="customAgent" type="text" autocapitalize="off" spellcheck="false" placeholder="MyCustomBot, AnotherBot"><small>Birden fazlasını virgülle ayırın.</small></div>
+                        <div class="robots-txt-rules-grid">
+                            <div class="robots-txt-field"><label>İzin Verilen Yollar</label><textarea data-field="allow" rows="4" spellcheck="false" placeholder="/public/&#10;/images/"></textarea><small>Her satıra bir Allow kuralı.</small></div>
+                            <div class="robots-txt-field"><label>Engellenen Yollar</label><textarea data-field="disallow" rows="4" spellcheck="false" placeholder="/admin/&#10;/private/"></textarea><small>Her satıra bir Disallow kuralı.</small></div>
+                        </div>
+                        <div class="robots-txt-field"><label>Crawl-delay <small>(İsteğe Bağlı)</small></label><input data-field="crawlDelay" type="number" min="0" step="1" inputmode="numeric" placeholder="10"><small>Bazı arama motorları crawl-delay direktifini desteklemeyebilir.</small></div>
+                    </article>
+                </template>
             </section>
 
             <section id="sitemap-generator" class="tool-panel sitemap-generator-panel" aria-labelledby="sitemap-generator-title">
@@ -4627,7 +4719,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=58"></script>
+    <script src="index.js?v=59"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4695,6 +4787,8 @@
     <script src="tools/url-cleaner/app.js?v=2"></script>
     <script src="tools/sitemap-olusturucu/core.js?v=1"></script>
     <script src="tools/sitemap-olusturucu/app.js?v=4"></script>
+    <script src="tools/robots-txt-olusturucu/core.js?v=1"></script>
+    <script src="tools/robots-txt-olusturucu/app.js?v=1"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>

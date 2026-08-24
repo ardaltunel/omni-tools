@@ -417,6 +417,11 @@ function updatePageMetadata(tool) {
             description: "URL listenizden SEO uyumlu bir sitemap.xml dosyasını tamamen tarayıcınızda oluşturun.",
             keywords: "sitemap oluşturucu, sitemap generator, sitemap xml, site haritası, url listesi, seo aracı",
         },
+        "robots-txt-generator": {
+            title: "Robots.txt Oluşturucu | Omni Tools",
+            description: "Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun.",
+            keywords: "robots txt oluşturucu, robots.txt generator, user agent, googlebot, bingbot, allow, disallow, crawl delay, sitemap, seo aracı",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",

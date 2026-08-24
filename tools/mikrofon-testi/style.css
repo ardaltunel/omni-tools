@@ -10,8 +10,6 @@
 .microphone-test-panel [hidden] { display: none !important; }
 .microphone-test-heading { align-items: flex-start; }
 .microphone-test-eyebrow { display: block; margin-bottom: 6px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.microphone-test-active { display: inline-flex; align-items: center; gap: 7px; border: 1px solid rgba(56, 217, 150, .35); border-radius: 999px; background: rgba(56, 217, 150, .08); padding: 7px 10px; color: var(--mic-success); font-size: 10px; font-weight: 800; }
-.microphone-test-active::before { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px rgba(56, 217, 150, .1); content: ""; }
 
 .microphone-test-status { border: 1px solid var(--mic-line); border-radius: var(--radius-lg, 10px); background: var(--mic-surface); padding: 11px 13px; color: var(--mic-muted); font-size: 10px; line-height: 1.55; }
 .microphone-test-file-warning { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; border: 1px solid rgba(244, 211, 94, .42); border-radius: var(--radius-lg, 10px); background: rgba(244, 211, 94, .07); padding: 12px 13px; }

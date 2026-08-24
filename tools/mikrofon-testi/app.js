@@ -10,7 +10,6 @@
     const elements = {
         start: byId("microphone-test-start"),
         stop: byId("microphone-test-stop"),
-        active: byId("microphone-test-active"),
         status: byId("microphone-test-status"),
         fileWarning: byId("microphone-test-file-warning"),
         device: byId("microphone-test-device"),
@@ -276,7 +275,6 @@
     }
 
     function setMicrophoneActive(active) {
-        elements.active.hidden = !active;
         elements.start.hidden = active;
         elements.stop.hidden = !active;
         elements.record.disabled = !active || !root.MediaRecorder;
