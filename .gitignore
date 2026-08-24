@@ -14,3 +14,8 @@ server.err.log
 /tools/prompt-gelistirici/worker/.wrangler-dry-run/
 /tools/prompt-gelistirici/worker/.dev.vars
 /tools/prompt-gelistirici/worker/.env*
+/tools/omni-ai/worker/node_modules/
+/tools/omni-ai/worker/.wrangler/
+/tools/omni-ai/worker/.wrangler-dry-run/
+/tools/omni-ai/worker/.dev.vars
+/tools/omni-ai/worker/.env*

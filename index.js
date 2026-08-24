@@ -437,6 +437,11 @@ function updatePageMetadata(tool) {
             description: "Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün.",
             keywords: "prompt geliştirici, prompt iyileştirme, prompt mühendisliği, codex prompt, yapay zekâ talimatı, görev tanımı, prompt detaylandırma",
         },
+        "omni-ai": {
+            title: "Omni AI | Omni Tools",
+            description: "Sorularınızı sorun, fikir üretin, kod yazın ve yapay zekâ ile çalışın.",
+            keywords: "omni ai, yapay zekâ asistanı, ai sohbet, chatbot, kod yazma, metin yazma, özetleme, fikir üretme, soru cevap",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",

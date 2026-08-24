@@ -50,6 +50,7 @@
     <link rel="stylesheet" href="tools/meta-etiket-olusturucu/style.css?v=1">
     <link rel="stylesheet" href="tools/metin-duzeltici/style.css?v=1">
     <link rel="stylesheet" href="tools/prompt-gelistirici/style.css?v=1">
+    <link rel="stylesheet" href="tools/omni-ai/style.css?v=8">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
@@ -243,6 +244,11 @@
                     data-search="prompt geliştirici prompt iyileştirme prompt mühendisliği yapay zeka ai komut talimat görev tanımı codex kodlama araştırma görsel oluşturma sosyal medya seo eğitim kariyer pazarlama beyin fırtınası detaylandır netleştir profesyonel teknik yaratıcı sistem mesajı"
                     data-description="Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün." type="button">
                     <span>Prompt Geliştirici</span>
+                </button>
+                <button class="nav-item" data-tool="omni-ai" data-category="Yapay Zekâ"
+                    data-search="omni ai yapay zeka sohbet asistan chat soru cevap kod yazma kod açıklama hata ayıklama metin yazma düzeltme özetleme fikir üretme eğitim kariyer teknik destek araştırma prompt geliştirme chatbot"
+                    data-description="Sorularınızı sorun, fikir üretin, kod yazın ve yapay zekâ ile çalışın." type="button">
+                    <span>Omni AI</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
                     data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
@@ -1252,6 +1258,73 @@
                     </div>
                 </section>
 
+            </section>
+
+            <section id="omni-ai" class="tool-panel omni-ai-panel" aria-labelledby="omni-ai-title">
+                <header class="omni-ai-product-header">
+                    <div class="omni-ai-product-mark" aria-hidden="true">✦</div>
+                    <div>
+                        <span>Yapay Zekâ Asistanı</span>
+                        <h2 id="omni-ai-title">Omni AI</h2>
+                        <p>Sorularınızı sorun, fikir üretin, kod yazın ve yapay zekâ ile çalışın.</p>
+                    </div>
+                </header>
+
+                <div class="omni-ai-shell">
+                    <button id="omni-ai-overlay" class="omni-ai-overlay" type="button" aria-label="Sohbet geçmişini kapat"></button>
+                    <aside id="omni-ai-sidebar" class="omni-ai-sidebar" aria-label="Sohbet geçmişi">
+                        <div class="omni-ai-sidebar-head">
+                            <div class="omni-ai-mini-brand"><span aria-hidden="true">✦</span><strong>Omni AI</strong></div>
+                            <button id="omni-ai-close-sidebar" class="omni-ai-icon-button omni-ai-close-sidebar" type="button" aria-label="Sohbet geçmişini kapat">×</button>
+                        </div>
+                        <button id="omni-ai-new-chat" class="omni-ai-new-chat" type="button"><span aria-hidden="true">＋</span> Yeni Sohbet</button>
+                        <div class="omni-ai-history-heading"><span>Sohbetler</span><button id="omni-ai-clear-history" type="button">Tümünü Sil</button></div>
+                        <div id="omni-ai-history" class="omni-ai-history"></div>
+                        <p class="omni-ai-local-note"><span aria-hidden="true">◉</span> Sohbet geçmişi yalnızca bu cihazda saklanır.</p>
+                    </aside>
+
+                    <main class="omni-ai-chat">
+                        <div class="omni-ai-toolbar">
+                            <button id="omni-ai-menu" class="omni-ai-icon-button omni-ai-menu" type="button" aria-label="Sohbet geçmişini aç" aria-expanded="false">☰</button>
+                            <div class="omni-ai-chat-heading"><span>Aktif sohbet</span><strong id="omni-ai-chat-title">Yeni Sohbet</strong></div>
+                            <label class="omni-ai-toolbar-select"><span>Mod</span><select id="omni-ai-mode" aria-label="Sohbet modu"></select></label>
+                            <label class="omni-ai-toolbar-select"><span>Yanıt</span><select id="omni-ai-length" aria-label="Yanıt uzunluğu"></select></label>
+                            <button id="omni-ai-settings" class="omni-ai-icon-button" type="button" aria-label="Omni AI ayarlarını aç">⚙</button>
+                        </div>
+
+                        <p id="omni-ai-status" class="omni-ai-status" role="status" aria-live="polite" hidden></p>
+                        <div id="omni-ai-messages" class="omni-ai-messages" aria-live="polite">
+                            <section id="omni-ai-welcome" class="omni-ai-welcome">
+                                <div class="omni-ai-welcome-mark" aria-hidden="true">✦</div>
+                                <span>OMNI AI</span>
+                                <h3>Bugün size nasıl yardımcı olabilirim?</h3>
+                                <p>Bir konu sorun, kod yazdırın, metin oluşturun veya yeni fikirler keşfedin.</p>
+                                <div id="omni-ai-suggestions" class="omni-ai-suggestions"></div>
+                            </section>
+                        </div>
+                        <button id="omni-ai-jump" class="omni-ai-jump" type="button" hidden>↓ Yeni mesaj</button>
+
+                        <div id="omni-ai-composer" class="omni-ai-composer">
+                            <label class="sr-only" for="omni-ai-input">Omni AI mesajınız</label>
+                            <textarea id="omni-ai-input" rows="1" maxlength="10000" placeholder="Bir şeyler sorun…"></textarea>
+                            <div class="omni-ai-composer-footer">
+                                <div class="omni-ai-composer-meta">
+                                    <span id="omni-ai-count">0 / 10.000</span>
+                                    <span class="omni-ai-enter-hint">Enter ile gönder · Shift + Enter ile yeni satır</span>
+                                </div>
+                                <button id="omni-ai-send" class="omni-ai-send" type="button" disabled><span id="omni-ai-send-label">Gönder</span><span class="omni-ai-send-icon" aria-hidden="true">↑</span></button>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+                <dialog id="omni-ai-settings-dialog" class="omni-ai-dialog" aria-labelledby="omni-ai-settings-title">
+                    <div class="omni-ai-dialog-head"><div><span>Ayarlar</span><h3 id="omni-ai-settings-title">Omni AI Ayarları</h3></div><button id="omni-ai-close-settings" class="omni-ai-icon-button" type="button" aria-label="Ayarları kapat">×</button></div>
+                    <label class="omni-ai-setting-row"><span><strong>Yanıt uzunluğu</strong><small>Kısa, dengeli veya detaylı yanıt seçin.</small></span><select id="omni-ai-dialog-length"></select></label>
+                    <label class="omni-ai-setting-row"><span><strong>Enter ile gönder</strong><small>Kapalıyken Ctrl/Cmd + Enter kullanılır.</small></span><input id="omni-ai-enter-send" type="checkbox" checked></label>
+                    <div class="omni-ai-privacy"><strong>Gizlilik</strong><p>Mesajlarınız yanıt oluşturmak amacıyla yapay zekâ servisine gönderilir. Yerel sohbet geçmişi yalnızca cihazınızda tutulur.</p></div>
+                    <button id="omni-ai-dialog-clear" class="omni-ai-danger-button" type="button">Tüm Sohbet Geçmişini Sil</button>
+                </dialog>
             </section>
 
             <section id="meta-tag-generator" class="tool-panel meta-tag-panel" aria-labelledby="meta-tag-title">
@@ -5069,6 +5142,10 @@ Disallow:</code></pre>
     <script src="tools/prompt-gelistirici/config.js?v=1"></script>
     <script src="tools/prompt-gelistirici/core.js?v=1"></script>
     <script src="tools/prompt-gelistirici/app.js?v=1"></script>
+    <script src="tools/omni-ai/config.js?v=2"></script>
+    <script src="tools/omni-ai/core.js?v=3"></script>
+    <script src="tools/omni-ai/markdown.js?v=2"></script>
+    <script src="tools/omni-ai/app.js?v=5"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
