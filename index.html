@@ -46,6 +46,7 @@
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
+    <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
     <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=3">
     <link rel="stylesheet" href="tools/encoder-decoder/style.css?v=1">
     <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
@@ -60,7 +61,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>44 uygulama, tek panel</small>
+                    <small>45 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -204,6 +205,11 @@
                     data-search="image compressor görsel resim fotoğraf sıkıştırma küçültme optimize hafifletme dosya boyutu azaltma jpg jpeg png webp quality kalite çözünürlük medya"
                     data-description="Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin." type="button">
                     <span>Görüntü Sıkıştırıcı</span>
+                </button>
+                <button class="nav-item" data-tool="ats-cv-kontrolu" data-category="Kariyer"
+                    data-search="ats cv kontrolü özgeçmiş öz geçmiş resume iş başvuru işe alım kariyer insan kaynakları ik anahtar kelime uyumluluk tarama cv puanı cv analiz iş ilanı eşleşme format deneyim beceri okunabilirlik"
+                    data-description="CV'nizin ATS uyumluluğunu analiz edin, eksikleri görün ve iş ilanlarıyla eşleşmesini kontrol edin." type="button">
+                    <span>ATS CV Kontrolü</span>
                 </button>
                 <button class="nav-item" data-tool="pdf-toolbox" data-category="Araçlar"
                     data-search="pdf toolbox araç kutusu pdf düzenleme birleştirme bölme split organize sayfa döndürme rotate silme delete sıralama reorder ayırma görsel resim pdf oluşturma belge imza imzalama signature filigran watermark metin yazı ekleme damga"
@@ -1108,6 +1114,111 @@
                 </div>
 
                 <p id="image-compressor-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="ats-cv-kontrolu" class="tool-panel ats-cv-panel" aria-labelledby="ats-cv-title">
+                <div class="panel-heading ats-cv-heading">
+                    <div>
+                        <span class="ats-cv-eyebrow">Kariyer Aracı</span>
+                        <h2 id="ats-cv-title">ATS CV Kontrolü</h2>
+                        <p>CV'nizin ATS uyumluluğunu analiz edin, eksikleri görün ve iş ilanlarıyla eşleşmesini kontrol edin.</p>
+                    </div>
+                </div>
+
+                <form id="ats-cv-form" class="ats-cv-input-card" novalidate>
+                    <div class="ats-cv-input-grid">
+                        <div class="ats-cv-upload-column">
+                            <div class="ats-cv-field-heading"><label id="ats-cv-upload-label" for="ats-cv-file">CV Dosyası</label><span>Zorunlu</span></div>
+                            <input id="ats-cv-file" type="file" accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,.pdf,.docx,.txt" hidden>
+                            <div id="ats-cv-drop-zone" class="ats-cv-drop-zone" role="button" tabindex="0" aria-labelledby="ats-cv-upload-label" aria-describedby="ats-cv-file-help ats-cv-status">
+                                <span class="ats-cv-upload-icon" aria-hidden="true">CV</span>
+                                <div><strong>CV'nizi buraya bırakın</strong><p>veya cihazınızdan bir dosya seçin</p></div>
+                                <button id="ats-cv-browse" class="primary-button" type="button">CV Dosyası Seç</button>
+                                <small id="ats-cv-file-help">PDF · DOCX · TXT · En fazla 12 MB</small>
+                            </div>
+                            <div id="ats-cv-file-card" class="ats-cv-file-card" hidden>
+                                <span class="ats-cv-file-type" id="ats-cv-file-type">PDF</span>
+                                <div class="ats-cv-file-copy"><span>CV dosyası hazır</span><strong id="ats-cv-file-name">—</strong><small id="ats-cv-file-meta">—</small></div>
+                                <button id="ats-cv-file-remove" type="button" aria-label="Seçilen CV dosyasını kaldır">×</button>
+                                <button id="ats-cv-file-change" class="secondary-button" type="button">Farklı Dosya Seç</button>
+                            </div>
+                        </div>
+
+                        <div class="ats-cv-job-column">
+                            <div class="ats-cv-field-heading"><label for="ats-cv-job-description">Hedef İş İlanı</label><span>İsteğe bağlı</span></div>
+                            <textarea id="ats-cv-job-description" rows="10" maxlength="30000" placeholder="İş ilanı açıklamasını buraya yapıştırın. Teknoloji, yetkinlik, rol ve araç eşleşmeleri ayrıca analiz edilir."></textarea>
+                            <div class="ats-cv-textarea-footer"><span id="ats-cv-job-count">0 / 30.000</span></div>
+                        </div>
+                    </div>
+
+                    <div class="ats-cv-submit-row">
+                        <div class="ats-cv-status-wrap">
+                            <p id="ats-cv-status" class="ats-cv-status is-idle" role="status" aria-live="polite">Analiz için bir CV dosyası seçin.</p>
+                            <progress id="ats-cv-progress" max="100" value="0" hidden>0%</progress>
+                        </div>
+                        <button id="ats-cv-analyze" class="primary-button ats-cv-analyze-button" type="submit" disabled><span>CV'yi Analiz Et</span><span class="ats-cv-button-loader" aria-hidden="true"></span></button>
+                    </div>
+                </form>
+
+                <div id="ats-cv-results" class="ats-cv-results" hidden>
+                    <section class="ats-cv-overview" aria-labelledby="ats-cv-overview-title">
+                        <div class="ats-cv-score-card">
+                            <div id="ats-cv-score-ring" class="ats-cv-score-ring" style="--ats-score: 0">
+                                <span>ATS Puanı</span><strong id="ats-cv-score">0</strong><small>/ 100</small>
+                            </div>
+                            <div class="ats-cv-score-copy"><span id="ats-cv-overview-title">ATS Uyumluluk Puanı</span><strong id="ats-cv-score-label">—</strong><p id="ats-cv-score-summary">Analiz sonucu hazırlanıyor.</p></div>
+                        </div>
+                        <div class="ats-cv-overview-meta"><span>Analiz edilen dosya</span><strong id="ats-cv-result-file">—</strong><small id="ats-cv-result-meta">—</small></div>
+                    </section>
+
+                    <section class="ats-cv-dashboard-section" aria-labelledby="ats-cv-subscores-title">
+                        <div class="ats-cv-section-heading"><div><span>Detaylı değerlendirme</span><h3 id="ats-cv-subscores-title">Alt Skorlar</h3></div><small>Toplam 100 puan</small></div>
+                        <div id="ats-cv-subscores" class="ats-cv-subscores"></div>
+                    </section>
+
+                    <section class="ats-cv-dashboard-section" aria-labelledby="ats-cv-stats-title">
+                        <div class="ats-cv-section-heading"><div><span>Belge özeti</span><h3 id="ats-cv-stats-title">CV İstatistikleri</h3></div></div>
+                        <div id="ats-cv-stats" class="ats-cv-stats"></div>
+                    </section>
+
+                    <section id="ats-cv-job-match" class="ats-cv-dashboard-section ats-cv-job-match" aria-labelledby="ats-cv-job-match-title" hidden>
+                        <div class="ats-cv-section-heading"><div><span>Hedef role göre</span><h3 id="ats-cv-job-match-title">İş İlanı Uyumu</h3></div><strong id="ats-cv-job-percentage">0%</strong></div>
+                        <div class="ats-cv-match-meter"><span id="ats-cv-match-bar"></span></div>
+                        <p id="ats-cv-match-summary" class="ats-cv-match-summary"></p>
+                        <div class="ats-cv-keyword-grid">
+                            <div><h4>CV'de Bulunan Anahtar Kelimeler</h4><div id="ats-cv-found-keywords" class="ats-cv-tags is-found"></div></div>
+                            <div><h4>CV'de Eksik Anahtar Kelimeler</h4><div id="ats-cv-missing-keywords" class="ats-cv-tags is-missing"></div></div>
+                        </div>
+                    </section>
+
+                    <section class="ats-cv-dashboard-section" aria-labelledby="ats-cv-skills-title">
+                        <div class="ats-cv-section-heading"><div><span>Metinde algılanan</span><h3 id="ats-cv-skills-title">Teknik Beceriler</h3></div><strong id="ats-cv-skill-count">0</strong></div>
+                        <div id="ats-cv-skills" class="ats-cv-tags is-skill"></div>
+                    </section>
+
+                    <div class="ats-cv-findings-grid">
+                        <section class="ats-cv-finding-card is-positive" aria-labelledby="ats-cv-strengths-title">
+                            <div class="ats-cv-finding-heading"><span aria-hidden="true">✓</span><h3 id="ats-cv-strengths-title">Güçlü Yönler</h3></div>
+                            <ul id="ats-cv-strengths"></ul>
+                        </section>
+                        <section class="ats-cv-finding-card is-critical" aria-labelledby="ats-cv-issues-title">
+                            <div class="ats-cv-finding-heading"><span aria-hidden="true">!</span><h3 id="ats-cv-issues-title">Kritik Sorunlar</h3></div>
+                            <ul id="ats-cv-issues"></ul>
+                        </section>
+                    </div>
+
+                    <section class="ats-cv-dashboard-section ats-cv-suggestions-section" aria-labelledby="ats-cv-suggestions-title">
+                        <div class="ats-cv-section-heading"><div><span>Uygulanabilir adımlar</span><h3 id="ats-cv-suggestions-title">Geliştirme Önerileri</h3></div></div>
+                        <div id="ats-cv-suggestions" class="ats-cv-suggestions"></div>
+                    </section>
+
+                    <div class="ats-cv-result-actions">
+                        <button id="ats-cv-new" class="primary-button" type="button">Yeni CV Analiz Et</button>
+                        <button id="ats-cv-copy" class="secondary-button" type="button">Sonuçları Kopyala</button>
+                        <button id="ats-cv-reset" class="ghost-button" type="button">Analizi Sıfırla</button>
+                    </div>
+                </div>
+                <p id="ats-cv-live" class="sr-only" aria-live="assertive"></p>
             </section>
 
             <section id="pdf-toolbox" class="tool-panel pdf-toolbox-panel" aria-labelledby="pdf-toolbox-title">
@@ -4180,7 +4291,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=53"></script>
+    <script src="index.js?v=54"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4246,6 +4357,11 @@
     <script src="tools/url-cleaner/app.js?v=2"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.10.0/mammoth.browser.min.js"></script>
+    <script src="tools/ats-cv-kontrolu/core.js?v=1"></script>
+    <script src="tools/ats-cv-kontrolu/parser.js?v=1"></script>
+    <script src="tools/ats-cv-kontrolu/app.js?v=2"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
     <script src="tools/pdf-toolbox/app.js?v=3"></script>

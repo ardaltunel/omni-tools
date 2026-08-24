@@ -392,6 +392,11 @@ function updatePageMetadata(tool) {
             description: "Herkese açık GitHub depolarını analiz ederek README, SECURITY, SUPPORT, CONTRIBUTING ve CODE OF CONDUCT Markdown dosyaları oluşturun.",
             keywords: "github md generator, readme generator, markdown oluşturucu, security md, contributing md, github dokümantasyon",
         },
+        "ats-cv-kontrolu": {
+            title: "ATS CV Kontrolü | Omni Tools",
+            description: "CV'nizin ATS uyumluluğunu tarayıcıda analiz edin, eksikleri görün ve hedef iş ilanıyla anahtar kelime eşleşmesini kontrol edin.",
+            keywords: "ats cv kontrolü, cv analiz, özgeçmiş kontrolü, iş ilanı eşleşmesi, ats puanı, cv anahtar kelime, kariyer aracı",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",
