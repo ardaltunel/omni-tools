@@ -156,7 +156,7 @@
             sourceExcerpts: [],
             treeTruncated: false,
             detectedTech: [],
-            warnings: ["GitHub analizi kullanılamadığı için yalnızca manuel proje bilgileri kullanıldı."],
+            warnings: ["Tarayıcıdaki GitHub analizi kullanılamadı; güvenli sunucu analizi veya yedek şablon kullanılacak."],
         };
     }
 
@@ -191,7 +191,7 @@
             const isRateLimited = response.status === 403 && remaining === "0";
             let message = "Depo analiz edilemedi.";
             if (response.status === 404) message = "Herkese açık depo bulunamadı. Adresi ve deponun görünürlüğünü kontrol edin.";
-            if (isRateLimited) message = "GitHub API istek limiti doldu. Manuel proje açıklamasıyla devam edebilirsiniz.";
+            if (isRateLimited) message = "GitHub API istek limiti doldu. Güvenli sunucu analizi ve yedek şablonla devam edilecek.";
 
             throw new GithubApiError(message, {
                 code: isRateLimited ? "RATE_LIMIT" : `HTTP_${response.status}`,

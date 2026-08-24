@@ -124,3 +124,11 @@ test("proje amacı analizi için temsilî kaynak dosyalarını güvenli biçimde
     assert.ok(!paths.includes(".env.production"));
     assert.ok(!paths.includes("public/vendor.min.js"));
 });
+
+test("ek bilgi boşken GitHub analizi yedeği için temel depo kaydı oluşturur", () => {
+    const fallback = window.GithubMdServices.createManualRepository("https://github.com/octocat/Hello-World", "");
+    assert.equal(fallback.fullName, "octocat/Hello-World");
+    assert.equal(fallback.description, "");
+    assert.equal(fallback.source, "manual-fallback");
+    assert.match(fallback.warnings.join(" "), /sunucu analizi|yedek şablon/i);
+});

@@ -67,12 +67,6 @@
             repository = await root.GithubMdServices.analyzeRepository(formValues.repositoryUrl, { signal: state.controller.signal });
         } catch (error) {
             if (error?.name === "AbortError") return;
-            if (!formValues.additionalInformation) {
-                showStatus("error", "Depo analiz edilemedi", `${error.message} Ek Bilgi alanına proje açıklaması yazarak tekrar deneyebilirsiniz.`);
-                setBusy(false);
-                state.controller = null;
-                return;
-            }
             repository = root.GithubMdServices.createManualRepository(formValues.repositoryUrl, formValues.additionalInformation);
             analysisWarning = error.message;
         }
