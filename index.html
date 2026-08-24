@@ -44,9 +44,12 @@
     <link rel="stylesheet" href="tools/slot-game/style.css?v=13">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
+    <link rel="stylesheet" href="tools/sitemap-olusturucu/style.css?v=7">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
+    <link rel="stylesheet" href="tools/sifre-gucu-analizi/style.css?v=3">
+    <link rel="stylesheet" href="tools/sifre-oyunu/style.css?v=1">
     <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=3">
     <link rel="stylesheet" href="tools/encoder-decoder/style.css?v=1">
     <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
@@ -61,7 +64,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>45 uygulama, tek panel</small>
+                    <small>48 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -176,6 +179,16 @@
                     data-description="Güçlü ve özelleştirilebilir parolalar oluştur." type="button">
                     <span>Şifre Oluşturucu</span>
                 </button>
+                <button class="nav-item" data-tool="password-strength-analysis" data-category="Güvenlik"
+                    data-search="şifre gücü analizi parola güvenlik kontrol test skor puan entropy entropi kırılma süresi brute force yaygın şifre tekrar qwerty password passphrase güçlü parola"
+                    data-description="Şifrenizin güvenlik seviyesini, entropisini ve tahmini kırılma süresini analiz edin." type="button">
+                    <span>Şifre Gücü Analizi</span>
+                </button>
+                <button class="nav-item" data-tool="password-game" data-category="Oyunlar"
+                    data-search="şifre oyunu parola oyunu password game bulmaca kural kurallar kümülatif zeka emoji matematik şehir renk kaos süreli oyun"
+                    data-description="Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?" type="button">
+                    <span>Şifre Oyunu</span>
+                </button>
                 <button class="nav-item" data-tool="parolla" data-category="Oyunlar"
                     data-search="parolla parola kelime oyunu bilgi yarışması quiz soru cevap genel kültür süre zaman harf ipucu bulmaca tahmin oyun"
                     data-description="Kelime ve genel kültür sorularını süre dolmadan çöz." type="button">
@@ -195,6 +208,11 @@
                     data-search="url cleaner link bağlantı adres temizleme sadeleştirme utm tracking takip izleme parametre reklam kampanya gizlilik fbclid gclid paylaşılabilir"
                     data-description="Bağlantılardaki takip ve reklam parametrelerini tek tıkla temizle." type="button">
                     <span>URL Temizleyici</span>
+                </button>
+                <button class="nav-item" data-tool="sitemap-generator" data-category="SEO"
+                    data-search="sitemap oluşturucu sitemap generator sitemap xml site haritası seo url listesi robots txt sitemap index google arama motoru web sitesi sayfa dizin harita"
+                    data-description="URL listenizden SEO uyumlu bir sitemap.xml dosyası oluşturun." type="button">
+                    <span>Sitemap Oluşturucu</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
                     data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
@@ -974,6 +992,153 @@
                 </section>
 
                 <p id="url-cleaner-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="sitemap-generator" class="tool-panel sitemap-generator-panel" aria-labelledby="sitemap-generator-title">
+                <div class="panel-heading sitemap-generator-heading">
+                    <div>
+                        <span class="sitemap-generator-eyebrow">SEO Aracı</span>
+                        <h2 id="sitemap-generator-title">Sitemap Oluşturucu</h2>
+                        <p>URL listenizden SEO uyumlu bir sitemap.xml dosyası oluşturun.</p>
+                    </div>
+                </div>
+
+                <div class="sitemap-simple-layout">
+                    <section class="sitemap-simple-card" aria-labelledby="sitemap-simple-input-title">
+                        <div class="sitemap-simple-card-heading">
+                            <div><span>URL Listesi</span><h3 id="sitemap-simple-input-title">Sayfa adreslerini girin</h3></div>
+                            <small>Her satıra bir URL</small>
+                        </div>
+                        <textarea id="sitemap-simple-input" rows="14" autocapitalize="off" spellcheck="false" placeholder="https://example.com/&#10;https://example.com/about&#10;https://example.com/contact"></textarea>
+                        <div class="sitemap-simple-input-footer">
+                            <div class="sitemap-simple-counts"><span>Toplam <strong id="sitemap-simple-total">0</strong></span><span>Geçerli <strong id="sitemap-simple-valid">0</strong></span><span>Hatalı <strong id="sitemap-simple-invalid">0</strong></span></div>
+                            <div class="sitemap-simple-small-actions"><button id="sitemap-simple-sample" class="ghost-button" type="button">Örnek Yükle</button><button id="sitemap-simple-clear" class="ghost-button" type="button" disabled>Temizle</button></div>
+                        </div>
+                        <p id="sitemap-simple-input-message" class="sitemap-simple-message" aria-live="polite" hidden></p>
+                    </section>
+
+                    <section class="sitemap-simple-card" aria-labelledby="sitemap-simple-preview-title">
+                        <div class="sitemap-simple-card-heading"><div><span>Çıktı</span><h3 id="sitemap-simple-preview-title">XML Önizleme</h3></div></div>
+                        <pre class="sitemap-simple-code"><code id="sitemap-simple-xml">Sitemap oluşturduğunuzda XML burada gösterilir.</code></pre>
+                    </section>
+                </div>
+
+                <div id="sitemap-simple-domain-warning" class="sitemap-simple-domain-warning" role="alert" hidden>Farklı alan adları tespit edildi. Bir sitemap dosyasında tek alan adı kullanmanız önerilir.</div>
+                <div class="sitemap-simple-footer">
+                    <p id="sitemap-simple-output-message" class="sitemap-simple-message" aria-live="polite" hidden></p>
+                    <div class="sitemap-simple-actions">
+                        <button id="sitemap-simple-generate" class="primary-button" type="button">Sitemap Oluştur</button>
+                        <button id="sitemap-simple-copy" class="secondary-button" type="button" disabled>XML’i Kopyala</button>
+                        <button id="sitemap-simple-download" class="secondary-button" type="button" disabled>sitemap.xml İndir</button>
+                    </div>
+                </div>
+
+                <div hidden aria-hidden="true">
+                <div class="sitemap-generator-kind-tabs" role="tablist" aria-label="Oluşturulacak XML türü">
+                    <button class="is-active" data-sitemap-kind="urlset" type="button" role="tab" aria-selected="true">Sitemap Oluştur</button>
+                    <button data-sitemap-kind="index" type="button" role="tab" aria-selected="false">Sitemap Index Oluştur</button>
+                </div>
+
+                <section class="sitemap-generator-input-card" aria-labelledby="sitemap-generator-input-title">
+                    <div class="sitemap-generator-section-heading">
+                        <div>
+                            <span id="sitemap-generator-kind-label">Sitemap URL’leri</span>
+                            <h3 id="sitemap-generator-input-title">URL’leri ekleyin</h3>
+                        </div>
+                        <div id="sitemap-generator-mode-tabs" class="sitemap-generator-mode-tabs" role="group" aria-label="Sitemap ayrıntı modu">
+                            <button class="is-active" data-sitemap-mode="simple" type="button" aria-pressed="true">Basit Mod</button>
+                            <button data-sitemap-mode="advanced" type="button" aria-pressed="false">Gelişmiş Mod</button>
+                        </div>
+                    </div>
+
+                    <div class="sitemap-generator-entry-grid">
+                        <div class="sitemap-generator-entry-block">
+                            <label for="sitemap-generator-single-url">Tek URL ekle</label>
+                            <div class="sitemap-generator-single-row">
+                                <input id="sitemap-generator-single-url" type="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/about">
+                                <button id="sitemap-generator-add-single" class="secondary-button" type="button">URL Ekle</button>
+                            </div>
+                            <small>Manuel olarak bir URL ekleyin.</small>
+                        </div>
+                        <div class="sitemap-generator-entry-block">
+                            <label for="sitemap-generator-multi-url">Çoklu URL yapıştır</label>
+                            <textarea id="sitemap-generator-multi-url" rows="5" autocapitalize="off" spellcheck="false" placeholder="https://example.com/&#10;https://example.com/about&#10;https://example.com/contact"></textarea>
+                            <div class="sitemap-generator-multi-footer">
+                                <small>Her satır ayrı bir URL olarak algılanır.</small>
+                                <button id="sitemap-generator-add-multi" class="secondary-button" type="button">Listeye Ekle</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="sitemap-generator-entry-message" class="sitemap-generator-entry-message" aria-live="polite"></p>
+                </section>
+
+                <div class="sitemap-generator-summary-row">
+                    <div class="sitemap-generator-counter" aria-label="URL özeti">
+                        <span>Toplam URL <strong id="sitemap-generator-total-count">0</strong></span>
+                        <span class="is-valid">Geçerli URL <strong id="sitemap-generator-valid-count">0</strong></span>
+                        <span class="is-invalid">Hatalı URL <strong id="sitemap-generator-invalid-count">0</strong></span>
+                    </div>
+                    <div class="sitemap-generator-list-actions">
+                        <button id="sitemap-generator-sample" class="ghost-button" type="button">Örnek Veri Yükle</button>
+                        <button id="sitemap-generator-clear" class="ghost-button" type="button" disabled>Temizle</button>
+                    </div>
+                </div>
+
+                <div id="sitemap-generator-domain-warning" class="sitemap-generator-domain-warning" role="alert" hidden>
+                    <span aria-hidden="true">!</span>
+                    <div><strong>Sitemap içerisinde farklı alan adları tespit edildi.</strong><p>Devam edebilirsiniz; ancak arama motorları genellikle her sitemap içinde tek bir alan adı bekler.</p></div>
+                </div>
+
+                <section id="sitemap-generator-bulk" class="sitemap-generator-bulk" aria-labelledby="sitemap-generator-bulk-title" hidden>
+                    <div class="sitemap-generator-section-heading">
+                        <div><span>Toplu Ayarlar</span><h3 id="sitemap-generator-bulk-title">Tüm URL’lere Uygula</h3></div>
+                    </div>
+                    <div class="sitemap-generator-bulk-grid">
+                        <label>Son Güncelleme<input id="sitemap-generator-bulk-lastmod" type="date"></label>
+                        <label>Değişim Sıklığı<select id="sitemap-generator-bulk-changefreq"><option value="">Değiştirme</option><option value="always">Her Zaman</option><option value="hourly">Saatlik</option><option value="daily">Günlük</option><option value="weekly">Haftalık</option><option value="monthly">Aylık</option><option value="yearly">Yıllık</option><option value="never">Hiçbir Zaman</option></select></label>
+                        <label>Öncelik<input id="sitemap-generator-bulk-priority" type="number" min="0" max="1" step="any" list="sitemap-generator-priorities" placeholder="0.8"></label>
+                        <button id="sitemap-generator-apply-bulk" class="secondary-button" type="button">Uygula</button>
+                    </div>
+                </section>
+
+                <datalist id="sitemap-generator-priorities"><option value="1.0"></option><option value="0.9"></option><option value="0.8"></option><option value="0.7"></option><option value="0.5"></option><option value="0.3"></option></datalist>
+
+                <section class="sitemap-generator-workspace" aria-labelledby="sitemap-generator-workspace-title">
+                    <div class="sitemap-generator-workspace-heading">
+                        <div><span>Çalışma Alanı</span><h3 id="sitemap-generator-workspace-title">Sitemap içeriği</h3></div>
+                    </div>
+
+                    <div class="sitemap-generator-dual-view">
+                        <section class="sitemap-generator-view-pane" aria-labelledby="sitemap-generator-list-title">
+                            <h4 id="sitemap-generator-list-title">URL Listesi</h4>
+                            <div id="sitemap-generator-list-view" class="sitemap-generator-list-view">
+                                <div id="sitemap-generator-empty" class="sitemap-generator-empty"><strong>Henüz URL eklenmedi</strong><p>Tek URL alanını veya çoklu yapıştırma alanını kullanarak listenizi oluşturun.</p></div>
+                                <div id="sitemap-generator-url-list" class="sitemap-generator-url-list"></div>
+                            </div>
+                        </section>
+                        <section class="sitemap-generator-view-pane" aria-labelledby="sitemap-generator-preview-title">
+                            <h4 id="sitemap-generator-preview-title">XML Önizleme</h4>
+                            <div id="sitemap-generator-preview-view" class="sitemap-generator-preview-view">
+                                <pre class="sitemap-generator-code"><code id="sitemap-generator-xml">XML oluşturduğunuzda önizleme burada gösterilir.</code></pre>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="sitemap-generator-output-actions">
+                        <button id="sitemap-generator-generate" class="primary-button" type="button">Sitemap Oluştur</button>
+                        <button id="sitemap-generator-copy" class="secondary-button" type="button" disabled>XML’i Kopyala</button>
+                        <button id="sitemap-generator-download" class="secondary-button" type="button" disabled>sitemap.xml İndir</button>
+                    </div>
+                    <p id="sitemap-generator-output-message" class="sitemap-generator-output-message" aria-live="polite"></p>
+                </section>
+
+                <section id="sitemap-generator-robots" class="sitemap-generator-robots" aria-labelledby="sitemap-generator-robots-title" hidden>
+                    <div><span>robots.txt Yardımı</span><h3 id="sitemap-generator-robots-title">robots.txt dosyanıza ekleyebilirsiniz</h3><code id="sitemap-generator-robots-line"></code></div>
+                    <button id="sitemap-generator-copy-robots" class="ghost-button" type="button">Kopyala</button>
+                </section>
+
+                <div class="sitemap-generator-limit-note" role="note"><strong>Sitemap sınırları</strong><p>Standart bir sitemap dosyası en fazla 50.000 URL içermeli ve sıkıştırılmamış boyutu 50 MB’ı geçmemelidir. Tarayıcı performansı için bu araçta en fazla 5.000 URL işlenir.</p></div>
+                </div>
             </section>
 
             <section id="json-formatter" class="tool-panel json-formatter-panel" aria-labelledby="json-formatter-title">
@@ -1920,6 +2085,110 @@
                         </div>
                     </aside>
                 </div>
+            </section>
+
+            <section id="password-game" class="tool-panel password-game-panel" aria-labelledby="password-game-title">
+                <div class="panel-heading password-game-heading">
+                    <div>
+                        <span class="password-game-eyebrow">Kümülatif Bulmaca</span>
+                        <h2 id="password-game-title">Şifre Oyunu</h2>
+                        <p>Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?</p>
+                    </div>
+                </div>
+
+                <section id="password-game-start" class="password-game-start" aria-labelledby="password-game-start-title">
+                    <div class="password-game-intro"><span aria-hidden="true">🔐</span><div><h3 id="password-game-start-title">Kaç kurala dayanabilirsin?</h3><p>Tek bir metin oluştur, açılan her yeni kuralı önceki kuralları bozmadan tamamla.</p></div></div>
+                    <div class="password-game-mode-grid">
+                        <article class="password-game-mode-card"><span>Rahat Başlangıç</span><h3>Normal Mod</h3><ul><li>Süre sınırsız</li><li>30 kümülatif kural</li><li>İlk oyun için ideal</li></ul><button class="primary-button" data-password-game-mode="normal" type="button">Normal Modu Başlat</button></article>
+                        <article class="password-game-mode-card is-timed"><span>Zamana Karşı</span><h3>Süreli Mod</h3><ul><li>5 dakika süre</li><li>Aynı 30 kural</li><li>Süre bitmeden tamamla</li></ul><button class="secondary-button" data-password-game-mode="timed" type="button">Süreli Modu Başlat</button></article>
+                    </div>
+                </section>
+
+                <section id="password-game-play" class="password-game-play" aria-labelledby="password-game-play-title" hidden>
+                    <div class="password-game-topbar">
+                        <div><span>Mod</span><strong id="password-game-mode-label">Normal</strong></div><div><span>Süre</span><strong id="password-game-time">00:00</strong></div><div><span>Kural</span><strong id="password-game-progress">1 / 30</strong></div><div><span>Hata</span><strong id="password-game-errors">0</strong></div><button id="password-game-sound" class="ghost-button" type="button" aria-pressed="true">🔊 Ses Açık</button>
+                    </div>
+                    <div class="password-game-layout">
+                        <section class="password-game-editor" aria-labelledby="password-game-play-title">
+                            <div class="password-game-editor-heading"><div><span>Tek şifre, tüm kurallar</span><h3 id="password-game-play-title">Şifreni oluştur</h3></div><small id="password-game-length">0 karakter</small></div>
+                            <div class="password-game-input-row"><input id="password-game-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Buraya yaz..."><button id="password-game-toggle" class="secondary-button" type="button" aria-pressed="true">Gizle</button></div>
+                            <div class="password-game-progress-track" role="progressbar" aria-label="Açılan kural ilerlemesi" aria-valuemin="1" aria-valuemax="30" aria-valuenow="1"><span id="password-game-progress-bar"></span></div>
+                            <p class="password-game-editor-note">Yeni bir kural açıldığında eski kurallar da geçerli kalır.</p>
+                            <button id="password-game-finish" class="primary-button password-game-finish" type="button" disabled>Şifrem Hazır</button>
+                        </section>
+                        <section class="password-game-rules-panel" aria-labelledby="password-game-rules-title">
+                            <div class="password-game-rules-heading"><div><span>Canlı Kontrol</span><h3 id="password-game-rules-title">Aktif Kurallar</h3></div><small>En yeni kural üstte</small></div>
+                            <div id="password-game-rules" class="password-game-rules"></div>
+                        </section>
+                    </div>
+                </section>
+
+                <section id="password-game-result" class="password-game-result" aria-labelledby="password-game-result-title" hidden>
+                    <div class="password-game-result-mark" aria-hidden="true">🏆</div><span id="password-game-result-kicker">Oyun Tamamlandı</span><h3 id="password-game-result-title">ŞİFRE USTASI!</h3><p id="password-game-result-copy">Tüm kuralları aynı anda yerine getirmeyi başardın.</p>
+                    <div class="password-game-result-stats"><div><span>Kural</span><strong id="password-game-result-rules">30 / 30</strong></div><div><span>Süre</span><strong id="password-game-result-time">00:00</strong></div><div><span>Şifre Uzunluğu</span><strong id="password-game-result-length">0</strong></div><div><span>Hata Sayısı</span><strong id="password-game-result-errors">0</strong></div></div>
+                    <div class="password-game-result-actions"><button id="password-game-replay" class="primary-button" type="button">Tekrar Oyna</button><button id="password-game-share" class="secondary-button" type="button">Sonucu Paylaş</button><button id="password-game-home" class="ghost-button" type="button">Ana Sayfaya Dön</button></div>
+                    <p id="password-game-share-status" class="password-game-share-status" aria-live="polite"></p>
+                </section>
+                <p id="password-game-live" class="sr-only" aria-live="polite"></p>
+            </section>
+
+            <section id="password-strength-analysis" class="tool-panel password-strength-panel" aria-labelledby="password-strength-analysis-title">
+                <div class="panel-heading password-strength-heading">
+                    <div>
+                        <span class="password-strength-eyebrow">Güvenlik Aracı</span>
+                        <h2 id="password-strength-analysis-title">Şifre Gücü Analizi</h2>
+                        <p>Şifrenizin ne kadar güvenli olduğunu analiz edin ve tahmini kırılma süresini görün.</p>
+                    </div>
+                </div>
+
+                <div class="password-strength-layout">
+                    <section class="password-strength-input-card" aria-labelledby="password-strength-input-title">
+                        <div class="password-strength-card-heading"><div><span>Gerçek zamanlı analiz</span><h3 id="password-strength-input-title">Şifrenizi girin</h3></div><small id="password-strength-length-label">0 karakter</small></div>
+                        <div class="password-strength-input-row">
+                            <input id="password-strength-input" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" aria-describedby="password-strength-privacy-note" placeholder="Analiz etmek istediğiniz şifreyi yazın veya yapıştırın">
+                            <button id="password-strength-toggle" class="secondary-button" type="button" aria-pressed="false">Göster</button>
+                            <button id="password-strength-clear" class="ghost-button" type="button" disabled>Temizle</button>
+                        </div>
+                        <p id="password-strength-privacy-note" class="password-strength-input-note">Değerlendirme yazdığınız anda cihazınızda yapılır.</p>
+
+                        <div class="password-strength-meter-heading"><span>Güç: <strong id="password-strength-level">Henüz analiz edilmedi</strong></span><strong><span id="password-strength-score-inline">0</span> / 100</strong></div>
+                        <div class="password-strength-meter" role="progressbar" aria-label="Şifre güvenlik puanı" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="password-strength-meter-bar"></span></div>
+
+                        <div class="password-strength-summary-grid">
+                            <article><span>Tahmini Entropi</span><strong id="password-strength-entropy">0 bit</strong><small>Desen cezaları sonrası</small></article>
+                            <article><span>Tahmini Kırılma Süresi</span><strong id="password-strength-crack-time">—</strong><small>Çevrimdışı kaba kuvvet varsayımı</small></article>
+                            <article><span>Karakter Havuzu</span><strong id="password-strength-pool">0</strong><small id="password-strength-pool-detail">Karakter türü bekleniyor</small></article>
+                        </div>
+                        <p class="password-strength-estimate-note">Bu değer yaklaşık bir tahmindir ve saldırı yöntemine göre değişebilir.</p>
+                    </section>
+
+                    <aside class="password-strength-score-card" aria-labelledby="password-strength-score-title">
+                        <div id="password-strength-score-ring" class="password-strength-score-ring" style="--password-score: 0">
+                            <span id="password-strength-score-title">Güvenlik Puanı</span><strong id="password-strength-score">0</strong><small>/ 100</small>
+                        </div>
+                        <strong id="password-strength-score-label">Şifre bekleniyor</strong>
+                        <p id="password-strength-score-copy">Analizi başlatmak için parola alanına yazın.</p>
+                    </aside>
+                </div>
+
+                <div class="password-strength-detail-grid">
+                    <section class="password-strength-detail-card" aria-labelledby="password-strength-checklist-title">
+                        <div class="password-strength-detail-heading"><span aria-hidden="true">✓</span><div><small>Anlık kontroller</small><h3 id="password-strength-checklist-title">Güvenlik Kontrol Listesi</h3></div></div>
+                        <ul id="password-strength-checklist" class="password-strength-checklist"></ul>
+                    </section>
+
+                    <section class="password-strength-detail-card" aria-labelledby="password-strength-warnings-title">
+                        <div class="password-strength-detail-heading is-warning"><span aria-hidden="true">!</span><div><small>Tespitler</small><h3 id="password-strength-warnings-title">Uyarılar ve Öneriler</h3></div></div>
+                        <div id="password-strength-warnings" class="password-strength-warnings"></div>
+                        <ul id="password-strength-suggestions" class="password-strength-suggestions"></ul>
+                    </section>
+                </div>
+
+                <section class="password-strength-generator-card" aria-labelledby="password-strength-generator-title">
+                    <div><span>Yeni bir parolaya mı ihtiyacınız var?</span><h3 id="password-strength-generator-title">Güçlü ve rastgele bir şifre oluşturun</h3><p>Aynı özelliği tekrar kurmadan mevcut Şifre Oluşturucu aracını kullanın.</p></div>
+                    <button id="password-strength-open-generator" class="primary-button" type="button">Güçlü Şifre Oluştur</button>
+                </section>
+                <p id="password-strength-live" class="sr-only" aria-live="polite"></p>
             </section>
 
             <section id="password" class="tool-panel" aria-labelledby="password-title">
@@ -4291,7 +4560,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=54"></script>
+    <script src="index.js?v=57"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4355,6 +4624,8 @@
     <script src="tools/medya-veri-temizleyici/app.js?v=5"></script>
     <script src="tools/qr-code-scanner/app.js?v=1"></script>
     <script src="tools/url-cleaner/app.js?v=2"></script>
+    <script src="tools/sitemap-olusturucu/core.js?v=1"></script>
+    <script src="tools/sitemap-olusturucu/app.js?v=4"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -4362,6 +4633,13 @@
     <script src="tools/ats-cv-kontrolu/core.js?v=1"></script>
     <script src="tools/ats-cv-kontrolu/parser.js?v=1"></script>
     <script src="tools/ats-cv-kontrolu/app.js?v=2"></script>
+    <script src="tools/sifre-gucu-analizi/core.js?v=1"></script>
+    <script src="tools/sifre-gucu-analizi/app.js?v=3"></script>
+    <script src="tools/sifre-oyunu/data.js?v=1"></script>
+    <script src="tools/sifre-oyunu/utils.js?v=1"></script>
+    <script src="tools/sifre-oyunu/rules.js?v=1"></script>
+    <script src="tools/sifre-oyunu/engine.js?v=1"></script>
+    <script src="tools/sifre-oyunu/app.js?v=1"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
     <script src="tools/pdf-toolbox/app.js?v=3"></script>

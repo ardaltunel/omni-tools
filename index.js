@@ -397,6 +397,21 @@ function updatePageMetadata(tool) {
             description: "CV'nizin ATS uyumluluğunu tarayıcıda analiz edin, eksikleri görün ve hedef iş ilanıyla anahtar kelime eşleşmesini kontrol edin.",
             keywords: "ats cv kontrolü, cv analiz, özgeçmiş kontrolü, iş ilanı eşleşmesi, ats puanı, cv anahtar kelime, kariyer aracı",
         },
+        "password-strength-analysis": {
+            title: "Şifre Gücü Analizi | Omni Tools",
+            description: "Şifrenizin güvenlik seviyesini, entropisini ve tahmini kırılma süresini tamamen tarayıcınızda analiz edin.",
+            keywords: "şifre gücü analizi, parola güvenlik testi, parola entropisi, kırılma süresi, güçlü şifre kontrolü, brute force",
+        },
+        "password-game": {
+            title: "Şifre Oyunu | Omni Tools",
+            description: "Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?",
+            keywords: "şifre oyunu, parola oyunu, password game, kümülatif kurallar, bulmaca oyunu, türkçe oyun",
+        },
+        "sitemap-generator": {
+            title: "Sitemap Oluşturucu | Omni Tools",
+            description: "URL listenizden SEO uyumlu bir sitemap.xml dosyasını tamamen tarayıcınızda oluşturun.",
+            keywords: "sitemap oluşturucu, sitemap generator, sitemap xml, site haritası, url listesi, seo aracı",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",

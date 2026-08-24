@@ -1,0 +1,489 @@
+.password-strength-panel {
+    --password-surface: var(--surface, #11141a);
+    --password-raised: var(--surface-raised, #20232a);
+    --password-line: var(--line, #303542);
+    --password-muted: var(--muted, #aab0bf);
+    --password-tone: var(--accent, #18a999);
+}
+
+.password-strength-panel[data-strength="very-weak"] { --password-tone: #ff5f6d; }
+.password-strength-panel[data-strength="weak"] { --password-tone: #fb923c; }
+.password-strength-panel[data-strength="medium"] { --password-tone: #f4d35e; }
+.password-strength-panel[data-strength="strong"] { --password-tone: #22c55e; }
+.password-strength-panel[data-strength="very-strong"] { --password-tone: #18a999; }
+
+.password-strength-panel [hidden] {
+    display: none !important;
+}
+
+.password-strength-heading {
+    align-items: flex-start;
+}
+
+.password-strength-eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.password-strength-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    gap: 14px;
+}
+
+.password-strength-input-card,
+.password-strength-score-card,
+.password-strength-detail-card,
+.password-strength-generator-card {
+    min-width: 0;
+    border: 1px solid var(--password-line);
+    border-radius: var(--radius-lg, 10px);
+    background: var(--password-surface);
+}
+
+.password-strength-input-card {
+    padding: 18px;
+}
+
+.password-strength-card-heading,
+.password-strength-meter-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.password-strength-card-heading > div {
+    display: grid;
+    gap: 3px;
+}
+
+.password-strength-card-heading span,
+.password-strength-detail-heading small {
+    color: var(--password-muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.password-strength-card-heading h3,
+.password-strength-detail-heading h3,
+.password-strength-generator-card h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 15px;
+}
+
+.password-strength-card-heading > small {
+    color: var(--password-muted);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+}
+
+.password-strength-input-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.password-strength-input-row input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    border: 1px solid var(--password-line);
+    border-radius: var(--radius, 8px);
+    background: var(--password-raised);
+    color: var(--text);
+    padding: 0 13px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+}
+
+.password-strength-input-row input:focus-visible {
+    border-color: var(--password-tone);
+    outline: 3px solid color-mix(in srgb, var(--password-tone) 20%, transparent);
+}
+
+.password-strength-input-row button {
+    min-height: 46px;
+    padding: 0 13px;
+    font-size: 11px;
+}
+
+.password-strength-input-note,
+.password-strength-estimate-note {
+    margin: 7px 0 0;
+    color: var(--password-muted);
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.password-strength-meter-heading {
+    margin: 18px 0 8px;
+    color: var(--password-muted);
+    font-size: 11px;
+}
+
+.password-strength-meter-heading strong {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.password-strength-meter-heading > span strong {
+    color: var(--password-tone);
+}
+
+.password-strength-meter {
+    height: 9px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--password-raised);
+}
+
+.password-strength-meter span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--password-tone);
+    transition: width 180ms ease, background-color 180ms ease;
+}
+
+.password-strength-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.password-strength-summary-grid article {
+    display: grid;
+    min-height: 88px;
+    align-content: center;
+    gap: 4px;
+    border: 1px solid var(--password-line);
+    border-radius: var(--radius, 8px);
+    background: var(--password-raised);
+    padding: 11px 12px;
+}
+
+.password-strength-summary-grid span,
+.password-strength-summary-grid small {
+    color: var(--password-muted);
+    font-size: 9px;
+}
+
+.password-strength-summary-grid strong {
+    overflow-wrap: anywhere;
+    color: var(--text);
+    font-size: 17px;
+}
+
+.password-strength-score-card {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.password-strength-score-ring {
+    position: relative;
+    display: grid;
+    width: 164px;
+    height: 164px;
+    place-content: center;
+    justify-items: center;
+    border-radius: 50%;
+    background: conic-gradient(var(--password-tone) calc(var(--password-score) * 1%), var(--password-raised) 0);
+}
+
+.password-strength-score-ring::before {
+    position: absolute;
+    inset: 10px;
+    border: 1px solid var(--password-line);
+    border-radius: 50%;
+    background: var(--password-surface);
+    content: "";
+}
+
+.password-strength-score-ring > * {
+    position: relative;
+    z-index: 1;
+}
+
+.password-strength-score-ring span {
+    color: var(--password-muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.password-strength-score-ring strong {
+    margin: 3px 0 -3px;
+    color: var(--text);
+    font-size: 50px;
+    line-height: 1;
+}
+
+.password-strength-score-ring small {
+    color: var(--password-muted);
+    font-size: 11px;
+}
+
+.password-strength-score-card > strong {
+    color: var(--password-tone);
+    font-size: 18px;
+}
+
+.password-strength-score-card > p {
+    max-width: 230px;
+    margin: 0;
+    color: var(--password-muted);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.password-strength-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.password-strength-detail-card {
+    padding: 16px;
+}
+
+.password-strength-detail-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 13px;
+}
+
+.password-strength-detail-heading > span {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(24, 169, 153, 0.1);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.password-strength-detail-heading.is-warning > span {
+    background: rgba(244, 211, 94, 0.1);
+    color: var(--accent-2, #f4d35e);
+}
+
+.password-strength-detail-heading > div {
+    display: grid;
+    gap: 2px;
+}
+
+.password-strength-checklist,
+.password-strength-suggestions {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.password-strength-checklist li {
+    display: grid;
+    grid-template-columns: 23px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    border: 1px solid var(--password-line);
+    border-radius: var(--radius, 8px);
+    background: var(--password-raised);
+    color: var(--password-muted);
+    padding: 7px 9px;
+    font-size: 10px;
+}
+
+.password-strength-checklist li > span:first-child {
+    display: grid;
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 95, 109, 0.1);
+    color: var(--danger, #ff5f6d);
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.password-strength-checklist li > span:last-child {
+    display: block;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    color: inherit;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.password-strength-checklist li.is-passed {
+    color: var(--text);
+}
+
+.password-strength-checklist li.is-passed > span:first-child {
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--success, #4ade80);
+}
+
+.password-strength-warnings {
+    display: grid;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
+.password-strength-warning {
+    border: 1px solid rgba(255, 95, 109, 0.3);
+    border-radius: var(--radius, 8px);
+    background: rgba(255, 95, 109, 0.06);
+    color: var(--text);
+    padding: 9px 10px;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.password-strength-warning.is-safe {
+    border-color: rgba(74, 222, 128, 0.28);
+    background: rgba(74, 222, 128, 0.06);
+    color: var(--password-muted);
+}
+
+.password-strength-suggestions li {
+    position: relative;
+    color: var(--password-muted);
+    padding-left: 17px;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.password-strength-suggestions li::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--accent-2, #f4d35e);
+    content: "→";
+    font-weight: 900;
+}
+
+.password-strength-generator-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 14px;
+    padding: 16px;
+}
+
+.password-strength-generator-card > div {
+    display: grid;
+    gap: 3px;
+}
+
+.password-strength-generator-card span {
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.password-strength-generator-card p {
+    margin: 0;
+    color: var(--password-muted);
+    font-size: 10px;
+}
+
+.password-strength-generator-card button {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 940px) {
+    .password-strength-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .password-strength-score-card {
+        grid-template-columns: auto minmax(0, 1fr);
+        justify-items: start;
+        text-align: left;
+    }
+
+    .password-strength-score-card > strong,
+    .password-strength-score-card > p {
+        grid-column: 2;
+    }
+
+    .password-strength-score-ring {
+        grid-row: 1 / span 2;
+    }
+}
+
+@media (max-width: 700px) {
+    .password-strength-detail-grid,
+    .password-strength-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .password-strength-generator-card {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .password-strength-generator-card button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .password-strength-input-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .password-strength-input-row input {
+        grid-column: 1 / -1;
+    }
+
+    .password-strength-score-card {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .password-strength-score-card > strong,
+    .password-strength-score-card > p,
+    .password-strength-score-ring {
+        grid-column: 1;
+        grid-row: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .password-strength-meter span {
+        transition: none;
+    }
+}

@@ -1,0 +1,261 @@
+.password-game-panel {
+    --pg-surface: var(--surface, #11141a);
+    --pg-raised: var(--surface-raised, #20232a);
+    --pg-line: var(--line, #303542);
+    --pg-muted: var(--muted, #aab0bf);
+    --pg-success: var(--success, #4ade80);
+    --pg-danger: var(--danger, #ff5f6d);
+}
+
+.password-game-panel [hidden] { display: none !important; }
+.password-game-heading { align-items: flex-start; }
+
+.password-game-eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.password-game-start,
+.password-game-play,
+.password-game-result {
+    border: 1px solid var(--pg-line);
+    border-radius: var(--radius-lg, 10px);
+    background: var(--pg-surface);
+    padding: 18px;
+}
+
+.password-game-intro {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 16px;
+}
+
+.password-game-intro > span {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    place-items: center;
+    border: 1px solid rgba(24, 169, 153, .34);
+    border-radius: 12px;
+    background: rgba(24, 169, 153, .08);
+    font-size: 21px;
+}
+
+.password-game-intro h3,
+.password-game-mode-card h3,
+.password-game-editor h3,
+.password-game-rules-panel h3,
+.password-game-result h3 { margin: 0; color: var(--text); }
+.password-game-intro h3 { font-size: 18px; }
+.password-game-intro p { margin: 4px 0 0; color: var(--pg-muted); font-size: 11px; line-height: 1.5; }
+
+.password-game-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+.password-game-mode-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    border: 1px solid var(--pg-line);
+    border-radius: var(--radius-lg, 10px);
+    background: var(--pg-raised);
+    padding: 16px;
+}
+
+.password-game-mode-card > span,
+.password-game-editor-heading span,
+.password-game-rules-heading span,
+.password-game-result > span {
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.password-game-mode-card.is-timed > span { color: var(--accent-2, #f4d35e); }
+.password-game-mode-card h3 { margin-top: 4px; font-size: 16px; }
+.password-game-mode-card ul { display: grid; gap: 7px; margin: 14px 0 17px; padding-left: 18px; color: var(--pg-muted); font-size: 10px; }
+.password-game-mode-card button { margin-top: auto; }
+
+.password-game-result-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.password-game-result-stats > div {
+    display: grid;
+    gap: 3px;
+    border: 1px solid var(--pg-line);
+    border-radius: var(--radius, 8px);
+    background: var(--pg-raised);
+    padding: 10px;
+}
+
+.password-game-result-stats span,
+.password-game-topbar span { color: var(--pg-muted); font-size: 9px; font-weight: 700; }
+.password-game-result-stats strong { color: var(--text); font-size: 14px; }
+
+.password-game-topbar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(85px, 1fr)) auto;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.password-game-topbar > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border: 1px solid var(--pg-line);
+    border-radius: var(--radius, 8px);
+    background: var(--pg-raised);
+    padding: 8px 10px;
+}
+
+.password-game-topbar strong { color: var(--text); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.password-game-layout { display: grid; grid-template-columns: minmax(300px, .78fr) minmax(0, 1.22fr); align-items: start; gap: 12px; }
+
+.password-game-editor,
+.password-game-rules-panel {
+    min-width: 0;
+    border: 1px solid var(--pg-line);
+    border-radius: var(--radius-lg, 10px);
+    background: var(--pg-raised);
+    padding: 14px;
+}
+
+.password-game-editor { position: sticky; top: 0; }
+.password-game-editor-heading,
+.password-game-rules-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 11px; }
+.password-game-editor-heading > div,
+.password-game-rules-heading > div { display: grid; gap: 2px; }
+.password-game-editor h3,
+.password-game-rules-panel h3 { font-size: 15px; }
+.password-game-editor-heading small,
+.password-game-rules-heading small { color: var(--pg-muted); font-size: 9px; }
+
+.password-game-input-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.password-game-input-row input {
+    min-width: 0;
+    min-height: 46px;
+    border: 1px solid var(--pg-line);
+    border-radius: var(--radius, 8px);
+    outline: none;
+    background: var(--pg-surface);
+    color: var(--text);
+    padding: 11px 12px;
+    font-size: 13px;
+}
+.password-game-input-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(24, 169, 153, .12); }
+
+.password-game-progress-track {
+    height: 7px;
+    margin-top: 11px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--pg-surface);
+}
+.password-game-progress-track span { display: block; width: 3.333%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2, #f4d35e)); transition: width .24s ease; }
+.password-game-editor-note { margin: 10px 0 14px; color: var(--pg-muted); font-size: 9px; line-height: 1.5; }
+.password-game-finish { width: 100%; }
+
+.password-game-rules { display: grid; max-height: 570px; gap: 8px; overflow: auto; overscroll-behavior: contain; padding-right: 3px; }
+
+.password-game-rule {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    border: 1px solid rgba(255, 95, 109, .28);
+    border-radius: var(--radius, 8px);
+    background: rgba(255, 95, 109, .045);
+    padding: 11px;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.password-game-rule.is-passed { border-color: rgba(74, 222, 128, .3); background: rgba(74, 222, 128, .05); }
+.password-game-rule.is-latest { box-shadow: inset 3px 0 var(--accent); }
+.password-game-rule.is-new { animation: password-game-rule-in .28s ease both; }
+.password-game-rule.is-broken { animation: password-game-rule-shake .24s ease; }
+
+.password-game-rule-icon {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(255, 95, 109, .12);
+    color: var(--pg-danger);
+    font-size: 11px;
+    font-weight: 900;
+}
+.password-game-rule.is-passed .password-game-rule-icon { background: rgba(74, 222, 128, .12); color: var(--pg-success); }
+.password-game-rule-copy { min-width: 0; }
+.password-game-rule-copy > span { color: var(--pg-muted); font-size: 8px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.password-game-rule-copy h4 { margin: 2px 0 4px; color: var(--text); font-size: 12px; }
+.password-game-rule-copy p { margin: 0; color: var(--pg-muted); font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.password-game-rule.is-passed .password-game-rule-copy p { color: var(--text); }
+
+.password-game-color-puzzle { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 8px; }
+.password-game-color-swatch { width: 28px; height: 28px; border: 1px solid rgba(255, 255, 255, .16); border-radius: 7px; }
+.password-game-color-option { border: 1px solid var(--pg-line); border-radius: 6px; background: var(--pg-surface); color: var(--pg-muted); padding: 5px 7px; font: 9px ui-monospace, monospace; }
+
+.password-game-result { display: grid; justify-items: center; padding: clamp(28px, 5vw, 50px); text-align: center; }
+.password-game-result-mark { display: grid; width: 76px; height: 76px; place-items: center; margin-bottom: 12px; border: 1px solid rgba(244, 211, 94, .36); border-radius: 24px; background: rgba(244, 211, 94, .08); font-size: 34px; }
+.password-game-result h3 { margin-top: 5px; font-size: clamp(24px, 4vw, 34px); }
+.password-game-result > p { max-width: 48ch; margin: 8px 0 0; color: var(--pg-muted); font-size: 11px; line-height: 1.6; }
+.password-game-result-stats { width: min(100%, 650px); margin-top: 18px; text-align: left; }
+.password-game-result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+.password-game-share-status { min-height: 18px; color: var(--pg-success) !important; }
+
+@keyframes password-game-rule-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes password-game-rule-shake {
+    0%, 100% { transform: translateX(0); }
+    35% { transform: translateX(-3px); }
+    70% { transform: translateX(3px); }
+}
+
+@media (max-width: 980px) {
+    .password-game-layout { grid-template-columns: 1fr; }
+    .password-game-editor { position: static; }
+    .password-game-rules { max-height: 52vh; }
+    .password-game-topbar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .password-game-topbar button { grid-column: 1 / -1; }
+}
+
+@media (max-width: 650px) {
+    .password-game-start,
+    .password-game-play,
+    .password-game-result { padding: 13px; }
+    .password-game-mode-grid { grid-template-columns: 1fr; }
+    .password-game-result-stats { grid-template-columns: 1fr 1fr; }
+    .password-game-topbar { grid-template-columns: 1fr 1fr; }
+    .password-game-input-row { grid-template-columns: 1fr; }
+    .password-game-input-row button { width: 100%; }
+    .password-game-result-actions { display: grid; width: 100%; grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+    .password-game-result-stats { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .password-game-rule,
+    .password-game-progress-track span { transition: none; }
+    .password-game-rule.is-new,
+    .password-game-rule.is-broken { animation: none; }
+}
