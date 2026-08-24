@@ -43,6 +43,7 @@
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=13">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
+    <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=7">
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
     <link rel="stylesheet" href="tools/sitemap-olusturucu/style.css?v=7">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
@@ -64,7 +65,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>48 uygulama, tek panel</small>
+                    <small>49 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -203,6 +204,11 @@
                     data-search="qr code scanner qr kod tarayıcı karekod okuyucu okutma çözme görsel fotoğraf yükleme kamera barkod bağlantı link url"
                     data-description="Görsel yükleyerek veya kamerayla QR kodların içeriğini oku." type="button">
                     <span>QR Kod Okuyucu</span>
+                </button>
+                <button class="nav-item" data-tool="microphone-test" data-category="Medya"
+                    data-search="mikrofon testi microphone test mic ses giriş cihazı audio input usb mikrofon laptop webcam bluetooth kulaklık kayıt dinleme seviye meter waveform dalga ortam sesi karşılaştırma"
+                    data-description="Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın." type="button">
+                    <span>Mikrofon Testi</span>
                 </button>
                 <button class="nav-item" data-tool="url-cleaner" data-category="Araçlar"
                     data-search="url cleaner link bağlantı adres temizleme sadeleştirme utm tracking takip izleme parametre reklam kampanya gizlilik fbclid gclid paylaşılabilir"
@@ -853,6 +859,67 @@
                         <div id="qr-code" class="qr-output"></div>
                     </div>
                 </div>
+            </section>
+
+            <section id="microphone-test" class="tool-panel microphone-test-panel" aria-labelledby="microphone-test-title">
+                <div class="panel-heading microphone-test-heading">
+                    <div>
+                        <span class="microphone-test-eyebrow">Ses Aracı</span>
+                        <h2 id="microphone-test-title">Mikrofon Testi</h2>
+                        <p>Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın.</p>
+                    </div>
+                    <span id="microphone-test-active" class="microphone-test-active" hidden>🎙 Mikrofon Aktif</span>
+                </div>
+
+                <div id="microphone-test-file-warning" class="microphone-test-file-warning" role="alert" hidden>
+                    <div><strong>Dosya modu cihaz listesini sınırlandırıyor</strong><p>Tarayıcınız <code>file://</code> üzerinden yalnızca varsayılan mikrofonu paylaşıyor. Tüm mikrofonları seçebilmek için güvenli site sürümünü açın veya proje klasöründeki <strong>mikrofon-testini-baslat.cmd</strong> dosyasını çalıştırın.</p></div>
+                    <a class="primary-button" href="https://ardaltunel.github.io/omni-tools/mikrofon-testi" target="_blank" rel="noopener noreferrer">HTTPS Sürümünü Aç</a>
+                </div>
+                <div id="microphone-test-status" class="microphone-test-status" role="status" hidden></div>
+
+                <div class="microphone-test-grid">
+                    <section class="microphone-test-card" aria-labelledby="microphone-test-source-title">
+                        <div class="microphone-test-card-heading"><div><span>Ses Girişi</span><h3 id="microphone-test-source-title">Mikrofon ve Ayarlar</h3></div></div>
+                        <label class="microphone-test-field">
+                            <span class="microphone-test-field-heading"><span>Konuşacağınız Mikrofon</span><small id="microphone-test-device-count">Aygıtlar taranmadı</small></span>
+                            <select id="microphone-test-device"><option value="">Varsayılan Mikrofon</option></select>
+                            <small>Aygıt adlarını görmek için “Aygıtları Tara” butonuna basıp mikrofon izni verin.</small>
+                        </label>
+                        <div class="microphone-test-actions">
+                            <button id="microphone-test-scan" class="secondary-button" type="button">Aygıtları Tara</button>
+                            <button id="microphone-test-start" class="primary-button" type="button">Mikrofonu Başlat</button>
+                            <button id="microphone-test-stop" class="secondary-button" type="button" hidden>Mikrofonu Kapat</button>
+                        </div>
+
+                        <div class="microphone-test-info" aria-label="Mikrofon teknik bilgileri">
+                            <div><span>Cihaz</span><strong id="microphone-test-info-device">Bilgi mevcut değil</strong></div>
+                            <div><span>Örnekleme Hızı</span><strong id="microphone-test-info-rate">Bilgi mevcut değil</strong></div>
+                            <div><span>Kanal Sayısı</span><strong id="microphone-test-info-channels">Bilgi mevcut değil</strong></div>
+                        </div>
+                    </section>
+
+                    <section class="microphone-test-card" aria-labelledby="microphone-test-live-title">
+                        <div class="microphone-test-card-heading"><div><span>Canlı Test</span><h3 id="microphone-test-live-title">Ses Seviyesi ve Kayıt</h3></div><div class="microphone-test-level-head"><span>Tepe <strong id="microphone-test-peak">%0</strong></span></div></div>
+                        <div class="microphone-test-level-head"><span>Canlı Ses Seviyesi</span><strong id="microphone-test-level">%0</strong></div>
+                        <div class="microphone-test-meter" role="meter" aria-label="Canlı mikrofon seviyesi" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="microphone-test-level-bar"></span></div>
+                        <div class="microphone-test-meter-labels"><span>Düşük</span><span>Normal</span><span>Yüksek</span></div>
+                        <p id="microphone-test-feedback" class="microphone-test-feedback" data-tone="normal">Mikrofonu başlattığınızda yardımcı seviye geri bildirimi burada görünür.</p>
+                        <canvas id="microphone-test-waveform" class="microphone-test-waveform" role="img" aria-label="Canlı ses dalgası">Tarayıcınız ses dalgası görünümünü desteklemiyor.</canvas>
+
+                        <div class="microphone-test-recorder">
+                            <div><span id="microphone-test-recording-state" class="microphone-test-recording-state" hidden>KAYIT YAPILIYOR</span><div id="microphone-test-timer" class="microphone-test-timer">00:00</div></div>
+                            <div class="microphone-test-actions"><button id="microphone-test-record" class="primary-button microphone-test-record" type="button" disabled>● Kaydı Başlat</button><button id="microphone-test-silence" class="secondary-button" type="button" disabled>5 Saniyelik Ortam Sesi Testi</button></div>
+                        </div>
+                        <p class="microphone-test-limit">En fazla 60 saniyelik test kaydı oluşturabilirsiniz. Seviye değerleri profesyonel dB ölçümü değildir.</p>
+                    </section>
+                </div>
+
+                <section class="microphone-test-card microphone-test-recordings-card" aria-labelledby="microphone-test-recordings-title">
+                    <div class="microphone-test-card-heading"><div><span>Ses Kayıtları</span><h3 id="microphone-test-recordings-title">Kayıtlarım</h3></div></div>
+                    <p id="microphone-test-recordings-empty" class="microphone-test-empty">Henüz kayıt yok. Mikrofonu başlatıp ilk test kaydınızı oluşturun.</p>
+                    <div id="microphone-test-recordings" class="microphone-test-recordings"></div>
+                </section>
+                <p id="microphone-test-live" class="sr-only" aria-live="polite"></p>
             </section>
 
             <section id="qr-code-scanner" class="tool-panel qr-scanner-panel" aria-labelledby="qr-code-scanner-title">
@@ -4560,7 +4627,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=57"></script>
+    <script src="index.js?v=58"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4623,6 +4690,8 @@
     <script src="tools/medya-veri-temizleyici/core.js?v=3"></script>
     <script src="tools/medya-veri-temizleyici/app.js?v=5"></script>
     <script src="tools/qr-code-scanner/app.js?v=1"></script>
+    <script src="tools/mikrofon-testi/core.js?v=1"></script>
+    <script src="tools/mikrofon-testi/app.js?v=8"></script>
     <script src="tools/url-cleaner/app.js?v=2"></script>
     <script src="tools/sitemap-olusturucu/core.js?v=1"></script>
     <script src="tools/sitemap-olusturucu/app.js?v=4"></script>

@@ -407,6 +407,11 @@ function updatePageMetadata(tool) {
             description: "Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?",
             keywords: "şifre oyunu, parola oyunu, password game, kümülatif kurallar, bulmaca oyunu, türkçe oyun",
         },
+        "microphone-test": {
+            title: "Mikrofon Testi | Omni Tools",
+            description: "Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın.",
+            keywords: "mikrofon testi, microphone test, ses seviyesi, mikrofon kaydı, ses girişi, mikrofon karşılaştırma",
+        },
         "sitemap-generator": {
             title: "Sitemap Oluşturucu | Omni Tools",
             description: "URL listenizden SEO uyumlu bir sitemap.xml dosyasını tamamen tarayıcınızda oluşturun.",
