@@ -47,6 +47,7 @@
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
     <link rel="stylesheet" href="tools/sitemap-olusturucu/style.css?v=7">
     <link rel="stylesheet" href="tools/robots-txt-olusturucu/style.css?v=1">
+    <link rel="stylesheet" href="tools/meta-etiket-olusturucu/style.css?v=1">
     <link rel="stylesheet" href="tools/json-formatter/style.css?v=5">
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
@@ -66,7 +67,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>50 uygulama, tek panel</small>
+                    <small>51 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -225,6 +226,11 @@
                     data-search="robots txt oluşturucu robots.txt generator bot arama motoru tarama crawler crawl user agent user-agent googlebot bingbot duckduckbot yandex bot baidu applebot allow izin ver disallow engelle sitemap crawl delay seo site indeksleme dizin gizleme"
                     data-description="Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun." type="button">
                     <span>Robots.txt Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="meta-tag-generator" data-category="SEO"
+                    data-search="meta etiket oluşturucu meta tag generator seo başlık açıklama description keywords anahtar kelime canonical robots theme color author yazar open graph og twitter x card sosyal medya paylaşım önizleme html head web sitesi google arama sonucu"
+                    data-description="Web siteniz için SEO, Open Graph ve Twitter/X meta etiketlerini oluşturun ve paylaşım önizlemelerini kontrol edin." type="button">
+                    <span>Meta Etiket Oluşturucu</span>
                 </button>
                 <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
                     data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
@@ -1064,6 +1070,91 @@
                 </section>
 
                 <p id="url-cleaner-live" class="sr-only" aria-live="assertive"></p>
+            </section>
+
+            <section id="meta-tag-generator" class="tool-panel meta-tag-panel" aria-labelledby="meta-tag-title">
+                <div class="panel-heading meta-tag-heading">
+                    <div>
+                        <span class="meta-tag-eyebrow">SEO Aracı</span>
+                        <h2 id="meta-tag-title">Meta Etiket Oluşturucu</h2>
+                        <p>Web siteniz için SEO, Open Graph ve Twitter/X meta etiketlerini oluşturun ve paylaşım önizlemelerini kontrol edin.</p>
+                    </div>
+                </div>
+                <div class="meta-tag-layout">
+                    <section class="meta-tag-card" aria-labelledby="meta-tag-form-title">
+                        <div class="meta-tag-card-heading"><span class="meta-tag-kicker">Bilgiler</span><h3 id="meta-tag-form-title">Sayfa bilgilerini girin</h3></div>
+                        <form id="meta-tag-form" class="meta-tag-form">
+                            <section class="meta-tag-form-section" aria-label="Temel sayfa bilgileri">
+                                <div class="meta-tag-form-grid">
+                                    <div class="meta-tag-field is-wide">
+                                        <div class="meta-tag-field-heading"><label for="meta-tag-title-input">Sayfa Başlığı</label><span id="meta-tag-title-count" class="meta-tag-counter">0 / 60</span></div>
+                                        <input id="meta-tag-title-input" type="text" maxlength="180" placeholder="Omni Tools - Ücretsiz Web Araçları">
+                                    </div>
+                                    <div class="meta-tag-field is-wide">
+                                        <div class="meta-tag-field-heading"><label for="meta-tag-description-input">Sayfa Açıklaması</label><span id="meta-tag-description-count" class="meta-tag-counter">0 / 160</span></div>
+                                        <textarea id="meta-tag-description-input" rows="3" maxlength="500" placeholder="Sayfanızı kısa ve anlaşılır biçimde açıklayın."></textarea>
+                                    </div>
+                                    <div class="meta-tag-field"><label for="meta-tag-page-url">Sayfa URL’si</label><input id="meta-tag-page-url" type="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/page"></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-site-name">Site Adı</label><input id="meta-tag-site-name" type="text" placeholder="Omni Tools"></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-author">Yazar</label><input id="meta-tag-author" type="text" autocomplete="name" placeholder="Arda Altunel"></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-language">Dil</label><select id="meta-tag-language"><option value="tr">Türkçe</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="pt">Português</option></select></div>
+                                    <div class="meta-tag-field is-wide"><label for="meta-tag-keywords">Anahtar Kelimeler <small>(İsteğe Bağlı)</small></label><input id="meta-tag-keywords" type="text" placeholder="web araçları, geliştirici araçları, pdf, json"><small>Virgülle ayırın. Meta keywords modern arama motorlarında genellikle sıralama faktörü değildir; uyumluluk amacıyla isteğe bağlıdır.</small></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-canonical">Canonical URL <small>(İsteğe Bağlı)</small></label><input id="meta-tag-canonical" type="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/page"></div>
+                                    <div class="meta-tag-field"><span>Tema Rengi</span><div class="meta-tag-color-row"><input id="meta-tag-color-picker" type="color" value="#111827" aria-label="Tema rengini seç"><input id="meta-tag-color-text" type="text" value="#111827" maxlength="7" spellcheck="false" aria-label="Tema rengi HEX değeri"></div></div>
+                                </div>
+                            </section>
+
+                            <section class="meta-tag-form-section" aria-labelledby="meta-tag-robots-title">
+                                <h4 id="meta-tag-robots-title">Robots Meta Etiketi</h4>
+                                <div class="meta-tag-robots-grid">
+                                    <label><input data-meta-robots="index" type="checkbox" value="index" checked> index</label>
+                                    <label><input data-meta-robots="noindex" type="checkbox" value="noindex"> noindex</label>
+                                    <label><input data-meta-robots="follow" type="checkbox" value="follow" checked> follow</label>
+                                    <label><input data-meta-robots="nofollow" type="checkbox" value="nofollow"> nofollow</label>
+                                    <label><input data-meta-robots="noarchive" type="checkbox" value="noarchive"> noarchive</label>
+                                    <label><input data-meta-robots="nosnippet" type="checkbox" value="nosnippet"> nosnippet</label>
+                                    <label><input data-meta-robots="noimageindex" type="checkbox" value="noimageindex"> noimageindex</label>
+                                </div>
+                            </section>
+
+                            <section class="meta-tag-form-section" aria-labelledby="meta-tag-social-title-section">
+                                <h4 id="meta-tag-social-title-section">Open Graph ve Twitter/X Card</h4>
+                                <div class="meta-tag-form-grid">
+                                    <div class="meta-tag-field is-wide"><label for="meta-tag-social-title">Paylaşım Başlığı <small>(İsteğe Bağlı)</small></label><input id="meta-tag-social-title" type="text" placeholder="Boşsa sayfa başlığı kullanılır"></div>
+                                    <div class="meta-tag-field is-wide"><label for="meta-tag-social-description">Paylaşım Açıklaması <small>(İsteğe Bağlı)</small></label><textarea id="meta-tag-social-description" rows="2" placeholder="Boşsa sayfa açıklaması kullanılır"></textarea></div>
+                                    <div class="meta-tag-field is-wide"><label for="meta-tag-image-url">Paylaşım Görseli URL’si <small>(İsteğe Bağlı)</small></label><input id="meta-tag-image-url" type="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/og-image.png"></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-og-type">Open Graph Türü</label><select id="meta-tag-og-type"><option value="website">Web Sitesi</option><option value="article">Makale</option><option value="profile">Profil</option><option value="product">Ürün</option></select></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-twitter-card">Twitter/X Card Türü</label><select id="meta-tag-twitter-card"><option value="summary_large_image">Büyük Görselli Özet</option><option value="summary">Özet</option></select></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-twitter-site">Site Kullanıcı Adı</label><input id="meta-tag-twitter-site" type="text" autocapitalize="off" spellcheck="false" placeholder="@omnitools"></div>
+                                    <div class="meta-tag-field"><label for="meta-tag-twitter-creator">İçerik Üreticisi</label><input id="meta-tag-twitter-creator" type="text" autocapitalize="off" spellcheck="false" placeholder="@ardaltunel"></div>
+                                </div>
+                            </section>
+                        </form>
+                    </section>
+
+                    <aside class="meta-tag-preview-column" aria-label="Meta etiket önizlemeleri ve kod çıktısı">
+                        <section class="meta-tag-preview-box" aria-labelledby="meta-tag-google-preview-title">
+                            <span class="meta-tag-kicker">Arama Sonucu</span><h3 id="meta-tag-google-preview-title">Google Önizlemesi</h3>
+                            <div class="meta-tag-google-card"><strong id="meta-tag-google-title">Sayfa başlığınız burada görünecek</strong><span id="meta-tag-google-url">https://example.com</span><p id="meta-tag-google-description">Sayfa açıklamanız burada görünecek.</p></div>
+                            <p class="meta-tag-preview-note">Önizleme yaklaşık gösterimdir. Arama motorları görünümü değiştirebilir.</p>
+                        </section>
+
+                        <section class="meta-tag-preview-box" aria-labelledby="meta-tag-social-preview-title">
+                            <span class="meta-tag-kicker">Paylaşım Kartı</span><h3 id="meta-tag-social-preview-title">Sosyal Medya Önizlemesi</h3>
+                            <div class="meta-tag-social-card"><div class="meta-tag-social-media"><img id="meta-tag-social-image" alt="Paylaşım görseli önizlemesi" hidden><span id="meta-tag-social-placeholder" class="meta-tag-social-placeholder">OG IMAGE</span></div><div class="meta-tag-social-copy"><small id="meta-tag-preview-site">example.com</small><strong id="meta-tag-preview-title">Paylaşım başlığı</strong><p id="meta-tag-preview-description">Paylaşım açıklaması burada görünecek.</p></div></div>
+                        </section>
+
+                        <section class="meta-tag-code-box" aria-labelledby="meta-tag-code-title">
+                            <div class="meta-tag-code-heading"><div><span class="meta-tag-kicker">HTML Çıktısı</span><h3 id="meta-tag-code-title">Meta Etiket Kodu</h3></div><div class="meta-tag-output-tabs" role="tablist" aria-label="Kod çıktısı bölümü"><button class="is-active" data-meta-output="all" type="button" role="tab" aria-selected="true">Tümü</button><button data-meta-output="seo" type="button" role="tab" aria-selected="false">SEO</button><button data-meta-output="openGraph" type="button" role="tab" aria-selected="false">Open Graph</button><button data-meta-output="twitter" type="button" role="tab" aria-selected="false">Twitter/X</button></div></div>
+                            <pre class="meta-tag-code"><code id="meta-tag-code">Alanları doldurduğunuzda meta etiketleri burada gösterilir.</code></pre>
+                            <div class="meta-tag-check-section"><h4>SEO Kontrolü</h4><ul id="meta-tag-checks" class="meta-tag-checks"></ul><ul id="meta-tag-issues" class="meta-tag-issues" hidden></ul></div>
+                            <div class="meta-tag-actions"><button id="meta-tag-generate" class="primary-button" type="button">Meta Etiketleri Oluştur</button><button id="meta-tag-copy" class="secondary-button" type="button" disabled>Kodu Kopyala</button><button id="meta-tag-download" class="secondary-button" type="button" disabled>HTML Olarak İndir</button><button id="meta-tag-sample" class="ghost-button" type="button">Örnek Veri Yükle</button><button id="meta-tag-clear" class="ghost-button" type="button">Temizle</button></div>
+                            <p id="meta-tag-status" class="meta-tag-status" aria-live="polite" hidden></p>
+                        </section>
+
+                        <section class="meta-tag-seo-links" aria-labelledby="meta-tag-seo-tools-title"><div><strong id="meta-tag-seo-tools-title">SEO Araçları</strong><span>Sitemap ve tarama kurallarınızı da hazırlayın.</span></div><div><button id="meta-tag-open-sitemap" class="ghost-button" type="button">Sitemap Oluşturucuya Git</button><button id="meta-tag-open-robots" class="ghost-button" type="button">Robots.txt Oluşturucuya Git</button></div></section>
+                    </aside>
+                </div>
             </section>
 
             <section id="robots-txt-generator" class="tool-panel robots-txt-panel" aria-labelledby="robots-txt-title">
@@ -2765,7 +2856,6 @@ Disallow:</code></pre>
                         <h2 id="github-md-title">GitHub MD Oluşturucu</h2>
                         <p>Herkese açık GitHub deponuzu analiz edin; projeye özel README, güvenlik, destek veya katkı belgesi oluşturun.</p>
                     </div>
-                    <span class="github-md-local-badge"><span aria-hidden="true">●</span> Yapay zekâ isteğe bağlı · anahtarsız da çalışır</span>
                 </div>
 
                 <form id="github-md-form" class="github-md-form" novalidate>
@@ -4719,7 +4809,7 @@ Disallow:</code></pre>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=59"></script>
+    <script src="index.js?v=60"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
@@ -4789,6 +4879,8 @@ Disallow:</code></pre>
     <script src="tools/sitemap-olusturucu/app.js?v=4"></script>
     <script src="tools/robots-txt-olusturucu/core.js?v=1"></script>
     <script src="tools/robots-txt-olusturucu/app.js?v=1"></script>
+    <script src="tools/meta-etiket-olusturucu/core.js?v=1"></script>
+    <script src="tools/meta-etiket-olusturucu/app.js?v=1"></script>
     <script src="tools/json-formatter/app.js?v=3"></script>
     <script src="tools/image-compressor/app.js?v=2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>

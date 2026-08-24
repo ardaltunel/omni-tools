@@ -422,6 +422,11 @@ function updatePageMetadata(tool) {
             description: "Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun.",
             keywords: "robots txt oluşturucu, robots.txt generator, user agent, googlebot, bingbot, allow, disallow, crawl delay, sitemap, seo aracı",
         },
+        "meta-tag-generator": {
+            title: "Meta Etiket Oluşturucu | Omni Tools",
+            description: "Web siteniz için SEO, Open Graph ve Twitter/X meta etiketlerini oluşturun ve paylaşım önizlemelerini kontrol edin.",
+            keywords: "meta etiket oluşturucu, meta tag generator, seo başlık, meta description, open graph, twitter card, canonical, robots meta, sosyal medya önizleme",
+        },
         "instagram-unfollower": {
             title: "Insta Takip Etmeyenler | Omni Tools",
             description: "Instagram'da sizi geri takip etmeyen hesapları güncel betikle inceleyin.",

@@ -1202,7 +1202,7 @@ a {
 }
 
 .panel-heading p {
-    max-width: 760px;
+    max-width: none;
     margin-bottom: 0;
     line-height: 1.5;
 }

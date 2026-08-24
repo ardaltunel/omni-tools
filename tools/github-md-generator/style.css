@@ -13,25 +13,6 @@
     align-items: flex-start;
 }
 
-.github-md-local-badge {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 7px;
-    border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--line));
-    border-radius: 999px;
-    background: var(--github-md-accent-soft);
-    color: var(--accent-strong);
-    padding: 7px 10px;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.github-md-local-badge > span {
-    color: var(--success);
-    font-size: 9px;
-}
-
 .github-md-form,
 .github-md-editor {
     border: 1px solid var(--line);

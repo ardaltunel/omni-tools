@@ -64,6 +64,31 @@
 .robots-txt-field input,
 .robots-txt-field textarea,
 .robots-txt-template-bar select { width: 100%; }
+.robots-txt-field input:not([type="checkbox"]),
+.robots-txt-field textarea,
+.robots-txt-template-bar select {
+    border: 1px solid var(--robots-line);
+    border-radius: var(--radius, 8px);
+    outline: 0;
+    background: var(--robots-surface);
+    color: var(--text);
+    padding: 10px 12px;
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.robots-txt-field input:not([type="checkbox"]),
+.robots-txt-template-bar select { min-height: 42px; }
+.robots-txt-field input::placeholder,
+.robots-txt-field textarea::placeholder { color: color-mix(in srgb, var(--robots-muted) 72%, transparent); opacity: 1; }
+.robots-txt-field input:not([type="checkbox"]):hover,
+.robots-txt-field textarea:hover,
+.robots-txt-template-bar select:hover { border-color: color-mix(in srgb, var(--accent) 38%, var(--robots-line)); }
+.robots-txt-field input:not([type="checkbox"]):focus,
+.robots-txt-field textarea:focus,
+.robots-txt-template-bar select:focus {
+    border-color: var(--accent);
+    background: var(--robots-raised);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
 .robots-txt-field textarea { min-height: 86px; resize: vertical; }
 
 .robots-txt-groups { display: grid; gap: 10px; margin-top: 14px; }
