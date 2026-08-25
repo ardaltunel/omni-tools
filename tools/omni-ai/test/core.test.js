@@ -80,3 +80,9 @@ test("Markdown renderer kullanıcı içeriğini innerHTML ile işlemez", () => {
     assert.doesNotMatch(renderer, /innerHTML|insertAdjacentHTML|document\.write/u);
     assert.match(renderer, /textContent/u);
 });
+
+test("yanıt imleci oluşturuluyor metninin hemen yanında gösterilir", () => {
+    const style = fs.readFileSync(path.resolve(directory, "..", "style.css"), "utf8");
+    assert.match(style, /\.omni-ai-message\.is-streaming \.omni-ai-message-content > :last-child::after/u);
+    assert.doesNotMatch(style, /\.omni-ai-message\.is-streaming \.omni-ai-message-content::after/u);
+});

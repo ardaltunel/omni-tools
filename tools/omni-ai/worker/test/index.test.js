@@ -11,6 +11,7 @@ function environment(overrides = {}) {
         OPENAI_API_KEY: "test-key",
         OPENAI_CHAT_MODEL: "gpt-test",
         CHAT_RATE_LIMITER: { limit: async () => ({ success: true }) },
+        AI: { run: async () => new Response('data: {"choices":[{"delta":{"content":"Yedek yanıt"}}]}\n\ndata: [DONE]\n\n').body },
         OPENAI_FETCH: async () => new Response('event: response.output_text.delta\ndata: {"type":"response.output_text.delta","delta":"Merhaba"}\n\n', { status: 200, headers: { "content-type": "text/event-stream" } }),
         ...overrides,
     };
@@ -65,13 +66,52 @@ test("CORS ve rate limit kontrollerini uygular", async () => {
     assert.equal(limited.status, 429);
 });
 
-test("eksik secret ve OpenAI hatalarını güvenli biçimde geneller", async () => {
+test("eksik secret ve OpenAI kimlik hatalarını güvenli biçimde geneller", async () => {
     const missing = await handleRequest(request(), environment({ OPENAI_API_KEY: "" }));
     assert.equal((await missing.json()).code, "OPENAI_NOT_CONFIGURED");
     const auth = await handleRequest(request(), environment({ OPENAI_FETCH: async () => new Response("{}", { status: 401 }) }));
     assert.equal((await auth.json()).code, "OPENAI_AUTH");
-    const quota = await handleRequest(request(), environment({ OPENAI_FETCH: async () => new Response(JSON.stringify({ error: { code: "insufficient_quota" } }), { status: 429 }) }));
-    assert.equal((await quota.json()).code, "OPENAI_QUOTA");
+});
+
+test("OpenAI HTTP kota hatasında Workers AI akışına geçer", async () => {
+    let fallbackModel;
+    let fallbackBody;
+    const response = await handleRequest(request(), environment({
+        OPENAI_FETCH: async () => new Response(JSON.stringify({ error: { code: "insufficient_quota" } }), { status: 429 }),
+        WORKERS_AI_RUN: async (model, body) => {
+            fallbackModel = model;
+            fallbackBody = body;
+            return new Response('data: {"choices":[{"delta":{"content":"Cloudflare yanıtı"}}]}\n\ndata: [DONE]\n\n').body;
+        },
+    }));
+    assert.equal(response.status, 200);
+    assert.equal(fallbackModel, "@cf/zai-org/glm-4.7-flash");
+    assert.equal(fallbackBody.stream, true);
+    assert.equal(fallbackBody.messages[0].role, "system");
+    assert.match(await response.text(), /Cloudflare yanıtı/u);
+});
+
+test("OpenAI 200 akış içi kota hatasında Workers AI akışına geçer", async () => {
+    let fallbackCalls = 0;
+    const openAiError = 'event: response.created\ndata: {"type":"response.created"}\n\nevent: error\ndata: {"type":"error","error":{"type":"insufficient_quota","code":"insufficient_quota"}}\n\n';
+    const response = await handleRequest(request(), environment({
+        OPENAI_FETCH: async () => new Response(openAiError, { status: 200 }),
+        WORKERS_AI_RUN: async () => {
+            fallbackCalls += 1;
+            return new Response('data: {"choices":[{"delta":{"content":"Otomatik yedek"}}]}\n\ndata: [DONE]\n\n').body;
+        },
+    }));
+    const body = await response.text();
+    assert.equal(fallbackCalls, 1);
+    assert.match(body, /Otomatik yedek/u);
+    assert.doesNotMatch(body, /insufficient_quota/u);
+});
+
+test("yalnızca bilinen faturalandırma hatalarında yedek sağlayıcıyı seçer", () => {
+    assert.equal(internals.shouldUseFallback({ type: "error", error: { code: "credit_balance_exhausted" } }), true);
+    assert.equal(internals.shouldUseFallback({ type: "error", error: { code: "rate_limit_exceeded" } }), false);
+    assert.equal(internals.sanitizeWorkersAiModel("@cf/zai-org/glm-4.7-flash"), "@cf/zai-org/glm-4.7-flash");
+    assert.equal(internals.sanitizeWorkersAiModel("https://example.com"), "");
 });
 
 test("health endpoint yapılandırmayı bildirir", async () => {
@@ -87,5 +127,7 @@ test("Worker kaynakları secret sızdırmaz ve güvenli config kullanır", () =>
     assert.match(config, /"required": \["OPENAI_API_KEY"\]/u);
     assert.match(config, /"CHAT_RATE_LIMITER"/u);
     assert.match(config, /"OPENAI_CHAT_MODEL"/u);
+    assert.match(config, /"binding": "AI"/u);
+    assert.match(config, /"WORKERS_AI_MODEL"/u);
     assert.match(config, /"compatibility_date": "2026-08-24"/u);
 });

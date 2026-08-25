@@ -202,7 +202,7 @@
 .omni-ai-message-actions button { min-height: 27px; border-radius: 7px; padding: 0 7px; font-size: 8px; font-weight: 700; }
 .omni-ai-message-actions button:hover,
 .omni-ai-message-actions button[aria-pressed="true"] { background: var(--omni-ai-raised); color: var(--accent); }
-.omni-ai-message.is-streaming .omni-ai-message-content::after { content: ""; display: inline-block; width: 6px; height: 14px; margin-left: 3px; background: var(--accent); vertical-align: -2px; animation: omni-ai-cursor .8s steps(1) infinite; }
+.omni-ai-message.is-streaming .omni-ai-message-content > :last-child::after { content: ""; display: inline-block; width: 6px; height: 14px; margin-left: 5px; background: var(--accent); vertical-align: -2px; animation: omni-ai-cursor .8s steps(1) infinite; }
 .omni-ai-message-error { margin: 8px 0 0; color: #ff7b87; font-size: 10px; }
 @keyframes omni-ai-cursor { 50% { opacity: 0; } }
 
@@ -301,6 +301,6 @@
 @media (prefers-reduced-motion: reduce) {
     .omni-ai-sidebar,
     .omni-ai-suggestion { transition: none; }
-    .omni-ai-message.is-streaming .omni-ai-message-content::after { animation: none; }
+    .omni-ai-message.is-streaming .omni-ai-message-content > :last-child::after { animation: none; }
     .omni-ai-messages { scroll-behavior: auto; }
 }

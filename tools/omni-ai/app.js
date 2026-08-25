@@ -250,6 +250,7 @@
         const messages = {
             insufficient_quota: "API kotası veya kullanım limiti aşıldı.",
             rate_limit_exceeded: "Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.",
+            provider_unavailable: "Yapay zekâ hizmetine ulaşılamadı. Biraz sonra tekrar deneyin.",
         };
         const error = new Error(messages[code] || "Yapay zekâ yanıt oluşturamadı.");
         error.isPublic = true;
