@@ -4,6 +4,9 @@
     --omni-ai-line: color-mix(in srgb, var(--line) 88%, #334264);
     --omni-ai-muted: var(--muted);
     --omni-ai-accent-soft: color-mix(in srgb, var(--accent) 13%, transparent);
+    container-name: omni-ai;
+    container-type: inline-size;
+    min-width: 0;
     min-height: calc(100dvh - 56px);
     overflow: hidden;
     padding: 0;
@@ -52,8 +55,10 @@
     position: relative;
     display: grid;
     grid-template-columns: 265px minmax(0, 1fr);
+    min-width: 0;
     height: calc(100dvh - 160px);
     min-height: 520px;
+    overflow: hidden;
     background: var(--omni-ai-surface);
 }
 
@@ -141,14 +146,16 @@
 .omni-ai-local-note { display: flex; gap: 7px; margin: 10px 2px 0; border-top: 1px solid var(--omni-ai-line); color: var(--omni-ai-muted); padding: 12px 3px 0; font-size: 9px; line-height: 1.45; }
 .omni-ai-local-note span { color: var(--accent); }
 
-.omni-ai-chat { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-width: 0; min-height: 0; }
-.omni-ai-toolbar { z-index: 3; gap: 9px; min-height: 62px; border-bottom: 1px solid var(--omni-ai-line); background: color-mix(in srgb, var(--omni-ai-surface) 94%, transparent); padding: 10px 14px; }
-.omni-ai-chat-heading { min-width: 0; margin-right: auto; }
-.omni-ai-chat-heading strong { display: block; max-width: min(33vw, 420px); overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
-.omni-ai-toolbar-select { display: grid; grid-template-columns: auto minmax(80px, auto); align-items: center; gap: 6px; }
+.omni-ai-chat { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-width: 0; min-height: 0; overflow: hidden; }
+.omni-ai-toolbar { z-index: 3; gap: 9px; min-width: 0; min-height: 62px; overflow: hidden; border-bottom: 1px solid var(--omni-ai-line); background: color-mix(in srgb, var(--omni-ai-surface) 94%, transparent); padding: 10px 14px; }
+.omni-ai-chat-heading { flex: 1 1 120px; min-width: 0; margin-right: auto; }
+.omni-ai-chat-heading strong { display: block; width: 100%; max-width: 420px; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.omni-ai-toolbar-select { display: grid; flex: 0 1 auto; min-width: 0; grid-template-columns: auto minmax(80px, auto); align-items: center; gap: 6px; }
 .omni-ai-toolbar-select > span { color: var(--omni-ai-muted); font-size: 9px; font-weight: 700; }
 .omni-ai-toolbar select,
 .omni-ai-setting-row select {
+    min-width: 0;
+    max-width: 100%;
     min-height: 36px;
     border: 1px solid var(--omni-ai-line);
     border-radius: 9px;
@@ -163,7 +170,7 @@
 .omni-ai-status.is-success { border-color: color-mix(in srgb, #24d584 45%, transparent); color: #42df96; }
 .omni-ai-status.is-error { border-color: color-mix(in srgb, #ff6675 45%, transparent); color: #ff7b87; }
 
-.omni-ai-messages { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; padding: 26px clamp(16px, 4vw, 58px) 18px; }
+.omni-ai-messages { min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; padding: 26px clamp(16px, 4vw, 58px) 18px; }
 .omni-ai-welcome { display: grid; place-items: center; align-content: start; width: min(100%, 860px); margin: auto; padding: 24px 0 32px; text-align: center; }
 .omni-ai-welcome[hidden] { display: none; }
 .omni-ai-welcome-mark { width: 56px; height: 56px; margin-bottom: 15px; border-radius: 18px; font-size: 25px; }
@@ -184,7 +191,7 @@
 .omni-ai-message-body { min-width: 0; }
 .omni-ai-message-top { min-height: 26px; }
 .omni-ai-message-top strong { font-size: 11px; }
-.omni-ai-message-content { color: var(--text); font-size: 12px; line-height: 1.72; overflow-wrap: anywhere; }
+.omni-ai-message-content { min-width: 0; max-width: 100%; color: var(--text); font-size: 12px; line-height: 1.72; overflow-wrap: anywhere; }
 .omni-ai-message.is-user .omni-ai-message-content { display: inline-block; max-width: min(100%, 720px); border: 1px solid var(--omni-ai-line); border-radius: 4px 13px 13px 13px; background: var(--omni-ai-raised); padding: 10px 12px; white-space: pre-wrap; }
 .omni-ai-message-content p { margin: 0 0 12px; white-space: pre-wrap; }
 .omni-ai-message-content p:last-child { margin-bottom: 0; }
@@ -198,6 +205,9 @@
 .omni-ai-message-content blockquote { margin: 12px 0; border-left: 3px solid var(--accent); background: var(--omni-ai-accent-soft); color: var(--omni-ai-muted); padding: 10px 12px; white-space: pre-wrap; }
 .omni-ai-message-content :not(pre) > code { border: 1px solid var(--omni-ai-line); border-radius: 5px; background: var(--omni-ai-raised); color: color-mix(in srgb, var(--accent) 78%, var(--text)); padding: 2px 5px; font: 600 10px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .omni-ai-message-content a { color: var(--accent); text-underline-offset: 3px; }
+.omni-ai-message-content img,
+.omni-ai-message-content video,
+.omni-ai-message-content iframe { max-width: 100%; height: auto; }
 .omni-ai-message-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
 .omni-ai-message-actions button { min-height: 27px; border-radius: 7px; padding: 0 7px; font-size: 8px; font-weight: 700; }
 .omni-ai-message-actions button:hover,
@@ -267,6 +277,50 @@
     .omni-ai-menu { display: grid; }
 }
 
+/* The app's main navigation can leave Omni AI much narrower than the viewport.
+   Respond to the panel's actual width so the chat never stays in a cramped
+   two-column desktop layout. */
+@container omni-ai (max-width: 720px) {
+    .omni-ai-shell { grid-template-columns: minmax(0, 1fr); }
+    .omni-ai-sidebar { position: absolute; z-index: 20; inset: 0 auto 0 0; width: min(86cqw, 290px); border-right: 1px solid var(--omni-ai-line); box-shadow: 22px 0 55px rgba(0,0,0,.38); transform: translateX(-105%); transition: transform 180ms ease; }
+    .omni-ai-panel.is-sidebar-open .omni-ai-sidebar { transform: translateX(0); }
+    .omni-ai-overlay { position: absolute; z-index: 19; inset: 0; border: 0; background: rgba(5,7,12,.62); cursor: pointer; }
+    .omni-ai-panel.is-sidebar-open .omni-ai-overlay { display: block; }
+    .omni-ai-close-sidebar,
+    .omni-ai-menu { display: grid; }
+    .omni-ai-suggestions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container omni-ai (max-width: 520px) {
+    .omni-ai-product-header { min-height: 88px; padding: 14px; }
+    .omni-ai-product-mark { width: 40px; height: 40px; border-radius: 13px; }
+    .omni-ai-product-header h2 { font-size: 20px; }
+    .omni-ai-product-header p { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .omni-ai-toolbar { gap: 6px; min-height: 56px; padding: 8px; }
+    .omni-ai-chat-heading { display: none; }
+    .omni-ai-toolbar-select { flex: 1 1 0; }
+    .omni-ai-toolbar-select select { width: 100%; min-width: 0; min-height: 34px; padding-left: 8px; font-size: 9px; }
+    .omni-ai-icon-button { width: 34px; height: 34px; }
+    .omni-ai-messages { padding: 18px 11px 10px; }
+    .omni-ai-welcome { align-content: center; padding: 20px 0; }
+    .omni-ai-welcome-mark { width: 48px; height: 48px; }
+    .omni-ai-welcome h3 { font-size: 23px; }
+    .omni-ai-welcome > p { font-size: 10px; }
+    .omni-ai-suggestions { grid-template-columns: minmax(0, 1fr); gap: 7px; margin-top: 20px; }
+    .omni-ai-suggestion { padding: 9px; }
+    .omni-ai-suggestion small { -webkit-line-clamp: 1; }
+    .omni-ai-message { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; margin-bottom: 20px; }
+    .omni-ai-message-avatar { width: 27px; height: 27px; border-radius: 8px; }
+    .omni-ai-message-content { font-size: 11px; }
+    .omni-ai-message-actions { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+    .omni-ai-message-actions button { flex: 0 0 auto; }
+    .omni-ai-composer { width: calc(100% - 16px); margin-bottom: max(8px, env(safe-area-inset-bottom)); border-radius: 14px; padding: 9px 10px; }
+    .omni-ai-enter-hint { display: none; }
+    .omni-ai-composer-meta { flex: 1 1 auto; }
+    .omni-ai-send { min-width: 94px; min-height: 38px; margin-left: auto; }
+    .omni-ai-dialog { padding: 15px; }
+}
+
 @media (max-width: 620px) {
     .omni-ai-panel { min-height: 0; }
     .omni-ai-product-header { min-height: 88px; padding: 14px; }
@@ -296,6 +350,35 @@
     .omni-ai-composer-meta { flex: 1 1 auto; }
     .omni-ai-send { min-width: 94px; min-height: 38px; margin-left: auto; }
     .omni-ai-dialog { padding: 15px; }
+}
+
+/* Keep the welcome screen and composer usable on short desktop windows. */
+@media (min-width: 901px) and (max-height: 760px) {
+    .omni-ai-product-header { min-height: 84px; padding: 12px 22px; }
+    .omni-ai-product-mark { width: 40px; height: 40px; border-radius: 13px; font-size: 19px; }
+    .omni-ai-product-header h2 { font-size: 21px; }
+    .omni-ai-product-header p { font-size: 12px; }
+
+    .omni-ai-shell { height: calc(100dvh - 140px); min-height: 420px; }
+    .omni-ai-toolbar { min-height: 54px; padding: 7px 12px; }
+    .omni-ai-messages { padding-block: 12px 8px; }
+
+    .omni-ai-welcome { min-height: 100%; align-content: center; padding: 8px 0 12px; }
+    .omni-ai-welcome-mark { width: 42px; height: 42px; margin-bottom: 6px; border-radius: 14px; font-size: 20px; }
+    .omni-ai-welcome > span { font-size: 8px; }
+    .omni-ai-welcome h3 { margin: 5px 0 4px; font-size: clamp(24px, 2.4vw, 30px); }
+    .omni-ai-welcome > p { font-size: 10px; line-height: 1.45; }
+    .omni-ai-suggestions { gap: 8px; margin-top: 12px; }
+    .omni-ai-suggestion { grid-template-columns: 28px minmax(0, 1fr); gap: 7px; padding: 8px; }
+    .omni-ai-suggestion-icon { width: 27px; height: 27px; border-radius: 8px; }
+    .omni-ai-suggestion small { -webkit-line-clamp: 1; }
+
+    .omni-ai-composer { gap: 4px; margin-bottom: 8px; border-radius: 14px; padding: 7px 10px 6px; }
+    .omni-ai-composer textarea { min-height: 32px; max-height: 120px; padding-block: 3px; }
+    .omni-ai-composer-footer { gap: 10px; min-height: 34px; padding-top: 5px; }
+    .omni-ai-send { min-width: 94px; min-height: 34px; }
+    .omni-ai-send-icon { width: 21px; height: 21px; font-size: 14px; }
+    .omni-ai-jump { bottom: 86px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
