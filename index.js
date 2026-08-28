@@ -9,6 +9,7 @@ const appHome = document.getElementById("app-home");
 const defaultPageTitle = "Omni Tools | Arda Altunel";
 const defaultPageDescription = document.querySelector('meta[name="description"]')?.content || "";
 const defaultPageKeywords = document.querySelector('meta[name="keywords"]')?.content || "";
+const defaultCanonicalUrl = document.querySelector('link[rel="canonical"]')?.href || "";
 const legacyToolRoutes = Object.freeze({
     "alninda-ne-var": "nebuu",
     "discord-emoji-downloader": "discord-emoji-indir",
@@ -230,6 +231,14 @@ function createAppHomeCards() {
             copy.appendChild(description);
         }
 
+        if (item.dataset.icon) {
+            const icon = document.createElement("span");
+            icon.className = "app-home-card-icon";
+            icon.textContent = item.dataset.icon;
+            icon.setAttribute("aria-hidden", "true");
+            card.classList.add("has-icon");
+            card.appendChild(icon);
+        }
         card.append(copy, arrow);
         card.addEventListener("click", () => activateTool(item.dataset.tool, { historyMode: "push" }));
         sectionGrids.get(category.id)?.appendChild(card);
@@ -504,6 +513,12 @@ function updatePageMetadata(tool) {
     const keywordsMeta = document.querySelector('meta[name="keywords"]');
     const ogTitle = document.querySelector('meta[property="og:title"]');
     const ogDescription = document.querySelector('meta[property="og:description"]');
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    const ogImageAlt = document.querySelector('meta[property="og:image:alt"]');
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    const twitterImageAlt = document.querySelector('meta[name="twitter:image:alt"]');
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
     const toolMetadata = {
         "milyoner-bilgi-yarismasi": {
             title: "Milyoner Bilgi Yarışması | Omni Tools",
@@ -614,6 +629,11 @@ function updatePageMetadata(tool) {
             description: "Dünya para birimlerinin güncel TL karşılıklarını görüntüleyin ve herhangi iki para birimi arasında anında dönüşüm yapın.",
             keywords: "döviz kurları, kur çevirici, para birimi dönüştürücü, dolar tl, euro tl, güncel kurlar",
         },
+        "emlak-portfoy-analizi": {
+            title: "Emlak Portföy Analizi | Omni Tools",
+            description: "Gayrimenkul m² fiyatı, kira getirisi, amortisman süresi, tapu harcı ve tahmini alım-satım maliyetlerini ücretsiz hesaplayın.",
+            keywords: "emlak portföy analizi, gayrimenkul yatırım analizi, m² fiyatı hesaplama, kira getirisi, amortisman süresi, tapu harcı, emlak komisyonu, alıcı maliyeti, satıcı net tutarı",
+        },
     };
     const metadata = toolMetadata[tool] || {};
     const toolName = Array.from(navItems)
@@ -624,12 +644,22 @@ function updatePageMetadata(tool) {
     const title = metadata.title || (toolName ? `${toolName} | Omni Tools` : defaultPageTitle);
     const description = metadata.description || defaultPageDescription;
     const keywords = metadata.keywords || defaultPageKeywords;
+    const canonicalUrl = tool && defaultCanonicalUrl
+        ? new URL(encodeURIComponent(getPreferredToolRoute(tool)), defaultCanonicalUrl).href
+        : defaultCanonicalUrl;
+    const socialImageAlt = toolName ? `${toolName} — Omni Tools paylaşım önizlemesi` : "Omni Tools — 55 uygulama, tek panel";
 
     document.title = title;
     if (descriptionMeta) descriptionMeta.content = description;
     if (keywordsMeta) keywordsMeta.content = keywords;
     if (ogTitle) ogTitle.content = title;
     if (ogDescription) ogDescription.content = description;
+    if (ogUrl && canonicalUrl) ogUrl.content = canonicalUrl;
+    if (ogImageAlt) ogImageAlt.content = socialImageAlt;
+    if (twitterTitle) twitterTitle.content = title;
+    if (twitterDescription) twitterDescription.content = description;
+    if (twitterImageAlt) twitterImageAlt.content = socialImageAlt;
+    if (canonicalLink && canonicalUrl) canonicalLink.href = canonicalUrl;
 }
 
 function normalizeAppSearchText(value) {

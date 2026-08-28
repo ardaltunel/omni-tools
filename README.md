@@ -53,6 +53,7 @@ The project mainly focuses on:
 * Satranç Koçu
 * Kripto Kurları
 * Döviz Kurları
+* Emlak Portföy Analizi
 * GitHub Kullanıcı
 * GitHub MD Oluşturucu
 * GitHub Takip Etmeyenler
