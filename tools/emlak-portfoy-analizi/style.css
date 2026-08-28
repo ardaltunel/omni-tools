@@ -19,7 +19,8 @@
 }
 
 .real-estate-form-actions .material-symbols-rounded,
-.real-estate-copy-button .material-symbols-rounded {
+.real-estate-copy-button .material-symbols-rounded,
+.real-estate-add-button .material-symbols-rounded {
     font-size: 17px;
 }
 
@@ -39,8 +40,7 @@
 }
 
 .real-estate-results {
-    position: sticky;
-    top: 20px;
+    position: static;
 }
 
 .real-estate-form-card,
@@ -672,6 +672,261 @@
     font-size: 26px;
 }
 
+.real-estate-warning {
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 44%, var(--line));
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent-2) 7%, var(--surface));
+    color: var(--text);
+    padding: 11px 12px;
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.real-estate-helper-note {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: -3px 0 0;
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.real-estate-helper-note .material-symbols-rounded {
+    flex: 0 0 auto;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+.real-estate-rate-summary {
+    display: flex;
+    min-height: var(--control-height);
+    align-self: end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+    color: var(--muted);
+    padding: 0 12px;
+    font-size: 10px;
+}
+
+.real-estate-rate-summary strong {
+    color: var(--accent-strong);
+    font-size: 13px;
+}
+
+.real-estate-comparable-list {
+    display: grid;
+    gap: 10px;
+}
+
+.real-estate-comparable-card {
+    display: grid;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+    padding: 13px;
+}
+
+.real-estate-comparable-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.real-estate-comparable-heading strong {
+    font-size: 12px;
+}
+
+.real-estate-comparable-heading button {
+    min-height: 32px;
+    padding-inline: 10px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.real-estate-comparable-price {
+    color: var(--accent-strong);
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.real-estate-add-button {
+    gap: 6px;
+    width: 100%;
+}
+
+.real-estate-completeness {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: 8px;
+    margin-top: 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel-2);
+    padding: 5px 9px;
+}
+
+.real-estate-completeness span {
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.real-estate-completeness strong {
+    color: var(--text) !important;
+    font-size: 10px !important;
+}
+
+.real-estate-score-components {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.real-estate-score-components article {
+    display: grid;
+    gap: 9px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+    padding: 12px;
+}
+
+.real-estate-score-components article > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.real-estate-score-components strong {
+    color: var(--text);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+}
+
+.real-estate-progress {
+    height: 5px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--surface);
+}
+
+.real-estate-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+}
+
+.real-estate-score-note,
+.real-estate-result-note {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.55;
+}
+
+.real-estate-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.real-estate-scenario-table {
+    width: 100%;
+    min-width: 820px;
+    border-collapse: collapse;
+    font-size: 9px;
+    font-variant-numeric: tabular-nums;
+}
+
+.real-estate-scenario-table th,
+.real-estate-scenario-table td {
+    border-bottom: 1px solid var(--line);
+    padding: 10px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.real-estate-scenario-table th:first-child,
+.real-estate-scenario-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--panel-2);
+    text-align: left;
+}
+
+.real-estate-scenario-table thead th {
+    background: var(--panel-2);
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.real-estate-scenario-table tbody tr:last-child th,
+.real-estate-scenario-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.real-estate-share-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.real-estate-share-grid > * {
+    min-height: 38px;
+    font-size: 10px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.real-estate-share-grid .real-estate-copy-button {
+    grid-column: 1 / -1;
+}
+
+.real-estate-disclaimer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 34%, var(--line));
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--accent-2) 4%, var(--surface));
+    padding: 14px 18px;
+}
+
+.real-estate-disclaimer .material-symbols-rounded {
+    flex: 0 0 auto;
+    color: var(--accent-2);
+    font-size: 20px;
+}
+
+.real-estate-disclaimer p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.real-estate-disclaimer strong {
+    color: var(--text);
+}
+
 @media (max-width: 1220px) {
     .real-estate-heading p {
         white-space: normal;
@@ -705,7 +960,9 @@
     .real-estate-field-grid.is-three,
     .real-estate-kpi-grid,
     .real-estate-cost-grid,
-    .real-estate-cost-summary {
+    .real-estate-cost-summary,
+    .real-estate-score-components,
+    .real-estate-share-grid {
         grid-template-columns: 1fr;
     }
 
@@ -752,6 +1009,14 @@
     .real-estate-result-heading > strong {
         max-width: none;
         text-align: left;
+    }
+
+    .real-estate-share-grid .real-estate-copy-button {
+        grid-column: auto;
+    }
+
+    .real-estate-disclaimer {
+        align-items: flex-start;
     }
 }
 

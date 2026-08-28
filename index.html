@@ -42,7 +42,7 @@
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="style.css?v=98">
     <link rel="stylesheet" href="tools/doviz-kurlari/style.css?v=5">
-    <link rel="stylesheet" href="tools/emlak-portfoy-analizi/style.css?v=1">
+    <link rel="stylesheet" href="tools/emlak-portfoy-analizi/style.css?v=4">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=3">
     <link rel="stylesheet" href="tools/kullanici-adi-arastirma/style.css?v=3">
     <link rel="stylesheet" href="tools/osint-arastirma/style.css?v=7">
@@ -5104,25 +5104,41 @@ Disallow:</code></pre>
                                 <label class="real-estate-field" for="real-estate-property-type"><span>Gayrimenkul türü</span><select id="real-estate-property-type" name="propertyType">
                                     <option>Daire</option><option>Villa</option><option>Müstakil Ev</option><option>Rezidans</option><option>Arsa</option><option>Tarla</option><option>Dükkan</option><option>Ofis</option><option>İşyeri</option><option>Depo</option><option>Diğer</option>
                                 </select></label>
-                                <label class="real-estate-field" for="real-estate-room-count"><span>Oda sayısı</span><select id="real-estate-room-count" name="roomCount">
+                                <label id="real-estate-room-field" class="real-estate-field" for="real-estate-room-count"><span>Oda sayısı</span><select id="real-estate-room-count" name="roomCount">
                                     <option>1+0</option><option>1+1</option><option selected>2+1</option><option>2.5+1</option><option>3+1</option><option>3.5+1</option><option>4+1</option><option>4.5+1</option><option>5+1</option><option>5+2</option><option>Diğer</option>
                                 </select></label>
                             </div>
                         </section>
 
-                        <section class="real-estate-form-card" aria-labelledby="real-estate-basics-title">
+                        <section id="real-estate-basic-details" class="real-estate-form-card" aria-labelledby="real-estate-basics-title">
                             <div class="real-estate-section-heading">
                                 <span class="real-estate-step">02</span>
                                 <div><h3 id="real-estate-basics-title">Temel bilgiler</h3><p>Fiyat, alan ve bina bilgilerini girin.</p></div>
                             </div>
                             <div class="real-estate-field-grid is-two">
                                 <label class="real-estate-field is-wide" for="real-estate-price"><span id="real-estate-price-label">İlan / satış fiyatı</span><span class="real-estate-input-wrap"><input id="real-estate-price" name="price" type="text" inputmode="numeric" autocomplete="off" placeholder="6.500.000" aria-describedby="real-estate-price-hint"><small>TL</small></span><small id="real-estate-price-hint">Nokta ve boşluklar otomatik düzenlenir.</small></label>
-                                <label class="real-estate-field" for="real-estate-net-area"><span>Net m²</span><input id="real-estate-net-area" name="netArea" type="text" inputmode="decimal" autocomplete="off" placeholder="85"></label>
-                                <label class="real-estate-field" for="real-estate-gross-area"><span>Brüt m²</span><input id="real-estate-gross-area" name="grossArea" type="text" inputmode="decimal" autocomplete="off" placeholder="110"></label>
-                                <label class="real-estate-field" for="real-estate-building-age"><span>Bina yaşı</span><input id="real-estate-building-age" name="buildingAge" type="text" inputmode="numeric" autocomplete="off" placeholder="5"></label>
-                                <label class="real-estate-field" for="real-estate-floor"><span>Kat</span><input id="real-estate-floor" name="floor" type="text" inputmode="numeric" autocomplete="off" placeholder="3"></label>
-                                <label class="real-estate-field" for="real-estate-total-floors"><span>Toplam kat</span><input id="real-estate-total-floors" name="totalFloors" type="text" inputmode="numeric" autocomplete="off" placeholder="8"></label>
-                                <label class="real-estate-field" for="real-estate-dues"><span>Aidat</span><span class="real-estate-input-wrap"><input id="real-estate-dues" name="dues" type="text" inputmode="numeric" autocomplete="off" placeholder="3.500"><small>TL / ay</small></span></label>
+                                <label id="real-estate-net-field" class="real-estate-field" for="real-estate-net-area"><span>Net m² <em class="real-estate-rental-optional">Opsiyonel</em></span><input id="real-estate-net-area" name="netArea" type="text" inputmode="decimal" autocomplete="off" placeholder="85"></label>
+                                <label id="real-estate-gross-field" class="real-estate-field" for="real-estate-gross-area"><span>Brüt m² <em class="real-estate-rental-optional">Opsiyonel</em></span><input id="real-estate-gross-area" name="grossArea" type="text" inputmode="decimal" autocomplete="off" placeholder="110"></label>
+                                <label id="real-estate-building-age-field" class="real-estate-field" for="real-estate-building-age"><span>Bina yaşı <em>Opsiyonel</em></span><input id="real-estate-building-age" name="buildingAge" type="text" inputmode="numeric" autocomplete="off" placeholder="5"></label>
+                                <label id="real-estate-floor-field" class="real-estate-field" for="real-estate-floor"><span>Kat <em>Opsiyonel</em></span><select id="real-estate-floor" name="floor"><option value="">Seçiniz</option><option>Bodrum</option><option>Bahçe Katı</option><option>Zemin</option><option>Yüksek Giriş</option></select></label>
+                                <label id="real-estate-total-floors-field" class="real-estate-field" for="real-estate-total-floors"><span>Toplam kat <em>Opsiyonel</em></span><input id="real-estate-total-floors" name="totalFloors" type="text" inputmode="numeric" autocomplete="off" placeholder="8"></label>
+                                <label id="real-estate-dues-field" class="real-estate-field" for="real-estate-dues"><span>Aidat <em>Opsiyonel</em></span><span class="real-estate-input-wrap"><input id="real-estate-dues" name="dues" type="text" inputmode="numeric" autocomplete="off" placeholder="3.500"><small>TL / ay</small></span></label>
+                            </div>
+                        </section>
+
+                        <section id="real-estate-land-details" class="real-estate-form-card" aria-labelledby="real-estate-land-title" hidden>
+                            <div class="real-estate-section-heading">
+                                <span class="real-estate-step">03</span>
+                                <div><h3 id="real-estate-land-title">Arazi bilgileri</h3><p>Alan ve emsal değer bilgilerini girin.</p></div>
+                            </div>
+                            <div class="real-estate-field-grid is-two">
+                                <label class="real-estate-field" for="real-estate-total-area"><span>Toplam alan m²</span><input id="real-estate-total-area" name="totalArea" type="text" inputmode="decimal" autocomplete="off" placeholder="5.360"></label>
+                                <label class="real-estate-field" for="real-estate-land-comparable-price"><span>Emsal m² fiyatı <em>Opsiyonel</em></span><span class="real-estate-input-wrap"><input id="real-estate-land-comparable-price" name="landComparablePrice" type="text" inputmode="numeric" autocomplete="off" placeholder="2.400"><small>TL / m²</small></span></label>
+                                <label class="real-estate-field" for="real-estate-block-no"><span>Ada <em>Opsiyonel</em></span><input id="real-estate-block-no" name="blockNo" type="text" autocomplete="off" placeholder="7"></label>
+                                <label class="real-estate-field" for="real-estate-parcel-no"><span>Parsel <em>Opsiyonel</em></span><input id="real-estate-parcel-no" name="parcelNo" type="text" autocomplete="off" placeholder="179"></label>
+                                <label class="real-estate-field" for="real-estate-floor-area-ratio"><span>Emsal / KAKS <em>Opsiyonel</em></span><input id="real-estate-floor-area-ratio" name="floorAreaRatio" type="text" inputmode="decimal" autocomplete="off" placeholder="0,30"></label>
+                                <label class="real-estate-field" for="real-estate-zoning-status"><span>İmar durumu <em>Opsiyonel</em></span><input id="real-estate-zoning-status" name="zoningStatus" type="text" autocomplete="off" placeholder="Konut imarlı"></label>
+                                <label class="real-estate-field is-wide" for="real-estate-title-deed-type"><span>Tapu niteliği <em>Opsiyonel</em></span><input id="real-estate-title-deed-type" name="titleDeedType" type="text" autocomplete="off" placeholder="Müstakil tapu"></label>
                             </div>
                         </section>
 
@@ -5139,17 +5155,22 @@ Disallow:</code></pre>
 
                         <section id="real-estate-sale-costs" class="real-estate-form-card" aria-labelledby="real-estate-costs-title">
                             <div class="real-estate-section-heading">
-                                <span class="real-estate-step">04</span>
+                                <span class="real-estate-step">06</span>
                                 <div><h3 id="real-estate-costs-title">Tapu ve satış maliyetleri</h3><p>Varsayılan oranları işlem koşullarınıza göre düzenleyin.</p></div>
                                 <output id="real-estate-total-title-rate" class="real-estate-rate-total">Toplam %4</output>
                             </div>
-                            <div class="real-estate-field-grid is-three">
+                            <div class="real-estate-field-grid is-two">
+                                <label class="real-estate-field is-wide" for="real-estate-title-deed-base"><span>Tapu harcına esas işlem bedeli <em>Opsiyonel</em></span><span class="real-estate-input-wrap"><input id="real-estate-title-deed-base" name="titleDeedTransactionValue" type="text" inputmode="numeric" autocomplete="off" placeholder="Satış fiyatı kullanılır"><small>TL</small></span><small>Tapu harcı hesabında kullanılacak tahmini işlem bedelidir. Boş bırakılırsa satış fiyatı kullanılır.</small></label>
                                 <label class="real-estate-field" for="real-estate-buyer-title-rate"><span>Alıcı tapu payı</span><span class="real-estate-input-wrap"><input id="real-estate-buyer-title-rate" name="buyerTitleDeedRate" type="text" inputmode="decimal" autocomplete="off" value="2"><small>%</small></span></label>
                                 <label class="real-estate-field" for="real-estate-seller-title-rate"><span>Satıcı tapu payı</span><span class="real-estate-input-wrap"><input id="real-estate-seller-title-rate" name="sellerTitleDeedRate" type="text" inputmode="decimal" autocomplete="off" value="2"><small>%</small></span></label>
-                                <label class="real-estate-field" for="real-estate-service-rate"><span>Emlak hizmet bedeli</span><span class="real-estate-input-wrap"><input id="real-estate-service-rate" name="serviceFeeRate" type="text" inputmode="decimal" autocomplete="off" value="2"><small>%</small></span></label>
+                                <label class="real-estate-field" for="real-estate-buyer-service-rate"><span>Alıcı hizmet bedeli oranı</span><span class="real-estate-input-wrap"><input id="real-estate-buyer-service-rate" name="buyerServiceFeeRate" type="text" inputmode="decimal" autocomplete="off" value="2"><small>%</small></span></label>
+                                <label class="real-estate-field" for="real-estate-seller-service-rate"><span>Satıcı hizmet bedeli oranı</span><span class="real-estate-input-wrap"><input id="real-estate-seller-service-rate" name="sellerServiceFeeRate" type="text" inputmode="decimal" autocomplete="off" value="2"><small>%</small></span></label>
                                 <label class="real-estate-field" for="real-estate-vat-rate"><span>KDV oranı</span><span class="real-estate-input-wrap"><input id="real-estate-vat-rate" name="vatRate" type="text" inputmode="decimal" autocomplete="off" value="20"><small>%</small></span></label>
-                                <label class="real-estate-field is-span-two" for="real-estate-commission-payer"><span>Hizmet bedelini ödeyen</span><select id="real-estate-commission-payer" name="commissionPayer"><option value="buyer">Alıcı</option><option value="seller">Satıcı</option><option value="both" selected>Her iki taraf</option></select></label>
+                                <div class="real-estate-rate-summary"><span>Toplam hizmet bedeli oranı</span><strong id="real-estate-total-service-rate">%4</strong></div>
+                                <label class="real-estate-field" for="real-estate-buyer-other-costs"><span>Diğer alıcı masrafları <em>Opsiyonel</em></span><span class="real-estate-input-wrap"><input id="real-estate-buyer-other-costs" name="buyerOtherCosts" type="text" inputmode="numeric" autocomplete="off" placeholder="Ekspertiz, DASK, banka…"><small>TL</small></span></label>
+                                <label class="real-estate-field" for="real-estate-seller-other-costs"><span>Diğer satıcı giderleri <em>Opsiyonel</em></span><span class="real-estate-input-wrap"><input id="real-estate-seller-other-costs" name="sellerOtherCosts" type="text" inputmode="numeric" autocomplete="off" placeholder="Diğer işlem giderleri"><small>TL</small></span></label>
                             </div>
+                            <p id="real-estate-service-rate-warning" class="real-estate-warning" role="status" hidden></p>
                             <p class="real-estate-inline-note"><span class="material-symbols-rounded" aria-hidden="true">info</span> Oranlar yasal veya kesin ücretleri değil, yalnızca tahmini hesaplama varsayımlarını temsil eder.</p>
                         </section>
 
@@ -5160,9 +5181,11 @@ Disallow:</code></pre>
                             </div>
                             <div class="real-estate-field-grid is-three">
                                 <label class="real-estate-field" for="real-estate-deposit"><span>Depozito tutarı</span><span class="real-estate-input-wrap"><input id="real-estate-deposit" name="deposit" type="text" inputmode="numeric" autocomplete="off" placeholder="80.000"><small>TL</small></span></label>
-                                <label class="real-estate-field" for="real-estate-rental-service"><span>Hizmet bedeli</span><span class="real-estate-input-wrap"><input id="real-estate-rental-service" name="rentalServiceFee" type="text" inputmode="numeric" autocomplete="off" placeholder="40.000"><small>TL</small></span></label>
+                                <label class="real-estate-field" for="real-estate-rental-service"><span>Hizmet bedeli</span><span class="real-estate-input-wrap"><input id="real-estate-rental-service" name="rentalServiceFee" type="text" inputmode="numeric" autocomplete="off" placeholder="40.000" aria-describedby="real-estate-rental-service-hint"><small>TL</small></span></label>
                                 <label class="real-estate-field" for="real-estate-rental-vat-rate"><span>KDV oranı</span><span class="real-estate-input-wrap"><input id="real-estate-rental-vat-rate" name="rentalVatRate" type="text" inputmode="decimal" autocomplete="off" value="20"><small>%</small></span></label>
                             </div>
+                            <p id="real-estate-rental-service-hint" class="real-estate-helper-note"><span class="material-symbols-rounded" aria-hidden="true">info</span> Hizmet bedeli otomatik olarak bir aylık kira tutarıyla doldurulur; dilerseniz değiştirebilirsiniz.</p>
+                            <p id="real-estate-rental-service-warning" class="real-estate-warning" role="status" hidden></p>
                         </section>
 
                         <div id="real-estate-errors" class="real-estate-errors" role="alert" tabindex="-1" hidden></div>
@@ -5183,7 +5206,12 @@ Disallow:</code></pre>
                         <div id="real-estate-sale-result" class="real-estate-result-shell" hidden>
                             <section id="real-estate-score-card" class="real-estate-score-card" data-level="medium">
                                 <div class="real-estate-score-ring"><strong id="real-estate-score">0</strong><span>/ 100</span></div>
-                                <div><span>Portföy skoru</span><strong id="real-estate-score-label">—</strong><p>Bilimsel ekspertiz değil, girilen verilerden üretilen karşılaştırmalı göstergedir.</p></div>
+                                <div><span>Finansal Verim Skoru</span><strong id="real-estate-score-label">—</strong><p>Kira getirisi, amortisman süresi, net/brüt kullanım oranı ve aidat/kira oranı üzerinden hesaplanan finansal göstergedir. Ekspertiz veya piyasa değerleme sonucu değildir.</p><div class="real-estate-completeness"><span>Veri Tamlığı</span><strong id="real-estate-completeness">%0</strong></div><p id="real-estate-completeness-note" hidden>Skor bazı eksik bilgiler nedeniyle sınırlı veriyle hesaplandı.</p></div>
+                            </section>
+                            <section class="real-estate-result-card" aria-labelledby="real-estate-score-components-title">
+                                <div class="real-estate-result-heading"><div><span>Skor bileşenleri</span><h3 id="real-estate-score-components-title">Açıklanabilir puan dağılımı</h3></div></div>
+                                <div id="real-estate-score-components" class="real-estate-score-components"></div>
+                                <p class="real-estate-score-note">Bu skor genel gayrimenkul kalitesi veya ekspertiz sonucu değildir.</p>
                             </section>
                             <div class="real-estate-kpi-grid">
                                 <div class="real-estate-kpi"><span class="material-symbols-rounded" aria-hidden="true">square_foot</span><strong id="real-estate-kpi-gross">—</strong><small>Brüt m² fiyatı</small></div>
@@ -5200,17 +5228,25 @@ Disallow:</code></pre>
                             <section class="real-estate-result-card">
                                 <div class="real-estate-result-heading"><div><span>İşlem maliyetleri</span><h3>Alıcı ve satıcı projeksiyonu</h3></div><strong id="real-estate-total-transaction-cost">—</strong></div>
                                 <div class="real-estate-cost-grid">
-                                    <article><span>Alıcı toplam maliyeti</span><strong id="real-estate-buyer-total">—</strong><dl><div><dt>Gayrimenkul</dt><dd id="real-estate-buyer-price">—</dd></div><div><dt>Tapu harcı</dt><dd id="real-estate-buyer-title-fee">—</dd></div><div><dt>Hizmet bedeli</dt><dd id="real-estate-buyer-service-fee">—</dd></div><div><dt>KDV</dt><dd id="real-estate-buyer-vat">—</dd></div></dl></article>
-                                    <article><span>Satıcı net tutarı</span><strong id="real-estate-seller-net">—</strong><dl><div><dt>Satış fiyatı</dt><dd id="real-estate-seller-price">—</dd></div><div><dt>Tapu harcı</dt><dd id="real-estate-seller-title-fee">—</dd></div><div><dt>Hizmet bedeli</dt><dd id="real-estate-seller-service-fee">—</dd></div><div><dt>KDV</dt><dd id="real-estate-seller-vat">—</dd></div></dl></article>
+                                    <article><span>Alıcı toplam maliyeti</span><strong id="real-estate-buyer-total">—</strong><dl><div><dt>Gayrimenkul</dt><dd id="real-estate-buyer-price">—</dd></div><div><dt>Tapu harcı</dt><dd id="real-estate-buyer-title-fee">—</dd></div><div><dt>Hizmet bedeli</dt><dd id="real-estate-buyer-service-fee">—</dd></div><div><dt>KDV</dt><dd id="real-estate-buyer-vat">—</dd></div><div><dt>Diğer masraflar</dt><dd id="real-estate-buyer-other">—</dd></div></dl></article>
+                                    <article><span>Satıcı net tutarı</span><strong id="real-estate-seller-net">—</strong><dl><div><dt>Satış fiyatı</dt><dd id="real-estate-seller-price">—</dd></div><div><dt>Tapu harcı</dt><dd id="real-estate-seller-title-fee">—</dd></div><div><dt>Hizmet bedeli</dt><dd id="real-estate-seller-service-fee">—</dd></div><div><dt>KDV</dt><dd id="real-estate-seller-vat">—</dd></div><div><dt>Diğer giderler</dt><dd id="real-estate-seller-other">—</dd></div></dl></article>
                                 </div>
                                 <div class="real-estate-cost-summary"><div><span>Toplam tapu harcı</span><strong id="real-estate-title-total">—</strong></div><div><span>Toplam hizmet bedeli</span><strong id="real-estate-service-total">—</strong></div><div><span>Toplam KDV</span><strong id="real-estate-vat-total">—</strong></div></div>
                             </section>
-                            <section class="real-estate-analysis-card"><span class="material-symbols-rounded" aria-hidden="true">query_stats</span><div><h3>Portföy Analizi</h3><p id="real-estate-analysis-summary"></p><ul id="real-estate-analysis-list"></ul></div></section>
-                            <button id="real-estate-copy" class="secondary-button real-estate-copy-button" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span> Analizi Kopyala</button>
+                            <section class="real-estate-analysis-card"><span class="material-symbols-rounded" aria-hidden="true">query_stats</span><div><h3>Finansal Analiz</h3><p id="real-estate-analysis-summary"></p><ul id="real-estate-analysis-list"></ul></div></section>
+                            <section class="real-estate-result-card real-estate-share-card"><div class="real-estate-result-heading"><div><span>Rapor ve paylaşım</span><h3>Tarafa uygun çıktı oluşturun</h3></div></div><div class="real-estate-share-grid"><button id="real-estate-buyer-copy" class="secondary-button" type="button">Alıcıya Gönder</button><a id="real-estate-buyer-whatsapp" class="ghost-button" href="https://wa.me/" target="_blank" rel="noopener noreferrer">WhatsApp'ta Paylaş</a><button id="real-estate-owner-copy" class="secondary-button" type="button">Mülk Sahibine Gönder</button><a id="real-estate-owner-whatsapp" class="ghost-button" href="https://wa.me/" target="_blank" rel="noopener noreferrer">WhatsApp'ta Paylaş</a><button id="real-estate-copy" class="secondary-button real-estate-copy-button" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span> Genel Raporu Kopyala</button></div></section>
+                        </div>
+
+                        <div id="real-estate-land-result" class="real-estate-result-shell" hidden>
+                            <section class="real-estate-rental-hero"><span class="material-symbols-rounded" aria-hidden="true">landscape</span><div><span>Fiyat karşılaştırması</span><strong id="real-estate-land-square-price">—</strong><p id="real-estate-land-comparison-text">Emsal m² fiyatı girildiğinde karşılaştırma gösterilir.</p></div></section>
+                            <section class="real-estate-result-card"><div class="real-estate-result-heading"><div><span>Arazi analizi</span><h3>Alan ve emsal özeti</h3></div></div><dl class="real-estate-metric-list"><div><dt>Satış fiyatı</dt><dd id="real-estate-land-price">—</dd></div><div><dt>Toplam alan</dt><dd id="real-estate-land-area">—</dd></div><div><dt>Emsal m² fiyatı</dt><dd id="real-estate-land-comparable">—</dd></div><div><dt>Emsal toplam değer</dt><dd id="real-estate-land-comparable-total">—</dd></div><div><dt>Emsallere göre fark</dt><dd id="real-estate-land-difference">—</dd></div></dl></section>
+                            <section class="real-estate-result-card"><div class="real-estate-result-heading"><div><span>İşlem maliyetleri</span><h3>Arazi alıcı ve satıcı projeksiyonu</h3></div></div><div class="real-estate-cost-grid"><article><span>Alıcı toplam maliyeti</span><strong id="real-estate-land-buyer-total">—</strong></article><article><span>Satıcı net tutarı</span><strong id="real-estate-land-seller-net">—</strong></article></div><dl class="real-estate-metric-list"><div><dt>Toplam tapu harcı</dt><dd id="real-estate-land-title-fees">—</dd></div><div><dt>Toplam hizmet bedeli + KDV</dt><dd id="real-estate-land-service-fees">—</dd></div></dl></section>
+                            <section class="real-estate-result-card real-estate-share-card"><button id="real-estate-land-copy" class="secondary-button real-estate-copy-button" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span> Arazi Raporunu Kopyala</button></section>
                         </div>
 
                         <div id="real-estate-rental-result" class="real-estate-result-shell" hidden>
-                            <section class="real-estate-rental-hero"><span class="material-symbols-rounded" aria-hidden="true">key</span><div><span>Tahmini ilk giriş maliyeti</span><strong id="real-estate-rental-total">—</strong><p>İlk ay, depozito, hizmet bedeli ve hizmet KDV’si toplamı.</p></div></section>
+                            <section class="real-estate-rental-hero"><span class="material-symbols-rounded" aria-hidden="true">key</span><div><span>Sözleşme başlangıç maliyeti</span><strong id="real-estate-rental-total">—</strong><p>İlk ay, depozito, hizmet bedeli ve hizmet KDV’si toplamı.</p></div></section>
+                            <section class="real-estate-result-card"><div class="real-estate-result-heading"><div><span>İlk ay nakit çıkışı</span><h3 id="real-estate-rental-cash-total">—</h3></div></div><p id="real-estate-rental-cash-note" class="real-estate-result-note"></p></section>
                             <section class="real-estate-result-card"><div class="real-estate-result-heading"><div><span>Kiralama özeti</span><h3>İlk ödeme kalemleri</h3></div></div><dl class="real-estate-metric-list is-rental"><div><dt>İlk ay kirası</dt><dd id="real-estate-rental-first-month">—</dd></div><div><dt>Depozito</dt><dd id="real-estate-rental-deposit-result">—</dd></div><div><dt>Hizmet bedeli</dt><dd id="real-estate-rental-service-result">—</dd></div><div><dt>KDV</dt><dd id="real-estate-rental-vat-result">—</dd></div><div><dt>Aidat</dt><dd id="real-estate-rental-dues-result">—</dd></div></dl></section>
                             <button id="real-estate-rental-copy" class="secondary-button real-estate-copy-button" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span> Analizi Kopyala</button>
                         </div>
@@ -5227,9 +5263,9 @@ Disallow:</code></pre>
     <script src="index.js?v=64"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
-    <script src="tools/emlak-portfoy-analizi/config.js?v=1"></script>
-    <script src="tools/emlak-portfoy-analizi/core.js?v=1"></script>
-    <script src="tools/emlak-portfoy-analizi/app.js?v=1"></script>
+    <script src="tools/emlak-portfoy-analizi/config.js?v=3"></script>
+    <script src="tools/emlak-portfoy-analizi/core.js?v=2"></script>
+    <script src="tools/emlak-portfoy-analizi/app.js?v=4"></script>
     <script src="tools/kullanici-adi-arastirma/config.js?v=1"></script>
     <script src="tools/kullanici-adi-arastirma/platforms.js?v=6"></script>
     <script src="tools/kullanici-adi-arastirma/core.js?v=4"></script>

@@ -631,8 +631,8 @@ function updatePageMetadata(tool) {
         },
         "emlak-portfoy-analizi": {
             title: "Emlak Portföy Analizi | Omni Tools",
-            description: "Gayrimenkul m² fiyatı, kira getirisi, amortisman süresi, tapu harcı ve tahmini alım-satım maliyetlerini ücretsiz hesaplayın.",
-            keywords: "emlak portföy analizi, gayrimenkul yatırım analizi, m² fiyatı hesaplama, kira getirisi, amortisman süresi, tapu harcı, emlak komisyonu, alıcı maliyeti, satıcı net tutarı",
+            description: "Gayrimenkul m² fiyatı, kira getirisi, amortisman, tapu harcı ve alıcı-satıcı işlem maliyetlerini ücretsiz analiz edin.",
+            keywords: "emlak portföy analizi, gayrimenkul yatırım, m² fiyatı hesaplama, kira getirisi, amortisman, emlak komisyon hesaplama, tapu masrafı, alıcı maliyeti, satıcı net tutarı",
         },
     };
     const metadata = toolMetadata[tool] || {};
