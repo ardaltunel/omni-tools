@@ -8,8 +8,10 @@
     const freezeRows = (rows) => Object.freeze(rows.map((row) => Object.freeze(row)));
 
     return Object.freeze({
-        storageKey: "omni-tools:emlak-portfoy-analizi:v2",
-        legacyStorageKeys: Object.freeze(["omni-tools:emlak-portfoy-analizi:v1"]),
+        retiredStorageKeys: Object.freeze([
+            "omni-tools:emlak-portfoy-analizi:v2",
+            "omni-tools:emlak-portfoy-analizi:v1",
+        ]),
         propertyGroups: Object.freeze({
             housing: Object.freeze(["Daire", "Villa", "Müstakil Ev", "Rezidans"]),
             commercial: Object.freeze(["Dükkan", "Ofis", "İşyeri", "Depo"]),

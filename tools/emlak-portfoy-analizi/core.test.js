@@ -178,8 +178,11 @@ test("Türkçe ve noktalı ondalık girişlerini güvenli ayrıştırır", () =>
     assert.equal(core.toFiniteNonNegative("6.500.000"), 6500000);
 });
 
-test("config v2 sınırları ve varsayılan oranları tek yerde tutar", () => {
-    assert.match(config.storageKey, /:v2$/);
+test("config sınırları ve varsayılan oranları tek yerde tutar", () => {
+    assert.deepEqual(config.retiredStorageKeys, [
+        "omni-tools:emlak-portfoy-analizi:v2",
+        "omni-tools:emlak-portfoy-analizi:v1",
+    ]);
     assert.equal(config.recommendedMaximumSaleServiceFeeRate, 4);
     assert.equal(config.maxComparables, 5);
     assert.equal(config.minRecommendedComparables, 3);
@@ -199,8 +202,10 @@ test("araç DOM, metadata, route fallback ve istemci modülleriyle kayıtlıdır
     assert.doesNotMatch(html, /id="real-estate-comparable-list"/);
     assert.doesNotMatch(html, /id="real-estate-offer-section"/);
     assert.match(html, /Finansal Verim Skoru/);
-    assert.match(html, /tools\/emlak-portfoy-analizi\/app\.js\?v=4/);
-    assert.match(app, /migrateStoredFormData/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/app\.js\?v=5/);
+    assert.doesNotMatch(html, /id="real-estate-clear-storage"/);
+    assert.doesNotMatch(app, /localStorage\.(?:getItem|setItem)/);
+    assert.match(app, /clearRetiredSavedState/);
     assert.doesNotMatch(app, /real-estate-comparable-list/);
     assert.match(app, /setTimeout/);
     assert.match(redirect, /noindex,follow/);

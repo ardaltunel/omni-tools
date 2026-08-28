@@ -40,7 +40,6 @@
         landResult: document.getElementById("real-estate-land-result"),
         rentalResult: document.getElementById("real-estate-rental-result"),
         reset: document.getElementById("real-estate-reset"),
-        clearStorage: document.getElementById("real-estate-clear-storage"),
         copy: document.getElementById("real-estate-copy"),
         buyerCopy: document.getElementById("real-estate-buyer-copy"),
         ownerCopy: document.getElementById("real-estate-owner-copy"),
@@ -134,24 +133,8 @@
         return parsed;
     }
 
-    function migrateStoredFormData(saved) {
-        if (!saved || typeof saved !== "object" || Array.isArray(saved)) return null;
-        const migrated = { ...config.defaultForm, ...saved };
-        if (!("buyerServiceFeeRate" in saved) || !("sellerServiceFeeRate" in saved)) {
-            const legacyRate = String(saved.serviceFeeRate ?? config.defaultRates.buyerServiceFee);
-            const payer = saved.commissionPayer || "both";
-            migrated.buyerServiceFeeRate = payer === "seller" ? "0" : legacyRate;
-            migrated.sellerServiceFeeRate = payer === "buyer" ? "0" : legacyRate;
-        }
-        migrated.comparables = [];
-        migrated.offerPrice = "";
-        migrated.rentalServiceFeeCustomized = Boolean(saved.rentalServiceFeeCustomized || saved.rentalServiceFee);
-        migrated.titleDeedTransactionValueCustomized = Boolean(saved.titleDeedTransactionValueCustomized || saved.titleDeedTransactionValue);
-        return migrated;
-    }
-
     function applyState(state) {
-        const safeState = migrateStoredFormData(state) || { ...config.defaultForm, comparables: [] };
+        const safeState = { ...config.defaultForm, ...(state || {}) };
         form.querySelectorAll("[aria-invalid='true']").forEach((field) => field.removeAttribute("aria-invalid"));
         Object.keys(config.defaultForm).forEach((name) => {
             if (["comparables", "rentalServiceFeeCustomized", "titleDeedTransactionValueCustomized"].includes(name)) return;
@@ -175,36 +158,11 @@
         clearErrors();
     }
 
-    function loadState() {
+    function clearRetiredSavedState() {
         try {
-            const current = window.localStorage.getItem(config.storageKey);
-            if (current) return migrateStoredFormData(JSON.parse(current));
-            for (const legacyKey of config.legacyStorageKeys) {
-                const legacy = window.localStorage.getItem(legacyKey);
-                if (!legacy) continue;
-                const migrated = migrateStoredFormData(JSON.parse(legacy));
-                if (migrated) window.localStorage.setItem(config.storageKey, JSON.stringify(migrated));
-                return migrated;
-            }
+            config.retiredStorageKeys.forEach((key) => window.localStorage.removeItem(key));
         } catch {
-            return null;
-        }
-        return null;
-    }
-
-    function saveState() {
-        try {
-            window.localStorage.setItem(config.storageKey, JSON.stringify(readState()));
-        } catch {
-            // Depolama kapalıysa hesaplama çalışmaya devam eder.
-        }
-    }
-
-    function clearSavedState() {
-        try {
-            [config.storageKey, ...config.legacyStorageKeys].forEach((key) => window.localStorage.removeItem(key));
-        } catch {
-            // Depolama kapalıysa başlangıç değerleri yine uygulanır.
+            // Depolama kapalıysa form yine boş başlangıç değerleriyle açılır.
         }
     }
 
@@ -579,7 +537,6 @@
             renderSale(state, latestResult);
         }
         hasSuccessfulAnalysis = true;
-        saveState();
         elements.copyStatus.textContent = "";
         if (shouldScroll) {
             const target = isRental ? elements.rentalResult : isLand ? elements.landResult : elements.saleResult;
@@ -613,7 +570,6 @@
         field.removeAttribute("aria-invalid");
         if (["buyerTitleDeedRate", "sellerTitleDeedRate", "buyerServiceFeeRate", "sellerServiceFeeRate"].includes(field.name)) updateRateSummaries();
         if (["price", "rentalServiceFee"].includes(field.name)) updateRentalServiceWarning();
-        saveState();
         scheduleAutomaticCalculation();
     });
 
@@ -631,7 +587,6 @@
             showEmptyResult();
             hasSuccessfulAnalysis = false;
         } else scheduleAutomaticCalculation();
-        saveState();
     });
 
     form.addEventListener("submit", (event) => {
@@ -644,21 +599,9 @@
         titleDeedTransactionValueCustomized = false;
         hasSuccessfulAnalysis = false;
         applyState(config.defaultForm);
-        saveState();
         showEmptyResult();
         form.elements.price.focus();
         elements.copyStatus.textContent = "Form başlangıç değerlerine döndürüldü.";
-    });
-
-    elements.clearStorage.addEventListener("click", () => {
-        clearSavedState();
-        rentalServiceFeeCustomized = false;
-        titleDeedTransactionValueCustomized = false;
-        hasSuccessfulAnalysis = false;
-        applyState(config.defaultForm);
-        showEmptyResult();
-        form.elements.price.focus();
-        elements.copyStatus.textContent = "Kaydedilen son veriler temizlendi.";
     });
 
     elements.copy.addEventListener("click", () => {
@@ -678,7 +621,8 @@
     });
 
     appendFloorOptions();
-    applyState(loadState() || config.defaultForm);
+    clearRetiredSavedState();
+    applyState(config.defaultForm);
     updateRentalServiceWarning();
     showEmptyResult();
 }());
