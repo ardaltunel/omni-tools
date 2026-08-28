@@ -17,20 +17,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="google-site-verification" content="WhMumUYTcsUfTcXBMlek_AFSOMQFO66puERKoP0kpbE">
     <title>Omni Tools | Arda Altunel</title>
-    <meta name="description" content="Oyunlar, yapay zekâ, geliştirici, medya, güvenlik ve günlük işler için 55 ücretsiz uygulama tek panelde.">
+    <meta name="description" content="Oyunlar, yapay zekâ, geliştirici, medya, güvenlik ve günlük işler için 56 ücretsiz uygulama tek panelde.">
     <meta name="keywords" content="ücretsiz araçlar, online uygulamalar, yapay zekâ araçları, tarayıcı oyunları, geliştirici araçları, medya araçları, Omni Tools">
     <link rel="canonical" href="https://ardaltunel.github.io/omni-tools/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Omni Tools | 55 uygulama, tek panel">
+    <meta property="og:title" content="Omni Tools | 56 uygulama, tek panel">
     <meta property="og:description" content="Oyunlardan yapay zekâya, geliştirici araçlarından günlük işlere kadar her şey tek bir yerde.">
     <meta property="og:url" content="https://ardaltunel.github.io/omni-tools/">
     <meta property="og:image" content="https://ardaltunel.github.io/omni-tools/tools/assets/social/omni-tools-og.png">
-    <meta property="og:image:alt" content="Omni Tools — 55 uygulama, tek panel">
+    <meta property="og:image:alt" content="Omni Tools — 56 uygulama, tek panel">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Omni Tools | 55 uygulama, tek panel">
+    <meta name="twitter:title" content="Omni Tools | 56 uygulama, tek panel">
     <meta name="twitter:description" content="Oyunlardan yapay zekâya, geliştirici araçlarından günlük işlere kadar her şey tek bir yerde.">
     <meta name="twitter:image" content="https://ardaltunel.github.io/omni-tools/tools/assets/social/omni-tools-og.png">
-    <meta name="twitter:image:alt" content="Omni Tools — 55 uygulama, tek panel">
+    <meta name="twitter:image:alt" content="Omni Tools — 56 uygulama, tek panel">
     <meta name="theme-color" content="#101114">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/png" sizes="32x32" href="tools/assets/favicon/favicon-32x32.png">
@@ -51,6 +51,7 @@
     <link rel="stylesheet" href="tools/github-md-generator/style.css?v=3">
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=4">
+    <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=13">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
@@ -81,7 +82,7 @@
                 <span class="brand-mark">A</span>
                 <div>
                     <strong>Arda Tools</strong>
-                    <small>55 uygulama, tek panel</small>
+                    <small>56 uygulama, tek panel</small>
                 </div>
             </div>
 
@@ -100,6 +101,11 @@
                     data-category="Oyunlar" data-search="blackjack 21 yirmi bir iskambil kart casino kumarhane masa bahis krupiye deste el oyun"
                     data-description="Sanal çiplerle, klasik kurallara göre üst düzey Blackjack oyna." type="button">
                     <span>Blackjack</span>
+                </button>
+                <button class="nav-item" data-tool="farkli-rengi-bul" data-category="Oyunlar"
+                    data-search="farklı rengi bul renk algısı görsel dikkat grid kare ton hsl bulmaca oyun odd color"
+                    data-description="Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul." type="button">
+                    <span>Farklı Rengi Bul</span>
                 </button>
                 <button class="nav-item" data-tool="slot-game"
                     data-category="Oyunlar" data-search="slot game slot makinesi casino kumarhane şans oyunu çevirme makinesi arcade cascade tumble free spins bedava dönüş çarpan"
@@ -131,7 +137,7 @@
                     data-description="Dünya para birimlerinin güncel TL karşılığını görüntüle ve kur dönüşümü yap." type="button">
                     <span>Döviz Kurları</span>
                 </button>
-                <button class="nav-item" data-tool="emlak-portfoy-analizi" data-category="Finans" data-icon="real_estate_agent"
+                <button class="nav-item" data-tool="emlak-portfoy-analizi" data-category="Finans"
                     data-search="emlak portföy analizi gayrimenkul konut daire villa arsa yatırım kira getirisi amortisman metrekare m2 tapu harcı komisyon alıcı satıcı finans hesaplama"
                     data-description="Gayrimenkul m² fiyatı, kira getirisi, amortisman süresi ve işlem maliyetlerini hesaplayın." type="button">
                     <span>Emlak Portföy Analizi</span>
@@ -5255,12 +5261,69 @@ Disallow:</code></pre>
                 </div>
             </section>
 
+            <section id="farkli-rengi-bul" class="tool-panel odd-color-panel" aria-labelledby="odd-color-title">
+                <div class="panel-heading odd-color-heading">
+                    <div>
+                        <h2 id="odd-color-title">Farklı Rengi Bul</h2>
+                        <p>Diğerlerinden farklı renkteki kareyi bul. Seviyeler ilerledikçe farkı görmek zorlaşır.</p>
+                    </div>
+                </div>
+
+                <div id="odd-color-app" class="odd-color-app" data-phase="playing">
+                    <section id="odd-color-game-screen" class="odd-color-screen odd-color-game" aria-label="Farklı Rengi Bul oyun alanı" hidden>
+                        <div class="odd-color-grid-wrap">
+                            <div id="odd-color-grid" class="odd-color-grid" role="grid" aria-label="Renk ızgarası"></div>
+                        </div>
+                        <div class="odd-color-control-panel">
+                            <div class="odd-color-hud" aria-label="Oyun durumu">
+                                <div class="odd-color-bar-side odd-color-record">
+                                    <span class="odd-color-bar-symbol" aria-hidden="true">◆</span>
+                                    <span><small>En yüksek</small><strong id="odd-color-highest">0</strong></span>
+                                </div>
+                                <div class="odd-color-level-stack">
+                                    <strong>Level <span id="odd-color-level">1</span></strong>
+                                    <div class="odd-color-hearts" aria-hidden="true"><span>♥</span><span>♥</span><span>♥</span></div>
+                                    <span class="sr-only">Kalan hak: <strong id="odd-color-lives">3</strong></span>
+                                </div>
+                                <div class="odd-color-right-controls">
+                                    <button id="odd-color-shuffle" class="odd-color-shuffle" type="button" aria-label="Karelerin yerini değiştir" title="Karelerin yerini değiştir">
+                                        <span class="odd-color-shuffle-icon" aria-hidden="true">↻</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="odd-color-result-screen" class="odd-color-screen odd-color-result" aria-labelledby="odd-color-result-title" hidden>
+                        <div class="odd-color-result-mark" aria-hidden="true">◆</div>
+                        <span class="odd-color-eyebrow">Oyun Bitti</span>
+                        <h3 id="odd-color-result-title">Oyun Bitti</h3>
+                        <p id="odd-color-result-message">Renk farklarını yeniden yakalamaya hazır mısın?</p>
+                        <div class="odd-color-result-stats" aria-label="Oyun sonucu">
+                            <div><span>Ulaşılan seviye</span><strong id="odd-color-result-level">1</strong></div>
+                            <div><span>En yüksek seviye</span><strong id="odd-color-result-highest">1</strong></div>
+                            <div><span>Doğru cevap</span><strong id="odd-color-result-correct">0</strong></div>
+                            <div><span>Yanlış seçim</span><strong id="odd-color-result-wrong">0</strong></div>
+                        </div>
+                        <div class="odd-color-result-actions">
+                            <button id="odd-color-replay" class="primary-button" type="button">Tekrar Oyna</button>
+                            <button id="odd-color-home" class="secondary-button" type="button">Ana Menü</button>
+                        </div>
+                    </section>
+
+                    <p id="odd-color-live" class="sr-only" aria-live="assertive"></p>
+                </div>
+            </section>
+
         </main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=64"></script>
+    <script src="index.js?v=66"></script>
+    <script src="tools/farkli-rengi-bul/config.js?v=7"></script>
+    <script src="tools/farkli-rengi-bul/core.js?v=5"></script>
+    <script src="tools/farkli-rengi-bul/app.js?v=10"></script>
     <script src="tools/doviz-kurlari/core.js?v=3"></script>
     <script src="tools/doviz-kurlari/app.js?v=5"></script>
     <script src="tools/emlak-portfoy-analizi/config.js?v=4"></script>

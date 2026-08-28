@@ -1,0 +1,519 @@
+.odd-color-panel {
+    overflow: hidden;
+}
+
+.odd-color-app {
+    --odd-color-glow: rgba(82, 176, 224, 0.24);
+    --odd-color-game-bg: #101827;
+    --odd-color-control-bg: #1d2939;
+    position: relative;
+    isolation: isolate;
+    min-height: min(690px, calc(100dvh - 145px));
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background:
+        radial-gradient(circle at 12% 8%, rgba(24, 169, 153, 0.16), transparent 31%),
+        radial-gradient(circle at 90% 92%, rgba(244, 211, 94, 0.08), transparent 27%),
+        var(--surface);
+}
+
+.odd-color-app::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 30px 30px;
+    content: "";
+    mask-image: linear-gradient(to bottom, black, transparent 82%);
+}
+
+.odd-color-screen {
+    min-height: inherit;
+}
+
+.odd-color-app[data-phase="playing"] {
+    min-height: 0;
+}
+
+.odd-color-screen[hidden],
+.odd-color-bar-side[hidden] {
+    display: none;
+}
+
+.odd-color-result {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    padding: clamp(24px, 6vw, 72px);
+    text-align: center;
+}
+
+.odd-color-eyebrow {
+    margin-bottom: 8px;
+    color: var(--accent-2);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.odd-color-result h3 {
+    margin: 0;
+    font-size: clamp(28px, 5vw, 46px);
+    letter-spacing: -0.04em;
+}
+
+.odd-color-result > p {
+    max-width: 520px;
+    margin: 12px auto 0;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.odd-color-result-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(100%, 560px);
+    gap: 9px;
+    margin: 28px auto 22px;
+}
+
+.odd-color-result-stats > div {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(32, 35, 42, 0.72);
+    padding: 12px;
+}
+
+.odd-color-result-stats span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.odd-color-result-stats strong {
+    display: block;
+    font-size: clamp(19px, 3vw, 25px);
+    font-variant-numeric: tabular-nums;
+}
+
+.odd-color-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: clamp(14px, 2.5vw, 26px);
+}
+
+.odd-color-grid-wrap {
+    display: grid;
+    width: 100%;
+    min-height: 0;
+    place-items: center;
+}
+
+.odd-color-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--odd-color-grid-size, 2), minmax(0, 1fr));
+    width: min(100%, 720px, calc(100dvh - 290px));
+    min-width: 0;
+    aspect-ratio: 1;
+    gap: clamp(4px, 0.7vw, 8px);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    touch-action: manipulation;
+}
+
+.odd-color-control-panel {
+    width: min(100%, 720px, calc(100dvh - 290px));
+    margin-top: clamp(14px, 2vw, 22px);
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 10px;
+    background: var(--odd-color-control-bg);
+    box-shadow: 0 14px 32px rgba(2, 8, 23, 0.2);
+}
+
+.odd-color-hud {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(136px, 1.15fr) minmax(0, 1fr);
+    min-height: 92px;
+    align-items: center;
+    gap: 12px;
+    padding: 14px clamp(14px, 3vw, 26px);
+}
+
+.odd-color-bar-side {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+}
+
+.odd-color-right-controls {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.odd-color-right-controls .odd-color-bar-side {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.odd-color-shuffle {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.24);
+    color: #aab5c6;
+    cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.odd-color-shuffle:hover:not(:disabled) {
+    border-color: rgba(82, 176, 224, 0.52);
+    background: rgba(82, 176, 224, 0.1);
+    color: #d7f2ff;
+    transform: translateY(-1px);
+}
+
+.odd-color-shuffle:focus-visible {
+    outline: 2px solid #52b0e0;
+    outline-offset: 3px;
+}
+
+.odd-color-shuffle:disabled {
+    cursor: wait;
+}
+
+.odd-color-shuffle-icon {
+    display: block;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.odd-color-shuffle.is-active .odd-color-shuffle-icon {
+    animation: odd-color-shuffle-spin 300ms ease-in-out;
+}
+
+.odd-color-bar-symbol {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+    place-items: center;
+    color: #52b0e0;
+    font-size: 18px;
+}
+
+.odd-color-bar-side small,
+.odd-color-bar-side strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.odd-color-bar-side small {
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.odd-color-bar-side strong {
+    margin-top: 2px;
+    color: var(--text);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+}
+
+.odd-color-level-stack {
+    min-width: 0;
+    text-align: center;
+}
+
+.odd-color-level-stack > strong {
+    display: block;
+    font-size: clamp(20px, 3vw, 27px);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.odd-color-hearts {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 9px;
+    color: #ff6f78;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.odd-color-hearts span {
+    filter: drop-shadow(0 3px 7px rgba(255, 95, 109, 0.2));
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.odd-color-hearts span.is-empty {
+    opacity: 0.18;
+    transform: scale(0.88);
+    filter: none;
+}
+
+.odd-color-hud[data-low-lives="true"] .odd-color-hearts {
+    animation: odd-color-heart-warning 500ms ease-in-out infinite alternate;
+}
+
+.odd-color-cell {
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1;
+    border: 0;
+    border-radius: clamp(5px, 1vw, 9px);
+    padding: 0;
+    cursor: pointer;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.09);
+    transition: opacity 90ms ease, filter 90ms ease, transform 90ms ease, box-shadow 90ms ease;
+}
+
+.odd-color-cell:hover {
+    filter: brightness(1.035);
+}
+
+.odd-color-cell:focus-visible {
+    position: relative;
+    z-index: 2;
+    outline: 3px solid var(--accent-strong);
+    outline-offset: -4px;
+}
+
+.odd-color-cell.is-wrong {
+    box-shadow: inset 0 0 0 3px rgba(255, 95, 109, 0.85);
+    animation: odd-color-cell-error 190ms ease-out;
+}
+
+.odd-color-cell.is-correct {
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.55), 0 0 28px rgba(74, 222, 128, 0.44);
+    animation: odd-color-cell-success 180ms ease-out;
+}
+
+.odd-color-grid.is-shaking {
+    animation: odd-color-grid-shake 180ms ease-out;
+}
+
+.odd-color-grid.is-success .odd-color-cell:not(.is-correct) {
+    filter: brightness(0.78);
+}
+
+.odd-color-grid.is-shuffling .odd-color-cell {
+    pointer-events: none;
+    will-change: transform;
+}
+
+.odd-color-grid .odd-color-cell.is-moving {
+    position: relative;
+    z-index: 1;
+}
+
+.odd-color-result-mark {
+    display: grid;
+    width: 76px;
+    aspect-ratio: 1;
+    place-items: center;
+    margin-bottom: 20px;
+    border: 1px solid rgba(244, 211, 94, 0.45);
+    border-radius: 50%;
+    background: rgba(244, 211, 94, 0.09);
+    color: var(--accent-2);
+    font-size: 34px;
+}
+
+.odd-color-result-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: min(100%, 680px);
+}
+
+.odd-color-result-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 420px);
+    gap: 9px;
+}
+
+@keyframes odd-color-grid-shake {
+    25% { transform: translateX(-5px); }
+    55% { transform: translateX(4px); }
+    80% { transform: translateX(-2px); }
+}
+
+@keyframes odd-color-cell-error {
+    45% { filter: brightness(0.72); transform: scale(0.96); }
+}
+
+@keyframes odd-color-cell-success {
+    60% { transform: scale(1.045); }
+}
+
+@keyframes odd-color-heart-warning {
+    to { opacity: 0.58; }
+}
+
+@keyframes odd-color-shuffle-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 760px) {
+    .odd-color-panel {
+        width: calc(100% + 32px);
+        margin-inline: -16px;
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+        padding: 16px 0 0;
+    }
+
+    .odd-color-heading {
+        padding-inline: 16px;
+    }
+
+    .odd-color-app {
+        min-height: calc(100dvh - 150px);
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+    }
+
+    .odd-color-app[data-phase="playing"] { min-height: 0; }
+
+    .odd-color-game {
+        padding: 10px;
+    }
+
+    .odd-color-grid {
+        width: min(100%, calc(100dvh - 270px));
+        gap: clamp(2px, 1vw, 5px);
+        padding: 0;
+    }
+
+    .odd-color-control-panel {
+        width: min(100%, calc(100dvh - 270px));
+    }
+}
+
+@media (max-width: 520px) {
+    .odd-color-result {
+        padding: 24px 14px;
+    }
+
+    .odd-color-result-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .odd-color-hud {
+        grid-template-columns: minmax(0, 1fr) minmax(108px, 1.1fr) minmax(0, 1fr);
+        min-height: 82px;
+        gap: 4px;
+        padding: 11px 9px;
+    }
+
+    .odd-color-bar-side {
+        gap: 4px;
+    }
+
+    .odd-color-right-controls {
+        gap: 3px;
+    }
+
+    .odd-color-right-controls .odd-color-bar-symbol {
+        display: none;
+    }
+
+    .odd-color-shuffle {
+        width: 30px;
+        height: 30px;
+    }
+
+    .odd-color-shuffle-icon {
+        font-size: 19px;
+    }
+
+    .odd-color-bar-symbol {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+
+    .odd-color-bar-side small {
+        font-size: 7px;
+    }
+
+    .odd-color-bar-side strong {
+        font-size: 12px;
+    }
+
+    .odd-color-level-stack > strong {
+        font-size: 20px;
+    }
+
+    .odd-color-hearts {
+        gap: 4px;
+        margin-top: 7px;
+        font-size: 18px;
+    }
+
+    .odd-color-result-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-height: 680px) and (orientation: landscape) {
+    .odd-color-app,
+    .odd-color-screen {
+        min-height: 0;
+    }
+
+    .odd-color-grid {
+        width: min(100%, calc(100dvh - 260px), 560px);
+    }
+
+    .odd-color-control-panel {
+        width: min(100%, calc(100dvh - 260px), 560px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .odd-color-cell,
+    .odd-color-cell.is-wrong,
+    .odd-color-cell.is-correct,
+    .odd-color-grid.is-shaking,
+    .odd-color-hud[data-low-lives="true"] .odd-color-hearts,
+    .odd-color-hearts span,
+    .odd-color-shuffle,
+    .odd-color-shuffle.is-active .odd-color-shuffle-icon,
+    .odd-color-grid.is-shuffling .odd-color-cell {
+        animation: none;
+        transition: none;
+    }
+}

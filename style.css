@@ -1315,14 +1315,6 @@ a {
     gap: 7px;
 }
 
-.app-home-card-meta {
-    color: #61cbbb;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-}
-
 .app-home-card-description {
     color: var(--muted);
     font-size: 11px;

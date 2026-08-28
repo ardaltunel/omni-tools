@@ -205,7 +205,6 @@ function createAppHomeCards() {
         const category = getAppHomeCategory(item.dataset.category);
         const card = document.createElement("button");
         const copy = document.createElement("span");
-        const meta = document.createElement("span");
         const label = document.createElement("span");
         const arrow = document.createElement("span");
 
@@ -215,15 +214,13 @@ function createAppHomeCards() {
         card.dataset.category = category.id;
         card.setAttribute("aria-label", `${toolName} uygulamasını aç`);
         copy.className = "app-home-card-copy";
-        meta.className = "app-home-card-meta";
-        meta.textContent = item.dataset.category || category.name;
         label.className = "app-home-card-name";
         label.textContent = toolName;
         arrow.className = "app-home-card-arrow";
         arrow.setAttribute("aria-hidden", "true");
         arrow.textContent = "\u2192";
 
-        copy.append(meta, label);
+        copy.append(label);
         if (item.dataset.description) {
             const description = document.createElement("small");
             description.className = "app-home-card-description";
@@ -619,6 +616,11 @@ function updatePageMetadata(tool) {
             description: "Sanal çiplerle, klasik Blackjack kurallarına göre tarayıcıda üst düzey masa deneyimi yaşa.",
             keywords: "blackjack, iskambil, kart oyunu, casino masası, sanal kredi, 21 oyunu",
         },
+        "farkli-rengi-bul": {
+            title: "Farklı Rengi Bul | Omni Tools",
+            description: "Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul.",
+            keywords: "farklı rengi bul, renk algısı testi, renk oyunu, görsel dikkat, hsl renk, odd color game, ücretsiz oyun",
+        },
         "slot-game": {
             title: "Slot Oyunu | Omni Tools",
             description: "6x5 ızgara, zincirleme düşüş sistemi, çarpanlar ve ücretsiz dönüşlerle özgün sanal slot oyununu ücretsiz oyna.",
@@ -647,7 +649,7 @@ function updatePageMetadata(tool) {
     const canonicalUrl = tool && defaultCanonicalUrl
         ? new URL(encodeURIComponent(getPreferredToolRoute(tool)), defaultCanonicalUrl).href
         : defaultCanonicalUrl;
-    const socialImageAlt = toolName ? `${toolName} — Omni Tools paylaşım önizlemesi` : "Omni Tools — 55 uygulama, tek panel";
+    const socialImageAlt = toolName ? `${toolName} — Omni Tools paylaşım önizlemesi` : "Omni Tools — 56 uygulama, tek panel";
 
     document.title = title;
     if (descriptionMeta) descriptionMeta.content = description;
