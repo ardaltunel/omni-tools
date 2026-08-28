@@ -30,6 +30,64 @@ const preferredToolRoutes = Object.freeze(Object.fromEntries(
 const preferredRouteTools = Object.freeze(Object.fromEntries(
     Object.entries(preferredToolRoutes).map(([tool, route]) => [route, tool]),
 ));
+const appHomeCategories = Object.freeze([
+    {
+        id: "oyunlar",
+        name: "Oyunlar",
+        icon: "sports_esports",
+        description: "Bulmacalar, masa oyunları ve eğlenceli meydan okumalar",
+        sourceCategories: ["Oyunlar", "Oyun Yardımcısı"],
+    },
+    {
+        id: "yapay-zeka",
+        name: "Yapay Zekâ",
+        icon: "auto_awesome",
+        description: "Yaz, geliştir, düzelt ve fikirlerini hızlandır",
+        sourceCategories: ["Yapay Zekâ"],
+    },
+    {
+        id: "uretimlilik",
+        name: "Üretkenlik",
+        icon: "bolt",
+        description: "Günlük işlerini daha kısa sürede tamamlayan pratik araçlar",
+        sourceCategories: ["Araçlar", "Verimlilik", "Dil", "Erişilebilirlik"],
+    },
+    {
+        id: "gelistirici",
+        name: "Geliştirici & Web",
+        icon: "code",
+        description: "Kod, GitHub, SEO ve web projeleri için yardımcılar",
+        sourceCategories: ["Geliştirici", "SEO", "Tasarım"],
+    },
+    {
+        id: "medya",
+        name: "Medya & Dosyalar",
+        icon: "perm_media",
+        description: "Görsel, ses ve dosya verilerini yönet",
+        sourceCategories: ["Medya", "Gizlilik"],
+    },
+    {
+        id: "guvenlik",
+        name: "Güvenlik & Araştırma",
+        icon: "shield",
+        description: "Hesaplarını güçlendir, açık kaynak verilerini araştır",
+        sourceCategories: ["Güvenlik", "OSINT"],
+    },
+    {
+        id: "sosyal",
+        name: "Sosyal Medya",
+        icon: "alternate_email",
+        description: "Sosyal hesaplar ve topluluklar için yardımcı araçlar",
+        sourceCategories: ["Sosyal Medya"],
+    },
+    {
+        id: "gunluk",
+        name: "Finans & Günlük",
+        icon: "monitoring",
+        description: "Kurlar, hava durumu ve kariyer için hızlı çözümler",
+        sourceCategories: ["Finans", "Hava Durumu", "Kariyer"],
+    },
+]);
 document.body.classList.add("is-app-home");
 const homeAppCards = createAppHomeCards();
 initializeAppSearch(homeAppCards);
@@ -105,29 +163,66 @@ function createAppHomeCards() {
     if (!grid) return [];
 
     const fragment = document.createDocumentFragment();
+    const sectionGrids = new Map();
+    const categoryCounts = new Map(appHomeCategories.map((category) => [category.id, 0]));
+
+    appHomeCategories.forEach((category) => {
+        const section = document.createElement("section");
+        const heading = document.createElement("div");
+        const titleGroup = document.createElement("div");
+        const symbol = document.createElement("span");
+        const copy = document.createElement("div");
+        const title = document.createElement("h2");
+        const description = document.createElement("p");
+        const count = document.createElement("span");
+        const cardsGrid = document.createElement("div");
+
+        section.className = "app-home-category-section";
+        section.dataset.category = category.id;
+        section.id = `app-home-category-${category.id}`;
+        heading.className = "app-home-category-heading";
+        titleGroup.className = "app-home-category-title-group";
+        symbol.className = "app-home-category-symbol";
+        symbol.textContent = category.icon;
+        symbol.setAttribute("aria-hidden", "true");
+        title.textContent = category.name;
+        description.textContent = category.description;
+        count.className = "app-home-category-count";
+        count.dataset.categoryCount = category.id;
+        cardsGrid.className = "app-home-category-grid";
+
+        copy.append(title, description);
+        titleGroup.append(symbol, copy);
+        heading.append(titleGroup, count);
+        section.append(heading, cardsGrid);
+        fragment.appendChild(section);
+        sectionGrids.set(category.id, cardsGrid);
+    });
+
     const cards = Array.from(navItems, (item, index) => {
         const toolName = item.querySelector("span")?.textContent.trim() || item.textContent.trim();
+        const category = getAppHomeCategory(item.dataset.category);
         const card = document.createElement("button");
-        const number = document.createElement("span");
         const copy = document.createElement("span");
+        const meta = document.createElement("span");
         const label = document.createElement("span");
         const arrow = document.createElement("span");
 
         card.className = "app-home-card";
         card.type = "button";
         card.dataset.tool = item.dataset.tool;
+        card.dataset.category = category.id;
         card.setAttribute("aria-label", `${toolName} uygulamasını aç`);
-        number.className = "app-home-card-number";
-        number.setAttribute("aria-hidden", "true");
-        number.textContent = String(index + 1).padStart(2, "0");
         copy.className = "app-home-card-copy";
+        meta.className = "app-home-card-meta";
+        meta.textContent = item.dataset.category || category.name;
         label.className = "app-home-card-name";
         label.textContent = toolName;
         arrow.className = "app-home-card-arrow";
         arrow.setAttribute("aria-hidden", "true");
         arrow.textContent = "\u2192";
 
-        copy.appendChild(label);
+        copy.append(meta, label);
         if (item.dataset.description) {
             const description = document.createElement("small");
             description.className = "app-home-card-description";
@@ -135,14 +230,24 @@ function createAppHomeCards() {
             copy.appendChild(description);
         }
 
-        card.append(number, copy, arrow);
+        card.append(copy, arrow);
         card.addEventListener("click", () => activateTool(item.dataset.tool, { historyMode: "push" }));
-        fragment.appendChild(card);
+        sectionGrids.get(category.id)?.appendChild(card);
+        categoryCounts.set(category.id, (categoryCounts.get(category.id) || 0) + 1);
         return card;
     });
 
+    appHomeCategories.forEach((category) => {
+        const count = fragment.querySelector(`[data-category-count="${category.id}"]`);
+        if (count) count.textContent = `${categoryCounts.get(category.id) || 0} araç`;
+    });
     grid.replaceChildren(fragment);
     return cards;
+}
+
+function getAppHomeCategory(sourceCategory) {
+    return appHomeCategories.find((category) => category.sourceCategories.includes(sourceCategory))
+        || appHomeCategories[2];
 }
 
 function initializeAppSearch(cards) {
@@ -156,13 +261,17 @@ function initializeAppSearch(cards) {
     const homeEmpty = document.getElementById("app-home-empty");
     const homeGrid = document.getElementById("app-home-grid");
     const homeListTitle = document.getElementById("app-home-list-title");
+    const categoryFilters = document.getElementById("app-home-category-filters");
+    const toolCount = document.getElementById("app-home-tool-count");
+    const categoryCount = document.getElementById("app-home-category-count");
     const brandSummary = brand?.querySelector("small");
 
-    if (!searchControls.length || !homeEmpty || !homeGrid || !homeListTitle) return;
+    if (!searchControls.length || !homeEmpty || !homeGrid || !homeListTitle || !categoryFilters) return;
 
     const searchableItems = Array.from(navItems, (item, index) => ({
         navItem: item,
         homeCard: cards[index],
+        category: getAppHomeCategory(item.dataset.category).id,
         searchText: normalizeAppSearchText([
             item.querySelector("span")?.textContent || item.textContent,
             item.dataset.tool,
@@ -173,8 +282,35 @@ function initializeAppSearch(cards) {
         ].filter(Boolean).join(" ")),
     }));
     const totalAppCount = searchableItems.length;
+    let activeCategory = "all";
+    const homeSearchInput = searchControls.find(({ container }) => container.classList.contains("app-home-search"))?.input
+        || searchControls[0].input;
 
     if (brandSummary) brandSummary.textContent = `${totalAppCount} uygulama, tek panel`;
+    if (toolCount) toolCount.textContent = totalAppCount;
+    if (categoryCount) categoryCount.textContent = appHomeCategories.length;
+
+    const filterFragment = document.createDocumentFragment();
+    [{ id: "all", name: "Tümü" }, ...appHomeCategories].forEach((category) => {
+        const count = category.id === "all"
+            ? totalAppCount
+            : searchableItems.filter((item) => item.category === category.id).length;
+        const button = document.createElement("button");
+        button.className = "app-home-category-filter";
+        button.type = "button";
+        button.dataset.category = category.id;
+        button.setAttribute("aria-pressed", String(category.id === "all"));
+        button.innerHTML = `<span>${category.name}</span><small>${count}</small>`;
+        button.addEventListener("click", () => {
+            activeCategory = category.id;
+            categoryFilters.querySelectorAll(".app-home-category-filter").forEach((item) => {
+                item.setAttribute("aria-pressed", String(item === button));
+            });
+            filterApps(homeSearchInput.value);
+        });
+        filterFragment.appendChild(button);
+    });
+    categoryFilters.replaceChildren(filterFragment);
 
     const filterApps = (value = "") => {
         const rawValue = String(value);
@@ -182,25 +318,35 @@ function initializeAppSearch(cards) {
         const queryTokens = query.split(" ").filter(Boolean);
         let visibleCount = 0;
 
-        searchableItems.forEach(({ homeCard, searchText }) => {
-            const isMatch = !query || queryTokens.every((token) => searchText.includes(token));
+        searchableItems.forEach(({ homeCard, searchText, category }) => {
+            const matchesQuery = !query || queryTokens.every((token) => searchText.includes(token));
+            const matchesCategory = activeCategory === "all" || category === activeCategory;
+            const isMatch = matchesQuery && matchesCategory;
             if (homeCard) homeCard.hidden = !isMatch;
             if (isMatch) {
                 visibleCount += 1;
-                const number = homeCard?.querySelector(".app-home-card-number");
-                if (number) number.textContent = String(visibleCount).padStart(2, "0");
             }
+        });
+
+        homeGrid.querySelectorAll(".app-home-category-section").forEach((section) => {
+            const visibleCards = section.querySelectorAll(".app-home-card:not([hidden])").length;
+            section.hidden = visibleCards === 0;
+            const count = section.querySelector(".app-home-category-count");
+            if (count) count.textContent = `${visibleCards} araç`;
         });
 
         const hasQuery = query.length > 0;
         const hasResults = visibleCount > 0;
+        const activeCategoryName = appHomeCategories.find((category) => category.id === activeCategory)?.name;
         searchControls.forEach(({ input, clearButton, shortcut, status }) => {
             if (input.value !== rawValue) input.value = rawValue;
             clearButton.hidden = !hasQuery;
             shortcut.hidden = hasQuery;
 
             if (!hasQuery) {
-                status.textContent = "Tüm uygulamalar gösteriliyor.";
+                status.textContent = activeCategoryName
+                    ? `${activeCategoryName} kategorisinde ${visibleCount} uygulama gösteriliyor.`
+                    : "Tüm uygulamalar gösteriliyor.";
             } else if (!hasResults) {
                 status.textContent = "Uygulama bulunamadı.";
             } else {
@@ -208,9 +354,11 @@ function initializeAppSearch(cards) {
             }
         });
 
-        homeEmpty.hidden = !hasQuery || hasResults;
-        homeGrid.hidden = hasQuery && !hasResults;
-        homeListTitle.textContent = hasQuery ? "Arama sonuçları" : "Tüm uygulamalar";
+        homeEmpty.hidden = hasResults;
+        homeGrid.hidden = !hasResults;
+        homeListTitle.textContent = hasQuery
+            ? "Arama sonuçları"
+            : (activeCategoryName || "Tüm uygulamalar");
     };
 
     const clearSearch = (input) => {
