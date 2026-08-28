@@ -18,7 +18,7 @@
 # 📸 Preview
 
 <p align="center">
-  <img width="1891" height="900" alt="Omni Tools application preview" src="https://github.com/user-attachments/assets/23e9d91f-f0be-4d5f-ba55-65d20bc02de8" />
+  <img width="1891" height="900" alt="Omni Tools application preview" src="https://github.com/user-attachments/assets/e7dd4d7d-acf2-4148-aa30-3169e16f049e" />
 </p>
 
 ---
