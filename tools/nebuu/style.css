@@ -20,6 +20,26 @@
     min-width: 0;
 }
 
+#nebuu.tool-panel.active:has(.forehead-game-desktop:not([hidden])) {
+    display: flex;
+    flex-direction: column;
+}
+
+#nebuu.tool-panel.active:has(.forehead-game-desktop:not([hidden])) .forehead-game-panel-heading {
+    flex: 0 0 auto;
+}
+
+#nebuu.tool-panel.active:has(.forehead-game-desktop:not([hidden])) .forehead-game-app {
+    display: grid;
+    flex: 1 1 auto;
+    min-height: 0;
+    place-items: center;
+}
+
+#nebuu.tool-panel.active:has(.forehead-game-desktop:not([hidden])) .forehead-game-desktop {
+    margin: 0 auto;
+}
+
 .forehead-game-eyebrow {
     display: block;
     color: var(--accent);
