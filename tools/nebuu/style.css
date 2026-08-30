@@ -10,6 +10,9 @@
 
 .forehead-game-panel-heading {
     align-items: flex-start;
+    width: 100%;
+    margin-inline: 0;
+    text-align: left;
 }
 
 .forehead-game-app {
