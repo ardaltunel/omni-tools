@@ -157,7 +157,7 @@
 
 .robots-txt-actions {
     display: grid;
-    grid-template-columns: repeat(5, max-content);
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     justify-content: start;
     gap: 8px;
     margin-top: 12px;

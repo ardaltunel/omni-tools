@@ -58,6 +58,7 @@
     display: flex;
     min-width: 0;
     min-height: 390px;
+    container: prompt-developer-editor / inline-size;
     flex-direction: column;
     padding: 14px;
 }
@@ -156,7 +157,7 @@
     .prompt-developer-layout { grid-template-columns: 1fr; }
     .prompt-developer-editor-card { min-height: 350px; }
 }
-@media (max-width: 1180px) {
+@container prompt-developer-editor (max-width: 650px) {
     .prompt-developer-input-actions { grid-template-columns: 1fr; }
     .prompt-developer-action-meta { min-width: 0; justify-items: start; }
     .prompt-developer-hint { text-align: left; }

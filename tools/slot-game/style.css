@@ -684,6 +684,7 @@
     display: grid;
     width: clamp(104px, 10vw, 126px);
     aspect-ratio: 1;
+    container-type: inline-size;
     place-content: center;
     justify-self: center;
     border: 1px solid rgba(255, 241, 183, 0.72);
@@ -694,6 +695,7 @@
         linear-gradient(145deg, #ffd977, #b87623 72%);
     color: #28130a;
     cursor: pointer;
+    padding: 0;
     box-shadow: inset 0 0 0 5px rgba(83, 37, 12, 0.15), 0 0 0 5px rgba(255, 213, 100, 0.08), 0 7px 22px rgba(0, 0, 0, 0.38), 0 0 27px rgba(255, 199, 75, 0.2);
     transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease;
 }
@@ -717,9 +719,10 @@
 
 .slot-game-spin-button > strong {
     font-family: Mukta, Inter, sans-serif;
-    font-size: 24px;
-    letter-spacing: 0.08em;
+    font-size: min(24px, 21cqi);
+    letter-spacing: 0.02em;
     line-height: 1;
+    white-space: nowrap;
 }
 
 .slot-game-spin-button > small {
@@ -1496,10 +1499,6 @@
         align-self: center;
     }
 
-    .slot-game-spin-button > strong {
-        font-size: 19px;
-    }
-
     .slot-game-spin-ring {
         inset: 6px;
     }
@@ -1603,10 +1602,6 @@
 
     .slot-game-spin-button {
         width: 74px;
-    }
-
-    .slot-game-spin-button > strong {
-        font-size: 20px;
     }
 
     .slot-game-option-controls {
@@ -1733,10 +1728,6 @@
 
     .slot-game-spin-button {
         width: 66px;
-    }
-
-    .slot-game-spin-button > strong {
-        font-size: 18px;
     }
 
     .slot-game-spin-button > small {

@@ -35,6 +35,8 @@
 .microphone-test-field-heading small { color: var(--accent); font-size: 8px; font-weight: 800; }
 .microphone-test-field select { width: 100%; }
 .microphone-test-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.microphone-test-source-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.microphone-test-source-actions > button { width: 100%; }
 
 .microphone-test-info { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; overflow: hidden; margin-top: 16px; border: 1px solid var(--mic-line); border-radius: 9px; background: var(--mic-line); }
 .microphone-test-info div { display: grid; gap: 3px; min-width: 0; background: var(--mic-raised); padding: 9px; }

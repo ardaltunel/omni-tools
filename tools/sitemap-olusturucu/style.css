@@ -434,12 +434,19 @@
 }
 
 .sitemap-simple-card textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(24, 169, 153, .12); }
-.sitemap-simple-input-footer { align-items: flex-start; margin-top: 10px; }
-.sitemap-simple-small-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.sitemap-simple-input-footer { align-items: flex-start; flex-wrap: wrap; margin-top: 10px; }
+.sitemap-simple-small-actions {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 220px;
+    gap: 6px;
+}
+.sitemap-simple-small-actions button { min-width: 0; flex: 1 1 0; }
 
 .sitemap-simple-counts {
     display: grid;
-    width: min(100%, 330px);
+    min-width: 0;
+    flex: 1 1 330px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 7px;
 }
@@ -552,7 +559,8 @@
     .sitemap-simple-actions { width: 100%; margin-left: 0; }
     .sitemap-simple-footer .sitemap-simple-message { align-self: flex-start; border-radius: var(--radius, 8px); }
     .sitemap-simple-input-footer { align-items: stretch; flex-direction: column; }
-    .sitemap-simple-counts { width: 100%; }
+    .sitemap-simple-counts,
+    .sitemap-simple-small-actions { width: 100%; flex: none; }
     .sitemap-simple-small-actions button,
     .sitemap-simple-actions button { flex: 1 1 145px; }
     .sitemap-generator-entry-grid,
