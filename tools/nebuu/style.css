@@ -10,11 +10,10 @@
 
 .forehead-game-panel-heading {
     align-items: flex-start;
-    width: min(100%, 760px);
-    margin-inline: auto;
 }
 
 .forehead-game-app {
+    display: flow-root;
     min-width: 0;
 }
 
@@ -30,7 +29,7 @@
     display: grid;
     width: min(100%, 760px);
     min-height: 610px;
-    margin: 0 auto;
+    margin: 12px auto 0;
     place-items: center;
     align-content: center;
     border: 1px solid var(--line);
