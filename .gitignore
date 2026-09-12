@@ -1,4 +1,5 @@
 server.log
+/tools/yuzbir-okey/node_modules/
 server.err.log
 /tools/kullanici-adi-arastirma/worker/node_modules/
 /tools/kullanici-adi-arastirma/worker/.wrangler/

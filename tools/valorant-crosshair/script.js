@@ -117,21 +117,18 @@ const valorantCopyButton = document.getElementById("valorant-crosshair-copy");
 const valorantClearButton = document.getElementById("valorant-crosshair-clear");
 const valorantFeedback = document.getElementById("valorant-crosshair-feedback");
 let valorantFeedbackTimer;
-let valorantSelectedImage = "";
 
 function initValorantCrosshair() {
     if (!valorantGrid) return;
     setValorantSelection(valorantCrosshairs[0]);
     renderValorantCards();
     valorantCodeInput.addEventListener("input", () => {
-        valorantSelectedImage = "";
         valorantPreviewName.textContent = "Özel Kod";
         renderValorantPreview(valorantCodeInput.value);
     });
     valorantCopyButton.addEventListener("click", () => copyValorantCode(valorantCodeInput.value));
     valorantClearButton.addEventListener("click", () => {
         valorantCodeInput.value = "";
-        valorantSelectedImage = "";
         valorantPreviewName.textContent = "Özel Kod";
         renderValorantPreview("");
         valorantCodeInput.focus();
@@ -146,7 +143,7 @@ function renderValorantCards() {
         card.className = "valorant-crosshair-card";
         card.innerHTML = `
             <button class="valorant-crosshair-card-preview" type="button" aria-label="${escapeHtml(item.name)} önizlemesini seç">
-                ${createValorantImageMarkup(item)}
+                ${createValorantPreviewMarkup(item.code)}
             </button>
             <div class="valorant-crosshair-card-body">
                 <h3>${escapeHtml(item.name)}</h3>
@@ -162,109 +159,20 @@ function renderValorantCards() {
 
 function setValorantSelection(item) {
     valorantCodeInput.value = item.code;
-    valorantSelectedImage = item.image;
     valorantPreviewName.textContent = item.name;
-    renderValorantPreview(item.code, item.image, item.name);
+    renderValorantPreview(item.code);
 }
 
-function renderValorantPreview(code, image = valorantSelectedImage, name = valorantPreviewName.textContent) {
+function renderValorantPreview(code) {
     const cleanCode = code.trim();
-    valorantPreview.innerHTML = cleanCode && image
-        ? createValorantImageMarkup({ image, name })
-        : cleanCode
-            ? createValorantPreviewMarkup(cleanCode)
+    valorantPreview.innerHTML = cleanCode
+        ? createValorantPreviewMarkup(cleanCode)
         : '<span class="valorant-crosshair-preview-empty">Kod girildiğinde önizleme burada görünür.</span>';
 }
 
-function createValorantImageMarkup(item) {
-    return `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)} nişangâh önizlemesi" loading="lazy">`;
-}
-
 function createValorantPreviewMarkup(code) {
-    const settings = parseValorantCrosshairCode(code);
-    const color = getValorantCrosshairColor(settings);
-    const innerLength = clampNumber(readValorantNumber(settings, "0l", 4), 0, 24);
-    const innerVertical = clampNumber(readValorantNumber(settings, "0v", innerLength), 0, 24);
-    const innerOffset = clampNumber(readValorantNumber(settings, "0o", 2), 0, 32);
-    const innerThickness = clampNumber(readValorantNumber(settings, "0t", 2), 1, 12);
-    const innerOpacity = clampNumber(readValorantNumber(settings, "0a", 1), 0.08, 1);
-    const outerLength = clampNumber(readValorantNumber(settings, "1l", 0), 0, 24);
-    const outerVertical = clampNumber(readValorantNumber(settings, "1v", outerLength), 0, 24);
-    const outerOffset = clampNumber(readValorantNumber(settings, "1o", 8), 0, 44);
-    const outerThickness = clampNumber(readValorantNumber(settings, "1t", innerThickness), 1, 12);
-    const outerOpacity = clampNumber(readValorantNumber(settings, "1a", 0.55), 0.08, 1);
-    const dotEnabled = settings.d === "1" || (innerLength <= 1 && innerVertical <= 1);
-    const dotSize = clampNumber(readValorantNumber(settings, "z", 2) * 2, 2, 16);
-
-    const style = [
-        `--vc-color:${color}`,
-        `--vc-inner-length:${Math.max(innerLength, 1) * 5}px`,
-        `--vc-inner-vertical:${Math.max(innerVertical, 1) * 5}px`,
-        `--vc-inner-offset:${innerOffset * 4 + 4}px`,
-        `--vc-inner-thickness:${innerThickness}px`,
-        `--vc-inner-opacity:${innerOpacity}`,
-        `--vc-outer-length:${outerLength * 4}px`,
-        `--vc-outer-vertical:${outerVertical * 4}px`,
-        `--vc-outer-offset:${outerOffset * 3 + 8}px`,
-        `--vc-outer-thickness:${outerThickness}px`,
-        `--vc-outer-opacity:${outerOpacity}`,
-        `--vc-dot-size:${dotSize}px`
-    ].join(";");
-
-    return `
-        <div class="valorant-crosshair-render" style="${style}">
-            <span class="vc-axis vc-axis-x"></span>
-            <span class="vc-axis vc-axis-y"></span>
-            <span class="vc-line vc-inner vc-top"></span>
-            <span class="vc-line vc-inner vc-right"></span>
-            <span class="vc-line vc-inner vc-bottom"></span>
-            <span class="vc-line vc-inner vc-left"></span>
-            ${outerLength || outerVertical ? `
-                <span class="vc-line vc-outer vc-top"></span>
-                <span class="vc-line vc-outer vc-right"></span>
-                <span class="vc-line vc-outer vc-bottom"></span>
-                <span class="vc-line vc-outer vc-left"></span>
-            ` : ""}
-            ${dotEnabled ? '<span class="vc-dot"></span>' : ""}
-        </div>
-    `;
-}
-
-function parseValorantCrosshairCode(code) {
-    const tokens = code.split(";").map((token) => token.trim()).filter(Boolean);
-    const settings = {};
-    for (let index = 0; index < tokens.length - 1; index += 2) {
-        settings[tokens[index]] = tokens[index + 1];
-    }
-    return settings;
-}
-
-function getValorantCrosshairColor(settings) {
-    if (settings.u && /^[0-9a-f]{6,8}$/i.test(settings.u)) {
-        return `#${settings.u.slice(0, 6)}`;
-    }
-
-    const colors = {
-        0: "#ffffff",
-        1: "#20f7d2",
-        2: "#50ff6b",
-        3: "#dfff2f",
-        4: "#132bff",
-        5: "#27a8ff",
-        6: "#ff4b50",
-        7: "#ff8a1d",
-        8: "#ff4fc3"
-    };
-    return colors[settings.c] || colors[settings.t] || "#20f7d2";
-}
-
-function readValorantNumber(settings, key, fallback) {
-    const value = Number.parseFloat(settings[key]);
-    return Number.isFinite(value) ? value : fallback;
-}
-
-function clampNumber(value, min, max) {
-    return Math.min(Math.max(value, min), max);
+    try { return window.ValorantCrosshairRenderer.svg(code); }
+    catch (error) { return `<span class="valorant-crosshair-preview-empty">${escapeHtml(error.message)}</span>`; }
 }
 
 async function copyValorantCode(code, item) {

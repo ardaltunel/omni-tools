@@ -1,0 +1,128 @@
+[
+  {
+    "name": "ArtÄ± Cross",
+    "reference": "tools/valorant-crosshair/images/1.png",
+    "comparedPixels": 36,
+    "differentPixels": 16,
+    "exact": false
+  },
+  {
+    "name": "Nokta Cross",
+    "reference": "tools/valorant-crosshair/images/2.png",
+    "comparedPixels": 32,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Kare Cross",
+    "reference": "tools/valorant-crosshair/images/3.png",
+    "comparedPixels": 16,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "4:3 ama deÄŸil",
+    "reference": "tools/valorant-crosshair/images/4.png",
+    "comparedPixels": 36,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Reyna Flash",
+    "reference": "tools/valorant-crosshair/images/5.png",
+    "comparedPixels": 914,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Glasses",
+    "reference": "tools/valorant-crosshair/images/6.png",
+    "comparedPixels": 412,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Smiley",
+    "reference": "tools/valorant-crosshair/images/7.png",
+    "comparedPixels": 192,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Flappy",
+    "reference": "tools/valorant-crosshair/images/8.png",
+    "comparedPixels": 660,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Clown",
+    "reference": "tools/valorant-crosshair/images/9.png",
+    "comparedPixels": 192,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Windows",
+    "reference": "tools/valorant-crosshair/images/10.png",
+    "comparedPixels": 64,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Steve",
+    "reference": "tools/valorant-crosshair/images/11.png",
+    "comparedPixels": 340,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Among Us",
+    "reference": "tools/valorant-crosshair/images/12.png",
+    "comparedPixels": 232,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Pussy",
+    "reference": "tools/valorant-crosshair/images/13.png",
+    "comparedPixels": 117,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Windmill",
+    "reference": "tools/valorant-crosshair/images/14.png",
+    "comparedPixels": 3984,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Church Crosses",
+    "reference": "tools/valorant-crosshair/images/15.png",
+    "comparedPixels": 249,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "Fishnet",
+    "reference": "tools/valorant-crosshair/images/16.png",
+    "comparedPixels": 168,
+    "differentPixels": 0,
+    "exact": true
+  },
+  {
+    "name": "AÅŸkÄ±mÄ±zÄ±n Meyvesi",
+    "reference": "tools/valorant-crosshair/images/17.png",
+    "comparedPixels": 110,
+    "differentPixels": 94,
+    "exact": false
+  },
+  {
+    "name": "Kare (Ã§ok Ã¶zel)",
+    "reference": "tools/valorant-crosshair/images/18.png",
+    "comparedPixels": 96,
+    "differentPixels": 92,
+    "exact": false
+  }
+]

@@ -42,6 +42,14 @@
         stats: saved.stats,
     });
     let soundEnabled = saved.soundEnabled;
+    let soundVolume = saved.soundVolume ?? 1;
+    const volumeInput = document.getElementById("blackjack-volume");
+    const volumeOutput = document.getElementById("blackjack-volume-value");
+    volumeInput.value = String(Math.round(soundVolume * 100));
+    volumeOutput.textContent = `%${volumeInput.value}`;
+    volumeInput.addEventListener("input", () => { soundVolume = Number(volumeInput.value) / 100; volumeOutput.textContent = `%${volumeInput.value}`; if (playSound.master) playSound.master.gain.setTargetAtTime(soundVolume, playSound.context.currentTime, 0.02); saveState(); });
+    const volumeControl = volumeInput.closest(".blackjack-volume-control");
+    volumeControl.addEventListener("pointerleave", (event) => { if (event.pointerType === "mouse" && volumeControl.contains(document.activeElement)) document.activeElement.blur(); });
     let busy = false;
     let view = createViewState();
     let autoNextRoundTimer = 0;
@@ -74,6 +82,7 @@
                 lastBet: Number.isInteger(value.lastBet) && value.lastBet >= 0 ? value.lastBet : 0,
                 stats: value.stats && typeof value.stats === "object" ? value.stats : {},
                 soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : true,
+                soundVolume: Number.isFinite(value.soundVolume) ? Math.max(0, Math.min(1, value.soundVolume)) : 1,
                 game: value.game && typeof value.game === "object" ? value.game : null,
             };
         } catch {
@@ -89,6 +98,7 @@
                 lastBet: game.lastBet,
                 stats: game.stats,
                 soundEnabled,
+                soundVolume,
                 game: engine.serializeState(game),
             }));
         } catch {
@@ -194,8 +204,8 @@
         if (!queuedCards.length) return;
 
         const shoeRect = elements.shoe.getBoundingClientRect();
-        const sourceX = shoeRect.left + shoeRect.width * 0.36;
-        const sourceY = shoeRect.top + shoeRect.height * 0.4;
+        const sourceX = shoeRect.left + shoeRect.width * 0.23;
+        const sourceY = shoeRect.top + shoeRect.height * 0.8;
         let longestDelay = 0;
 
         queuedCards.forEach((card, index) => {
@@ -250,6 +260,9 @@
     }
 
     function renderPlayerHands() {
+        const scrollPositions = new Map(Array.from(elements.playerHands.children, (panel) => [
+            panel.dataset.handId, {left: panel.querySelector('.blackjack-card-row')?.scrollLeft || 0, revealNewest: panel.dataset.revealNewest === 'true'},
+        ]));
         const fragment = document.createDocumentFragment();
         game.playerHands.forEach((hand, index) => {
             const panel = document.createElement("section");
@@ -261,9 +274,13 @@
             const visibleCount = view.playerVisible[index] ?? hand.cards.length;
 
             panel.className = "blackjack-player-hand";
+            panel.dataset.handId = hand.id;
             if (game.phase === engine.PHASES.PLAYER_TURN && index === game.activeHandIndex) panel.classList.add("is-active");
             meta.className = "blackjack-player-hand-meta";
             cards.className = "blackjack-card-row";
+            cards.tabIndex = 0;
+            cards.setAttribute("role", "group");
+            cards.setAttribute("aria-label", `${index + 1}. elin kartları`);
             name.textContent = game.playerHands.length > 1 ? `El ${index + 1}` : "Elin";
             total.textContent = handText(hand.cards.slice(0, visibleCount));
             outcome.textContent = outcomeLabel(hand);
@@ -273,6 +290,13 @@
             fragment.appendChild(panel);
         });
         elements.playerHands.replaceChildren(fragment);
+        Array.from(elements.playerHands.children).forEach((panel, index) => {
+            const row = panel.querySelector('.blackjack-card-row');
+            const newCard = game.playerHands[index].cards.some(card => card.id === view.lastDealtCardId);
+            const previous = scrollPositions.get(panel.dataset.handId);
+            panel.dataset.revealNewest = String(newCard);
+            row.scrollLeft = newCard || previous?.revealNewest ? row.scrollWidth : (previous?.left || 0);
+        });
 
         if (!game.playerHands.length) {
             elements.playerTotal.textContent = "Toplam: —";
@@ -296,6 +320,7 @@
         }
         if (game.phase === engine.PHASES.INSURANCE) return { title: "SİGORTA KARARI", tone: "" };
         if (game.phase === engine.PHASES.DEALER_TURN) return { title: "KRUPİYE OYNUYOR", tone: "" };
+        if (game.phase === engine.PHASES.RESOLVING) return { title: "EL HESAPLANIYOR", tone: "" };
         if (game.phase === engine.PHASES.PLAYER_TURN) return { title: "SIRA SENDE", tone: "" };
         if (game.phase === engine.PHASES.DEALING) return { title: "KARTLAR DAĞITILIYOR", tone: "" };
         return { title: "BAHİSLER AÇIK", tone: "" };
@@ -343,18 +368,72 @@
         elements.insurance.hidden = game.phase !== engine.PHASES.INSURANCE;
         elements.insuranceTake.disabled = busy || insuranceAmount <= 0 || game.balance < insuranceAmount;
         elements.insuranceDecline.disabled = busy || game.phase !== engine.PHASES.INSURANCE;
-        elements.betNote.textContent = game.currentBet ? `Masada ${formatCredits(game.currentBet)} kredi` : "Minimum 10 kredi";
+        const totalBet = engine.totalBet(game);
+        elements.betNote.textContent = totalBet ? `Masada ${formatCredits(totalBet)} kredi` : "Minimum 10 kredi";
         elements.actionKicker.textContent = getActionKicker();
+    }
+
+    function renderTableChips() {
+        let pile = app.querySelector(".blackjack-table-chips");
+        if (!pile) {
+            pile = document.createElement("div");
+            pile.className = "blackjack-table-chips";
+            app.querySelector(".blackjack-table").append(pile);
+        }
+        pile.replaceChildren();
+        const totalBet = engine.totalBet(game);
+        pile.hidden = !totalBet;
+        pile.setAttribute("aria-label", `Masadaki bahis: ${formatCredits(totalBet)} kredi`);
+        let remaining = totalBet;
+        const chips = [...elements.chips].sort((a,b) => Number(b.dataset.blackjackChip) - Number(a.dataset.blackjackChip));
+        let count = 0;
+        for (const source of chips) {
+            const value = Number(source.dataset.blackjackChip) * engine.MONEY_SCALE;
+            while (remaining >= value && count < 6) {
+                const chip = document.createElement("span");
+                chip.className = source.className;
+                chip.innerHTML = source.innerHTML;
+                chip.setAttribute("aria-hidden", "true");
+                chip.style.setProperty("--stack", String(count++));
+                pile.append(chip);
+                remaining -= value;
+            }
+        }
+        const label = document.createElement("small");
+        label.textContent = formatCredits(totalBet);
+        pile.append(label);
+    }
+
+    function flyChip(source) {
+        const target = app.querySelector(".blackjack-table-chips");
+        if (!target || prefersReducedMotion.matches) return;
+        const from = source.getBoundingClientRect(), to = target.getBoundingClientRect();
+        const chip = document.createElement("span");
+        chip.className = `${source.className} blackjack-flying-chip`;
+        chip.innerHTML = source.innerHTML;
+        chip.setAttribute("aria-hidden", "true");
+        Object.assign(chip.style, {left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px`});
+        document.body.append(chip);
+        const x = to.left + to.width / 2 - from.left - from.width / 2;
+        const y = to.top + to.height / 2 - from.top - from.height / 2;
+        const motion = chip.animate([
+            {transform: "translate(0,0) rotate(0) scale(1)", opacity: 1},
+            {transform: `translate(${x*.6}px,${y-35}px) rotate(100deg) scale(.95)`, offset: .65},
+            {transform: `translate(${x}px,${y}px) rotate(160deg) scale(.82)`, opacity: 1}
+        ], {duration: 420, easing: "cubic-bezier(.2,.7,.3,1)"});
+        motion.onfinish = () => { chip.remove(); target.animate([{transform:"scale(.94)"},{transform:"scale(1)"}],{duration:160}); };
+        motion.oncancel = () => chip.remove();
     }
 
     function render() {
         app.dataset.phase = game.phase;
         elements.balance.textContent = formatCredits(game.balance);
-        elements.currentBet.textContent = formatCredits(game.currentBet);
+        elements.currentBet.textContent = formatCredits(engine.totalBet(game));
         renderDealer();
         renderPlayerHands();
         renderStatus();
         renderControls();
+        renderTableChips();
         elements.shoe.classList.toggle("is-shuffling", Boolean(busy && game.phase === engine.PHASES.DEALING && game.round?.reshuffled));
         animateCardsFromShoe();
         elements.sound.setAttribute("aria-pressed", String(soundEnabled));
@@ -415,13 +494,49 @@
         try {
             if (!playSound.context) playSound.context = new AudioContextClass();
             const context = playSound.context;
+            if (!playSound.master) { playSound.master = context.createGain(); playSound.master.connect(context.destination); }
+            playSound.master.gain.setValueAtTime(soundVolume, context.currentTime);
             if (context.state === "suspended") context.resume();
+            // Layer filtered paper friction with a soft contact transient.
+            if (["deal", "flip", "shuffle", "chip"].includes(kind)) {
+                const now = context.currentTime;
+                const noise = (offset, duration, frequency, level, q = 0.7) => {
+                    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+                    const source = context.createBufferSource();
+                    const filter = context.createBiquadFilter();
+                    const gain = context.createGain();
+                    source.buffer = buffer;
+                    filter.type = "lowpass";
+                    filter.frequency.setValueAtTime(frequency, now + offset);
+                    filter.Q.value = q;
+                    gain.gain.setValueAtTime(0.0001, now + offset);
+                    gain.gain.exponentialRampToValueAtTime(level, now + offset + 0.018);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + duration);
+                    source.connect(filter).connect(gain).connect(playSound.master);
+                    source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
+                    source.start(now + offset);
+                    source.stop(now + offset + duration);
+                };
+                const variation = 0.97 + Math.random() * 0.06;
+                if (kind === "shuffle") {
+                    for (let i = 0; i < 5; i++) noise(i * 0.065, 0.11, 750 * variation, 0.045);
+                    noise(0.33, 0.12, 300, 0.04);
+                } else if (kind === "chip") {
+                    noise(0, 0.09, 620 * variation, 0.065);
+                } else {
+                    noise(0, kind === "flip" ? 0.18 : 0.14, 850 * variation, 0.055);
+                    noise(kind === "flip" ? 0.1 : 0.07, 0.1, 280 * variation, 0.05);
+                }
+                return;
+            }
             const tones = {
                 chip: [300, 0.04, "sine"],
                 deal: [170, 0.045, "triangle"],
                 flip: [260, 0.08, "triangle"],
                 win: [523, 0.14, "sine"],
-                loss: [130, 0.15, "sawtooth"],
+                loss: [160, 0.15, "sine"],
                 blackjack: [659, 0.2, "sine"],
                 shuffle: [110, 0.1, "triangle"],
                 click: [210, 0.035, "sine"],
@@ -432,9 +547,10 @@
             oscillator.type = type;
             oscillator.frequency.setValueAtTime(frequency, context.currentTime);
             gain.gain.setValueAtTime(0.0001, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.07, context.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.025, context.currentTime + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
-            oscillator.connect(gain).connect(context.destination);
+            oscillator.connect(gain).connect(playSound.master);
+            oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
             oscillator.start();
             oscillator.stop(context.currentTime + duration + 0.02);
         } catch {
@@ -706,6 +822,7 @@
         game.message = `${formatCredits(game.currentBet)} kredi bahis masasında.`;
         saveState();
         render();
+        flyChip(event.currentTarget);
         playSound("chip");
     }
 

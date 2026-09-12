@@ -1,3 +1,11 @@
+#yuzbir-okey.active { display: flex; flex-direction: column; height: auto; min-height: 0; padding: 18px; }
+#yuzbir-okey > .panel-heading { flex: 0 0 auto; margin-bottom: 16px; }
+.okey-frame-shell { width: 100%; flex: none; aspect-ratio: 1.6; min-height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--bg); }
+.okey-frame-shell iframe { display: block; width: 100%; height: 100%; border: 0; }
+.okey-frame-shell:fullscreen { box-sizing: border-box; width: 100vw; height: 100dvh; padding-block: clamp(10px, 1.5dvh, 18px); border: 0; border-radius: 0; }
+.okey-frame-shell.okey-expanded { aspect-ratio: auto; height: 85dvh; }
+.okey-hint { color: var(--muted); font-size: 12px; line-height: 1.6; }
+@media (max-width: 600px) { #yuzbir-okey.active { height: auto; min-height: 0; padding: 12px; } .okey-frame-shell { flex: none; height: 76dvh; } }
 :root {
     color-scheme: dark;
     --bg: #101114;
@@ -10537,3 +10545,101 @@ body.millionaire-modal-open {
     }
 
 }
+
+.vc-code-preview { display:block; width:100%; height:100%; }
+
+/* Home collection */
+.app-home { --home-tint: #62d5c1; }
+.app-home-header { display:flex; flex-direction:column; align-items:stretch; gap:26px; width:100%; }
+.app-home-welcome { display:flex; justify-content:space-between; align-items:center; gap:24px; padding:16px 0 4px; }
+.app-home-eyebrow { color:#79baaF; font-size:10px; font-weight:750; letter-spacing:2px; }
+.app-home-welcome h1 { margin:14px 0; font-size:clamp(30px,3.6vw,48px); line-height:1.12; letter-spacing:-1.8px; }
+.app-home-welcome h1 span { color:#74d8c5; }
+.app-home-welcome p { margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
+.app-home-overview { display:flex; flex-direction:column; gap:6px; border-left:1px solid var(--line); padding:12px 0 12px 30px; min-width:175px; }
+.app-home-overview strong { font-size:48px; line-height:1; font-weight:650; letter-spacing:-2px; }
+.app-home-overview span { color:var(--text); font-size:13px; }
+.app-home-overview small { color:var(--muted); margin-top:8px; font-size:11px; }
+.app-home-search { width:100%; max-width:none; min-height:56px; border-radius:14px; background:#181d23; box-shadow:0 8px 28px #00000018; }
+.app-home-category-bar { padding:4px 0 22px; border:0; border-bottom:1px solid var(--line); border-radius:0; background:none; box-shadow:none; }
+.app-home-category-bar > span { display:none; }
+.app-home-category-filters { display:flex; flex-wrap:wrap; gap:8px; }
+.app-home-category-filter { flex:0 0 auto; min-height:38px; padding:8px 13px; border-radius:10px; background:transparent; gap:8px; }
+.app-home-category-filter[aria-pressed="true"] { background:#163630; border-color:#286e61; color:#abf1df; box-shadow:none; }
+.app-home-grid { gap:36px; }
+.app-home-category-section { --home-tint:#62d5c1; }
+.app-home-category-section[data-category="yapay-zeka"] { --home-tint:#bda1ff; }
+.app-home-category-section[data-category="uretimlilik"] { --home-tint:#f2cb85; }
+.app-home-category-section[data-category="gelistirici"] { --home-tint:#8bb8f9; }
+.app-home-category-section[data-category="medya"] { --home-tint:#e8a5c9; }
+.app-home-category-section[data-category="guvenlik"] { --home-tint:#97caac; }
+.app-home-category-heading { margin-bottom:16px; }
+.app-home-category-symbol { color:var(--home-tint); border:0; background:color-mix(in srgb,var(--home-tint) 10%,transparent); }
+.app-home-category-count { border:1px solid var(--line); padding:5px 9px; border-radius:7px; }
+.app-home-category-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.app-home-card, .app-home-card.has-icon { position:relative; grid-template-columns:1fr 28px; grid-template-rows:40px 1fr; align-items:start; min-height:174px; gap:17px 10px; padding:20px; border-color:#2a3039; border-radius:16px; background:linear-gradient(130deg,#191e25,#14181e); box-shadow:none; }
+.app-home-card-icon { grid-column:1; grid-row:1; width:40px; height:40px; border:0; border-radius:11px; color:var(--home-tint); background:color-mix(in srgb,var(--home-tint) 10%,transparent); }
+.app-home-card-copy { grid-row:2; grid-column:1 / -1; gap:8px; }
+.app-home-card-name { font-size:15px; }
+.app-home-card-description { font-size:12px; line-height:1.6; color:#9faebf; }
+.app-home-card-arrow { grid-row:1; grid-column:2; align-self:center; border:0; background:none; color:#758596; }
+.app-home-card:hover { border-color:color-mix(in srgb,var(--home-tint) 50%,#2a3039); background:linear-gradient(130deg,#202832,#171e25); box-shadow:0 10px 24px #00000020; }
+.app-home-card:hover .app-home-card-arrow { color:var(--home-tint); background:transparent; }
+@media(max-width:1100px) { .app-home-category-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) {
+ .app-home-welcome { padding-top:4px; } .app-home-overview { display:none; }
+ .app-home-header { gap:20px; } .app-home-welcome h1 { letter-spacing:-1px; }
+ .app-home-eyebrow { font-size:9px; letter-spacing:1.4px; }
+ .app-home-category-filters { flex-wrap:nowrap; overflow-x:auto; padding-bottom:8px; }
+ .app-home-category-filter { min-height:44px; }
+ .app-home-category-grid { grid-template-columns:1fr; gap:10px; }
+ .app-home-card,.app-home-card.has-icon { grid-template-columns:40px minmax(0,1fr) 24px; grid-template-rows:auto; min-height:108px; padding:16px; gap:14px; align-items:center; }
+ .app-home-card-icon { grid-column:1;grid-row:1; } .app-home-card-copy { grid-column:2;grid-row:1; } .app-home-card-arrow { grid-column:3;grid-row:1; }
+}
+
+.app-home-category-filter { width:auto; }
+
+/* Compact home cards without application icons. */
+.app-home-card { grid-template-columns:minmax(0,1fr) 28px; grid-template-rows:auto; min-height:132px; align-items:center; gap:14px; }
+.app-home-card-copy { grid-column:1; grid-row:1; }
+.app-home-card-arrow { grid-column:2; grid-row:1; }
+@media(max-width:600px) {
+ .app-home-card { grid-template-columns:minmax(0,1fr) 24px; min-height:108px; }
+ .app-home-card-copy { grid-column:1; }
+ .app-home-card-arrow { grid-column:2; }
+}
+
+/* Balanced category navigation. */
+.app-home-category-filters { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+.app-home-category-filter { width:100%; min-height:42px; padding:9px 10px; border-color:transparent; background:#171c22; border-radius:10px; }
+.app-home-category-filter:first-child { grid-row:span 2; flex-direction:column; gap:7px; }
+.app-home-category-filter small { background:transparent; }
+.app-home-category-filter:hover { background:#202831; border-color:#36434b; }
+.app-home-category-filter[aria-pressed="true"] { background:#17352f; border-color:#2b7567; }
+@media(max-width:1100px) {
+ .app-home-category-filters { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .app-home-category-filter:first-child { grid-row:auto; flex-direction:row; }
+}
+@media(max-width:600px) {
+ .app-home-category-filters { display:flex; flex-wrap:nowrap; overflow-x:auto; gap:7px; padding-bottom:8px; }
+ .app-home-category-filter { width:auto; flex:0 0 auto; min-height:42px; padding:10px 13px; }
+}
+
+/* Eight independent category toggles. Empty selection shows all apps. */
+.app-home-category-filters { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.app-home-category-filter:first-child { grid-row:auto; flex-direction:row; gap:8px; }
+@media(min-width:601px) and (max-width:900px) { .app-home-category-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+
+
+/* Sidebar identity */
+.brand { width:100%; padding:4px 0 22px; margin-bottom:16px; gap:12px; border:0; border-bottom:1px solid #ffffff0c; border-radius:0; background:transparent; text-align:left; color:var(--text); }
+.brand-mark { position:relative; flex:0 0 44px; width:44px; height:44px; border-radius:14px; background:linear-gradient(145deg,#243e3c,#192825); border:1px solid #40645b; color:#99ebd7; font-size:24px; font-weight:750; box-shadow:inset 0 1px 0 #ffffff12; }
+.brand-mark-dot { position:absolute; right:7px; bottom:7px; width:4px; height:4px; border-radius:50%; background:#99ebd7; }
+.brand-copy { min-width:0; }
+.brand strong { font-size:17px; font-weight:750; letter-spacing:-.4px; }
+.brand strong span { color:#80cfbd; font-weight:500; }
+.brand small { margin-top:5px; color:#8596a5; font-size:11px; line-height:1.4; }
+.brand:hover .brand-mark { border-color:#80cfbd; background:#243e37; }
+.brand:focus-visible { outline:2px solid #80cfbd; outline-offset:5px; }
+@media(max-width:900px) { .brand { padding:0; border-bottom:0; margin-bottom:0; } .brand-mark { flex-basis:38px; width:38px; height:38px; border-radius:12px; font-size:22px; } }

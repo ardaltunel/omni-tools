@@ -228,14 +228,6 @@ function createAppHomeCards() {
             copy.appendChild(description);
         }
 
-        if (item.dataset.icon) {
-            const icon = document.createElement("span");
-            icon.className = "app-home-card-icon";
-            icon.textContent = item.dataset.icon;
-            icon.setAttribute("aria-hidden", "true");
-            card.classList.add("has-icon");
-            card.appendChild(icon);
-        }
         card.append(copy, arrow);
         card.addEventListener("click", () => activateTool(item.dataset.tool, { historyMode: "push" }));
         sectionGrids.get(category.id)?.appendChild(card);
@@ -288,7 +280,7 @@ function initializeAppSearch(cards) {
         ].filter(Boolean).join(" ")),
     }));
     const totalAppCount = searchableItems.length;
-    let activeCategory = "all";
+    const activeCategories = new Set();
     const homeSearchInput = searchControls.find(({ container }) => container.classList.contains("app-home-search"))?.input
         || searchControls[0].input;
 
@@ -297,20 +289,19 @@ function initializeAppSearch(cards) {
     if (categoryCount) categoryCount.textContent = appHomeCategories.length;
 
     const filterFragment = document.createDocumentFragment();
-    [{ id: "all", name: "Tümü" }, ...appHomeCategories].forEach((category) => {
-        const count = category.id === "all"
-            ? totalAppCount
-            : searchableItems.filter((item) => item.category === category.id).length;
+    appHomeCategories.forEach((category) => {
+        const count = searchableItems.filter((item) => item.category === category.id).length;
         const button = document.createElement("button");
         button.className = "app-home-category-filter";
         button.type = "button";
         button.dataset.category = category.id;
-        button.setAttribute("aria-pressed", String(category.id === "all"));
+        button.setAttribute("aria-pressed", "false");
         button.innerHTML = `<span>${category.name}</span><small>${count}</small>`;
         button.addEventListener("click", () => {
-            activeCategory = category.id;
+            if (activeCategories.has(category.id)) activeCategories.delete(category.id);
+            else activeCategories.add(category.id);
             categoryFilters.querySelectorAll(".app-home-category-filter").forEach((item) => {
-                item.setAttribute("aria-pressed", String(item === button));
+                item.setAttribute("aria-pressed", String(activeCategories.has(item.dataset.category)));
             });
             filterApps(homeSearchInput.value);
         });
@@ -326,7 +317,7 @@ function initializeAppSearch(cards) {
 
         searchableItems.forEach(({ homeCard, searchText, category }) => {
             const matchesQuery = !query || queryTokens.every((token) => searchText.includes(token));
-            const matchesCategory = activeCategory === "all" || category === activeCategory;
+            const matchesCategory = activeCategories.size === 0 || activeCategories.has(category);
             const isMatch = matchesQuery && matchesCategory;
             if (homeCard) homeCard.hidden = !isMatch;
             if (isMatch) {
@@ -343,7 +334,7 @@ function initializeAppSearch(cards) {
 
         const hasQuery = query.length > 0;
         const hasResults = visibleCount > 0;
-        const activeCategoryName = appHomeCategories.find((category) => category.id === activeCategory)?.name;
+        const activeCategoryName = appHomeCategories.filter((category) => activeCategories.has(category.id)).map((category) => category.name).join(", ");
         searchControls.forEach(({ input, clearButton, shortcut, status }) => {
             if (input.value !== rawValue) input.value = rawValue;
             clearButton.hidden = !hasQuery;
@@ -351,7 +342,7 @@ function initializeAppSearch(cards) {
 
             if (!hasQuery) {
                 status.textContent = activeCategoryName
-                    ? `${activeCategoryName} kategorisinde ${visibleCount} uygulama gösteriliyor.`
+                    ? `${activeCategoryName}: ${visibleCount} uygulama gösteriliyor.`
                     : "Tüm uygulamalar gösteriliyor.";
             } else if (!hasResults) {
                 status.textContent = "Uygulama bulunamadı.";
@@ -610,6 +601,11 @@ function updatePageMetadata(tool) {
         nebuu: {
             description: "Telefonunu alnına koy, arkadaşlarının ipuçlarıyla Türkçe kelimeleri hareket ederek tahmin et.",
             keywords: "nebuu, alnında ne var, kelime tahmin oyunu, telefon hareket oyunu, parti oyunu, heads up türkçe",
+        },
+        "yuzbir-okey": {
+            title: "101 Okey | Omni Tools",
+            description: "Üç bot rakibe karşı ücretsiz 101 Okey oyna. Seri ve çift aç, taşlarını işle ve elini bitir.",
+            keywords: "101 okey, yüzbir okey, okey oyunu, bot, seri, çift",
         },
         blackjack: {
             title: "Blackjack | Omni Tools",

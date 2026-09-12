@@ -35,6 +35,7 @@ const xoxState = {
     level: "normal",
     round: -1,
     gameSeed: 0,
+    botTimer: null,
 };
 
 function initAdvancedXox() {
@@ -53,13 +54,19 @@ function initAdvancedXox() {
 }
 
 function setXoxLevel(level) {
+    level = ["easy", "normal", "hard"].includes(level) ? level : "normal";
     xoxState.level = level;
     const labels = { easy: "Kolay", normal: "Normal", hard: "Zor" };
-    xoxLevelButtons.forEach((button) => button.classList.toggle("active", button.dataset.level === level));
+    xoxLevelButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.level === level);
+        button.setAttribute("aria-pressed", String(button.dataset.level === level));
+    });
     xoxLevelText.textContent = labels[level] || "Normal";
 }
 
 function resetAdvancedXox() {
+    window.clearTimeout(xoxState.botTimer);
+    xoxState.botTimer = null;
     xoxState.board.fill("");
     xoxState.queues = { X: [], O: [] };
     xoxState.turn = "X";
@@ -73,7 +80,7 @@ function resetAdvancedXox() {
 }
 
 function handleXoxPlayerMove(index) {
-    if (xoxState.locked || xoxState.over || xoxState.turn !== "X" || xoxState.board[index]) {
+    if (xoxState.locked || xoxState.over || xoxState.turn !== "X" || !Number.isInteger(index) || index < 0 || index > 8 || xoxState.board[index]) {
         return;
     }
     playXoxMove(index, "X");
@@ -81,12 +88,17 @@ function handleXoxPlayerMove(index) {
         xoxState.turn = "O";
         xoxState.locked = true;
         renderAdvancedXox("Bot düşünüyor.");
-        window.setTimeout(playXoxBotMove, xoxState.level === "hard" ? 520 : xoxState.level === "easy" ? 300 : 420);
+        const round = xoxState.round;
+        xoxState.botTimer = window.setTimeout(() => {
+            if (round !== xoxState.round) return;
+            xoxState.botTimer = null;
+            playXoxBotMove();
+        }, xoxState.level === "hard" ? 520 : xoxState.level === "easy" ? 300 : 420);
     }
 }
 
 function playXoxBotMove() {
-    if (xoxState.over) {
+    if (xoxState.over || !xoxState.locked || xoxState.turn !== "O") {
         return;
     }
     const move = pickXoxBotMove();
@@ -252,6 +264,7 @@ function minimaxXox(position, mark, depth, alpha, beta, cache) {
         return evaluateXoxPosition(position);
     }
 
+    const originalAlpha = alpha, originalBeta = beta;
     const cacheKey = `${position.board.join("")}|${position.queues.X.join(",")}|${position.queues.O.join(",")}|${mark}|${depth}`;
     const cachedScore = cache.get(cacheKey);
     if (cachedScore !== undefined) {
@@ -287,7 +300,8 @@ function minimaxXox(position, mark, depth, alpha, beta, cache) {
         }
     }
 
-    if (completedSearch) {
+    // A fully visited node may still be a fail-low bound under an inherited window.
+    if (completedSearch && bestScore > originalAlpha && bestScore < originalBeta) {
         cache.set(cacheKey, bestScore);
     }
     return bestScore;
@@ -389,6 +403,7 @@ function renderAdvancedXox(statusOverride) {
         const value = xoxState.board[index];
         cell.innerHTML = value ? `<span>${value}</span>` : "";
         cell.className = `xox-cell ${value ? `mark-${value.toLowerCase()}` : ""}`;
+        cell.setAttribute("aria-label", `${index + 1}. kare: ${value || "boş"}${!xoxState.over && nextExpired.has(index) ? ", sonraki hamlede silinecek taş" : ""}`);
         cell.disabled = xoxState.locked || xoxState.over || xoxState.turn !== "X" || Boolean(value);
         if (!xoxState.over && nextExpired.has(index)) {
             cell.classList.add("is-expiring");

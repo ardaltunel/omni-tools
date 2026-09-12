@@ -124,6 +124,7 @@
     }
 
     function createStats(stats = {}, balance = STARTING_BALANCE) {
+        if (!stats || typeof stats !== "object") stats = {};
         return {
             hands: Math.max(0, Number(stats.hands) || 0),
             wins: Math.max(0, Number(stats.wins) || 0),
@@ -316,7 +317,7 @@
     }
 
     function shouldReshuffle(state) {
-        return state.shoe.length <= state.deckCount * 52 * state.reshuffleAt;
+        return state.shoe.length < 4 || state.shoe.length <= state.deckCount * 52 * state.reshuffleAt;
     }
 
     function beginRound(state, random = Math.random) {
@@ -594,6 +595,7 @@
         if (player.total > 21) outcome = "bust";
         else if (hand?.naturalBlackjack && dealer.total === 21 && isBlackjack(dealerHand)) outcome = "push";
         else if (hand?.naturalBlackjack) outcome = "blackjack";
+        else if (isBlackjack(dealerHand)) outcome = "lose";
         else if (dealer.total > 21) outcome = "dealer-bust";
         else if (dealer.total > player.total) outcome = "lose";
         else if (dealer.total === player.total) outcome = "push";
@@ -652,6 +654,12 @@
         return true;
     }
 
+    function totalBet(state) {
+        if (!state) return 0;
+        if (state.phase === PHASES.BETTING) return state.currentBet;
+        return state.playerHands.reduce((sum, hand) => sum + hand.bet, 0) + state.insuranceBet;
+    }
+
     return Object.freeze({
         MONEY_SCALE,
         STARTING_BALANCE,
@@ -694,5 +702,6 @@
         split,
         stand,
         takeInsurance,
+        totalBet,
     });
 });

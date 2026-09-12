@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300">
+<defs><path id="payout" d="M180 60 Q450 255 720 60"/><path id="rule" d="M220 108 Q450 268 680 108"/></defs>
+<path d="M72 68 Q450 422 828 68" fill="none" stroke="#d6b85c" stroke-opacity=".6" stroke-width="2"/>
+<path d="M162 77 Q450 300 738 77" fill="none" stroke="#cdb460" stroke-opacity=".23" stroke-width="28"/>
+<text fill="#ebe8d3" font-family="Arial,sans-serif" font-size="25" font-weight="700" letter-spacing="2"><textPath href="#payout" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text>
+<text fill="#d7d8be" font-family="Arial,sans-serif" font-size="14" letter-spacing="1"><textPath href="#rule" startOffset="50%" text-anchor="middle">DEALER MUST STAND ON 17</textPath></text>
+<g fill="none" stroke="#d5d4ad" stroke-opacity=".4" stroke-width="1.5">
+<ellipse cx="125" cy="153" rx="28" ry="20" transform="rotate(30 125 153)"/>
+<ellipse cx="245" cy="227" rx="28" ry="22" transform="rotate(18 245 227)"/>
+<ellipse cx="450" cy="267" rx="29" ry="23"/>
+<ellipse cx="655" cy="227" rx="28" ry="22" transform="rotate(-18 655 227)"/>
+<ellipse cx="775" cy="153" rx="28" ry="20" transform="rotate(-30 775 153)"/>
+</g></svg>

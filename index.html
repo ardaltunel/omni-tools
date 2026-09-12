@@ -40,7 +40,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=99">
+    <link rel="stylesheet" href="style.css?v=107">
     <link rel="stylesheet" href="tools/doviz-kurlari/style.css?v=5">
     <link rel="stylesheet" href="tools/emlak-portfoy-analizi/style.css?v=5">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=3">
@@ -50,10 +50,10 @@
     <link rel="stylesheet" href="tools/github-unfollower/style.css?v=2">
     <link rel="stylesheet" href="tools/github-md-generator/style.css?v=3">
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
-    <link rel="stylesheet" href="tools/nebuu/style.css?v=8">
+    <link rel="stylesheet" href="tools/nebuu/style.css?v=14">
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
-    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=38">
-    <link rel="stylesheet" href="tools/slot-game/style.css?v=14">
+    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=55">
+    <link rel="stylesheet" href="tools/slot-game/style.css?v=21">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=8">
     <link rel="stylesheet" href="tools/url-cleaner/style.css?v=3">
@@ -67,7 +67,7 @@
     <link rel="stylesheet" href="tools/image-compressor/style.css?v=1">
     <link rel="stylesheet" href="tools/ats-cv-kontrolu/style.css?v=4">
     <link rel="stylesheet" href="tools/sifre-gucu-analizi/style.css?v=3">
-    <link rel="stylesheet" href="tools/sifre-oyunu/style.css?v=1">
+    <link rel="stylesheet" href="tools/sifre-oyunu/style.css?v=2">
     <link rel="stylesheet" href="tools/pdf-toolbox/style.css?v=3">
     <link rel="stylesheet" href="tools/encoder-decoder/style.css?v=1">
     <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
@@ -78,13 +78,10 @@
 <body>
     <div class="app-shell">
         <aside class="sidebar">
-            <div class="brand" role="button" tabindex="0" aria-label="Uygulamalar ekranına dön">
-                <span class="brand-mark">A</span>
-                <div>
-                    <strong>Arda Tools</strong>
-                    <small>56 uygulama, tek panel</small>
-                </div>
-            </div>
+            <button class="brand" type="button" aria-label="Uygulamalar ekranına dön">
+                <span class="brand-mark" aria-hidden="true">A</span>
+                <span class="brand-copy"><strong>Arda <span>Tools</span></strong><small>57 uygulama, tek panel</small></span>
+            </button>
 
             <nav id="tool-nav" class="tool-nav" aria-label="Uygulamalar">
                 <button class="nav-item" data-tool="game-2048" data-category="Oyunlar"
@@ -96,6 +93,11 @@
                     data-search="advanced xox x o x tic tac toe üç taş üçlü sıra strateji bot bilgisayar yapay zeka masa oyunu"
                     data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
                     <span>Gelişmiş XOX</span>
+                </button>
+                <button class="nav-item" data-tool="yuzbir-okey" data-category="Oyunlar"
+                    data-search="101 yüzbir okey yuzbir taş per seri çift masa bot oyun"
+                    data-description="Üç bot rakibe karşı 101 Okey oyna; seri ve çift aç, taşlarını işle." type="button">
+                    <span>101 Okey</span>
                 </button>
                 <button class="nav-item" data-tool="blackjack"
                     data-category="Oyunlar" data-search="blackjack 21 yirmi bir iskambil kart casino kumarhane masa bahis krupiye deste el oyun"
@@ -213,7 +215,7 @@
                     <span>Şifre Gücü Analizi</span>
                 </button>
                 <button class="nav-item" data-tool="password-game" data-category="Oyunlar"
-                    data-search="şifre oyunu parola oyunu password game bulmaca kural kurallar kümülatif zeka emoji matematik şehir renk kaos süreli oyun"
+                    data-search="şifre oyunu parola oyunu password game bulmaca kural kurallar kümülatif zeka emoji matematik şehir renk kaos oyun"
                     data-description="Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?" type="button">
                     <span>Şifre Oyunu</span>
                 </button>
@@ -373,6 +375,7 @@
         <main class="workspace">
             <section id="app-home" class="app-home" aria-label="Uygulamalar">
                 <header class="app-home-header">
+                    <div class="app-home-welcome"><div><span class="app-home-eyebrow">ARDA TOOLS · UYGULAMA KOLEKSİYONU</span><h1>Biraz üretkenlik.<br><span>Biraz eğlence.</span></h1><p>İhtiyacın olan aracı bul, kaldığın yerden devam et.</p></div><div class="app-home-overview"><strong id="app-home-tool-count">57</strong><span>uygulama, tek yerde</span><small><b id="app-home-category-count">8</b> keşfedilecek kategori</small></div></div>
                     <div class="app-search app-home-search" role="search" data-app-search>
                         <label class="sr-only" for="home-app-search">Uygulama ara</label>
                         <span class="app-search-icon" aria-hidden="true"></span>
@@ -438,6 +441,15 @@
                 </div>
             </section>
 
+            <section id="yuzbir-okey" class="tool-panel" aria-labelledby="yuzbir-okey-title">
+                <div class="panel-heading">
+                    <div><h2 id="yuzbir-okey-title">101 Okey</h2><p>Üç bot rakibe karşı 101 Okey. Seri veya çift aç, taşlarını bitir.</p></div>
+                    <button id="okey-fullscreen" class="secondary-button" type="button">Tam ekran</button>
+                </div>
+                <div class="okey-frame-shell" id="okey-frame-shell">
+                    <iframe id="okey-frame" title="101 Okey oyun masası" data-src="tools/yuzbir-okey/dist/index.html?v=71" allow="fullscreen" allowfullscreen></iframe>
+                </div>
+            </section>
             <section id="blackjack" class="tool-panel blackjack-panel" aria-labelledby="blackjack-title">
                 <div id="blackjack-app" class="blackjack-app" data-phase="BETTING">
                     <header class="blackjack-header">
@@ -446,10 +458,13 @@
                             <p>Altı destelik shoe ile klasik 21 masası.</p>
                         </div>
                         <div class="blackjack-header-actions">
+                            <div class="blackjack-volume-control">
                             <button id="blackjack-sound" class="blackjack-icon-button" type="button"
                                 aria-label="Oyun seslerini kapat" aria-pressed="true" title="Ses">
                                 <span aria-hidden="true">🔊</span>
                             </button>
+                            <div class="blackjack-volume-popover"><label for="blackjack-volume">Ses seviyesi <output id="blackjack-volume-value">%100</output></label><input id="blackjack-volume" type="range" min="0" max="100" step="1" value="100"></div>
+                            </div>
                         </div>
                     </header>
 
@@ -473,9 +488,9 @@
                                 </div>
 
                                 <div id="blackjack-shoe" class="blackjack-shoe" aria-label="Altı destelik kart shoe'u" title="6 deste shoe">
-                                    <span class="blackjack-shoe-card blackjack-shoe-card-one"></span>
-                                    <span class="blackjack-shoe-card blackjack-shoe-card-two"></span>
-                                    <span class="blackjack-shoe-card blackjack-shoe-card-three"></span>
+                                    <img class="blackjack-shoe-machine" src="tools/blackjack/shoe.svg" alt="" draggable="false">
+
+
                                 </div>
 
                                 <section class="blackjack-hand-area blackjack-dealer-area" aria-labelledby="blackjack-dealer-title">
@@ -570,23 +585,12 @@
                         <p>6x5 ızgara, art arda zincirleme düşüşler, biriken çarpanlar ve ücretsiz dönüşlerle özgün bir salon tipi slot deneyimi.</p>
                     </div>
                     <div class="slot-game-audio-controls" aria-label="Ses ayarları">
+                        <button id="slot-game-sound" class="slot-game-sound-button" type="button" aria-pressed="true" aria-label="Oyun sesini kapat"><span class="slot-game-sound-icon" aria-hidden="true">🔊</span></button>
                         <label class="slot-game-volume-control" for="slot-game-volume">
-                            <span>Seviye</span>
+                            <span>Ses seviyesi</span>
                             <input id="slot-game-volume" type="range" min="0" max="100" step="5" value="70" aria-label="Ses seviyesi">
                             <output id="slot-game-volume-value" for="slot-game-volume">70%</output>
                         </label>
-                        <button id="slot-game-sound" class="slot-game-sound-button" type="button" aria-pressed="true" aria-label="Oyun sesini kapat">
-                            <span class="slot-game-sound-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M4 10v4h4l5 4V6L8 10H4Z"></path>
-                                    <path class="slot-game-sound-waves" d="M16 9c1.6 1.7 1.6 4.3 0 6M18.5 6.5c3 3 3 8 0 11"></path>
-                                </svg>
-                            </span>
-                            <span>
-                                <strong>Ses</strong>
-                                <small>Açık</small>
-                            </span>
-                        </button>
                     </div>
                 </div>
 
@@ -2627,14 +2631,6 @@ Disallow:</code></pre>
                     </div>
                 </div>
 
-                <section id="password-game-start" class="password-game-start" aria-labelledby="password-game-start-title">
-                    <div class="password-game-intro"><span aria-hidden="true">🔐</span><div><h3 id="password-game-start-title">Kaç kurala dayanabilirsin?</h3><p>Tek bir metin oluştur, açılan her yeni kuralı önceki kuralları bozmadan tamamla.</p></div></div>
-                    <div class="password-game-mode-grid">
-                        <article class="password-game-mode-card"><span>Rahat Başlangıç</span><h3>Normal Mod</h3><ul><li>Süre sınırsız</li><li>30 kümülatif kural</li><li>İlk oyun için ideal</li></ul><button class="primary-button" data-password-game-mode="normal" type="button">Normal Modu Başlat</button></article>
-                        <article class="password-game-mode-card is-timed"><span>Zamana Karşı</span><h3>Süreli Mod</h3><ul><li>5 dakika süre</li><li>Aynı 30 kural</li><li>Süre bitmeden tamamla</li></ul><button class="secondary-button" data-password-game-mode="timed" type="button">Süreli Modu Başlat</button></article>
-                    </div>
-                </section>
-
                 <section id="password-game-play" class="password-game-play" aria-labelledby="password-game-play-title" hidden>
                     <div class="password-game-topbar">
                         <div><span>Mod</span><strong id="password-game-mode-label">Normal</strong></div><div><span>Süre</span><strong id="password-game-time">00:00</strong></div><div><span>Kural</span><strong id="password-game-progress">1 / 30</strong></div><div><span>Hata</span><strong id="password-game-errors">0</strong></div><button id="password-game-sound" class="ghost-button" type="button" aria-pressed="true">🔊 Ses Açık</button>
@@ -4627,18 +4623,12 @@ Disallow:</code></pre>
                                 <div class="forehead-game-hero-mark" aria-hidden="true">?</div>
                                 <div>
                                     <span class="forehead-game-eyebrow">HAREKETLİ KELİME OYUNU</span>
-                                    <h3 id="forehead-game-menu-title">Nebuu</h3>
+                                    <h3 id="forehead-game-menu-title">İpuçları sizden, tahminler ondan.</h3>
                                     <p>Kategorini seç, telefonu alnına koy ve arkadaşlarının ipuçlarıyla kelimeyi bul.</p>
                                 </div>
                             </header>
 
-                            <div class="forehead-game-menu-stats" aria-label="Oyun istatistikleri">
-                                <div><span>En iyi</span><strong id="forehead-game-best">0</strong></div>
-                                <div><span>Oyun</span><strong id="forehead-game-played">0</strong></div>
-                                <div><span>Toplam doğru</span><strong id="forehead-game-total-correct">0</strong></div>
-                            </div>
-
-                            <section class="forehead-game-setup-card" aria-labelledby="forehead-game-category-title">
+                            <section class="forehead-game-setup-card forehead-game-category-card" aria-labelledby="forehead-game-category-title">
                                 <div class="forehead-game-section-heading">
                                     <div><span>1</span><h4 id="forehead-game-category-title">Kategori seç</h4></div>
                                     <small id="forehead-game-word-total">1.597 özgün girdi</small>
@@ -4646,7 +4636,7 @@ Disallow:</code></pre>
                                 <div id="forehead-game-categories" class="forehead-game-category-grid" role="radiogroup" aria-label="Kelime kategorileri"></div>
                             </section>
 
-                            <section class="forehead-game-setup-card" aria-labelledby="forehead-game-duration-title">
+                            <section class="forehead-game-setup-card forehead-game-duration-card" aria-labelledby="forehead-game-duration-title">
                                 <div class="forehead-game-section-heading">
                                     <div><span>2</span><h4 id="forehead-game-duration-title">Oyun süresi</h4></div>
                                 </div>
@@ -4658,10 +4648,15 @@ Disallow:</code></pre>
                                 </div>
                             </section>
 
-                            <div class="forehead-game-menu-actions">
+                            <div class="forehead-game-menu-actions"><p id="forehead-game-selection" class="forehead-game-selection" aria-live="polite"></p>
                                 <button id="forehead-game-sound" class="secondary-button forehead-game-sound" type="button" aria-pressed="true" aria-label="Oyun seslerini kapat"><span aria-hidden="true">♪</span><span>Ses Açık</span></button>
                                 <button id="forehead-game-start" class="primary-button forehead-game-start" type="button"><span>Oyunu Başlat</span><span aria-hidden="true">→</span></button>
                             </div>
+                            <details id="forehead-game-last-round" class="forehead-game-history-wrap forehead-game-last-round" open hidden>
+                                <summary>Son turun kelimeleri <span id="forehead-game-last-round-counts"></span></summary>
+                                <p>✓ Doğru bildiklerin · ↷ Pas geçtiklerin</p>
+                                <ol id="forehead-game-history" class="forehead-game-history"></ol>
+                            </details>
                             <p id="forehead-game-menu-message" class="forehead-game-message" role="status" aria-live="polite"></p>
                         </section>
 
@@ -4695,7 +4690,7 @@ Disallow:</code></pre>
                             <div class="forehead-game-word-stage">
                                 <span id="forehead-game-word-kicker">ANLAT</span>
                                 <h3 id="forehead-game-word" aria-live="assertive">KELİME</h3>
-                                <p>Öne eğ: <strong>DOĞRU</strong> · Arkaya eğ: <strong>PAS</strong></p>
+                                <p>Öne eğ: <strong>DOĞRU</strong> · Arkaya eğ: <strong>PAS</strong></p><button id="forehead-game-recalibrate" class="secondary-button forehead-game-recalibrate" type="button">Sensörü yeniden ayarla</button>
                             </div>
                             <div id="forehead-game-feedback" class="forehead-game-feedback" aria-live="assertive" hidden></div>
                             <div class="forehead-game-touch-controls" aria-label="Yedek dokunmatik kontroller">
@@ -4714,10 +4709,6 @@ Disallow:</code></pre>
                                 <div data-tone="pass"><span>Pas</span><strong id="forehead-game-result-pass">0</strong></div>
                                 <div><span>Toplam</span><strong id="forehead-game-result-total">0</strong></div>
                             </div>
-                            <div class="forehead-game-history-wrap">
-                                <div class="forehead-game-section-heading"><div><span>•</span><h4>Çıkan kelimeler</h4></div></div>
-                                <ol id="forehead-game-history" class="forehead-game-history"></ol>
-                            </div>
                             <div class="forehead-game-result-actions">
                                 <button id="forehead-game-replay" class="primary-button" type="button">Tekrar Oyna</button>
                                 <button id="forehead-game-categories-back" class="secondary-button" type="button">Kategori Seç</button>
@@ -4727,7 +4718,7 @@ Disallow:</code></pre>
                         <div id="forehead-game-orientation" class="forehead-game-orientation" role="alert" hidden>
                             <div class="forehead-game-rotate-phone" aria-hidden="true"><span>↻</span></div>
                             <strong>Telefonunu yatay çevir</strong>
-                            <p>Oyun yatay ekranda devam edecek.</p>
+                            <p>Oyun yatay ekranda devam edecek.</p><button id="forehead-game-orientation-back" class="secondary-button" type="button">Menüye dön</button>
                         </div>
 
                         <aside id="forehead-game-debug" class="forehead-game-debug" aria-label="Sensör debug paneli" hidden>
@@ -5050,7 +5041,7 @@ Disallow:</code></pre>
                 <div class="xox-layout">
                     <div class="xox-card">
                         <div class="xox-topline">
-                            <span id="xox-status">Sıra sende.</span>
+                            <span id="xox-status" role="status">Sıra sende.</span>
                             <strong id="xox-turn">Oyuncu</strong>
                         </div>
                         <div class="xox-board" aria-label="Gelişmiş XOX tahtası">
@@ -5080,7 +5071,7 @@ Disallow:</code></pre>
                         </div>
                         <div class="result-card">
                             <strong>Sonuç</strong>
-                            <p id="xox-result">Oyuncu ve bot üçer taşa kadar kalır; kazanan çıkana kadar tahta akmaya devam eder.</p>
+                            <p id="xox-result" aria-live="polite">Oyuncu ve bot üçer taşa kadar kalır; kazanan çıkana kadar tahta akmaya devam eder.</p>
                         </div>
                     </aside>
                 </div>
@@ -5320,7 +5311,7 @@ Disallow:</code></pre>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=66"></script>
+    <script src="index.js?v=home4"></script>
     <script src="tools/farkli-rengi-bul/config.js?v=7"></script>
     <script src="tools/farkli-rengi-bul/core.js?v=5"></script>
     <script src="tools/farkli-rengi-bul/app.js?v=10"></script>
@@ -5347,12 +5338,12 @@ Disallow:</code></pre>
     <script src="tools/github-unfollower/assets/js/app.mjs?v=1" type="module"></script>
     <script src="tools/instagram-unfollower/app.js?v=5"></script>
     <script src="tools/nebuu/words.js?v=1"></script>
-    <script src="tools/nebuu/core.js?v=4"></script>
-    <script src="tools/nebuu/app.js?v=4"></script>
-    <script src="tools/blackjack/engine.js?v=6"></script>
-    <script src="tools/blackjack/app.js?v=17"></script>
+    <script src="tools/nebuu/core.js?v=5"></script>
+    <script src="tools/nebuu/app.js?v=13"></script>
+    <script src="tools/blackjack/engine.js?v=7"></script>
+    <script src="tools/blackjack/app.js?v=25"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
-    <script src="tools/slot-game/app.js?v=8"></script>
+    <script src="tools/slot-game/app.js?v=13"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>
@@ -5360,9 +5351,10 @@ Disallow:</code></pre>
     <script src="tools/translate/script.js?v=1"></script>
     <script src="tools/parolla/questions.js?v=4"></script>
     <script src="tools/parolla/script.js?v=4"></script>
-    <script src="tools/valorant-crosshair/script.js?v=2"></script>
+    <script src="tools/valorant-crosshair/renderer.js?v=2"></script>
+    <script src="tools/valorant-crosshair/script.js?v=4"></script>
     <script src="tools/chess/script.js?v=3"></script>
-    <script src="tools/advanced-xox/script.js?v=6"></script>
+    <script src="tools/advanced-xox/script.js?v=7"></script>
     <script src="tools/sudoku/engine.js?v=1"></script>
     <script src="tools/sudoku/script.js?v=6"></script>
     <script src="tools/milyoner-bilgi-yarismasi/questions.js?v=2"></script>
@@ -5421,7 +5413,7 @@ Disallow:</code></pre>
     <script src="tools/sifre-oyunu/utils.js?v=1"></script>
     <script src="tools/sifre-oyunu/rules.js?v=1"></script>
     <script src="tools/sifre-oyunu/engine.js?v=1"></script>
-    <script src="tools/sifre-oyunu/app.js?v=1"></script>
+    <script src="tools/sifre-oyunu/app.js?v=3"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
     <script src="tools/pdf-toolbox/app.js?v=3"></script>
@@ -5435,6 +5427,7 @@ Disallow:</code></pre>
     <script src="tools/chess-coach/stockfish.js"></script>
     <script src="tools/chess-coach/stockfish.asm.js"></script>
     <script src="tools/chess-coach/script.js?v=5"></script>
+    <script src="tools/yuzbir-okey/integration.js?v=1"></script>
 </body>
 
 </html>

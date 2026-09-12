@@ -8,13 +8,13 @@
     if (!Core || !Words || !panel || !app) return;
 
     const SETTINGS_KEY = "omni-forehead-settings-v1";
-    const STATS_KEY = "omni-forehead-stats-v1";
+    try { localStorage.removeItem("omni-forehead-stats-v1"); } catch (_) { /* Storage may be unavailable. */ }
     const params = new URL(window.location.href).searchParams;
     const debugEnabled = params.get("debug") === "1";
     const mobileDebug = params.get("mobileDebug") === "1";
     const element = (name) => document.getElementById(`forehead-game-${name}`);
     const elements = Object.fromEntries([
-        "desktop", "mobile", "qr", "url", "copy-link", "menu", "best", "played", "total-correct",
+        "desktop", "mobile", "qr", "url", "copy-link", "menu",
         "word-total", "categories", "durations", "sound", "start", "menu-message", "preparing",
         "sensor-status", "ready", "preparing-back", "countdown", "countdown-value", "countdown-category",
         "play", "exit", "live-correct", "live-category", "timer-wrap", "timer", "word-kicker", "word",
@@ -28,7 +28,6 @@
     const screens = [elements.menu, elements.preparing, elements.countdown, elements.play, elements.result];
     const motion = Core.createMotionDetector();
     const settings = loadJson(SETTINGS_KEY, { category: "mixed", duration: 60, sound: true });
-    const stats = loadJson(STATS_KEY, { best: 0, played: 0, totalCorrect: 0 });
     let gameState = Core.STATES.MENU;
     let resumeState = null;
     let selectedCategory = Words.byId[settings.category] ? settings.category : "mixed";
@@ -70,7 +69,6 @@
         renderCategories();
         renderDuration();
         renderSettings();
-        renderStats();
         bindEvents();
         updateViewportMetrics();
         refreshDeviceMode();
@@ -80,6 +78,12 @@
     }
 
     function bindEvents() {
+        element("orientation-back").addEventListener("click", showMenu);
+        element("recalibrate").addEventListener("click", () => {
+            if (gameState !== Core.STATES.PLAYING) return;
+            motion.reset();
+            elements["word-kicker"].textContent = "Telefonu alnında kısa süre sabit tut";
+        });
         elements.start.addEventListener("click", requestGameStart);
         elements.ready.addEventListener("click", armCountdown);
         elements["preparing-back"].addEventListener("click", showMenu);
@@ -116,7 +120,6 @@
         deviceInfo = detectCurrentDevice();
         updateViewportMetrics();
         refreshDeviceMode();
-        renderStats();
     }
 
     function detectCurrentDevice() {
@@ -132,12 +135,30 @@
     }
 
     function refreshDeviceMode() {
-        elements.desktop.hidden = deviceInfo.mobileLike;
-        elements.mobile.hidden = !deviceInfo.mobileLike;
+        elements.desktop.hidden = true;
+        elements.mobile.hidden = false;
+        app.classList.toggle("is-desktop", !deviceInfo.mobileLike);
+        element("recalibrate").hidden = !deviceInfo.mobileLike;
+        panel.querySelector(".forehead-game-panel-heading p").textContent = deviceInfo.mobileLike
+            ? "Telefonunu alnına koy, kelimeyi tahmin et!"
+            : "Bir kişi ekrana bakıp anlatsın, diğeri ekrana bakmadan tahmin etsin.";
+        elements.menu.querySelector(".forehead-game-hero p").textContent = deviceInfo.mobileLike
+            ? "Kategorini seç, telefonu alnına koy ve arkadaşlarının ipuçlarıyla kelimeyi bul."
+            : "Kategorini seç. Anlatan kişi ekranı ve kontrolleri kullansın; tahmin eden kişi ekrana bakmasın.";
+        elements.preparing.querySelector("h3").textContent = deviceInfo.mobileLike
+            ? "Telefonu yatay çevir ve alnına yerleştir."
+            : "Tahmin eden kişi ekrana arkasını dönsün.";
+        elements.preparing.querySelector(":scope > p").textContent = deviceInfo.mobileLike
+            ? "Doğru bildiğinde telefonu öne, pas geçmek istediğinde arkaya doğru belirgin biçimde eğ."
+            : "Ekrana bakan kişi kelimeyi anlatsın. Sağ ok doğru, sol ok pas; düğmelere de tıklayabilirsin.";
+        document.getElementById("forehead-game-countdown-label").textContent = deviceInfo.mobileLike
+            ? "Telefon alnında, gözler karşıda" : "Tahmin eden ekrana bakmasın. Hazır mısınız?";
+        elements.play.querySelector(".forehead-game-word-stage p").textContent = deviceInfo.mobileLike
+            ? "Öne eğ: DOĞRU · Arkaya eğ: PAS" : "← PAS · DOĞRU → · Düğmelere de tıklayabilirsin";
+        elements.play.querySelector(".forehead-game-touch-controls").setAttribute("aria-label", "Oyun kontrolleri");
         elements.debug.hidden = !debugEnabled;
         elements["debug-device"].textContent = `${deviceInfo.deviceType}${mobileDebug ? " · debug" : ""}`;
-        if (!deviceInfo.mobileLike) renderDesktopQr();
-        else if (gameState === Core.STATES.MENU || gameState === Core.STATES.FINISHED) document.body.classList.remove("forehead-game-immersive");
+        if (gameState === Core.STATES.MENU || gameState === Core.STATES.FINISHED) document.body.classList.remove("forehead-game-immersive");
     }
 
     function renderDesktopQr() {
@@ -223,6 +244,12 @@
             button.classList.toggle("active", active);
             button.setAttribute("aria-checked", String(active));
         });
+        renderSelection();
+    }
+
+    function renderSelection() {
+        const summary = element("selection");
+        if (summary) summary.textContent = `${Words.byId[selectedCategory].label} · ${selectedDuration} saniyelik tur`;
     }
 
     function handleDurationClick(event) {
@@ -240,6 +267,7 @@
             button.classList.toggle("active", active);
             button.setAttribute("aria-checked", String(active));
         });
+        renderSelection();
     }
 
     function renderSettings() {
@@ -256,14 +284,8 @@
         if (soundEnabled) playEffect("select");
     }
 
-    function renderStats() {
-        elements.best.textContent = Number(stats.best || 0);
-        elements.played.textContent = Number(stats.played || 0);
-        elements["total-correct"].textContent = Number(stats.totalCorrect || 0);
-    }
-
     async function requestGameStart() {
-        if (!activeTool || !deviceInfo.mobileLike || startPending
+        if (!activeTool || startPending
             || ![Core.STATES.MENU, Core.STATES.FINISHED].includes(gameState)) return;
 
         startPending = true;
@@ -273,17 +295,23 @@
         ensureAudioContext();
 
         try {
-            sensorPermission = await requestSensorPermission();
+            sensorPermission = deviceInfo.mobileLike ? await requestSensorPermission() : "manual";
             if (!activeTool) return;
             updateDebugPermission();
             if (sensorPermission === "granted") attachSensor();
             prepareRound();
+            if (!deviceInfo.mobileLike) {
+                waitingForReady = false;
+                setState(Core.STATES.PREPARING);
+                startCountdown();
+                return;
+            }
             waitingForReady = true;
             setState(Core.STATES.PREPARING, gameState === Core.STATES.FINISHED);
             showScreen(elements.preparing);
             updateSensorStatus();
-            tryLockLandscape();
-            document.body.classList.add("forehead-game-immersive");
+            if (deviceInfo.mobileLike) tryLockLandscape();
+            document.body.classList.toggle("forehead-game-immersive", deviceInfo.mobileLike);
             elements.ready.focus({ preventScroll: true });
         } finally {
             startPending = false;
@@ -324,11 +352,12 @@
         waitingForReady = false;
         motion.reset();
         sensorSeen = false;
-        if (!isLandscape()) {
+        if (deviceInfo.mobileLike && !isLandscape()) {
             pauseForOrientation(Core.STATES.COUNTDOWN);
             return;
         }
-        calibrateThenCountdown();
+        if (deviceInfo.mobileLike) calibrateThenCountdown();
+        else startCountdown();
     }
 
     function calibrateThenCountdown() {
@@ -348,6 +377,8 @@
     function startCountdown() {
         if (gameState !== Core.STATES.PREPARING) return;
         setState(Core.STATES.COUNTDOWN);
+        elements["countdown-value"].textContent = "3";
+        elements["countdown-value"].classList.remove("is-start");
         showScreen(elements.countdown);
         elements["countdown-category"].textContent = Words.byId[selectedCategory].label;
         const sequence = ["3", "2", "1", "BAŞLA!"];
@@ -368,12 +399,13 @@
         clearCountdownTimers();
         setState(Core.STATES.PLAYING);
         showScreen(elements.play);
+        motion.reset();
         nextWord();
         deadline = Date.now() + remainingMs;
         renderTimer(true);
         startTimerLoop();
         requestWakeLock();
-        document.body.classList.add("forehead-game-immersive");
+        document.body.classList.toggle("forehead-game-immersive", deviceInfo.mobileLike);
         updateViewportMetrics();
     }
 
@@ -457,21 +489,14 @@
 
     function finishRound(title) {
         if (gameState === Core.STATES.FINISHED || gameState === Core.STATES.MENU) return;
-        clearRuntimeTimers();
-        detachSensor();
-        releaseWakeLock();
-        unlockOrientation();
-        hideOrientationOverlay();
-        setState(Core.STATES.FINISHED, true);
-        document.body.classList.remove("forehead-game-immersive");
-        elements["result-title"].textContent = title;
-        elements["result-correct"].textContent = correctCount;
-        elements["result-pass"].textContent = passCount;
-        elements["result-total"].textContent = history.length;
-        elements["result-message"].textContent = resultMessage(correctCount);
         renderHistory();
-        updatePersistentStats();
-        showScreen(elements.result);
+        element("last-round-counts").textContent = `${correctCount} doğru · ${passCount} pas`;
+        element("last-round").hidden = false;
+        element("last-round").open = true;
+        showMenu();
+        const selected = elements.categories.querySelector('[aria-checked="true"]');
+        selected?.focus({ preventScroll: true });
+        elements.categories.scrollIntoView({ block: "nearest" });
         playEffect("finish");
         vibrate([80, 45, 110]);
         announce(`${title} ${correctCount} doğru, ${passCount} pas.`);
@@ -479,7 +504,7 @@
 
     function resultMessage(score) {
         if (score >= 15) return "Muhteşem tur! Hareketler ve ipuçları tam uyum içindeydi.";
-        if (score >= 8) return "Harika iş! Bir tur daha oynayıp rekorunu geliştirebilirsin.";
+        if (score >= 8) return "Harika iş! Bir tur daha oynamaya ne dersin?";
         if (score > 0) return "Güzel başlangıç! Yeni turda daha hızlı ipuçları deneyin.";
         return "Isınma turu tamamlandı. Dokunmatik kontrollerle de devam edebilirsin.";
     }
@@ -491,6 +516,7 @@
             const mark = document.createElement("span");
             const word = document.createElement("strong");
             row.dataset.status = item.status;
+            row.setAttribute("aria-label", `${item.word}: ${item.status === "correct" ? "Doğru" : "Pas"}`);
             mark.textContent = item.status === "correct" ? "✓" : "↷";
             word.textContent = item.word;
             row.append(mark, word);
@@ -505,16 +531,9 @@
         elements.history.replaceChildren(fragment);
     }
 
-    function updatePersistentStats() {
-        stats.best = Math.max(Number(stats.best || 0), correctCount);
-        stats.played = Number(stats.played || 0) + 1;
-        stats.totalCorrect = Number(stats.totalCorrect || 0) + correctCount;
-        safeStorageSet(STATS_KEY, stats);
-        renderStats();
-    }
-
     function handleKeyboard(event) {
-        if (!activeTool || gameState !== Core.STATES.PLAYING) return;
+        if (!activeTool || gameState !== Core.STATES.PLAYING || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.target?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(event.target?.tagName)) return;
         if (event.key === "ArrowLeft") {
             event.preventDefault();
             handleAction("pass", "keyboard");
@@ -537,24 +556,27 @@
     }
 
     function handleDeviceOrientation(event) {
-        if (document.hidden) return;
+        if (document.hidden || !activeTool || waitingForReady
+            || ![Core.STATES.PREPARING, Core.STATES.COUNTDOWN, Core.STATES.PLAYING].includes(gameState)) return;
         const sample = { alpha: event.alpha, beta: event.beta, gamma: event.gamma, angle: getScreenAngle() };
         latestOrientation = sample;
-        sensorSeen = [event.beta, event.gamma].some(Number.isFinite);
-        const result = motion.ingest(sample, event.timeStamp || performance.now());
+        sensorSeen = [event.beta, event.gamma].every(Number.isFinite);
+        const result = motion.ingest(sample, performance.now(), gameState === Core.STATES.PLAYING && !actionLocked);
+        if (gameState === Core.STATES.PLAYING && result.calibrated) elements["word-kicker"].textContent = "ANLAT";
         if (gameState === Core.STATES.PREPARING && sensorSeen) updateSensorStatus(result.calibrated ? "ready" : "calibrating");
         if (gameState === Core.STATES.PLAYING && result.action) handleAction(result.action, "sensor");
         renderDebug(sample, result);
     }
 
     function updateSensorStatus(override) {
-        let status = override;
+        let status = deviceInfo.mobileLike ? override : "manual";
         if (!status) {
             if (sensorPermission === "denied") status = "denied";
             else if (sensorPermission === "unsupported") status = "fallback";
             else status = sensorSeen ? "ready" : "waiting";
         }
         const messages = {
+            manual: ["Klavye ve fare hazır", "← Pas · → Doğru. Kontrolleri anlatan kişi kullansın."],
             waiting: ["Sensör bekleniyor", "Telefon hareket ettiğinde otomatik algılanacak."],
             calibrating: ["Nötr konum kalibre ediliyor", "Telefonu alnında kısa süre sabit tut."],
             ready: ["Hareket sensörü hazır", "Belirgin eğme hareketleri tek kez algılanacak."],
@@ -624,7 +646,7 @@
         resumeState = targetState;
         setState(Core.STATES.PAUSED_ORIENTATION);
         elements.orientation.hidden = false;
-        document.body.classList.add("forehead-game-immersive");
+        document.body.classList.toggle("forehead-game-immersive", deviceInfo.mobileLike);
         updateViewportMetrics();
         releaseWakeLock();
     }
@@ -634,6 +656,13 @@
         resumeState = null;
         hideOrientationOverlay();
         if (target === Core.STATES.PLAYING) {
+            if (feedbackTimer) {
+                window.clearTimeout(feedbackTimer);
+                feedbackTimer = 0;
+                elements.feedback.hidden = true;
+                nextWord();
+                if (gameState === Core.STATES.FINISHED || gameState === Core.STATES.MENU) return;
+            }
             setState(Core.STATES.PLAYING);
             showScreen(elements.play);
             motion.reset();
@@ -655,7 +684,7 @@
         const viewport = window.visualViewport;
         const width = Number(viewport?.width || window.innerWidth);
         const height = Number(viewport?.height || window.innerHeight);
-        return width > height || Boolean(window.matchMedia?.("(orientation: landscape)").matches);
+        return width > height;
     }
 
     function getScreenAngle() {
@@ -716,18 +745,15 @@
 
     function handleVisibilityChange() {
         if (document.hidden) {
-            if (gameState === Core.STATES.PLAYING) {
-                remainingMs = Math.max(0, deadline - Date.now());
-                clearTimerLoop();
+            if ([Core.STATES.PLAYING, Core.STATES.COUNTDOWN].includes(gameState)
+                || (gameState === Core.STATES.PREPARING && !waitingForReady)) {
+                pauseForOrientation(gameState === Core.STATES.PREPARING ? Core.STATES.COUNTDOWN : gameState);
             }
             releaseWakeLock();
             return;
         }
-        if (gameState === Core.STATES.PLAYING) {
-            deadline = Date.now() + remainingMs;
-            startTimerLoop();
-            requestWakeLock();
-        }
+        updateViewportMetrics();
+        if (activeTool && gameState === Core.STATES.PAUSED_ORIENTATION && (!deviceInfo.mobileLike || isLandscape())) resumeAfterOrientation();
     }
 
     function showMenu() {
@@ -738,7 +764,6 @@
         setState(Core.STATES.MENU, true);
         showScreen(elements.menu);
         waitingForReady = false;
-        renderStats();
         elements.start.focus({ preventScroll: true });
     }
 

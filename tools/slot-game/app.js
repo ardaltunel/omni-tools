@@ -51,17 +51,10 @@
         winDetail: document.getElementById("slot-game-win-detail"),
     };
 
-    const SYMBOL_ART = Object.freeze({
-        spark: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 5 38 25 59 32 38 39 32 59 26 39 5 32 26 25Z"/><circle cx="32" cy="32" r="5"/></svg>',
-        orbit: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="12"/><ellipse cx="32" cy="32" rx="27" ry="12"/><circle cx="53" cy="26" r="4"/></svg>',
-        moon: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M44 8C25 11 17 25 21 39c3 11 13 17 25 16C36 63 17 58 10 42 2 24 14 6 32 4c5 0 9 1 12 4Z"/><path d="m43 20 2.5 6.5L52 29l-6.5 2.5L43 38l-2.5-6.5L34 29l6.5-2.5Z"/></svg>',
-        prism: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="m32 5 23 18-9 31H18L9 23Z"/><path d="m9 23 23 9 23-9M32 5v27L18 54m14-22 14 22"/></svg>',
-        bloom: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 30C19 25 18 12 27 6c6 6 7 14 5 24Zm2 2c5-13 18-12 23-3-6 6-14 7-23 3Zm-2 2c13 5 12 18 3 23-6-6-7-14-3-23Zm-2-2c-5 13-18 12-23 3 6-6 14-7 23-3Z"/><circle cx="32" cy="32" r="6"/></svg>',
-        sigil: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="m32 5 22 13v28L32 59 10 46V18Z"/><path d="m32 14 5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1Z"/></svg>',
-        rune: '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 13h31L27 32h25L36 51H12l14-19Z"/><path d="m20 19 10 13-9 13m22-26L33 32l9 13"/></svg>',
-        nova: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="12"/><path d="M32 4v12m0 32v12M4 32h12m32 0h12M12 12l9 9m22 22 9 9m0-40-9 9M21 43l-9 9"/><circle cx="32" cy="32" r="5"/></svg>',
-        gateway: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="25"/><circle cx="32" cy="32" r="16"/><path d="M32 7c8 8 11 17 8 25-3 9-10 15-21 19M57 32c-8 8-17 11-25 8-9-3-15-10-19-21"/></svg>',
-    });
+    const SYMBOL_ART = Object.freeze(Object.fromEntries(
+        ['spark','orbit','moon','prism','bloom','sigil','rune','nova','gateway'].map(id =>
+            [id, `<img src="tools/slot-game/art/${id}.svg" alt="" draggable="false" width="120" height="130">`])
+    ));
 
     const saved = loadSavedState();
     const state = engine.createState({
@@ -80,6 +73,23 @@
     let soundEnabled = saved.soundEnabled;
     let soundVolume = saved.soundVolume;
     let audioContext = null;
+    const activeSounds = new Set();
+    function silenceAudio() {
+        activeSounds.forEach(source => { try { source.stop(); } catch {} });
+        activeSounds.clear();
+    }
+    let presentationBusy = false;
+    let durableRoundState = null;
+    const volumeControl = elements.sound.closest('.slot-game-audio-controls');
+    volumeControl.addEventListener('pointerleave', event => {
+        if (event.pointerType === 'mouse' && volumeControl.contains(document.activeElement)) document.activeElement.blur();
+    });
+    const audioFiles = new Map(['spin','cascade','multiplier','win','big','mega','free','miss','toggle'].map(cue => [cue,
+        fetch(`tools/slot-game/audio/${cue}.wav`).then(response => response.ok ? response.arrayBuffer() : null).catch(() => null)
+    ]));
+    const audioBuffers = new Map();
+    let audioBus = null;
+    app.addEventListener('pointerdown', () => getAudioContext(), { once: true });
     let buyModalOpen = false;
     let lastCompletedFreeMultiplier = 1;
 
@@ -120,13 +130,14 @@
 
     function saveState() {
         try {
+            const persisted = durableRoundState || state;
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 version: 2,
-                balance: state.balance,
-                bet: state.bet,
-                freeSpins: state.freeSpins,
-                freeMultiplier: state.freeMultiplier,
-                lastWin: state.lastWin,
+                balance: persisted.balance,
+                bet: persisted.bet,
+                freeSpins: persisted.freeSpins,
+                freeMultiplier: persisted.freeMultiplier,
+                lastWin: persisted.lastWin,
                 soundEnabled,
                 soundVolume,
                 turboEnabled,
@@ -140,7 +151,13 @@
         if (!soundEnabled || soundVolume <= 0) return null;
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) return null;
-        if (!audioContext) audioContext = new AudioContextClass();
+        if (!audioContext) {
+            try { audioContext = new AudioContextClass(); } catch { return null; }
+            audioBus = audioContext.createGain();
+            audioBus.connect(audioContext.destination);
+            audioFiles.forEach((promise, cue) => promise.then(bytes => bytes && audioContext.decodeAudioData(bytes)).then(buffer => { if (buffer) audioBuffers.set(cue,buffer); }).catch(() => {}));
+        }
+        audioBus.gain.setTargetAtTime(soundVolume / 100, audioContext.currentTime, .025);
         if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
         return audioContext;
     }
@@ -161,18 +178,30 @@
         gain.connect(context.destination);
         oscillator.start(startAt);
         oscillator.stop(startAt + options.duration + 0.02);
+        activeSounds.add(oscillator);
+        oscillator.onended = () => { activeSounds.delete(oscillator); oscillator.disconnect(); gain.disconnect(); };
     }
 
     function playSound(cue, detail = 0) {
         const context = getAudioContext();
         if (!context) return;
+        if (audioBuffers.has(cue)) {
+            const source = context.createBufferSource();
+            source.buffer = audioBuffers.get(cue);
+            if (cue === 'cascade') source.playbackRate.value = 1 + Math.min(6, detail) * .035;
+            source.connect(audioBus);
+            activeSounds.add(source);
+            source.onended = () => { activeSounds.delete(source); source.disconnect(); };
+            source.start();
+            return;
+        }
         const tone = (frequency, delay, duration, volume = 0.035, type = "sine", endFrequency = null) => {
             scheduleTone(context, { frequency, delay, duration, volume: volume * (soundVolume / 100), type, endFrequency });
         };
 
         if (cue === "spin") {
-            tone(150, 0, 0.18, 0.025, "sawtooth", 360);
-            tone(240, 0.07, 0.2, 0.018, "triangle", 520);
+            tone(150, 0, 0.22, 0.018, "sine", 220);
+            tone(240, 0.07, 0.24, 0.012, "sine", 330);
         } else if (cue === "cascade") {
             const root = Math.min(760, 410 + (detail * 55));
             tone(root, 0, 0.12, 0.035, "triangle");
@@ -200,7 +229,7 @@
         const audible = soundEnabled && soundVolume > 0;
         elements.sound.setAttribute("aria-pressed", String(audible));
         elements.sound.setAttribute("aria-label", audible ? "Oyun sesini kapat" : "Oyun sesini aç");
-        elements.sound.querySelector("small").textContent = audible ? "Açık" : "Kapalı";
+        elements.sound.querySelector('.slot-game-sound-icon').textContent = audible ? '🔊' : '🔇';
         elements.volume.value = String(soundVolume);
         elements.volumeValue.textContent = `${soundVolume}%`;
         elements.volume.setAttribute("aria-valuetext", `${soundVolume}%`);
@@ -227,18 +256,31 @@
     }
 
     function renderGrid(grid, options = {}) {
+        const previousPositions = new Map(Array.from(elements.grid.children, cell => [cell.dataset.uid, cell.getBoundingClientRect()]));
         const incoming = new Set(options.incomingUids || []);
         elements.grid.innerHTML = grid.map((row, rowIndex) => row.map((cell, columnIndex) => {
             const incomingClass = incoming.has(cell.uid) ? " is-incoming" : "";
-            const delay = ((columnIndex * 2) + rowIndex) * (turboEnabled ? 8 : 18);
+            const delay = columnIndex * (turboEnabled ? 15 : 55) + rowIndex * (turboEnabled ? 2 : 8);
             return `
                 <div class="slot-game-cell is-${cell.kind} symbol-${cell.id}${incomingClass}"
                     role="gridcell" data-row="${rowIndex}" data-column="${columnIndex}" data-uid="${cell.uid}"
-                    aria-label="${symbolLabel(cell)}" style="--slot-delay:${delay}ms">
+                    aria-label="${symbolLabel(cell)}" style="--slot-delay:${delay}ms;--slot-drop-duration:${turboEnabled ? 110 : 440}ms">
                     ${symbolMarkup(cell)}
                 </div>
             `;
         }).join("")).join("");
+        if (!reducedMotion.matches) Array.from(elements.grid.children).forEach(cell => {
+            const old = previousPositions.get(cell.dataset.uid);
+            if (!old || incoming.has(cell.dataset.uid)) return;
+            const next = cell.getBoundingClientRect();
+            const y = old.top - next.top;
+            if (Math.abs(y) < 1) return;
+            cell.animate([
+                {transform:`translateY(${y}px)`},
+                {transform:'translateY(4px)',offset:.82},
+                {transform:'translateY(0)'}
+            ], {duration:turboEnabled ? 110 : 420,easing:'cubic-bezier(.25,.7,.3,1)'});
+        });
     }
 
     function renderReferencePanels() {
@@ -287,7 +329,7 @@
     }
 
     function updateControls() {
-        const sequencePending = Boolean(nextSpinTimer);
+        const sequencePending = Boolean(nextSpinTimer) || presentationBusy;
         const betLocked = state.isSpinning || state.freeSpins > 0 || autoRemaining > 0 || sequencePending || buyModalOpen;
         const autoCountLocked = state.isSpinning || autoRemaining > 0 || state.freeSpins > 0 || sequencePending || buyModalOpen;
         const bonusUnavailable = state.balance < engine.bonusBuyCost(state.bet);
@@ -302,7 +344,7 @@
         elements.buyBonus.disabled = betLocked || bonusUnavailable;
         elements.buyBonus.classList.toggle("is-unavailable", bonusUnavailable);
         elements.buyBonus.title = bonusUnavailable ? "Bu bahis için sanal bakiye yetersiz" : "10 ücretsiz dönüş ödülünü satın al";
-        elements.buyConfirm.disabled = !engine.canBuyBonus(state);
+        elements.buyConfirm.disabled = presentationBusy || !engine.canBuyBonus(state);
         elements.autoButton.textContent = autoRemaining > 0 ? `Durdur · ${formatAutoCount(autoRemaining)}` : "Başlat";
         elements.autoButton.classList.toggle("is-active", autoRemaining > 0);
         elements.spinSubtitle.textContent = state.freeSpins > 0
@@ -406,7 +448,7 @@
     }
 
     async function purchaseBonus() {
-        if (!buyModalOpen) return;
+        if (!buyModalOpen || presentationBusy) return;
         const purchase = engine.buyBonus(state);
         if (!purchase) {
             closeBonusModal(false);
@@ -415,29 +457,39 @@
             return;
         }
 
+        presentationBusy = true;
         closeBonusModal(false);
         stopAuto();
-        currentGrid = createBonusTriggerGrid();
-        const incomingUids = currentGrid.flat().map((cell) => cell.uid);
-        elements.collected.querySelector("strong").textContent = "x1";
-        elements.collected.classList.remove("is-powered");
-        elements.cascadeCount.textContent = "4 Geçit";
-        setPhase("Ödül satın alındı", true);
-        setStatus("Geçit çağrılıyor", `${formatCredit(purchase.cost)} sanal kredi karşılığında ${purchase.freeSpins} ücretsiz dönüş hazırlanıyor…`);
-        elements.machine.classList.add("is-spinning");
-        renderGrid(currentGrid, { incomingUids });
-        playSound("spin");
-        updateHud();
-        await wait(timing(620, 150));
-        elements.machine.classList.remove("is-spinning");
-        elements.grid.querySelectorAll(".is-scatter").forEach((cell) => cell.classList.add("is-feature-trigger"));
-        createBurst(30);
-        await wait(timing(460, 100));
-        await showCelebration("ÖDÜL AÇILDI", `${purchase.freeSpins} ÜCRETSİZ DÖNÜŞ`, "free");
-        setPhase("Ücretsiz dönüşler açıldı");
-        setStatus("Astral Geçit etkin", `Satın alınan ${purchase.freeSpins} ücretsiz dönüş otomatik olarak başlıyor.`);
-        updateHud();
-        scheduleNextSpin(timing(700, 160));
+        saveState();
+        try {
+            currentGrid = createBonusTriggerGrid();
+            const incomingUids = currentGrid.flat().map((cell) => cell.uid);
+            elements.collected.querySelector("strong").textContent = "x1";
+            elements.collected.classList.remove("is-powered");
+            elements.cascadeCount.textContent = "4 Geçit";
+            setPhase("Ödül satın alındı", true);
+            setStatus("Geçit çağrılıyor", `${formatCredit(purchase.cost)} sanal kredi karşılığında ${purchase.freeSpins} ücretsiz dönüş hazırlanıyor…`);
+            elements.machine.classList.add("is-spinning");
+            renderGrid(currentGrid, { incomingUids });
+            playSound("spin");
+            updateHud();
+            await wait(timing(800, 220));
+            elements.machine.classList.remove("is-spinning");
+            elements.grid.querySelectorAll(".is-scatter").forEach((cell) => cell.classList.add("is-feature-trigger"));
+            createBurst(30);
+            await wait(timing(460, 100));
+            await showCelebration("ÖDÜL AÇILDI", `${purchase.freeSpins} ÜCRETSİZ DÖNÜŞ`, "free");
+            setPhase("Ücretsiz dönüşler açıldı");
+            setStatus("Astral Geçit etkin", `Satın alınan ${purchase.freeSpins} ücretsiz dönüş otomatik olarak başlıyor.`);
+        } catch (error) {
+            console.error("Slot Game bonus presentation error:", error);
+        } finally {
+            presentationBusy = false;
+            elements.machine.classList.remove("is-spinning");
+            elements.celebration.hidden = true;
+            updateHud();
+            scheduleNextSpin(timing(700, 160));
+        }
     }
 
     function createBurst(amount = 18) {
@@ -490,7 +542,7 @@
         renderGrid(result.initialGrid, { incomingUids: allInitialUids });
         setPhase(context.mode === "free" ? "FREE SPIN" : "Dönüyor", true);
         setStatus(context.mode === "free" ? "Kasa yeniden açılıyor" : "Yörünge hızlanıyor", "Semboller kozmik kasaya düşüyor…");
-        await wait(timing(520, 120));
+        await wait(timing(800, 220));
         elements.machine.classList.remove("is-spinning");
 
         let runningBaseWin = 0;
@@ -506,10 +558,10 @@
             createBurst(Math.min(26, 10 + step.removedPositions.length));
             await wait(timing(460, 100));
             markExplodingCells(step.removedPositions);
-            await wait(timing(250, 70));
+            await wait(timing(300, 90));
             elements.machine.classList.remove("is-hit");
             renderGrid(step.nextGrid, { incomingUids: step.incomingUids });
-            await wait(timing(440, 105));
+            await wait(timing(780, 220));
         }
 
         if (!result.steps.length) {
@@ -540,10 +592,12 @@
 
     function scheduleNextSpin(delay) {
         if (nextSpinTimer) window.clearTimeout(nextSpinTimer);
+        nextSpinTimer = 0;
+        if (!document.getElementById('slot-game').classList.contains('active') || document.hidden) return;
         nextSpinTimer = window.setTimeout(() => {
             nextSpinTimer = 0;
             updateControls();
-            runSpin();
+            if (document.getElementById('slot-game').classList.contains('active') && !document.hidden) runSpin();
         }, delay);
         updateControls();
     }
@@ -557,8 +611,21 @@
         updateControls();
     }
 
+    function syncVisibility() {
+        if (!document.getElementById('slot-game').classList.contains('active') || document.hidden) {
+            autoRemaining = 0;
+            window.clearTimeout(nextSpinTimer);
+            nextSpinTimer = 0;
+            updateControls();
+        } else if (state.freeSpins > 0 && !state.isSpinning && !presentationBusy && !nextSpinTimer) {
+            scheduleNextSpin(timing(850, 180));
+        }
+    }
+    document.addEventListener('tool-activated', syncVisibility);
+    document.addEventListener('visibilitychange', syncVisibility);
+
     async function runSpin() {
-        if (state.isSpinning || nextSpinTimer) return;
+        if (state.isSpinning || nextSpinTimer || presentationBusy || buyModalOpen) return;
         const willUsePaidSpin = state.freeSpins === 0;
         let adjustedBet = null;
         if (willUsePaidSpin && state.balance < state.bet) {
@@ -573,6 +640,7 @@
             setPhase("Bahis otomatik ayarlandı");
             setStatus("Bahis bakiyene uyarlandı", `${formatCredit(adjustedBet.previousBet)} yerine ${formatCredit(adjustedBet.bet)} sanal krediyle dönüş başlatılıyor.`);
         }
+        const checkpoint = structuredClone(state);
         const context = engine.startRound(state);
         if (!context) {
             stopAuto();
@@ -582,6 +650,8 @@
             return;
         }
 
+        presentationBusy = true;
+        durableRoundState = checkpoint;
         if (willUsePaidSpin && autoRemaining > 0) autoRemaining -= 1;
         if (context.mode === "paid") lastCompletedFreeMultiplier = 1;
         playSound("spin");
@@ -597,8 +667,12 @@
             const cellFactory = context.mode === "free" ? engine.createFreeSpinCell : engine.createRandomCell;
             const initialGrid = engine.createGrid(Math.random, cellFactory);
             const result = engine.resolveCascades(initialGrid, context.bet, Math.random, { cellFactory });
+            durableRoundState = structuredClone(state);
+            engine.settleRound(durableRoundState, result, context);
+            saveState();
             await animateRound(result, context);
             const summary = engine.settleRound(state, result, context);
+            durableRoundState = null;
             updateHud(summary);
 
             if (summary.awardedFreeSpins > 0) {
@@ -639,13 +713,21 @@
                 setStatus("Otomatik kredi yüklendi", "Bakiyen 100 kredinin altına düştüğü için 10.000 sanal kredi otomatik olarak yüklendi.");
             }
         } catch (error) {
+            if (durableRoundState) Object.assign(state, durableRoundState);
+            durableRoundState = null;
             state.isSpinning = false;
             stopAuto();
+            elements.machine.classList.remove('is-spinning', 'is-hit');
+            elements.celebration.hidden = true;
             setPhase("Oyun durdu");
             setStatus("Dönüş tamamlanamadı", "Beklenmeyen bir sorun oluştu. Lütfen tekrar dene.");
             console.error("Slot Game spin error:", error);
+            presentationBusy = false;
+            updateHud();
+            return;
         }
 
+        presentationBusy = false;
         updateHud();
         if (state.freeSpins > 0) {
             scheduleNextSpin(timing(850, 180));
@@ -655,6 +737,7 @@
     }
 
     function changeBet(direction) {
+        if (presentationBusy || nextSpinTimer || autoRemaining > 0 || buyModalOpen) return;
         const currentIndex = engine.BET_OPTIONS.indexOf(state.bet);
         const nextIndex = Math.min(engine.BET_OPTIONS.length - 1, Math.max(0, currentIndex + direction));
         if (engine.setBet(state, engine.BET_OPTIONS[nextIndex])) {
@@ -674,15 +757,16 @@
             updateSoundButton();
             playSound("toggle");
         } else {
-            audioContext?.suspend().catch(() => {});
+            silenceAudio();
             updateSoundButton();
         }
         saveState();
     });
     elements.volume.addEventListener("input", () => {
         soundVolume = Math.min(100, Math.max(0, Number(elements.volume.value) || 0));
+        if (audioBus) audioBus.gain.setTargetAtTime(soundVolume / 100, audioContext.currentTime, .025);
         soundEnabled = soundVolume > 0;
-        if (!soundEnabled) audioContext?.suspend().catch(() => {});
+        if (!soundEnabled) silenceAudio();
         updateSoundButton();
         saveState();
     });
@@ -731,10 +815,10 @@
             closeAutoCountMenu(true);
             return;
         }
-        if (event.code !== "Space" || event.repeat) return;
+        if (event.code !== "Space" || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
         if (!document.getElementById("slot-game")?.classList.contains("active")) return;
         if (buyModalOpen) return;
-        if (["BUTTON", "SELECT", "INPUT"].includes(document.activeElement?.tagName)) return;
+        if (["BUTTON", "SELECT", "INPUT", "TEXTAREA"].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable) return;
         event.preventDefault();
         runSpin();
     });
@@ -754,4 +838,5 @@
     }
     updateHud();
     window.addEventListener("pagehide", saveState);
+    syncVisibility();
 })();

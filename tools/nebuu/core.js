@@ -59,8 +59,8 @@
     }
 
     function resolveOrientationAngle(environment = {}) {
-        const screenAngle = Number(environment.screenAngle);
-        const windowAngle = Number(environment.windowAngle);
+        const screenAngle = environment.screenAngle == null ? NaN : Number(environment.screenAngle);
+        const windowAngle = environment.windowAngle == null ? NaN : Number(environment.windowAngle);
         const type = String(environment.orientationType || "").toLowerCase();
         const landscape = Boolean(environment.landscape);
         let angle = Number.isFinite(screenAngle)
@@ -79,6 +79,7 @@
     }
 
     function getTiltAxis(sample = {}) {
+        if (sample.beta == null || sample.gamma == null) return null;
         const beta = Number(sample.beta);
         const gamma = Number(sample.gamma);
         if (!Number.isFinite(beta) || !Number.isFinite(gamma)) return null;
@@ -134,10 +135,14 @@
         let lastActionAt = -Infinity;
         let lastSampleAt = null;
         let detectedAction = "-";
+        let orientation = null;
 
-        function ingest(sample, now = Date.now()) {
+        function ingest(sample, now = Date.now(), allowAction = true) {
             const axis = getTiltAxis(sample);
             if (!Number.isFinite(axis)) return snapshot("invalid");
+            const angle = normalizeOrientationAngle(sample.angle);
+            if (orientation !== null && orientation !== angle) reset();
+            orientation = angle;
             const sampleAt = Number(now);
             if (Number.isFinite(sampleAt)) lastSampleAt = sampleAt;
             current = axis;
@@ -146,7 +151,8 @@
                 samples.push(axis);
                 if (samples.length > settings.calibrationSamples) samples.shift();
                 if (samples.length >= settings.calibrationSamples) {
-                    const candidate = median(samples);
+                    const anchor = samples[0];
+                    const candidate = anchor + median(samples.map(value => angularDifference(value, anchor)));
                     const stable = samples.every((value) => Math.abs(angularDifference(value, candidate)) <= settings.calibrationStability);
                     if (stable) {
                         reference = candidate;
@@ -181,7 +187,7 @@
             }
 
             neutralStreak = 0;
-            if (Math.abs(delta) < settings.threshold || sampleAt - lastActionAt < settings.debounceMs) {
+            if (!allowAction || Math.abs(delta) < settings.threshold || sampleAt - lastActionAt < settings.debounceMs) {
                 return snapshot("moving");
             }
 
@@ -201,6 +207,7 @@
             lastActionAt = -Infinity;
             lastSampleAt = null;
             detectedAction = "-";
+            orientation = null;
         }
 
         function forceLock(now) {

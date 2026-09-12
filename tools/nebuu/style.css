@@ -494,7 +494,8 @@
     box-shadow: 0 0 0 4px rgba(244, 211, 94, 0.09);
 }
 
-.forehead-game-sensor-status[data-status="ready"] > span {
+.forehead-game-sensor-status[data-status="ready"] > span,
+.forehead-game-sensor-status[data-status="manual"] > span {
     background: var(--forehead-correct);
     box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.09);
 }
@@ -1168,4 +1169,111 @@ body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-touch-con
         animation: none;
         transition: none;
     }
+}
+
+.forehead-game-app.is-desktop .forehead-game-tilt-demo { animation: none; }
+
+/* Clear setup hierarchy and comfortable controls across devices. */
+.forehead-game-mobile { width: min(100%, 1120px); }
+.forehead-game-menu { display: grid; gap: 20px; }
+.forehead-game-hero { margin: 0; padding: 28px; border-radius: 20px; background: radial-gradient(ellipse at top right, #18a99920, transparent 65%), var(--surface); }
+.forehead-game-hero h3 { font-size: clamp(24px, 3vw, 34px); line-height: 1.2; margin: 8px 0 12px; letter-spacing: -.03em; }
+.forehead-game-hero p { font-size: 14px; line-height: 1.65; max-width: 650px; }
+.forehead-game-hero-mark { border-radius: 22px 22px 22px 6px; transform: rotate(-5deg); }
+.forehead-game-setup-card { margin: 0; padding: 20px; border-radius: 16px; }
+.forehead-game-section-heading { margin-bottom: 18px; }
+.forehead-game-section-heading h4 { font-size: 16px; }
+.forehead-game-section-heading small { font-size: 11px; }
+.forehead-game-category-grid { gap: 10px; }
+.forehead-game-category { position: relative; min-height: 72px; border-radius: 12px; padding: 12px; }
+.forehead-game-category strong { font-size: 13px; }
+.forehead-game-category small { font-size: 11px; }
+.forehead-game-category-mark { font-size: 12px; color: #94c8c2; border: 0; border-radius: 10px; }
+.forehead-game-category.active { border-color: #41bfae; background: #18a99918; box-shadow: inset 0 0 0 1px #41bfae; }
+.forehead-game-category:first-child.active::after { content: '✓'; position: absolute; right: 16px; color: #7ce1cd; font-weight: 800; }
+.forehead-game-menu-stats { margin: 0; gap: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.forehead-game-menu-stats > div { border: 0; border-radius: 0; padding: 18px 8px; }
+.forehead-game-menu-stats > div + div { border-left: 1px solid var(--line); }
+.forehead-game-menu-stats span { font-size: 11px; text-transform: none; letter-spacing: 0; }
+.forehead-game-menu-stats strong { font-size: 24px; }
+.forehead-game-duration-grid { gap: 6px; }
+.forehead-game-duration-grid button { min-height: 60px; border-radius: 12px; }
+.forehead-game-menu-actions { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); align-content: start; }
+.forehead-game-selection { grid-column: 1 / -1; margin: 0 0 8px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.forehead-game-start { border-radius: 12px; min-height: 52px; }
+.forehead-game-sound { border-radius: 12px; }
+.forehead-game-message:empty { display: none; }
+.forehead-game-panel button:focus-visible { outline: 3px solid #86dece; outline-offset: 3px; }
+.forehead-game-panel button { touch-action: manipulation; }
+.forehead-game-app.is-desktop .forehead-game-tilt-demo { transform: none; border-radius: 14px; border-bottom-width: 8px; background: linear-gradient(150deg, #183b37, #152326); }
+.forehead-game-app.is-desktop .forehead-game-tilt-demo::before { top: calc(100% + 8px); bottom: auto; width: 65%; height: 5px; }
+.forehead-game-word-stage { background: radial-gradient(ellipse at center, #18a99912, transparent 65%); }
+.forehead-game-word-stage > p { font-size: 14px; }
+.forehead-game-play-top { gap: 14px; padding: 18px; }
+.forehead-game-live-score, .forehead-game-live-category, .forehead-game-timer { padding: 10px 16px; border-radius: 12px; }
+.forehead-game-live-score span, .forehead-game-live-category span, .forehead-game-timer span { font-size: 10px; }
+.forehead-game-live-score strong, .forehead-game-live-category strong, .forehead-game-timer strong { font-size: 18px; }
+.forehead-game-timer strong { font-variant-numeric: tabular-nums; }
+.forehead-game-icon-button { width: 44px; height: 44px; }
+.forehead-game-result { border-radius: 20px; gap: 12px; }
+.forehead-game-result-actions button, .forehead-game-preparing-actions button { min-height: 48px; border-radius: 12px; }
+@media (min-width: 1200px) {
+ .forehead-game-menu { grid-template-columns: minmax(0, 1fr) 280px; align-items: start; }
+ .forehead-game-hero { grid-column: 1 / -1; }
+ .forehead-game-category-card { grid-column: 1; grid-row: 2 / 5; }
+ .forehead-game-duration-card { grid-column: 2; grid-row: 2; }
+ .forehead-game-menu-actions { grid-column: 2; grid-row: 3; grid-template-columns: 1fr; }
+ .forehead-game-start { grid-row: 2; }
+ .forehead-game-message { grid-column: 2; }
+}
+@media (max-width: 600px) {
+ .forehead-game-menu { gap: 14px; }
+ .forehead-game-hero { padding: 18px; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; }
+ .forehead-game-hero-mark { width: 44px; height: 52px; font-size: 30px; }
+ .forehead-game-hero h3 { font-size: 22px; }
+ .forehead-game-hero p { font-size: 13px; }
+ .forehead-game-setup-card, .forehead-game-menu-actions { padding: 14px; }
+ .forehead-game-category { grid-template-columns: 30px minmax(0, 1fr); gap: 7px; padding: 9px; min-height: 68px; }
+ .forehead-game-category-mark { width: 30px; height: 34px; font-size: 10px; }
+ .forehead-game-category strong { font-size: 12px; }
+ .forehead-game-category small { font-size: 10px; }
+ .forehead-game-play-top { gap: 6px; padding: 8px; }
+ .forehead-game-live-score, .forehead-game-live-category, .forehead-game-timer { padding: 6px; min-width: 0; }
+ .forehead-game-live-score strong, .forehead-game-live-category strong, .forehead-game-timer strong { font-size: 14px; }
+ .forehead-game-word-stage > p { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .forehead-game-panel *, .forehead-game-panel *::before, .forehead-game-panel *::after { animation: none !important; transition: none !important; }
+}
+
+/* Short landscape screens must keep actions reachable. */
+body.forehead-game-immersive .forehead-game-centered { overflow-y: auto; overscroll-behavior: contain; }
+.forehead-game-orientation { overflow-y: auto; }
+#forehead-game-orientation-back { min-height: 44px; margin-top: 20px; }
+.forehead-game-recalibrate { min-height: 44px; margin-top: 8px; padding: 6px 12px; font-size: 12px; }
+.forehead-game-word-stage { min-height: 0; overflow-y: auto; }
+@media (orientation: landscape) and (max-height: 500px) {
+ body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered { align-content: start; grid-template-columns: minmax(80px,.4fr) minmax(0,1fr); gap: 8px 20px; padding: 12px 20px; }
+ body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered h3 { font-size: 24px; }
+ body.forehead-game-immersive.forehead-game-is-landscape .forehead-game-centered .forehead-game-tilt-demo { width: 100px; height: 65px; }
+ body.forehead-game-immersive .forehead-game-word-stage { padding: 6px 14px; }
+ body.forehead-game-immersive .forehead-game-word-stage h3 { font-size: clamp(28px, 9vh, 48px); line-height: 1.05; margin: 4px 0; }
+ body.forehead-game-immersive .forehead-game-word-stage > span { font-size: 10px; }
+ body.forehead-game-immersive .forehead-game-play-top { padding: 6px 10px; gap: 6px; }
+ body.forehead-game-immersive .forehead-game-live-score, body.forehead-game-immersive .forehead-game-live-category, body.forehead-game-immersive .forehead-game-timer { padding: 4px 8px; }
+ body.forehead-game-immersive .forehead-game-touch-controls { padding-top: 5px; padding-bottom: max(5px, env(safe-area-inset-bottom)); }
+ body.forehead-game-immersive .forehead-game-touch-controls button { min-height: 44px; }
+}
+
+.forehead-game-last-round { min-width: 0; margin: 0; border-radius: 16px; }
+.forehead-game-last-round summary { cursor: pointer; font-size: 14px; font-weight: 700; min-height: 44px; padding: 10px 0; }
+.forehead-game-last-round summary span { display: block; color: var(--muted); font-size: 12px; font-weight: 400; margin-top: 6px; }
+.forehead-game-last-round > p { font-size: 12px; color: var(--muted); margin: 8px 0 12px; }
+.forehead-game-last-round .forehead-game-history { max-height: 260px; overflow-y: auto; }
+@media (min-width:1200px) { .forehead-game-last-round { grid-column: 2; grid-row: 4; } }
+
+/* Keep the desktop countdown and round at the same panel height. */
+.forehead-game-app.is-desktop .forehead-game-countdown,
+.forehead-game-app.is-desktop .forehead-game-play {
+    min-height: 580px;
 }

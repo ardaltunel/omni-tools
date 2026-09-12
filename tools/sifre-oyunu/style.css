@@ -56,7 +56,7 @@
 .password-game-intro h3 { font-size: 18px; }
 .password-game-intro p { margin: 4px 0 0; color: var(--pg-muted); font-size: 11px; line-height: 1.5; }
 
-.password-game-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.password-game-mode-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
 
 .password-game-mode-card {
     display: flex;
@@ -79,7 +79,6 @@
     text-transform: uppercase;
 }
 
-.password-game-mode-card.is-timed > span { color: var(--accent-2, #f4d35e); }
 .password-game-mode-card h3 { margin-top: 4px; font-size: 16px; }
 .password-game-mode-card ul { display: grid; gap: 7px; margin: 14px 0 17px; padding-left: 18px; color: var(--pg-muted); font-size: 10px; }
 .password-game-mode-card button { margin-top: auto; }

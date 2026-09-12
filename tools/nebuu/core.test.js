@@ -144,3 +144,34 @@ test("cihaz algılama UA, dokunma, pointer ve viewport sinyallerini birlikte kul
 });
 
 console.log(`Nebuu testleri tamamlandı: ${Words.total} özgün girdi.`);
+
+
+test("eksik sensör verisi kalibrasyona katılmaz", () => {
+ const d = Core.createMotionDetector({calibrationSamples: 4});
+ for(let i=0;i<20;i++) d.ingest({beta:null,gamma:null,angle:90},i*20);
+ assert.equal(d.snapshot().calibrated,false);
+ assert.equal(Core.getTiltAxis({beta:0,gamma:null}),null);
+});
+test("geri sayımda bastırılan hareket sensörü kilitlemez", () => {
+ const d = Core.createMotionDetector({calibrationSamples:4});
+ for(let i=0;i<4;i++) d.ingest({beta:0,gamma:-10,angle:90},i*20,false);
+ assert.equal(d.ingest({beta:0,gamma:-45,angle:90},500,false).locked,false);
+ assert.equal(d.ingest({beta:0,gamma:-45,angle:90},600,true).action,'correct');
+});
+test("ekranın diğer yatay yönüne geçiş yeniden kalibre olur", () => {
+ const d = Core.createMotionDetector({calibrationSamples:4});
+ for(let i=0;i<4;i++) d.ingest({beta:0,gamma:-60,angle:90},i*20);
+ const changed=d.ingest({beta:0,gamma:60,angle:270},400);
+ assert.equal(changed.calibrated,false); assert.equal(changed.action,undefined);
+ for(let i=0;i<4;i++) d.ingest({beta:0,gamma:60,angle:270},500+i*20);
+ assert.equal(d.ingest({beta:0,gamma:25,angle:270},900).action,'pass');
+});
+test("180 derece sınırındaki sabit örnekler kalibre olur", () => {
+ const d=Core.createMotionDetector({calibrationSamples:4});
+ [179,-179,178,-178].forEach((beta,i)=>d.ingest({beta,gamma:0,angle:0},i*20));
+ assert.equal(d.snapshot().calibrated,true);
+});
+
+test("boş ekran açısı eski iOS yön bilgisini ezmez", () => {
+ assert.equal(Core.resolveOrientationAngle({screenAngle:null,windowAngle:-90,landscape:true}),270);
+});

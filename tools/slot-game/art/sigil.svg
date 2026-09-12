@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 130"><defs>
+<linearGradient id="gem" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#ffffff"/><stop offset=".22" stop-color="#e8b83b"/><stop offset=".55" stop-color="#e8b83b"/><stop offset="1" stop-color="#231131"/></linearGradient>
+<linearGradient id="metal" x2=".7" y2="1"><stop stop-color="#fff4c7"/><stop offset=".28" stop-color="#e3b65c"/><stop offset=".5" stop-color="#926022"/><stop offset=".72" stop-color="#fce2a0"/><stop offset="1" stop-color="#754611"/></linearGradient>
+<filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="3" flood-color="#000" flood-opacity=".65"/></filter></defs>
+<g transform="translate(3 5) scale(.95)" filter="url(#shadow)"><path d="M60 7 103 31V88L60 113 17 88V31Z" transform="translate(0 4)" fill="#593824" stroke="#422018" stroke-width="5"/>
+<path d="M60 7 103 31V88L60 113 17 88V31Z" fill="url(#gem)" stroke="url(#metal)" stroke-width="4"/>
+<path d="M60 7 103 31V88L60 113 17 88V31Z" fill="none" stroke="#fff3d3" stroke-width=".8" opacity=".7"/>
+<path d="M60 7V60L103 31M60 60 103 88M60 60 60 113M60 60 17 88M17 31 60 60" fill="none" stroke="#fff" stroke-width="1.7" opacity=".5"/><circle cx="60" cy="60" r="21" fill="url(#metal)" stroke="#fff0bc" stroke-width="2"/><path d="m60 42 5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1Z" fill="url(#gem)" stroke="#72410f"/>
+<path d="m34 22 2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" fill="white" opacity=".85"/></g></svg>

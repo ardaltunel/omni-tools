@@ -10,11 +10,8 @@
     const STORAGE_KEY = "omni-password-game-stats-v1";
     const get = (id) => document.getElementById(id);
     const elements = {
-        start: get("password-game-start"),
         play: get("password-game-play"),
         result: get("password-game-result"),
-        modeButtons: Array.from(panel.querySelectorAll("[data-password-game-mode]")),
-        modeLabel: get("password-game-mode-label"),
         time: get("password-game-time"),
         progress: get("password-game-progress"),
         errors: get("password-game-errors"),
@@ -49,13 +46,11 @@
     function createEmptyGame() {
         return {
             active: false,
-            mode: "normal",
             context: null,
             unlocked: 1,
             errors: 0,
             startedAt: 0,
             elapsedSeconds: 0,
-            remainingSeconds: 300,
             timer: null,
             soundEnabled: true,
             previousStatuses: new Map(),
@@ -123,11 +118,10 @@
         return engine.createGameContext({ seed: "omni-guvenli-yedek" });
     }
 
-    function startGame(mode) {
+    function startGame() {
         stopTimer();
         game = createEmptyGame();
         game.active = true;
-        game.mode = mode === "timed" ? "timed" : "normal";
         game.context = createSolvableContext();
         game.startedAt = Date.now();
         stats.totalGames += 1;
@@ -139,10 +133,8 @@
         elements.input.type = "text";
         elements.toggle.textContent = "Gizle";
         elements.toggle.setAttribute("aria-pressed", "true");
-        elements.start.hidden = true;
         elements.result.hidden = true;
         elements.play.hidden = false;
-        elements.modeLabel.textContent = game.mode === "timed" ? "Süreli" : "Normal";
         elements.shareStatus.textContent = "";
         elements.sound.textContent = "🔊 Ses Açık";
         elements.sound.setAttribute("aria-pressed", "true");
@@ -160,13 +152,7 @@
     function updateTimer() {
         if (!game.active) return;
         game.elapsedSeconds = Math.floor((Date.now() - game.startedAt) / 1000);
-        if (game.mode === "timed") {
-            game.remainingSeconds = Math.max(0, 300 - game.elapsedSeconds);
-            elements.time.textContent = utils.formatTime(game.remainingSeconds);
-            if (game.remainingSeconds <= 0) showResult(false);
-        } else {
-            elements.time.textContent = utils.formatTime(game.elapsedSeconds);
-        }
+        elements.time.textContent = utils.formatTime(game.elapsedSeconds);
     }
 
     function evaluateCurrent(countErrors) {
@@ -193,8 +179,7 @@
         elements.errors.textContent = String(game.errors);
         elements.progressTrack.setAttribute("aria-valuenow", String(game.unlocked));
         elements.progressBar.style.width = `${(game.unlocked / 30) * 100}%`;
-        if (game.mode === "timed") elements.time.textContent = utils.formatTime(game.remainingSeconds);
-        else elements.time.textContent = utils.formatTime(game.elapsedSeconds);
+        elements.time.textContent = utils.formatTime(game.elapsedSeconds);
         renderRules(results);
         const allActivePass = results.length === game.unlocked && results.every((result) => result.passed);
         elements.finish.disabled = game.unlocked < 30 || !allActivePass;
@@ -285,17 +270,17 @@
         }, 220);
     }
 
-    function showResult(completed) {
+    function showResult() {
         if (!game.context) return;
         stopTimer();
         game.active = false;
         game.elapsedSeconds = Math.floor((Date.now() - game.startedAt) / 1000);
         const passwordLength = utils.characters(elements.input.value).length;
-        game.resultData = { completed, rules: completed ? 30 : game.unlocked, elapsedSeconds: game.elapsedSeconds, errors: game.errors, length: passwordLength, mode: game.mode };
+        game.resultData = { completed: true, rules: 30, elapsedSeconds: game.elapsedSeconds, errors: game.errors, length: passwordLength };
         elements.input.value = "";
         elements.input.type = "password";
 
-        if (completed) {
+        {
             stats.completedGames += 1;
             stats.bestRule = 30;
             if (!stats.fastestSeconds || game.elapsedSeconds < stats.fastestSeconds) stats.fastestSeconds = game.elapsedSeconds;
@@ -303,23 +288,22 @@
         saveStats();
 
         elements.play.hidden = true;
-        elements.start.hidden = true;
         elements.result.hidden = false;
-        elements.resultMark.textContent = completed ? "🏆" : "⏳";
-        elements.resultKicker.textContent = completed ? "Oyun Tamamlandı" : "Süre Doldu";
-        elements.resultTitle.textContent = completed ? "ŞİFRE USTASI!" : "ZAMAN DOLDU";
-        elements.resultCopy.textContent = completed ? "Tüm kuralları aynı anda yerine getirmeyi başardın." : `${game.unlocked}. kurala kadar ulaştın. Yeni bir denemeyle daha ileri gidebilirsin.`;
+        elements.resultMark.textContent = "🏆";
+        elements.resultKicker.textContent = "Oyun Tamamlandı";
+        elements.resultTitle.textContent = "ŞİFRE USTASI!";
+        elements.resultCopy.textContent = "Tüm kuralları aynı anda yerine getirmeyi başardın.";
         elements.resultRules.textContent = `${game.resultData.rules} / 30`;
         elements.resultTime.textContent = utils.formatTime(game.elapsedSeconds);
         elements.resultLength.textContent = String(passwordLength);
         elements.resultErrors.textContent = String(game.errors);
         elements.shareStatus.textContent = "";
-        playTone(completed ? "complete" : "error");
+        playTone("complete");
     }
 
     function finishGame() {
         if (!game.active || game.unlocked !== 30 || !engine.allRulesPass(elements.input.value, game.context)) return;
-        showResult(true);
+        showResult();
     }
 
     function createShareText() {
@@ -383,14 +367,12 @@
         stopTimer();
         elements.input.value = "";
         elements.input.type = "password";
-        elements.start.hidden = false;
         elements.play.hidden = true;
         elements.result.hidden = true;
         game.active = false;
         game.context = null;
     }
 
-    elements.modeButtons.forEach((button) => button.addEventListener("click", () => startGame(button.dataset.passwordGameMode)));
     elements.input.addEventListener("input", handlePasswordInput);
     elements.toggle.addEventListener("click", () => {
         const show = elements.input.type === "password";
@@ -406,12 +388,18 @@
         if (game.soundEnabled) playTone("new");
     });
     elements.finish.addEventListener("click", finishGame);
-    elements.replay.addEventListener("click", () => startGame(game.resultData?.mode || "normal"));
+    elements.replay.addEventListener("click", startGame);
     elements.share.addEventListener("click", shareResult);
     elements.home.addEventListener("click", () => document.querySelector(".brand")?.click());
-    document.addEventListener("tool-activated", (event) => { if (event.detail?.tool !== "password-game") leaveGame(); });
+    document.addEventListener("tool-activated", (event) => {
+        if (event.detail?.tool === "password-game") {
+            if (!game.context) startGame();
+        } else leaveGame();
+    });
     document.querySelector(".brand")?.addEventListener("click", leaveGame);
     new MutationObserver(() => { if (!panel.classList.contains("active") && (game.active || elements.input.value)) leaveGame(); }).observe(panel, { attributes: true, attributeFilter: ["class"] });
     window.addEventListener("pagehide", leaveGame);
+    window.addEventListener("pageshow", () => { if (panel.classList.contains("active") && !game.context) startGame(); });
+    if (panel.classList.contains("active")) startGame();
 
 }());
