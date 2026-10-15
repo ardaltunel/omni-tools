@@ -1,0 +1,67 @@
+/* An atmospheric variation of the shared application card. */
+.app-home-card[data-tool="ambient-display"] {
+    isolation: isolate;
+    overflow: hidden;
+    border-color: #373d53;
+    background: radial-gradient(ellipse at 100% 0, #36315a70, transparent 68%), #141923;
+}
+
+.app-home-card[data-tool="ambient-display"]::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -70% -18% -85% 38%;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 65% 37%, #6c55b855, transparent 44%),
+        radial-gradient(ellipse at 43% 70%, #36b6c43d, transparent 40%);
+    transform: rotate(-28deg);
+    transition: opacity 350ms ease, transform 650ms ease;
+}
+
+.app-home-card[data-tool="ambient-display"]::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 220px;
+    height: 100px;
+    right: -100px;
+    top: -7px;
+    pointer-events: none;
+    border: 1px solid #9c97dd24;
+    border-radius: 50%;
+    box-shadow: 0 0 32px #6877ed0d, inset 0 0 30px #8c73c60d;
+    transform: rotate(-35deg);
+}
+
+.app-home-card[data-tool="ambient-display"] .app-home-card-name {
+    color: #e6e5fb;
+}
+
+.app-home-card[data-tool="ambient-display"] .app-home-card-description {
+    color: #a6b2c8;
+}
+
+.app-home-card[data-tool="ambient-display"] .app-home-card-arrow {
+    color: #a4add0;
+}
+
+.app-home-card[data-tool="ambient-display"]:hover {
+    border-color: #6d6d9c;
+    background: radial-gradient(ellipse at 100% 0, #48416f80, transparent 68%), #191d2a;
+    box-shadow: 0 10px 28px #00000028;
+}
+
+.app-home-card[data-tool="ambient-display"]:hover::before {
+    opacity: .9;
+    transform: translateX(-8px) rotate(-32deg);
+}
+
+.app-home-card[data-tool="ambient-display"]:hover .app-home-card-arrow {
+    color: #c1cafb;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-home-card[data-tool="ambient-display"]::before {
+        transition: none;
+    }
+}
