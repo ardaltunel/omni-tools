@@ -17,6 +17,7 @@
 
     const copy = {
         tr: {
+            title: "Ambiyans Ekranı", description: "Kendi atmosferini oluştur. Hazır olduğunda tam ekrana geç.", fullscreenLabel: "Tam ekran",
             experience: "Ambiyans Ekranı — dijital duvar kâğıdı", productName: "AMBİYANS", productType: "EKRANI", back: "Omni Tools'a dön", fullscreen: "Tam ekranı aç", exitFullscreen: "Tam ekrandan çık",
             settings: "Görünümü kişiselleştir", close: "Ayarları kapat", eyebrow: "SANA AİT BİR ALAN", settingsTitle: "Kendi ritmini bul.",
             scenes: "Atmosfer", clock: "Saat & yerleşim", motion: "Işık & hareket", display: "Ekran", language: "Dil", format: "Saat biçimi",
@@ -34,12 +35,13 @@
             studioHeading: "ŞİMDİ. BURADA.", cyberHeading: "KENDİ FREKANSINDA.", message: "Biraz yavaşlamak için bir alan.",
             studioMessage: "Daha azı. Tam ihtiyacın olan.", cyberMessage: "Dünya bekleyebilir.",
             storageError: "Tercihler kaydedilemedi. Bu oturumda çalışmaya devam edecekler.",
-            fullscreenUnsupported: "Tarayıcın tam ekranı desteklemiyor. Bu görünüm pencerenin tamamını kullanmaya devam eder.",
+            fullscreenUnsupported: "Tarayıcın tam ekranı desteklemiyor. Ambiyans Ekranı sayfa içinde kullanılabilir.",
             fullscreenError: "Tam ekran açılamadı. Tarayıcının tam ekran iznini kontrol edip yeniden dene.",
             wakeError: "Ekran açık tutulamadı. Tarayıcı veya güç tasarrufu ayarı izin vermiyor olabilir.",
             wakeActive: "Ekran açık tutuluyor.", wakeReleased: "Ekran kilidi sistem tarafından serbest bırakıldı. Yeniden denemek için bu ayarı kapatıp aç.",
         },
         en: {
+            title: "Ambient Display", description: "Create your atmosphere. Go fullscreen when you're ready.", fullscreenLabel: "Fullscreen",
             experience: "Ambient Display — digital wallpaper", productName: "AMBIENT", productType: "DISPLAY", back: "Back to Omni Tools", fullscreen: "Enter fullscreen", exitFullscreen: "Exit fullscreen",
             settings: "Personalize your display", close: "Close settings", eyebrow: "MAKE IT YOURS", settingsTitle: "Find your own rhythm.",
             scenes: "Atmosphere", clock: "Clock & composition", motion: "Light & motion", display: "Display", language: "Language", format: "Time format",
@@ -57,7 +59,7 @@
             studioHeading: "HERE. NOW.", cyberHeading: "ON YOUR FREQUENCY.", message: "A little space to slow down.",
             studioMessage: "Less. Just enough.", cyberMessage: "The world can wait.",
             storageError: "Preferences could not be saved. They will still work during this session.",
-            fullscreenUnsupported: "This browser does not support fullscreen. The display will continue to fill the window.",
+            fullscreenUnsupported: "This browser does not support fullscreen. You can still use the display inside the page.",
             fullscreenError: "Fullscreen could not start. Check your browser's fullscreen permission and try again.",
             wakeError: "The screen could not be kept awake. Browser or power saving settings may prevent it.",
             wakeActive: "Keeping your screen awake.", wakeReleased: "The system released the screen lock. Toggle this setting off and on to try again.",
@@ -149,6 +151,8 @@
     const settingsPanel = get("ambient-settings");
     const settingsButton = get("ambient-settings-toggle");
     const fullscreenButton = get("ambient-fullscreen");
+    const fullscreenOpenButton = document.getElementById("ambient-fullscreen-open");
+    const fullscreenButtons = [fullscreenButton, fullscreenOpenButton].filter(Boolean);
     const time = get("ambient-time");
     const fields = {
         language: get("ambient-language"), hourFormat: get("ambient-hour-format"), size: get("ambient-size"),
@@ -162,7 +166,9 @@
     let settings = loadSettings();
     let active = false;
     let pageLeaving = false;
+    let stageVisible = true;
     let settingsOpen = false;
+    let fullscreenRevision = 0;
     let clockTimer = 0;
     let idleTimer = 0;
     let keyboardFocus = false;
@@ -209,9 +215,10 @@
     }
 
     function translate() {
+        panel.lang = settings.language;
         root.lang = settings.language;
         stage.setAttribute("aria-label", t("experience"));
-        root.querySelectorAll("[data-ambient-copy]").forEach((element) => {
+        panel.querySelectorAll("[data-ambient-copy]").forEach((element) => {
             element.textContent = t(element.dataset.ambientCopy);
         });
         [
@@ -227,8 +234,12 @@
         renderStatus();
     }
 
-    function isRunning() {
+    function isActive() {
         return active && !document.hidden && !pageLeaving;
+    }
+
+    function isRunning() {
+        return isActive() && stageVisible;
     }
 
     function updateClock() {
@@ -401,14 +412,20 @@
 
     function updateFullscreenButton() {
         const expanded = isFullscreen();
-        fullscreenButton.title = t(expanded ? "exitFullscreen" : "fullscreen");
-        fullscreenButton.setAttribute("aria-label", fullscreenButton.title);
-        fullscreenButton.setAttribute("aria-pressed", String(expanded));
+        fullscreenButtons.forEach((button) => {
+            button.title = t(expanded ? "exitFullscreen" : "fullscreen");
+            button.setAttribute("aria-label", button.title);
+            button.setAttribute("aria-pressed", String(expanded));
+        });
+        if (fullscreenOpenButton) fullscreenOpenButton.textContent = t(expanded ? "exitFullscreen" : "fullscreenLabel");
         fullscreenButton.innerHTML = expanded ? icons.collapse : icons.expand;
         stage.classList.toggle("is-fullscreen", expanded);
     }
 
     async function toggleFullscreen() {
+        if (!isActive()) return;
+        const requestRevision = ++fullscreenRevision;
+        const isCurrentRequest = () => requestRevision === fullscreenRevision && isActive();
         status.fullscreen = "";
         if (typeof stage.requestFullscreen !== "function") {
             status.fullscreen = "fullscreenUnsupported";
@@ -416,18 +433,22 @@
             renderStatus();
             return;
         }
-        fullscreenButton.disabled = true;
+        fullscreenButtons.forEach((button) => { button.disabled = true; });
         try {
             if (isFullscreen()) await document.exitFullscreen();
             else await stage.requestFullscreen({ navigationUI: "hide" });
+            // Leaving and returning can happen before the browser resolves this request.
+            if (!isCurrentRequest() && isFullscreen()) await document.exitFullscreen();
         } catch {
-            status.fullscreen = "fullscreenError";
-            toggleSettings(true);
+            if (isCurrentRequest()) {
+                status.fullscreen = "fullscreenError";
+                toggleSettings(true);
+            }
         } finally {
-            fullscreenButton.disabled = false;
+            fullscreenButtons.forEach((button) => { button.disabled = false; });
             updateFullscreenButton();
             renderStatus();
-            revealControls();
+            if (isCurrentRequest()) revealControls();
         }
     }
 
@@ -487,9 +508,9 @@
         const nextActive = panel.classList.contains("active");
         const changed = active !== nextActive;
         active = nextActive;
-        document.body.classList.toggle("is-ambient-display", active);
         stage.dataset.paused = String(!isRunning());
         if (changed) {
+            fullscreenRevision += 1;
             wakeRevision += 1;
             wakeBlocked = false;
             if (!active) {
@@ -513,7 +534,7 @@
     });
     settingsButton.addEventListener("click", () => toggleSettings(!settingsOpen));
     get("ambient-settings-close").addEventListener("click", () => toggleSettings(false));
-    fullscreenButton.addEventListener("click", toggleFullscreen);
+    fullscreenButtons.forEach((button) => button.addEventListener("click", toggleFullscreen));
     get("ambient-back").addEventListener("click", () => document.querySelector(".brand")?.click());
 
     stage.addEventListener("pointermove", onPointerMove, { passive: true });
@@ -540,7 +561,10 @@
     document.addEventListener("visibilitychange", () => {
         wakeRevision += 1;
         wakeBlocked = false;
-        if (document.hidden) window.clearTimeout(idleTimer);
+        if (document.hidden) {
+            fullscreenRevision += 1;
+            window.clearTimeout(idleTimer);
+        }
         else revealControls();
         stage.dataset.paused = String(!isRunning());
         updateClock();
@@ -549,6 +573,18 @@
     });
     document.addEventListener("tool-activated", updateActivity);
     new MutationObserver(updateActivity).observe(panel, { attributes: true, attributeFilter: ["class"] });
+    if (typeof IntersectionObserver === "function") {
+        // The embedded view can scroll out of sight while its tool is still selected.
+        new IntersectionObserver(([entry]) => {
+            if (stageVisible === entry.isIntersecting) return;
+            stageVisible = entry.isIntersecting;
+            wakeRevision += 1;
+            wakeBlocked = false;
+            window.clearTimeout(idleTimer);
+            updateActivity();
+            if (stageVisible) revealControls();
+        }).observe(stage);
+    }
     new MutationObserver(() => {
         if (explicitLanguage) return;
         settings.language = core.languageCode(document.documentElement.lang);
@@ -561,6 +597,7 @@
 
     window.addEventListener("pagehide", () => {
         pageLeaving = true;
+        fullscreenRevision += 1;
         wakeRevision += 1;
         window.clearTimeout(clockTimer);
         window.clearTimeout(idleTimer);

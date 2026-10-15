@@ -100,7 +100,7 @@
     <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
     <link rel="stylesheet" href="tools/social-media-image-resizer/style.css?v=1">
     <link rel="stylesheet" href="tools/link-preview-tester/style.css?v=1">
-    <link rel="stylesheet" href="tools/ambient-display/style.css?v=4">
+    <link rel="stylesheet" href="tools/ambient-display/style.css?v=5">
     <link rel="stylesheet" href="tools/ambient-display/catalog.css?v=1">
 </head>
 
@@ -771,7 +771,14 @@
                 </div>
             </section>
 
-            <section id="ambient-display" class="tool-panel">
+            <section id="ambient-display" class="tool-panel" aria-labelledby="ambient-display-title">
+                <div class="panel-heading ambient-panel-heading">
+                    <div>
+                        <h2 id="ambient-display-title" data-ambient-copy="title">Ambiyans Ekranı</h2>
+                        <p data-ambient-copy="description">Kendi atmosferini oluştur. Hazır olduğunda tam ekrana geç.</p>
+                    </div>
+                    <button id="ambient-fullscreen-open" class="secondary-button" type="button" aria-pressed="false">Tam ekran</button>
+                </div>
                 <div id="ambient-display-root"></div>
             </section>
 
@@ -5695,7 +5702,6 @@ Disallow:</code></pre>
             item.classList.add("active");
             panel.classList.add("active");
             document.body.classList.replace("is-app-home", "is-tool-active");
-            if (item.dataset.tool === "ambient-display") document.body.classList.add("is-ambient-display");
             document.getElementById("initial-tool-style")?.remove();
             delete document.documentElement.dataset.initialTool;
         })();
@@ -5703,7 +5709,7 @@ Disallow:</code></pre>
     <script src="index.js?v=home5"></script>
     <script src="tools/ambient-display/core.js?v=4"></script>
     <script src="tools/ambient-display/renderer.js?v=4"></script>
-    <script src="tools/ambient-display/app.js?v=4"></script>
+    <script src="tools/ambient-display/app.js?v=5"></script>
     <script id="qr-code-library" src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
     <script src="tools/farkli-rengi-bul/config.js?v=7"></script>
