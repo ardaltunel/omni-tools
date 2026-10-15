@@ -17,12 +17,16 @@
 
     const copy = {
         tr: {
-            experience: "Ambient Display — dijital duvar kâğıdı", back: "Omni Tools'a dön", fullscreen: "Tam ekranı aç", exitFullscreen: "Tam ekrandan çık",
+            experience: "Ambiyans Ekranı — dijital duvar kâğıdı", productName: "AMBİYANS", productType: "EKRANI", back: "Omni Tools'a dön", fullscreen: "Tam ekranı aç", exitFullscreen: "Tam ekrandan çık",
             settings: "Görünümü kişiselleştir", close: "Ayarları kapat", eyebrow: "SANA AİT BİR ALAN", settingsTitle: "Kendi ritmini bul.",
             scenes: "Atmosfer", clock: "Saat & yerleşim", motion: "Işık & hareket", display: "Ekran", language: "Dil", format: "Saat biçimi",
             format24: "24 saat", format12: "12 saat", size: "Saat boyutu", position: "Konum", center: "Orta", left: "Sol", right: "Sağ",
             seconds: "Saniyeler", date: "Tarih", animations: "Yavaş animasyonlar", animationsDescription: "Akıcı ışıklar ve imlece duyarlı hareket.", intensity: "Işık yoğunluğu",
             palette: "Stüdyo rengi", black: "Gerçek siyah · OLED", ivory: "Kırık beyaz", charcoal: "Antrasit",
+            quality: "Performans", qualityLow: "Düşük güç", qualityBalanced: "Dengeli (önerilen)", qualityHigh: "Yüksek kalite",
+            qualityLowDescription: "Sabit arka plan ve kapalı fare efektleriyle en az kaynak kullanımı.",
+            qualityBalancedDescription: "Akıcı ışıklar ve fareye tepki; günlük kullanım için daha hafif çizim.",
+            qualityHighDescription: "En ayrıntılı ışıklar, derinlik ve fare efektleri; daha fazla enerji kullanır.",
             drift: "Yavaş konum kaydırma", driftDescription: "Uzun oturumlarda saati hafifçe hareket ettir.",
             wake: "Ekranı açık tut", wakeDescription: "Bu görünüm açıkken ekranın uyumasını önle.",
             wakeUnsupported: "Bu tarayıcıda ekranı açık tutma desteği yok.", reduced: "Sisteminin azaltılmış hareket tercihi açık. Animasyonlar ve konum kaydırma duraklatıldı.",
@@ -36,12 +40,16 @@
             wakeActive: "Ekran açık tutuluyor.", wakeReleased: "Ekran kilidi sistem tarafından serbest bırakıldı. Yeniden denemek için bu ayarı kapatıp aç.",
         },
         en: {
-            experience: "Ambient Display — digital wallpaper", back: "Back to Omni Tools", fullscreen: "Enter fullscreen", exitFullscreen: "Exit fullscreen",
+            experience: "Ambient Display — digital wallpaper", productName: "AMBIENT", productType: "DISPLAY", back: "Back to Omni Tools", fullscreen: "Enter fullscreen", exitFullscreen: "Exit fullscreen",
             settings: "Personalize your display", close: "Close settings", eyebrow: "MAKE IT YOURS", settingsTitle: "Find your own rhythm.",
             scenes: "Atmosphere", clock: "Clock & composition", motion: "Light & motion", display: "Display", language: "Language", format: "Time format",
             format24: "24 hour", format12: "12 hour", size: "Clock size", position: "Position", center: "Center", left: "Left", right: "Right",
             seconds: "Seconds", date: "Date", animations: "Slow animations", animationsDescription: "Flowing light with gentle cursor interaction.", intensity: "Light intensity",
             palette: "Studio color", black: "True black · OLED", ivory: "Off-white", charcoal: "Charcoal",
+            quality: "Performance", qualityLow: "Low power", qualityBalanced: "Balanced", qualityHigh: "High quality",
+            qualityLowDescription: "A static background and no mouse effects for the lowest resource use.",
+            qualityBalancedDescription: "Recommended for everyday use: flowing light and mouse interaction with lighter rendering.",
+            qualityHighDescription: "Full lighting detail, depth and mouse effects; uses more energy.",
             drift: "Gentle clock drift", driftDescription: "Subtly shift the clock during long sessions.",
             wake: "Keep screen awake", wakeDescription: "Prevent sleep while this display is open.",
             wakeUnsupported: "Screen Wake Lock is unavailable in this browser.", reduced: "Your system prefers reduced motion. Animations and clock drift are paused.",
@@ -62,7 +70,7 @@
     }
 
     root.innerHTML = `
-        <div class="ambient-stage" id="ambient-stage" data-design="aurora" data-palette="black" data-position="center" data-animations="true" data-drift="false" data-paused="true">
+        <div class="ambient-stage" id="ambient-stage" data-design="aurora" data-palette="black" data-position="center" data-animations="true" data-drift="false" data-paused="true" data-quality="balanced">
             <div class="ambient-backdrop" aria-hidden="true">
                 <canvas id="ambient-canvas"></canvas>
                 <div class="ambient-fallback"></div><div class="ambient-pointer-light"></div><div class="ambient-studio-light"></div>
@@ -83,7 +91,7 @@
             <div class="ambient-chrome">
                 <div class="ambient-topbar">
                     <button id="ambient-back" class="ambient-back" type="button">${icons.back}<span>OMNI TOOLS</span></button>
-                    <div class="ambient-product" aria-hidden="true">${icons.orb}<span>AMBIENT <span class="ambient-product-light">DISPLAY</span></span></div>
+                    <div class="ambient-product" aria-hidden="true">${icons.orb}<span><span data-ambient-copy="productName"></span> <span class="ambient-product-light" data-ambient-copy="productType"></span></span></div>
                 </div>
                 <div class="ambient-bottom-bar">
                     <div class="ambient-scene-caption"><span class="ambient-scene-number">01 / 03</span><span class="ambient-scene-name">Aurora Flow</span></div>
@@ -117,6 +125,8 @@
                     </section>
                     <section class="ambient-setting-group">
                         <h3 class="ambient-group-title" data-ambient-copy="motion"></h3>
+                        <label class="ambient-control-row" for="ambient-quality"><span class="ambient-control-label" data-ambient-copy="quality"></span><select id="ambient-quality" aria-describedby="ambient-quality-note"><option value="low" data-ambient-copy="qualityLow"></option><option value="balanced" data-ambient-copy="qualityBalanced"></option><option value="high" data-ambient-copy="qualityHigh"></option></select></label>
+                        <p class="ambient-system-note" id="ambient-quality-note"></p>
                         ${switchRow("ambient-animations-toggle", "animations", "animationsDescription")}
                         <div class="ambient-range-control"><label class="ambient-control-row" for="ambient-intensity"><span class="ambient-control-label" data-ambient-copy="intensity"></span><output id="ambient-intensity-value" for="ambient-intensity">65%</output></label><input id="ambient-intensity" type="range" min="0" max="100" step="1" value="65"></div>
                         ${switchRow("ambient-drift-toggle", "drift", "driftDescription")}
@@ -144,7 +154,7 @@
         language: get("ambient-language"), hourFormat: get("ambient-hour-format"), size: get("ambient-size"),
         position: get("ambient-position"), seconds: get("ambient-seconds-toggle"), date: get("ambient-date-toggle"),
         animations: get("ambient-animations-toggle"), intensity: get("ambient-intensity"), palette: get("ambient-palette"),
-        drift: get("ambient-drift-toggle"), wake: get("ambient-wake-toggle"),
+        drift: get("ambient-drift-toggle"), wake: get("ambient-wake-toggle"), quality: get("ambient-quality"),
     };
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const supportsWakeLock = Boolean(navigator.wakeLock && typeof navigator.wakeLock.request === "function");
@@ -212,6 +222,7 @@
         });
         get("ambient-clock-heading").textContent = t(settings.design === "studio" ? "studioHeading" : settings.design === "cyber" ? "cyberHeading" : "heading");
         get("ambient-message").textContent = t(settings.design === "studio" ? "studioMessage" : settings.design === "cyber" ? "cyberMessage" : "message");
+        get("ambient-quality-note").textContent = t(settings.quality === "low" ? "qualityLowDescription" : settings.quality === "high" ? "qualityHighDescription" : "qualityBalancedDescription");
         updateFullscreenButton();
         renderStatus();
     }
@@ -255,13 +266,14 @@
                 animated: settings.animations && !reducedMotion.matches,
                 intensity: settings.intensity / 100,
                 active: isRunning(),
+                quality: settings.quality,
             });
         }
         if (!canReactToPointer()) resetPointerInteraction();
     }
 
     function canReactToPointer() {
-        return isRunning() && settings.animations && !reducedMotion.matches && settings.design !== "studio" && !settingsOpen;
+        return isRunning() && settings.animations && !reducedMotion.matches && settings.quality !== "low" && settings.design !== "studio" && !settingsOpen;
     }
 
     function resetPointerInteraction() {
@@ -281,9 +293,13 @@
         if (!bounds.width || !bounds.height) return;
         const x = Math.max(-1, Math.min(1, ((pointerClientX - bounds.left) / bounds.width) * 2 - 1));
         const y = Math.max(-1, Math.min(1, ((pointerClientY - bounds.top) / bounds.height) * 2 - 1));
-        stage.style.setProperty("--ambient-pointer-x", String(x));
-        stage.style.setProperty("--ambient-pointer-y", String(y));
-        stage.style.setProperty("--ambient-pointer-active", "1");
+        // Balanced uses the shader's own light response, avoiding another full-screen
+        // compositor animation and inherited CSS updates on every mouse frame.
+        if (settings.quality === "high") {
+            stage.style.setProperty("--ambient-pointer-x", String(x));
+            stage.style.setProperty("--ambient-pointer-y", String(y));
+            stage.style.setProperty("--ambient-pointer-active", "1");
+        }
         renderer?.setPointer?.(x, y);
     }
 
@@ -306,6 +322,7 @@
 
     function applySettings() {
         stage.dataset.design = settings.design;
+        stage.dataset.quality = settings.quality;
         stage.dataset.palette = settings.palette;
         stage.dataset.position = settings.position;
         stage.dataset.animations = String(settings.animations && !reducedMotion.matches);
@@ -340,6 +357,7 @@
         const previousWake = settings.wake;
         settings = core.normalizeSettings({ ...settings, [key]: value }, settings.language);
         if (key === "language") explicitLanguage = true;
+        if (key === "quality") resetPointerInteraction();
         if (previousWake !== settings.wake) {
             wakeRevision += 1;
             wakeBlocked = false;

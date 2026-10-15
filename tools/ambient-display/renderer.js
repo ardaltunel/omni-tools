@@ -1,8 +1,12 @@
 (function ambientRendererModule(root) {
     "use strict";
 
-    // Follow the display's pixel density while bounding the work on large monitors.
+    // Balanced limits both pixels and shader work; low uses the CSS atmosphere only.
     // No textures, network requests, frame allocations or work while out of view.
+    const profiles = Object.freeze({
+        balanced: { pixels: 1200000, width: 2048, density: 1, fps: 18, detail: 0 },
+        high: { pixels: 3200000, width: 3200, density: 1.5, fps: 24, detail: 1 },
+    });
     const vertexSource = "attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}";
     const fragmentSource = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -14,6 +18,7 @@ uniform vec2 resolution;
 uniform float time;
 uniform float intensity;
 uniform float scene;
+uniform float detail;
 uniform vec2 pointer;
 float hash(vec2 p) {
 #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -28,6 +33,7 @@ float noise(vec2 p) {
     return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.)),f.x),f.y);
 }
 float fbm(vec2 p) { float n=0.;float a=.5;for(int i=0;i<3;i++){n+=a*noise(p);p=mat2(1.6,-1.2,1.2,1.6)*p+3.7;a*=.5;}return n; }
+float flowNoise(vec2 p) { return noise(p)*.5+noise(mat2(1.6,-1.2,1.2,1.6)*p+3.7)*.25; }
 void main() {
     vec2 uv=gl_FragCoord.xy/resolution;
     float aspect=resolution.x/resolution.y;
@@ -36,8 +42,17 @@ void main() {
     float t=time;
     vec3 color=vec3(.009,.014,.034);
     if(scene<.5) {
-        float mist=fbm(p*2.2+vec2(t*.033,-t*.025));
-        float warp=fbm(vec2(p.x*1.35-t*.045,p.y*.8+t*.032));
+        float mist;
+        float warp;
+        if(detail>.5) {
+            mist=fbm(p*2.2+vec2(t*.033,-t*.025));
+            warp=fbm(vec2(p.x*1.35-t*.045,p.y*.8+t*.032));
+        } else {
+            // A single broad two-octave warp plus analytic light keeps gradients
+            // continuous without paying for the high profile's fine mist and rays.
+            warp=flowNoise(vec2(p.x*1.35-t*.045,p.y*.8+t*.032));
+            mist=.5+.16*sin(p.x*1.5+t*.12)*sin(p.y*1.8-t*.15);
+        }
         float bend=(-pointer.y*.12+pointer.x*.055)*exp(-pow((uv.x-cursor.x)*2.4,2.));
         // Different 26 to 43 second phases keep the folds evolving without flashing.
         float curve=.47+.14*sin(p.x*2.35+t*.20)+.065*sin(p.x*4.1-t*.15)+.10*(warp-.5)+bend;
@@ -60,8 +75,10 @@ void main() {
         color+=violet*(upper*.23+upperCore*.12)*(.55+mist);
         color+=mix(teal,blue,uv.x)*lower*.17*(.8+.2*sin(t*.21+1.));
         color+=vec3(.06,.08,.23)*mist*.36;
-        float ray=fbm(vec2(p.x*5.+warp*3.-t*.055,uv.y*.6+t*.018));
-        color+=ribbon*pow(ray,3.)*veil*.24;
+        if(detail>.5) {
+            float ray=fbm(vec2(p.x*5.+warp*3.-t*.055,uv.y*.6+t*.018));
+            color+=ribbon*pow(ray,3.)*veil*.24;
+        }
         // A broad light pool follows the same inertial pointer as the ribbon bend.
         vec2 poolDistance=(uv-cursor)*vec2(min(aspect,2.5),1.45);
         float pool=exp(-dot(poolDistance,poolDistance)*3.2);
@@ -82,9 +99,7 @@ void main() {
 }`;
 
     function create(canvas) {
-        let gl;
-        try { gl = canvas.getContext("webgl", { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "low-power" }); } catch { /* The CSS backdrop is always available. */ }
-        if (!gl) return { update() {}, setPointer() {}, destroy() {} };
+        let gl = null, unavailable = false, resourcesFailed = false;
         let program = null, buffer = null, uniforms = null, shaders = [];
         function releaseResources(canDelete) {
             if (canDelete) {
@@ -121,31 +136,40 @@ void main() {
             const position = gl.getAttribLocation(program, "position");
             gl.enableVertexAttribArray(position);
             gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-            uniforms = Object.fromEntries(["resolution", "time", "intensity", "scene", "pointer"].map(name => [name, gl.getUniformLocation(program, name)]));
+            uniforms = Object.fromEntries(["resolution", "time", "intensity", "scene", "pointer", "detail"].map(name => [name, gl.getUniformLocation(program, name)]));
         }
-        try {
-            buildResources();
-        } catch {
-            releaseResources(true);
-            return { update() {}, setPointer() {}, destroy() {} };
+        function ensureResources() {
+            if (uniforms) return true;
+            if (unavailable || resourcesFailed || destroyed || lost) return false;
+            if (!gl) {
+                try { gl = canvas.getContext("webgl", { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "low-power" }); } catch { /* CSS remains available. */ }
+                if (!gl) { unavailable = true; return false; }
+            }
+            try { buildResources(); return true; } catch {
+                releaseResources(true);
+                resourcesFailed = true;
+                return false;
+            }
         }
-        let config = { design: "aurora", animated: false, intensity: .65, active: false };
+        let config = { design: "aurora", animated: false, intensity: .65, active: false, quality: "balanced" };
         let timer = 0, frame = 0, lost = false, destroyed = false, elapsed = 0, lastTime = null;
         let targetX = 0, targetY = 0, pointerX = 0, pointerY = 0;
         function stop() { root.clearTimeout(timer); root.cancelAnimationFrame(frame); timer = 0; frame = 0; lastTime = null; }
         function resetPointer() { targetX = 0; targetY = 0; pointerX = 0; pointerY = 0; }
-        function canPaint() { return !destroyed && !lost && uniforms && config.active && config.design !== "studio" && !root.document?.hidden; }
+        function eligible() { return !destroyed && !lost && config.active && config.quality !== "low" && config.design !== "studio" && !root.document?.hidden; }
+        function canPaint() { return eligible() && uniforms; }
         function setPointer(x, y) {
             if (!canPaint() || !config.animated) { resetPointer(); return; }
             targetX = Number.isFinite(x) ? Math.max(-1, Math.min(1, x)) : 0;
             targetY = Number.isFinite(y) ? Math.max(-1, Math.min(1, y)) : 0;
-            // Input only changes a target. The existing 24fps loop supplies every frame.
+            // Input only changes a target. The existing profile loop supplies every frame.
         }
         function resize() {
             const bounds = canvas.getBoundingClientRect();
             if (!bounds.width || !bounds.height) return;
-            const density = Number.isFinite(root.devicePixelRatio) ? Math.max(1, Math.min(1.5, root.devicePixelRatio)) : 1;
-            const scale = Math.min(density, 3200 / bounds.width, Math.sqrt(3200000 / (bounds.width * bounds.height)));
+            const profile = profiles[config.quality];
+            const density = Number.isFinite(root.devicePixelRatio) ? Math.max(1, Math.min(profile.density, root.devicePixelRatio)) : 1;
+            const scale = Math.min(density, profile.width / bounds.width, Math.sqrt(profile.pixels / (bounds.width * bounds.height)));
             const width = Math.max(1, Math.floor(bounds.width * scale));
             const height = Math.max(1, Math.floor(bounds.height * scale));
             if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
@@ -167,19 +191,29 @@ void main() {
             gl.uniform1f(uniforms.time, elapsed);
             gl.uniform1f(uniforms.intensity, config.intensity);
             gl.uniform1f(uniforms.scene, config.design === "cyber" ? 1 : 0);
+            gl.uniform1f(uniforms.detail, profiles[config.quality].detail);
             gl.drawArrays(gl.TRIANGLES, 0, 6);
             canvas.classList.add("is-ready");
             if (config.animated) timer = root.setTimeout(() => {
                 timer = 0;
                 if (canPaint()) frame = root.requestAnimationFrame(paint);
-            }, 1000 / 24);
+            }, 1000 / profiles[config.quality].fps);
         }
         function update(next) {
             config = { ...config, ...next };
+            if (!Object.hasOwn(profiles, config.quality) && config.quality !== "low") config.quality = "balanced";
             config.intensity = Math.max(0, Math.min(1, Number(config.intensity) || 0));
-            if (!config.active || !config.animated || config.design === "studio" || root.document?.hidden) resetPointer();
+            if (!config.active || !config.animated || config.design === "studio" || config.quality === "low" || root.document?.hidden) resetPointer();
             stop();
-            if (canPaint()) { resize(); frame = root.requestAnimationFrame(paint); }
+            if (config.quality === "low") {
+                releaseResources(!lost);
+                resourcesFailed = false;
+                canvas.classList.remove("is-ready");
+                // Release the large drawing surface as well as its program objects.
+                if (canvas.width !== 1 || canvas.height !== 1) { canvas.width = 1; canvas.height = 1; }
+                return;
+            }
+            if (eligible() && ensureResources()) { resize(); frame = root.requestAnimationFrame(paint); }
         }
         const observer = typeof root.ResizeObserver === "function" ? new root.ResizeObserver(() => update(config)) : null;
         observer?.observe(canvas);
@@ -199,22 +233,23 @@ void main() {
             stop();
             releaseResources(!lost);
             lost = false;
-            try { buildResources(); } catch {
-                releaseResources(true);
-                canvas.classList.remove("is-ready");
-                return;
-            }
+            resourcesFailed = false;
+            canvas.classList.remove("is-ready");
             update(config);
         }
         canvas.addEventListener("webglcontextlost", onContextLost);
         canvas.addEventListener("webglcontextrestored", onContextRestored);
         function destroy() {
+            if (destroyed) return;
             destroyed = true; stop(); resetPointer(); observer?.disconnect();
             root.removeEventListener("resize", onResize);
             canvas.removeEventListener("webglcontextlost", onContextLost);
             canvas.removeEventListener("webglcontextrestored", onContextRestored);
             releaseResources(!lost);
             canvas.classList.remove("is-ready");
+            if (!lost && gl?.getExtension) {
+                try { gl.getExtension("WEBGL_lose_context")?.loseContext(); } catch { /* GPU resources have already been released. */ }
+            }
         }
         return { update, setPointer, destroy };
     }

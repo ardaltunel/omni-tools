@@ -23,10 +23,18 @@
     let dragDepth = 0;
     let previewView = "side";
     let renderedSettingsKey = "";
+    let isolationState = null;
+    let isolationRevision = 0;
+    const isolation = namespace.Isolation?.create(root);
     const engine = new namespace.ConversionEngine({
         liveElement: elements["converter-live"],
         onProgress: renderProgress,
     });
+    const isolationAction = createElement("button", "secondary-button");
+    isolationAction.id = "converter-isolation-action";
+    isolationAction.type = "button";
+    isolationAction.hidden = true;
+    elements["converter-capability"].append(isolationAction);
 
     bindEvents();
     renderCategoryTabs();
@@ -34,21 +42,34 @@
         state = nextState;
         render();
     });
+    const restoredCategory = isolation?.restoredCategory();
+    if (restoredCategory && panel.classList.contains("active")) selectCategory(restoredCategory);
+    new MutationObserver(() => {
+        if (panel.classList.contains("active")) return;
+        cancelIsolation();
+        if (needsIsolation()) {
+            isolationState = { category: state.category.id, status: "idle" };
+            render();
+        }
+    }).observe(panel, { attributes: true, attributeFilter: ["class"] });
 
     function bindEvents() {
         const dropZone = elements["converter-drop-zone"];
         elements["converter-browse-button"].addEventListener("click", (event) => {
             event.stopPropagation();
+            if (!canAcceptFiles()) return;
             elements["converter-file-input"].click();
         });
         elements["converter-folder-button"].addEventListener("click", (event) => {
             event.stopPropagation();
+            if (!canAcceptFiles()) return;
             elements["converter-folder-input"].click();
         });
         elements["converter-file-input"].addEventListener("change", (event) => consumeInput(event.target));
         elements["converter-folder-input"].addEventListener("change", (event) => consumeInput(event.target));
         dropZone.addEventListener("click", (event) => {
             if (event.target.closest("button")) return;
+            if (!canAcceptFiles()) return;
             elements["converter-file-input"].click();
         });
         dropZone.addEventListener("dragenter", handleDragEnter);
@@ -63,13 +84,17 @@
         elements["converter-download-zip"].addEventListener("click", () => engine.downloadZip());
         elements["converter-cancel-all"].addEventListener("click", () => engine.cancelAll());
         elements["converter-clear-list"].addEventListener("click", () => engine.clear());
+        isolationAction.addEventListener("click", () => {
+            if (isolationState) selectCategory(isolationState.category);
+        });
         elements["converter-fit-mode"].addEventListener("change", renderPreviewPresentation);
         elements["converter-preview-zoom"].addEventListener("input", renderPreviewPresentation);
         elements["converter-preview-fullscreen"].addEventListener("click", toggleFullscreen);
         panel.querySelectorAll("[data-converter-view]").forEach((button) => {
             button.addEventListener("click", () => setPreviewView(button.dataset.converterView));
         });
-        window.addEventListener("beforeunload", () => engine.releaseAll());
+        window.addEventListener("beforeunload", () => { cancelIsolation(); engine.releaseAll(); });
+        window.addEventListener("pagehide", cancelIsolation);
 
         if (!("webkitdirectory" in elements["converter-folder-input"])) {
             elements["converter-folder-button"].hidden = true;
@@ -87,7 +112,7 @@
             const icon = createElement("span", "converter-category-icon", category.icon);
             icon.setAttribute("aria-hidden", "true");
             button.append(icon, createElement("span", "converter-category-label", category.label));
-            button.addEventListener("click", () => engine.switchCategory(category.id));
+            button.addEventListener("click", () => selectCategory(category.id));
             fragment.append(button);
         });
         elements["converter-category-tabs"].replaceChildren(fragment);
@@ -100,6 +125,90 @@
         renderFileList();
         renderPreview();
         renderButtons();
+        renderIsolation();
+    }
+
+    function needsIsolation(category = state?.category.id) {
+        const required = namespace.Isolation ? namespace.Isolation.requiresIsolation(category) : category === "document" || category === "presentation";
+        return required && !isolation?.isReady();
+    }
+
+    function hasQueuedWork() {
+        return Boolean(state?.items.length || state?.loadingFiles || state?.batchRunning || state?.items.some(item => item.processing));
+    }
+
+    function cancelIsolation() {
+        isolationRevision += 1;
+        isolation?.cancel();
+    }
+
+    function canAcceptFiles() {
+        if (!needsIsolation()) return true;
+        elements["converter-live"].textContent = "Dosya seçmeden önce belge motorunu hazırlayın.";
+        return false;
+    }
+
+    async function selectCategory(category) {
+        if (!namespace.Registry.get(category)) return;
+        cancelIsolation();
+        isolationState = null;
+        if (!needsIsolation(category)) {
+            engine.switchCategory(category);
+            render();
+            return;
+        }
+        if (hasQueuedWork()) {
+            // A preparation reload must never discard a queue or a running conversion.
+            isolationState = { category, status: "queue" };
+            render();
+            return;
+        }
+        if (!panel.classList.contains("active")) return;
+        isolationState = { category, status: "waiting" };
+        engine.switchCategory(category);
+        render();
+        if (!isolation) {
+            isolationState = { category, status: "error", code: "unavailable" };
+            render();
+            return;
+        }
+        const operation = isolationRevision;
+        const result = await isolation.prepare(category, {
+            isCurrent: () => operation === isolationRevision && panel.classList.contains("active") && state.category.id === category && !hasQueuedWork(),
+        });
+        if (operation !== isolationRevision || !panel.classList.contains("active")) return;
+        isolationState = result.status === "ready" ? null : { category, ...result };
+        render();
+    }
+
+    function renderIsolation() {
+        const blocked = needsIsolation();
+        const info = isolationState || (blocked ? { category: state.category.id, status: "idle" } : null);
+        elements["converter-browse-button"].disabled = Boolean(blocked);
+        elements["converter-folder-button"].disabled = Boolean(blocked);
+        elements["converter-file-input"].disabled = Boolean(blocked);
+        elements["converter-folder-input"].disabled = Boolean(blocked);
+        isolationAction.hidden = !info;
+        if (!info) return;
+        const waiting = info.status === "waiting" || info.status === "reloading";
+        const queued = info.status === "queue" && hasQueuedWork();
+        const messages = {
+            unsupported: "Belge ve sunum dönüşümü için HTTPS ve Service Worker destekleyen bir tarayıcı gerekir. Diğer kategorileri kullanabilirsiniz.",
+            timeout: "Belge motoru henüz hazırlanamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+            unavailable: "Belge motoru hazırlanamadı. Tarayıcı ayarlarınızı ve bağlantınızı kontrol edip tekrar deneyin.",
+            "not-isolated": "Tarayıcı belge motorunu etkinleştiremedi. Sayfayı yenileyin veya destekleyen başka bir tarayıcı kullanın. Diğer kategoriler çalışmaya devam eder.",
+        };
+        let text = "Belge ve sunum motoru için bu görünüm bir kez yenilenir. Dosya seçmeden önce hazırlayın.";
+        if (queued) text = "Mevcut dosyalarınız korunuyor. Belge motorunu hazırlamak için işlemi tamamlayıp Listeyi Temizle'yi kullanın; ardından aşağıdaki düğmeye basın.";
+        else if (waiting) text = "Belge motoru hazırlanıyor. Dosya seçmeden önce bu görünüm bir kez yenilenecek.";
+        else if (info.status === "error") text = messages[info.code] || messages.unavailable;
+        elements["converter-capability-title"].textContent = queued ? "Önce mevcut dosyalarınızı tamamlayın" : "Belge motorunu hazırlayın";
+        elements["converter-capability-text"].textContent = text;
+        elements["converter-capability"].classList.remove("is-ready");
+        elements["converter-capability"].classList.add("needs-engine");
+        if (blocked) elements["converter-upload-status"].textContent = waiting ? "Belge motoru hazırlanıyor…" : "Dosya seçmeden önce belge motorunu hazırlayın.";
+        isolationAction.textContent = waiting ? "Hazırlanıyor…" : info.status === "error" ? "Tekrar Dene" : "Belge Motorunu Hazırla";
+        isolationAction.disabled = waiting || queued || info.code === "not-isolated" || info.code === "unsupported";
     }
 
     function renderCategory() {
@@ -287,7 +396,7 @@
         const actions = createElement("div", "converter-file-actions");
         actions.append(
             actionButton("Önizle", () => engine.selectItem(item.id), false, `Önizle: ${namespace.Services.safeDisplayName(item.file.name)}`),
-            actionButton(item.processing ? "Dönüştürülüyor..." : "Dönüştür", () => engine.convertItem(item.id), !state.adapter.ready || item.processing || state.batchRunning, `Dönüştür: ${namespace.Services.safeDisplayName(item.file.name)}`, true),
+            actionButton(item.processing ? "Dönüştürülüyor..." : "Dönüştür", () => engine.convertItem(item.id), !state.adapter.ready || needsIsolation() || item.processing || state.batchRunning, `Dönüştür: ${namespace.Services.safeDisplayName(item.file.name)}`, true),
             actionButton("İndir", () => engine.downloadItem(item.id), !item.outputBlob, `İndir: ${namespace.Services.safeDisplayName(item.file.name)}`),
             actionButton("İptal", () => engine.cancelItem(item.id), !item.processing, `İptal: ${namespace.Services.safeDisplayName(item.file.name)}`),
             actionButton("Kaldır", () => engine.removeItem(item.id), item.processing || state.batchRunning, `Kaldır: ${namespace.Services.safeDisplayName(item.file.name)}`, false, "is-remove"),
@@ -361,7 +470,7 @@
     function renderButtons() {
         const completed = engine.completedItems();
         const processing = state.batchRunning || state.items.some((item) => item.processing);
-        elements["converter-convert-all"].disabled = !state.adapter.ready || !state.items.length || processing || state.loadingFiles;
+        elements["converter-convert-all"].disabled = !state.adapter.ready || needsIsolation() || !state.items.length || processing || state.loadingFiles;
         elements["converter-download-all"].disabled = !completed.length || processing;
         elements["converter-download-zip"].disabled = completed.length < 2 || processing;
         elements["converter-cancel-all"].disabled = !processing;
@@ -429,7 +538,7 @@
         event.preventDefault();
         dragDepth = 0;
         elements["converter-drop-zone"].classList.remove("is-dragging");
-        engine.addFiles(event.dataTransfer?.files || []);
+        if (canAcceptFiles()) engine.addFiles(event.dataTransfer?.files || []);
     }
 
     function handlePaste(event) {
@@ -437,11 +546,11 @@
         const files = Array.from(event.clipboardData?.files || []);
         if (!files.length) return;
         event.preventDefault();
-        engine.addFiles(files);
+        if (canAcceptFiles()) engine.addFiles(files);
     }
 
     function consumeInput(input) {
-        engine.addFiles(input.files || []);
+        if (canAcceptFiles()) engine.addFiles(input.files || []);
         input.value = "";
     }
 

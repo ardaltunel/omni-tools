@@ -19,7 +19,7 @@ function harness({ bounds = { width: 1920, height: 1080 }, context = true, resiz
     const draws = [];
     const uniformPrograms = [];
     const uniformValues = [];
-    const scheduled = { frames: 0, timers: 0 };
+    const scheduled = { frames: 0, timers: 0, contexts: 0 };
     let nextId = 1;
     let currentProgram = null;
     let compiled = true;
@@ -59,7 +59,7 @@ function harness({ bounds = { width: 1920, height: 1080 }, context = true, resiz
     function remove(map, name, callback) { map.get(name)?.delete(callback); }
     const canvas = {
         width: 1, height: 1,
-        getContext: () => context ? gl : null,
+        getContext: () => { scheduled.contexts += 1; return context ? gl : null; },
         getBoundingClientRect: () => bounds,
         classList: { add: name => classes.add(name), remove: name => classes.delete(name) },
         addEventListener: (name, callback) => add(events, name, callback),
@@ -136,20 +136,22 @@ test("inactive and Studio displays cancel the animation loop", () => {
     assert.equal(h.draws.length, 1);
 });
 
-test("render surface preserves native desktop detail within width and total pixel budgets", () => {
-    for (const [width, height, devicePixelRatio] of [[7680, 4320, 1], [3840, 2160, 2], [7680, 2160, 1], [3440, 1440, 1], [2560, 1440, 1], [1920, 1080, 1], [1000, 2000, 1.5], [977, 503, 1], [375, 812, 3]]) {
+test("balanced and high render surfaces obey their distinct pixel and width budgets", () => {
+    for (const [quality, pixels, maxWidth] of [["balanced", 1200000, 2048], ["high", 3200000, 3200]]) {
+      for (const [width, height, devicePixelRatio] of [[7680, 4320, 1], [3840, 2160, 2], [7680, 2160, 1], [3440, 1440, 1], [2560, 1440, 1], [1920, 1080, 1], [1000, 2000, 1.5], [977, 503, 1], [375, 812, 3]]) {
         const h = harness({ bounds: { width, height }, devicePixelRatio });
-        h.renderer.update({ active: true });
+        h.renderer.update({ active: true, quality });
         h.frame();
-        assert.ok(h.canvas.width <= 3200, `${width}×${height}: width`);
-        assert.ok(h.canvas.width * h.canvas.height <= 3200000, `${width}×${height}: area`);
+        assert.ok(h.canvas.width <= maxWidth, `${quality} ${width}×${height}: width`);
+        assert.ok(h.canvas.width * h.canvas.height <= pixels, `${quality} ${width}×${height}: area`);
         assert.ok(h.canvas.width > 0 && h.canvas.height > 0);
-        if (width === 1920 && height === 1080) {
-            assert.equal(h.canvas.width, 1920, "1080p must render at native CSS width");
-            assert.equal(h.canvas.height, 1080, "1080p must render at native CSS height");
+        if (quality === "high" && width === 1920 && height === 1080) {
+            assert.equal(h.canvas.width, 1920, "high retains native 1080p width");
+            assert.equal(h.canvas.height, 1080, "high retains native 1080p height");
         }
         assert.deepEqual(h.draws[0], { program: h.created.program[0], width: h.canvas.width, height: h.canvas.height });
         h.renderer.destroy();
+      }
     }
 });
 
@@ -162,7 +164,7 @@ test("device density sharpens smaller displays with bounded mobile sampling and 
     ];
     for (const { width, height, density, expected } of cases) {
         const h = harness({ bounds: { width, height }, devicePixelRatio: density });
-        h.renderer.update({ active: true });
+        h.renderer.update({ active: true, quality: "high" });
         h.frame();
         assert.deepEqual([h.canvas.width, h.canvas.height], expected);
         h.renderer.destroy();
@@ -262,7 +264,102 @@ test("unavailable WebGL remains a harmless CSS-only display", () => {
         h.renderer.destroy();
     });
     assert.equal(h.frames.size + h.timers.size, 0);
-    assert.equal(h.events.size, 0);
+    assert.ok([...h.events.values()].every(listeners => listeners.size === 0));
+});
+
+test("fresh low, Studio, inactive, and hidden displays never acquire a WebGL context", () => {
+    for (const mode of ["low", "studio", "inactive", "hidden"]) {
+        const h = harness();
+        if (mode === "hidden") h.root.document.hidden = true;
+        h.renderer.update({ active: mode !== "inactive", animated: true, quality: mode === "low" ? "low" : "balanced", design: mode === "studio" ? "studio" : "aurora" });
+        for (let i = 0; i < 50; i += 1) h.renderer.setPointer(1, -1);
+        h.frame();
+        h.timeout();
+        assert.deepEqual(h.scheduled, { frames: 0, timers: 0, contexts: 0 }, mode);
+        assert.equal(h.draws.length, 0, mode);
+        assert.equal(h.created.program.length, 0, mode);
+        assert.equal(h.classes.has("is-ready"), false, mode);
+        h.renderer.destroy();
+    }
+});
+
+test("default balanced profile uses the cheaper shader detail and an 18fps ceiling", () => {
+    const h = harness({ devicePixelRatio: 3 });
+    h.renderer.update({ active: true, animated: true });
+    h.frame();
+    assert.equal(h.uniform("detail").value, 0);
+    assert.ok(h.canvas.width * h.canvas.height <= 1200000);
+    assert.ok([...h.timers.values()][0].delay >= 1000 / 18);
+    assert.equal(h.scheduled.contexts, 1);
+    h.renderer.update({ quality: "high" });
+    h.frame(200);
+    assert.equal(h.uniform("detail").value, 1);
+    assert.ok([...h.timers.values()][0].delay >= 1000 / 24);
+    assert.ok([...h.timers.values()][0].delay < 1000 / 18);
+    assert.equal(h.scheduled.contexts, 1);
+    assert.equal(h.created.program.length, 1);
+    h.renderer.destroy();
+});
+
+test("balanced keeps mobile sampling at DPR1 while high can opt into denser sampling", () => {
+    const h = harness({ bounds: { width: 375, height: 812 }, devicePixelRatio: 3 });
+    h.renderer.update({ active: true, quality: "balanced" });
+    h.frame();
+    assert.deepEqual([h.canvas.width, h.canvas.height], [375, 812]);
+    h.renderer.update({ quality: "high" });
+    h.frame(200);
+    assert.deepEqual([h.canvas.width, h.canvas.height], [562, 1218]);
+    h.renderer.destroy();
+});
+
+test("switching low releases GPU objects and returning balanced rebuilds once on the retained context", () => {
+    const h = harness();
+    h.renderer.update({ active: true, animated: true, quality: "high" });
+    h.frame(0);
+    h.renderer.setPointer(1, -1);
+    h.timeout();
+    h.frame(100);
+    assert.ok(h.uniform("pointer").value[0] > 0);
+    const timeBeforeLow = h.uniform("time").value;
+    h.renderer.update({ quality: "low" });
+    assert.equal(h.frames.size + h.timers.size, 0);
+    assert.equal(h.classes.has("is-ready"), false);
+    assert.deepEqual(h.deleted, h.created);
+    assert.deepEqual([h.canvas.width, h.canvas.height], [1, 1]);
+    const workBeforeInput = { ...h.scheduled };
+    const drawsBeforeInput = h.draws.length;
+    for (let i = 0; i < 50; i += 1) h.renderer.setPointer(-1, 1);
+    h.renderer.update({ intensity: .7 });
+    h.timeout();
+    h.frame(200);
+    assert.deepEqual(h.scheduled, workBeforeInput);
+    assert.equal(h.draws.length, drawsBeforeInput);
+    h.renderer.update({ quality: "balanced" });
+    h.frame(300);
+    assert.equal(h.scheduled.contexts, 1);
+    assert.equal(h.created.program.length, 2);
+    assert.equal(h.uniform("detail").value, 0);
+    assert.deepEqual(h.uniform("pointer").value, [0, 0]);
+    assert.equal(h.uniform("time").value, timeBeforeLow);
+    assert.ok(h.canvas.width * h.canvas.height <= 1200000);
+    h.renderer.destroy();
+    assert.deepEqual(h.deleted, h.created);
+});
+
+test("restoring a context during low mode does not recreate GPU objects or restart rendering", () => {
+    const h = harness();
+    h.renderer.update({ active: true, animated: true });
+    h.frame();
+    h.renderer.update({ quality: "low" });
+    h.dispatch("webglcontextlost");
+    h.dispatch("webglcontextrestored");
+    assert.equal(h.created.program.length, 1);
+    assert.equal(h.frames.size + h.timers.size, 0);
+    h.renderer.update({ quality: "balanced" });
+    h.frame(200);
+    assert.equal(h.created.program.length, 2);
+    assert.equal(h.uniform("detail").value, 0);
+    h.renderer.destroy();
 });
 
 test("pointer targets clamp safely and follow with inertia without scheduling extra frames", () => {

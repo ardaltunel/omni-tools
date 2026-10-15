@@ -89,6 +89,17 @@ const appHomeCategories = Object.freeze([
         sourceCategories: ["Finans", "Hava Durumu", "Kariyer"],
     },
 ]);
+// Inline symbols keep the catalog complete even when remote fonts are unavailable.
+const appHomeCategoryIcons = Object.freeze({
+    sports_esports: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h10a4 4 0 0 1 4 4v6a2 2 0 0 1-3.4 1.4L15 16H9l-3.6 2.4A2 2 0 0 1 2 17v-6a4 4 0 0 1 5-4Z"/><path d="M7 10v5m-2.5-2.5h5M16 11h.01M19 14h.01"/></svg>',
+    auto_awesome: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/><path d="M20 2v4m-2-2h4"/></svg>',
+    bolt: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m13 2-9 12h7l-1 8 10-13h-7l1-7Z"/></svg>',
+    code: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-14-2 16"/></svg>',
+    perm_media: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="3" width="15" height="15" rx="2"/><path d="M3 7v12a2 2 0 0 0 2 2h12m-11-7 4-4 4 4 3-3 4 4"/><circle cx="16.5" cy="7.5" r="1"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 2 8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3Z"/><path d="m8 12 3 3 5-6"/></svg>',
+    alternate_email: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M16 8v6a2 2 0 0 0 4 0v-2a8 8 0 1 0-3.5 6.6"/></svg>',
+    monitoring: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3v18h18M7 15l5-5 4 3 5-8m-5 0h5v5"/></svg>',
+});
 document.body.classList.add("is-app-home");
 const homeAppCards = createAppHomeCards();
 initializeAppSearch(homeAppCards);
@@ -105,8 +116,6 @@ brand?.addEventListener("keydown", (event) => {
     event.preventDefault();
     clearActiveTool({ historyMode: "push" });
 });
-
-initializeToolRouting();
 
 function activateTool(tool, options = {}) {
     const requestedTool = tool;
@@ -154,14 +163,35 @@ function resetToolScroll() {
 
 function sortToolNavigation() {
     if (!toolNav) return;
-    Array.from(toolNav.querySelectorAll(".nav-item"))
-        .sort((a, b) => a.textContent.trim().localeCompare(b.textContent.trim(), "tr", { sensitivity: "base" }))
-        .forEach((item) => toolNav.appendChild(item));
+    const items = Array.from(toolNav.querySelectorAll(".nav-item"));
+    const sorted = [...items].sort((a, b) => a.textContent.trim().localeCompare(b.textContent.trim(), "tr", { sensitivity: "base" }));
+    if (sorted.some((item, index) => item !== items[index])) sorted.forEach((item) => toolNav.appendChild(item));
 }
 
 function createAppHomeCards() {
     const grid = document.getElementById("app-home-grid");
     if (!grid) return [];
+
+    const existingCards = Array.from(grid.querySelectorAll(".app-home-card"));
+    const cardsByTool = new Map(existingCards.map((card) => [card.dataset.tool, card]));
+    const existingSections = Array.from(grid.querySelectorAll(".app-home-category-section"));
+    const catalogMatches = existingCards.length === navItems.length
+        && cardsByTool.size === navItems.length
+        && existingSections.length === appHomeCategories.length
+        && existingSections.every((section, index) => section.dataset.category === appHomeCategories[index].id)
+        && Array.from(navItems).every((item) => {
+            const card = cardsByTool.get(item.dataset.tool);
+            return card?.dataset.category === getAppHomeCategory(item.dataset.category).id
+                && card.querySelector(".app-home-card-name")?.textContent === item.querySelector("span")?.textContent.trim()
+                && (card.querySelector(".app-home-card-description")?.textContent || "") === (item.dataset.description || "");
+        });
+    if (catalogMatches) {
+        return Array.from(navItems, (item) => {
+            const card = cardsByTool.get(item.dataset.tool);
+            card.addEventListener("click", () => activateTool(item.dataset.tool, { historyMode: "push" }));
+            return card;
+        });
+    }
 
     const fragment = document.createDocumentFragment();
     const sectionGrids = new Map();
@@ -184,7 +214,7 @@ function createAppHomeCards() {
         heading.className = "app-home-category-heading";
         titleGroup.className = "app-home-category-title-group";
         symbol.className = "app-home-category-symbol";
-        symbol.textContent = category.icon;
+        symbol.innerHTML = appHomeCategoryIcons[category.icon] || "";
         symbol.setAttribute("aria-hidden", "true");
         title.textContent = category.name;
         description.textContent = category.description;
@@ -288,15 +318,27 @@ function initializeAppSearch(cards) {
     if (toolCount) toolCount.textContent = totalAppCount;
     if (categoryCount) categoryCount.textContent = appHomeCategories.length;
 
-    const filterFragment = document.createDocumentFragment();
+    const existingFilters = Array.from(categoryFilters.querySelectorAll(".app-home-category-filter"));
+    const reuseFilters = existingFilters.length === appHomeCategories.length
+        && existingFilters.every((button, index) => button.dataset.category === appHomeCategories[index].id);
+    const filterFragment = reuseFilters ? null : document.createDocumentFragment();
     appHomeCategories.forEach((category) => {
         const count = searchableItems.filter((item) => item.category === category.id).length;
-        const button = document.createElement("button");
+        const button = reuseFilters ? existingFilters.find((item) => item.dataset.category === category.id) : document.createElement("button");
         button.className = "app-home-category-filter";
         button.type = "button";
         button.dataset.category = category.id;
         button.setAttribute("aria-pressed", "false");
-        button.innerHTML = `<span>${category.name}</span><small>${count}</small>`;
+        if (!reuseFilters) {
+            const name = document.createElement("span");
+            const total = document.createElement("small");
+            name.textContent = category.name;
+            total.textContent = count;
+            button.append(name, total);
+        } else {
+            button.querySelector("span").textContent = category.name;
+            button.querySelector("small").textContent = count;
+        }
         button.addEventListener("click", () => {
             if (activeCategories.has(category.id)) activeCategories.delete(category.id);
             else activeCategories.add(category.id);
@@ -305,9 +347,9 @@ function initializeAppSearch(cards) {
             });
             filterApps(homeSearchInput.value);
         });
-        filterFragment.appendChild(button);
+        filterFragment?.appendChild(button);
     });
-    categoryFilters.replaceChildren(filterFragment);
+    if (filterFragment) categoryFilters.replaceChildren(filterFragment);
 
     const filterApps = (value = "") => {
         const rawValue = String(value);
@@ -411,11 +453,9 @@ function initializeToolRouting() {
         });
     }
 
-    window.setTimeout(() => {
-        const requestedTool = getRequestedToolFromLocation();
-        if (requestedTool && activateTool(requestedTool, { historyMode: "replace" })) return;
-        updatePageMetadata(null);
-    }, 0);
+    const requestedTool = getRequestedToolFromLocation();
+    if (requestedTool && activateTool(requestedTool, { historyMode: "replace" })) return;
+    updatePageMetadata(null);
 }
 
 function getRequestedToolFromLocation() {
@@ -1235,28 +1275,70 @@ const qrContainer = document.getElementById("qr-code");
 const qrDownload = document.getElementById("qr-download");
 const qrShare = document.getElementById("qr-share");
 const qrSizeLabel = document.getElementById("qr-size-label");
+let qrLibraryFailed = false;
+let qrRenderRevision = 0;
+let qrDataUrl = "";
 
 [qrText, qrLight, qrDark, qrSize].forEach((input) => input.addEventListener("input", generateQRCode));
 qrSize.addEventListener("change", generateQRCode);
 qrShare.addEventListener("click", shareQRCode);
+qrDownload.addEventListener("click", (event) => {
+    if (!qrDataUrl) event.preventDefault();
+});
+// The library element is parsed after this script. Resource events are captured
+// on the document so both a fast cached load and a failed CDN are handled.
+document.addEventListener("load", (event) => {
+    if (event.target.id !== "qr-code-library") return;
+    qrLibraryFailed = typeof QRCode === "undefined";
+    generateQRCode();
+}, true);
+document.addEventListener("error", (event) => {
+    if (event.target.id !== "qr-code-library") return;
+    qrLibraryFailed = true;
+    generateQRCode();
+}, true);
+
+function updateQRActions(dataUrl = "") {
+    qrDataUrl = dataUrl;
+    qrShare.disabled = !dataUrl;
+    qrDownload.href = dataUrl || "#";
+    qrDownload.setAttribute("aria-disabled", String(!dataUrl));
+    qrDownload.tabIndex = dataUrl ? 0 : -1;
+}
 
 async function generateQRCode() {
+    const revision = ++qrRenderRevision;
+    updateQRActions();
+    const size = Number(qrSize.value);
+    qrSizeLabel.textContent = `${size}x${size}`;
     if (typeof QRCode === "undefined") {
-        qrContainer.textContent = "QR kütüphanesi yüklenemedi.";
+        qrContainer.textContent = qrLibraryFailed
+            ? "QR kütüphanesi yüklenemedi. Bağlantını kontrol edip sayfayı yenileyebilirsin."
+            : "QR kütüphanesi yükleniyor…";
+        qrContainer.setAttribute("aria-busy", String(!qrLibraryFailed));
         return;
     }
 
-    const size = Number(qrSize.value);
-    qrSizeLabel.textContent = `${size}x${size}`;
-    qrContainer.innerHTML = "";
-    new QRCode(qrContainer, {
-        text: qrText.value.trim() || "https://ardaltunel.vercel.app",
-        height: size,
-        width: size,
-        colorLight: qrLight.value,
-        colorDark: qrDark.value,
-    });
-    qrDownload.href = await resolveQRDataUrl();
+    qrContainer.setAttribute("aria-busy", "true");
+    try {
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, {
+            text: qrText.value.trim() || "https://ardaltunel.vercel.app",
+            height: size,
+            width: size,
+            colorLight: qrLight.value,
+            colorDark: qrDark.value,
+        });
+        const dataUrl = await resolveQRDataUrl();
+        if (revision !== qrRenderRevision) return;
+        if (!dataUrl.startsWith("data:image/")) throw new Error("QR image unavailable");
+        updateQRActions(dataUrl);
+    } catch {
+        if (revision !== qrRenderRevision) return;
+        qrContainer.textContent = "QR kod oluşturulamadı. Daha kısa bir metinle yeniden dene.";
+    } finally {
+        if (revision === qrRenderRevision) qrContainer.setAttribute("aria-busy", "false");
+    }
 }
 
 function resolveQRDataUrl() {
@@ -1270,9 +1352,9 @@ function resolveQRDataUrl() {
 }
 
 async function shareQRCode() {
+    if (!qrDataUrl) return;
     try {
-        const dataUrl = await resolveQRDataUrl();
-        const blob = await (await fetch(dataUrl)).blob();
+        const blob = await (await fetch(qrDataUrl)).blob();
         const file = new File([blob], "QRCode.png", { type: blob.type });
         if (!navigator.canShare?.({ files: [file] })) throw new Error();
         await navigator.share({ files: [file], title: qrText.value || "QRCode" });
@@ -1564,3 +1646,5 @@ generatePassword();
 generateGradient();
 generateQRCode();
 prepareTypingTest(true);
+// Every local tool global is initialized before a direct route can activate it.
+initializeToolRouting();

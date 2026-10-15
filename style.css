@@ -1070,7 +1070,8 @@ a {
     min-height: calc(100vh - 56px);
     margin: 0 auto;
     padding: 22px 4px 36px;
-    animation: panel-enter 180ms ease-out;
+    /* Keep the first paint stable; translating the whole catalog blurs its text. */
+    animation: none;
 }
 
 .app-home[hidden] {
@@ -1258,6 +1259,21 @@ a {
     -webkit-font-feature-settings: "liga";
     text-rendering: optimizeLegibility;
     white-space: nowrap;
+}
+
+.app-home-category-symbol svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#qr-download[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .app-home-category-heading h2 {

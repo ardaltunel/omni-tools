@@ -18,6 +18,8 @@
             if (!requestedRoute || requestedRoute.includes("/") || requestedRoute.includes(".")) return;
 
             const appUrl = new URL(projectPath, window.location.origin);
+            appUrl.search = window.location.search;
+            appUrl.hash = window.location.hash;
             appUrl.searchParams.set("tool", requestedRoute);
             window.location.replace(appUrl.href);
         })();

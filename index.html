@@ -12,8 +12,35 @@
         assetBase.href = window.location.protocol === "file:" ? "./" : (githubPagesBase || "/");
         document.head.append(assetBase);
     </script>
-    <script>window.coi = { quiet: true };</script>
-    <script src="coi-serviceworker.min.js"></script>
+    <!-- catalog:routes:start -->
+    <script>
+        // Generated from canonical navigation and router aliases. Select only
+        // the requested tool while the rest of the document is still parsing.
+        (() => {
+            const routes = {"2048":"game-2048","yuzbir-okey":"yuzbir-okey","101-okey":"yuzbir-okey","game-2048":"game-2048","ambient-display":"ambient-display","ambiyans-ekrani":"ambient-display","ats-cv-kontrolu":"ats-cv-kontrolu","link-preview-tester":"link-preview-tester","baglanti-onizleme-testi":"link-preview-tester","blackjack":"blackjack","translate":"translate","ceviri":"translate","discord-emoji-indir":"discord-emoji-indir","doviz-kurlari":"doviz-kurlari","emlak-portfoy-analizi":"emlak-portfoy-analizi","exif-veri-goruntuleme":"exif-veri-goruntuleme","farkli-rengi-bul":"farkli-rengi-bul","advanced-xox":"advanced-xox","gelismis-xox":"advanced-xox","github-user":"github-user","github-kullanici":"github-user","github-md-generator":"github-md-generator","github-md-olusturucu":"github-md-generator","github-unfollower":"github-unfollower","github-takip-etmeyenler":"github-unfollower","image-compressor":"image-compressor","goruntu-sikistirici":"image-compressor","gradient":"gradient","gradient-olusturucu":"gradient","weather-app":"weather-app","hava-durumu":"weather-app","typing":"typing","hizli-yazma-testi":"typing","instagram-unfollower":"instagram-unfollower","insta-takip-etmeyenler":"instagram-unfollower","json-formatter":"json-formatter","json-bicimlendirici":"json-formatter","encoder-decoder":"encoder-decoder","kodlayici-kod-cozucu":"encoder-decoder","crypto":"crypto","kripto-kurlari":"crypto","kullanici-adi-arastirma":"kullanici-adi-arastirma","social-media-image-resizer":"social-media-image-resizer","medya-boyutlandirici":"social-media-image-resizer","medya-veri-temizleyici":"medya-veri-temizleyici","meta-tag-generator":"meta-tag-generator","meta-etiket-olusturucu":"meta-tag-generator","text-corrector":"text-corrector","metin-duzeltici":"text-corrector","microphone-test":"microphone-test","mikrofon-testi":"microphone-test","milyoner-bilgi-yarismasi":"milyoner-bilgi-yarismasi","nebuu":"nebuu","numble":"numble","omni-ai":"omni-ai","osint-arastirma":"osint-arastirma","parolla":"parolla","pdf-toolbox":"pdf-toolbox","pdf-arac-kutusu":"pdf-toolbox","prompt-developer":"prompt-developer","prompt-gelistirici":"prompt-developer","qr-code-scanner":"qr-code-scanner","qr-kod-okuyucu":"qr-code-scanner","qr":"qr","qr-kod-olusturucu":"qr","robots-txt-generator":"robots-txt-generator","robots-txt-olusturucu":"robots-txt-generator","chess":"chess","satranc":"chess","chess-coach":"chess-coach","satranc-kocu":"chess-coach","sitemap-generator":"sitemap-generator","sitemap-olusturucu":"sitemap-generator","slot-game":"slot-game","slot-oyunu":"slot-game","sudoku":"sudoku","password-strength-analysis":"password-strength-analysis","sifre-gucu-analizi":"password-strength-analysis","password":"password","sifre-olusturucu":"password","password-game":"password-game","sifre-oyunu":"password-game","tabu":"tabu","timestamp-converter":"timestamp-converter","timestamp-donusturucu":"timestamp-converter","url-cleaner":"url-cleaner","url-temizleyici":"url-cleaner","uzanti-donusturucu":"uzanti-donusturucu","valorant-crosshair":"valorant-crosshair","valorant-nisangahi":"valorant-crosshair","var-misin-yok-musun":"var-misin-yok-musun","wordle":"wordle","wordle-finder":"wordle-finder","wordle-bulucu":"wordle-finder","speech":"speech","yaziyi-sese-donustur":"speech","alninda-ne-var":"nebuu","discord-emoji-downloader":"discord-emoji-indir","username-search":"kullanici-adi-arastirma","osint-center":"osint-arastirma","converter":"uzanti-donusturucu","metadata-cleaner":"medya-veri-temizleyici","exif-viewer":"exif-veri-goruntuleme","milyoner":"milyoner-bilgi-yarismasi","weather":"weather-app","deal-game":"var-misin-yok-musun"};
+            const url = new URL(window.location.href);
+            const basePath = new URL(document.baseURI).pathname;
+            let requested = url.searchParams.get("tool");
+            if (!requested) {
+                if (url.protocol !== "file:" && !url.pathname.startsWith(basePath)) return;
+                const path = url.protocol === "file:" ? url.hash.replace(/^#\/?/, "") : url.pathname.slice(basePath.length);
+                const segments = path.split("/").filter(Boolean);
+                if (segments.length !== 1 || segments[0] === "index.html") return;
+                try { requested = decodeURIComponent(segments[0]); } catch { return; }
+            }
+            const tool = Object.hasOwn(routes, requested) && routes[requested];
+            if (!tool) return;
+            document.documentElement.dataset.initialTool = tool;
+            const style = document.createElement("style");
+            style.id = "initial-tool-style";
+            style.textContent = `#app-home{display:none}#${tool}.tool-panel{display:block}`;
+            document.head.append(style);
+        })();
+    </script>
+    <!-- catalog:routes:end -->
+    <script>window.coi = { quiet: true, doReload: () => {} };</script>
+    <script src="coi-serviceworker.min.js" defer></script>
+    <link rel="preload" as="script" href="index.js?v=home5" fetchpriority="high">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="google-site-verification" content="WhMumUYTcsUfTcXBMlek_AFSOMQFO66puERKoP0kpbE">
     <title>Omni Tools | Arda Altunel</title>
@@ -37,10 +64,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="tools/assets/favicon/apple-icon-180x180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Mukta:wght@500;600;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="tools/chess-coach/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="style.css?v=107">
+    <link rel="stylesheet" href="style.css?v=108">
     <link rel="stylesheet" href="tools/doviz-kurlari/style.css?v=5">
     <link rel="stylesheet" href="tools/emlak-portfoy-analizi/style.css?v=5">
     <link rel="stylesheet" href="tools/exif-veri-goruntuleme/style.css?v=3">
@@ -73,11 +100,11 @@
     <link rel="stylesheet" href="tools/timestamp-converter/style.css?v=1">
     <link rel="stylesheet" href="tools/social-media-image-resizer/style.css?v=1">
     <link rel="stylesheet" href="tools/link-preview-tester/style.css?v=1">
-    <link rel="stylesheet" href="tools/ambient-display/style.css?v=3">
+    <link rel="stylesheet" href="tools/ambient-display/style.css?v=4">
     <link rel="stylesheet" href="tools/ambient-display/catalog.css?v=1">
 </head>
 
-<body>
+<body class="is-app-home">
     <div class="app-shell">
         <aside class="sidebar">
             <button class="brand" type="button" aria-label="Uygulamalar ekranına dön">
@@ -86,55 +113,46 @@
             </button>
 
             <nav id="tool-nav" class="tool-nav" aria-label="Uygulamalar">
+                <!-- catalog:nav:start -->
+                <button class="nav-item" data-tool="yuzbir-okey" data-category="Oyunlar"
+                    data-search="101 yüzbir okey yuzbir taş per seri çift masa bot oyun"
+                    data-description="Üç bot rakibe karşı 101 Okey oyna; seri ve çift aç, taşlarını işle." type="button">
+                    <span>101 Okey</span>
+                </button>
                 <button class="nav-item" data-tool="game-2048" data-category="Oyunlar"
                     data-search="2048 sayı birleştirme sayı oyunu karo taş kutu kaydırma bulmaca zeka matematik puzzle merge numbers game"
                     data-description="Aynı sayıları birleştir, 2048 taşına ulaş." type="button">
                     <span>2048</span>
                 </button>
-                <button class="nav-item" data-tool="advanced-xox" data-category="Oyunlar"
-                    data-search="advanced xox x o x tic tac toe üç taş üçlü sıra strateji bot bilgisayar yapay zeka masa oyunu"
-                    data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
-                    <span>Gelişmiş XOX</span>
+                <button class="nav-item" data-tool="ambient-display" data-category="Verimlilik"
+                    data-search="ambiyans ekranı ambiyans ekrani ortam ekranı ortam ekrani ortam aydınlatma ambient display ambiyans ekran ikinci monitör çift monitör dijital saat tarih duvar kağıdı duvar kâğıdı ekran koruyucu tam ekran aurora flow minimal studio cyber desk oled siyah sakin animasyon desktop wallpaper screensaver clock date fullscreen second monitor dual monitor ambient light"
+                    data-description="Ekranını, büyüleyici ışıklar ve zarif bir saatle sakin bir dijital duvar kâğıdına dönüştür." type="button">
+                    <span>Ambiyans Ekranı</span>
                 </button>
-                <button class="nav-item" data-tool="yuzbir-okey" data-category="Oyunlar"
-                    data-search="101 yüzbir okey yuzbir taş per seri çift masa bot oyun"
-                    data-description="Üç bot rakibe karşı 101 Okey oyna; seri ve çift aç, taşlarını işle." type="button">
-                    <span>101 Okey</span>
+                <button class="nav-item" data-tool="ats-cv-kontrolu" data-category="Kariyer"
+                    data-search="ats cv kontrolü özgeçmiş öz geçmiş resume iş başvuru işe alım kariyer insan kaynakları ik anahtar kelime uyumluluk tarama cv puanı cv analiz iş ilanı eşleşme format deneyim beceri okunabilirlik"
+                    data-description="CV'nizin ATS uyumluluğunu analiz edin, eksikleri görün ve iş ilanlarıyla eşleşmesini kontrol edin." type="button">
+                    <span>ATS CV Kontrolü</span>
+                </button>
+                <button class="nav-item" data-tool="link-preview-tester" data-category="Araçlar"
+                    data-search="link preview tester bağlantı önizleme test kontrol paylaşım kartı sosyal medya open graph og image görsel favicon canonical twitter card metadata başlık title açıklama description seo geliştirici"
+                    data-description="Bir bağlantının paylaşım kartı ve üst veri bilgilerini kontrol edin." type="button">
+                    <span>Bağlantı Önizleme Testi</span>
                 </button>
                 <button class="nav-item" data-tool="blackjack"
                     data-category="Oyunlar" data-search="blackjack 21 yirmi bir iskambil kart casino kumarhane masa bahis krupiye deste el oyun"
                     data-description="Sanal çiplerle, klasik kurallara göre üst düzey Blackjack oyna." type="button">
                     <span>Blackjack</span>
                 </button>
-                <button class="nav-item" data-tool="farkli-rengi-bul" data-category="Oyunlar"
-                    data-search="farklı rengi bul renk algısı görsel dikkat grid kare ton hsl bulmaca oyun odd color"
-                    data-description="Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul." type="button">
-                    <span>Farklı Rengi Bul</span>
+                <button class="nav-item" data-tool="translate" data-category="Dil"
+                    data-search="translate translator çeviri tercüme dil çevirmen metin çevirme türkçe ingilizce almanca fransızca yabancı dil anlam"
+                    data-description="Metinleri farklı diller arasında hızlıca çevir." type="button">
+                    <span>Çeviri</span>
                 </button>
-                <button class="nav-item" data-tool="slot-game"
-                    data-category="Oyunlar" data-search="slot game slot makinesi casino kumarhane şans oyunu çevirme makinesi arcade cascade tumble free spins bedava dönüş çarpan"
-                    data-description="Zincirleme düşüş, çarpanlar ve ücretsiz dönüşlerle özgün bir sanal slot deneyimi." type="button">
-                    <span>Slot Oyunu</span>
-                </button>
-                <button class="nav-item" data-tool="nebuu" data-category="Oyunlar"
-                    data-search="nebuu alnında ne var heads up kelime tahmin kimim ben sessiz sinema anlat bakalım tabu charades telefon hareket sensör parti aile arkadaş grup oyun"
-                    data-description="Telefonunu alnına koy, kelimeyi tahmin et!" type="button">
-                    <span>Nebuu</span>
-                </button>
-                <button class="nav-item" data-tool="chess" data-category="Oyunlar"
-                    data-search="chess satranç tahta taş şah mat bot bilgisayar rakip strateji zeka masa oyunu"
-                    data-description="Farklı zorluklardaki bota karşı satranç oyna." type="button">
-                    <span>Satranç</span>
-                </button>
-                <button class="nav-item" data-tool="chess-coach" data-category="Oyunlar"
-                    data-search="chess coach satranç koçu antrenör analiz hamle önerisi aday hamle motor stockfish açılış taktik strateji oyun geliştirme"
-                    data-description="Hamlelerini analiz et, aday hamlelerle oyununu geliştir." type="button">
-                    <span>Satranç Koçu</span>
-                </button>
-                <button class="nav-item" data-tool="crypto" data-category="Finans"
-                    data-search="crypto kripto para coin bitcoin ethereum btc eth altcoin fiyat kur piyasa market canlı değer değişim yükselen düşen finans takip"
-                    data-description="Popüler kripto para fiyatlarını ve değişimleri takip et." type="button">
-                    <span>Kripto Kurları</span>
+                <button class="nav-item" data-tool="discord-emoji-indir" data-category="Sosyal Medya"
+                    data-search="discord emoji emote sticker çıkartma sunucu guild özel emoji paket toplu zip indir indirme download animated hareketli gif apng lottie sosyal medya"
+                    data-description="Discord sunucularındaki özel emoji ve çıkartmaları görüntüleyin ve ZIP olarak indirin." type="button">
+                    <span>Discord Emoji İndir</span>
                 </button>
                 <button class="nav-item" data-tool="doviz-kurlari" data-category="Finans"
                     data-search="döviz kurları güncel kur kur çevirici para birimi dönüştürücü dolar euro sterlin tl try usd eur gbp forex finans hesaplama"
@@ -145,6 +163,21 @@
                     data-search="emlak portföy analizi gayrimenkul konut daire villa arsa yatırım kira getirisi amortisman metrekare m2 tapu harcı komisyon alıcı satıcı finans hesaplama"
                     data-description="Gayrimenkul m² fiyatı, kira getirisi, amortisman süresi ve işlem maliyetlerini hesaplayın." type="button">
                     <span>Emlak Portföy Analizi</span>
+                </button>
+                <button class="nav-item" data-tool="exif-veri-goruntuleme" data-category="Medya"
+                    data-search="exif metadata viewer okuyucu görüntüleme bilgi detay özellik gps konum koordinat kamera model lens tarih fotoğraf resim iptc xmp icc"
+                    data-description="Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin." type="button">
+                    <span>EXIF Veri Görüntüleme</span>
+                </button>
+                <button class="nav-item" data-tool="farkli-rengi-bul" data-category="Oyunlar"
+                    data-search="farklı rengi bul renk algısı görsel dikkat grid kare ton hsl bulmaca oyun odd color"
+                    data-description="Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul." type="button">
+                    <span>Farklı Rengi Bul</span>
+                </button>
+                <button class="nav-item" data-tool="advanced-xox" data-category="Oyunlar"
+                    data-search="advanced xox x o x tic tac toe üç taş üçlü sıra strateji bot bilgisayar yapay zeka masa oyunu"
+                    data-description="Akan tahtada bota karşı stratejik XOX oyna." type="button">
+                    <span>Gelişmiş XOX</span>
                 </button>
                 <button class="nav-item" data-tool="github-user" data-category="Geliştirici"
                     data-search="github user kullanıcı profil hesap sorgulama geliştirici yazılımcı repo repository depo katkı takipçi inceleme bulma"
@@ -161,100 +194,60 @@
                     data-description="Seni takip etmeyen GitHub hesaplarını bul ve seçerek takipten çıkar." type="button">
                     <span>GitHub Takip Etmeyenler</span>
                 </button>
-                <button class="nav-item" data-tool="instagram-unfollower" data-category="Sosyal Medya"
-                    data-search="instagram unfollower geri takip etmeyenler takibi bırakan takipçi analizi takipten çıkar followers following non followers sosyal medya"
-                    data-description="Instagram'da seni geri takip etmeyen hesapları güncel betikle incele." type="button">
-                    <span>Insta Takip Etmeyenler</span>
-                </button>
-                <button class="nav-item" data-tool="kullanici-adi-arastirma" data-category="OSINT"
-                    data-search="kullanıcı adı username nick nickname rumuz sorgulama kontrol arama bulucu osint sosyal medya sosyal ağ profil araştırma hesap bulma kişi araştırma"
-                    data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
-                    <span>Kullanıcı Adı Araştırma</span>
-                </button>
-                <button class="nav-item" data-tool="osint-arastirma" data-category="OSINT"
-                    data-search="osint açık kaynak istihbarat internet araştırma ip adres domain alan adı dns whois url bağlantı subdomain alt alan adı email e-posta user agent network ağ website web sitesi rdap güvenlik"
-                    data-description="Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın." type="button">
-                    <span>OSINT Araştırma</span>
-                </button>
-                <button class="nav-item" data-tool="discord-emoji-indir" data-category="Sosyal Medya"
-                    data-search="discord emoji emote sticker çıkartma sunucu guild özel emoji paket toplu zip indir indirme download animated hareketli gif apng lottie sosyal medya"
-                    data-description="Discord sunucularındaki özel emoji ve çıkartmaları görüntüleyin ve ZIP olarak indirin." type="button">
-                    <span>Discord Emoji İndir</span>
+                <button class="nav-item" data-tool="image-compressor" data-category="Araçlar"
+                    data-search="image compressor görsel resim fotoğraf sıkıştırma küçültme optimize hafifletme dosya boyutu azaltma jpg jpeg png webp quality kalite çözünürlük medya"
+                    data-description="Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin." type="button">
+                    <span>Görüntü Sıkıştırıcı</span>
                 </button>
                 <button class="nav-item" data-tool="gradient" data-category="Tasarım"
                     data-search="gradient generator renk geçişi gradyan css linear radial conic arka plan background tasarım kod oluşturucu renk paleti"
                     data-description="Renk geçişleri oluştur ve CSS kodunu kopyala." type="button">
                     <span>Gradient Oluşturucu</span>
                 </button>
-                <button class="nav-item" data-tool="uzanti-donusturucu" data-category="Araçlar"
-                    data-search="uzantı dönüştürücü dosya format çevirici converter dönüştürme video ses audio müzik görsel resim fotoğraf belge doküman pdf arşiv font ebook"
-                    data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
-                    <span>Uzantı Dönüştürücü</span>
+                <button class="nav-item" data-tool="weather-app" data-category="Hava Durumu"
+                    data-search="weather app hava durumu tahmin meteoroloji sıcaklık derece yağmur kar rüzgar nem şehir günlük güncel forecast"
+                    data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
+                    <span>Hava Durumu</span>
+                </button>
+                <button class="nav-item" data-tool="typing" data-category="Verimlilik"
+                    data-search="type test typing yazma testi klavye hız testi hızlı yazma on parmak wpm kelime dakika doğruluk pratik alıştırma türkçe"
+                    data-description="Türkçe metinlerle yazma hızını ve doğruluğunu ölç." type="button">
+                    <span>Hızlı Yazma Testi</span>
+                </button>
+                <button class="nav-item" data-tool="instagram-unfollower" data-category="Sosyal Medya"
+                    data-search="instagram unfollower geri takip etmeyenler takibi bırakan takipçi analizi takipten çıkar followers following non followers sosyal medya"
+                    data-description="Instagram'da seni geri takip etmeyen hesapları güncel betikle incele." type="button">
+                    <span>Insta Takip Etmeyenler</span>
+                </button>
+                <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
+                    data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
+                    data-description="JSON metinlerini formatla, sıkıştır ve hataları satır bilgisiyle denetle." type="button">
+                    <span>JSON Biçimlendirici</span>
+                </button>
+                <button class="nav-item" data-tool="encoder-decoder" data-category="Araçlar"
+                    data-search="encoder decoder kodlayıcı kod çözücü base64 url html unicode jwt encode decode kodlama çözme dönüştürme metin token geliştirici"
+                    data-description="Base64, URL, HTML, Unicode ve JWT metinlerini dönüştürün." type="button">
+                    <span>Kodlayıcı / Kod Çözücü</span>
+                </button>
+                <button class="nav-item" data-tool="crypto" data-category="Finans"
+                    data-search="crypto kripto para coin bitcoin ethereum btc eth altcoin fiyat kur piyasa market canlı değer değişim yükselen düşen finans takip"
+                    data-description="Popüler kripto para fiyatlarını ve değişimleri takip et." type="button">
+                    <span>Kripto Kurları</span>
+                </button>
+                <button class="nav-item" data-tool="kullanici-adi-arastirma" data-category="OSINT"
+                    data-search="kullanıcı adı username nick nickname rumuz sorgulama kontrol arama bulucu osint sosyal medya sosyal ağ profil araştırma hesap bulma kişi araştırma"
+                    data-description="Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın." type="button">
+                    <span>Kullanıcı Adı Araştırma</span>
+                </button>
+                <button class="nav-item" data-tool="social-media-image-resizer" data-category="Araçlar"
+                    data-search="social media image resizer sosyal medya görsel boyutlandırma yeniden boyutlandırma ölçü kırpma crop fit instagram post story reels youtube thumbnail küçük resim kapak banner x twitter facebook linkedin tiktok"
+                    data-description="Görselleri sosyal medya ölçülerine göre kırparak veya sığdırarak yeniden boyutlandırın." type="button">
+                    <span>Medya Boyutlandırıcı</span>
                 </button>
                 <button class="nav-item" data-tool="medya-veri-temizleyici" data-category="Gizlilik"
                     data-search="metadata cleaner medya veri temizleyici metadata silme exif kaldırma xmp iptc gps konum kamera bilgi fotoğraf resim mahremiyet gizlilik kişisel veri"
                     data-description="Fotoğraflardaki mahremiyet üst verilerini kayıpsız temizle." type="button">
                     <span>Medya Veri Temizleyici</span>
-                </button>
-                <button class="nav-item" data-tool="exif-veri-goruntuleme" data-category="Medya"
-                    data-search="exif metadata viewer okuyucu görüntüleme bilgi detay özellik gps konum koordinat kamera model lens tarih fotoğraf resim iptc xmp icc"
-                    data-description="Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin." type="button">
-                    <span>EXIF Veri Görüntüleme</span>
-                </button>
-                <button class="nav-item" data-tool="numble" data-category="Oyunlar"
-                    data-search="numble oyun sayı tahmin oyunu sayı bulmaca sayı bulma gizli sayı rakam basamak beş hane 5 haneli mantık zeka sayısal wordle mastermind"
-                    data-description="Beş haneli gizli sayıyı altı tahminde bul." type="button">
-                    <span>Numble</span>
-                </button>
-                <button class="nav-item" data-tool="password" data-category="Güvenlik"
-                    data-search="password pass parola şifre generator oluşturucu üretici güçlü güvenli rastgele random karmaşık karakter harf sayı sembol kişisel güvenlik"
-                    data-description="Güçlü ve özelleştirilebilir parolalar oluştur." type="button">
-                    <span>Şifre Oluşturucu</span>
-                </button>
-                <button class="nav-item" data-tool="password-strength-analysis" data-category="Güvenlik"
-                    data-search="şifre gücü analizi parola güvenlik kontrol test skor puan entropy entropi kırılma süresi brute force yaygın şifre tekrar qwerty password passphrase güçlü parola"
-                    data-description="Şifrenizin güvenlik seviyesini, entropisini ve tahmini kırılma süresini analiz edin." type="button">
-                    <span>Şifre Gücü Analizi</span>
-                </button>
-                <button class="nav-item" data-tool="password-game" data-category="Oyunlar"
-                    data-search="şifre oyunu parola oyunu password game bulmaca kural kurallar kümülatif zeka emoji matematik şehir renk kaos oyun"
-                    data-description="Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?" type="button">
-                    <span>Şifre Oyunu</span>
-                </button>
-                <button class="nav-item" data-tool="parolla" data-category="Oyunlar"
-                    data-search="parolla parola kelime oyunu bilgi yarışması quiz soru cevap genel kültür süre zaman harf ipucu bulmaca tahmin oyun"
-                    data-description="Kelime ve genel kültür sorularını süre dolmadan çöz." type="button">
-                    <span>Parolla</span>
-                </button>
-                <button class="nav-item" data-tool="qr" data-category="Araçlar"
-                    data-search="qr code generator qr kod karekod oluşturma üretme yapma link url bağlantı metin wifi renkli indir barkod"
-                    data-description="Metin ve bağlantılar için renkli QR kodlar oluştur." type="button">
-                    <span>QR Kod Oluşturucu</span>
-                </button>
-                <button class="nav-item" data-tool="qr-code-scanner" data-category="Araçlar"
-                    data-search="qr code scanner qr kod tarayıcı karekod okuyucu okutma çözme görsel fotoğraf yükleme kamera barkod bağlantı link url"
-                    data-description="Görsel yükleyerek veya kamerayla QR kodların içeriğini oku." type="button">
-                    <span>QR Kod Okuyucu</span>
-                </button>
-                <button class="nav-item" data-tool="microphone-test" data-category="Medya"
-                    data-search="mikrofon testi microphone test mic ses giriş cihazı audio input usb mikrofon laptop webcam bluetooth kulaklık kayıt dinleme seviye meter waveform dalga ortam sesi karşılaştırma"
-                    data-description="Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın." type="button">
-                    <span>Mikrofon Testi</span>
-                </button>
-                <button class="nav-item" data-tool="url-cleaner" data-category="Araçlar"
-                    data-search="url cleaner link bağlantı adres temizleme sadeleştirme utm tracking takip izleme parametre reklam kampanya gizlilik fbclid gclid paylaşılabilir"
-                    data-description="Bağlantılardaki takip ve reklam parametrelerini tek tıkla temizle." type="button">
-                    <span>URL Temizleyici</span>
-                </button>
-                <button class="nav-item" data-tool="sitemap-generator" data-category="SEO"
-                    data-search="sitemap oluşturucu sitemap generator sitemap xml site haritası seo url listesi robots txt sitemap index google arama motoru web sitesi sayfa dizin harita"
-                    data-description="URL listenizden SEO uyumlu bir sitemap.xml dosyası oluşturun." type="button">
-                    <span>Sitemap Oluşturucu</span>
-                </button>
-                <button class="nav-item" data-tool="robots-txt-generator" data-category="SEO"
-                    data-search="robots txt oluşturucu robots.txt generator bot arama motoru tarama crawler crawl user agent user-agent googlebot bingbot duckduckbot yandex bot baidu applebot allow izin ver disallow engelle sitemap crawl delay seo site indeksleme dizin gizleme"
-                    data-description="Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun." type="button">
-                    <span>Robots.txt Oluşturucu</span>
                 </button>
                 <button class="nav-item" data-tool="meta-tag-generator" data-category="SEO"
                     data-search="meta etiket oluşturucu meta tag generator seo başlık açıklama description keywords anahtar kelime canonical robots theme color author yazar open graph og twitter x card sosyal medya paylaşım önizleme html head web sitesi google arama sonucu"
@@ -266,105 +259,135 @@
                     data-description="Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin." type="button">
                     <span>Metin Düzeltici</span>
                 </button>
-                <button class="nav-item" data-tool="prompt-developer" data-category="Yapay Zekâ"
-                    data-search="prompt geliştirici prompt iyileştirme prompt mühendisliği yapay zeka ai komut talimat görev tanımı codex kodlama araştırma görsel oluşturma sosyal medya seo eğitim kariyer pazarlama beyin fırtınası detaylandır netleştir profesyonel teknik yaratıcı sistem mesajı"
-                    data-description="Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün." type="button">
-                    <span>Prompt Geliştirici</span>
-                </button>
-                <button class="nav-item" data-tool="omni-ai" data-category="Yapay Zekâ"
-                    data-search="omni ai yapay zeka sohbet asistan chat soru cevap kod yazma kod açıklama hata ayıklama metin yazma düzeltme özetleme fikir üretme eğitim kariyer teknik destek araştırma prompt geliştirme chatbot"
-                    data-description="Sorularınızı sorun, fikir üretin, kod yazın ve yapay zekâ ile çalışın." type="button">
-                    <span>Omni AI</span>
-                </button>
-                <button class="nav-item" data-tool="json-formatter" data-category="Araçlar"
-                    data-search="json formatter validator beautify pretty print minify formatlama biçimlendirme düzenleme sıkıştırma doğrulama hata kontrol syntax söz dizimi geliştirici kod"
-                    data-description="JSON metinlerini formatla, sıkıştır ve hataları satır bilgisiyle denetle." type="button">
-                    <span>JSON Biçimlendirici</span>
-                </button>
-                <button class="nav-item" data-tool="image-compressor" data-category="Araçlar"
-                    data-search="image compressor görsel resim fotoğraf sıkıştırma küçültme optimize hafifletme dosya boyutu azaltma jpg jpeg png webp quality kalite çözünürlük medya"
-                    data-description="Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin." type="button">
-                    <span>Görüntü Sıkıştırıcı</span>
-                </button>
-                <button class="nav-item" data-tool="ats-cv-kontrolu" data-category="Kariyer"
-                    data-search="ats cv kontrolü özgeçmiş öz geçmiş resume iş başvuru işe alım kariyer insan kaynakları ik anahtar kelime uyumluluk tarama cv puanı cv analiz iş ilanı eşleşme format deneyim beceri okunabilirlik"
-                    data-description="CV'nizin ATS uyumluluğunu analiz edin, eksikleri görün ve iş ilanlarıyla eşleşmesini kontrol edin." type="button">
-                    <span>ATS CV Kontrolü</span>
-                </button>
-                <button class="nav-item" data-tool="pdf-toolbox" data-category="Araçlar"
-                    data-search="pdf toolbox araç kutusu pdf düzenleme birleştirme bölme split organize sayfa döndürme rotate silme delete sıralama reorder ayırma görsel resim pdf oluşturma belge imza imzalama signature filigran watermark metin yazı ekleme damga"
-                    data-description="PDF sayfalarını birleştirin, bölün, düzenleyin; metin, filigran veya imza ekleyin." type="button">
-                    <span>PDF Araç Kutusu</span>
-                </button>
-                <button class="nav-item" data-tool="encoder-decoder" data-category="Araçlar"
-                    data-search="encoder decoder kodlayıcı kod çözücü base64 url html unicode jwt encode decode kodlama çözme dönüştürme metin token geliştirici"
-                    data-description="Base64, URL, HTML, Unicode ve JWT metinlerini dönüştürün." type="button">
-                    <span>Kodlayıcı / Kod Çözücü</span>
-                </button>
-                <button class="nav-item" data-tool="timestamp-converter" data-category="Araçlar"
-                    data-search="timestamp converter unix epoch zaman damgası tarih saat dönüştürme çevirme saniye milisaniye utc yerel local timezone saat dilimi geliştirici"
-                    data-description="Unix zaman damgası ve tarih/saat değerlerini anında dönüştürün." type="button">
-                    <span>Timestamp Dönüştürücü</span>
-                </button>
-                <button class="nav-item" data-tool="social-media-image-resizer" data-category="Araçlar"
-                    data-search="social media image resizer sosyal medya görsel boyutlandırma yeniden boyutlandırma ölçü kırpma crop fit instagram post story reels youtube thumbnail küçük resim kapak banner x twitter facebook linkedin tiktok"
-                    data-description="Görselleri sosyal medya ölçülerine göre kırparak veya sığdırarak yeniden boyutlandırın." type="button">
-                    <span>Medya Boyutlandırıcı</span>
-                </button>
-                <button class="nav-item" data-tool="link-preview-tester" data-category="Araçlar"
-                    data-search="link preview tester bağlantı önizleme test kontrol paylaşım kartı sosyal medya open graph og image görsel favicon canonical twitter card metadata başlık title açıklama description seo geliştirici"
-                    data-description="Bir bağlantının paylaşım kartı ve üst veri bilgilerini kontrol edin." type="button">
-                    <span>Bağlantı Önizleme Testi</span>
-                </button>
-                <button class="nav-item" data-tool="speech" data-category="Erişilebilirlik"
-                    data-search="text to speech tts metin seslendirme yazıyı sese çevirme sesli okuma okutma konuşma telaffuz dinleme erişilebilirlik"
-                    data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
-                    <span>Yazıyı Sese Dönüştür</span>
-                </button>
-                <button class="nav-item" data-tool="sudoku" data-category="Oyunlar"
-                    data-search="sudoku sayı bulmaca mantık zeka kare tablo 9x9 kolay orta zor çözme oyun"
-                    data-description="Kolay, orta ve zor seviyelerde klasik Sudoku çöz." type="button">
-                    <span>Sudoku</span>
-                </button>
-                <button class="nav-item" data-tool="tabu" data-category="Oyunlar"
-                    data-search="tabu taboo yasak kelime anlatma tahmin takım grup arkadaş aile parti kutu oyunu süre puan oyun"
-                    data-description="Takımını kur, yasak kelimelere takılmadan puan topla." type="button">
-                    <span>Tabu</span>
-                </button>
-                <button class="nav-item" data-tool="typing" data-category="Verimlilik"
-                    data-search="type test typing yazma testi klavye hız testi hızlı yazma on parmak wpm kelime dakika doğruluk pratik alıştırma türkçe"
-                    data-description="Türkçe metinlerle yazma hızını ve doğruluğunu ölç." type="button">
-                    <span>Hızlı Yazma Testi</span>
-                </button>
-                <button class="nav-item" data-tool="ambient-display" data-category="Verimlilik"
-                    data-search="ambient display ambiyans ekran ikinci monitör çift monitör dijital saat tarih duvar kağıdı duvar kâğıdı ekran koruyucu tam ekran aurora flow minimal studio cyber desk oled siyah sakin animasyon desktop wallpaper screensaver clock date fullscreen second monitor dual monitor ambient light"
-                    data-description="Ekranını, büyüleyici ışıklar ve zarif bir saatle sakin bir dijital duvar kâğıdına dönüştür." type="button">
-                    <span>Ambient Display</span>
-                </button>
-                <button class="nav-item" data-tool="translate" data-category="Dil"
-                    data-search="translate translator çeviri tercüme dil çevirmen metin çevirme türkçe ingilizce almanca fransızca yabancı dil anlam"
-                    data-description="Metinleri farklı diller arasında hızlıca çevir." type="button">
-                    <span>Çeviri</span>
-                </button>
-                <button class="nav-item" data-tool="var-misin-yok-musun" data-category="Oyunlar"
-                    data-search="var mısın yok musun deal or no deal kutu kasa açma yarışma banka teklifi para ödül şans televizyon oyun"
-                    data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
-                    <span>Var Mısın Yok Musun</span>
+                <button class="nav-item" data-tool="microphone-test" data-category="Medya"
+                    data-search="mikrofon testi microphone test mic ses giriş cihazı audio input usb mikrofon laptop webcam bluetooth kulaklık kayıt dinleme seviye meter waveform dalga ortam sesi karşılaştırma"
+                    data-description="Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın." type="button">
+                    <span>Mikrofon Testi</span>
                 </button>
                 <button class="nav-item" data-tool="milyoner-bilgi-yarismasi" data-category="Oyunlar"
                     data-search="milyoner kim milyoner olmak ister bilgi yarışması quiz soru cevap genel kültür joker ödül para televizyon millionaire oyun"
                     data-description="15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş." type="button">
                     <span>Milyoner Bilgi Yarışması</span>
                 </button>
+                <button class="nav-item" data-tool="nebuu" data-category="Oyunlar"
+                    data-search="nebuu alnında ne var heads up kelime tahmin kimim ben sessiz sinema anlat bakalım tabu charades telefon hareket sensör parti aile arkadaş grup oyun"
+                    data-description="Telefonunu alnına koy, kelimeyi tahmin et!" type="button">
+                    <span>Nebuu</span>
+                </button>
+                <button class="nav-item" data-tool="numble" data-category="Oyunlar"
+                    data-search="numble oyun sayı tahmin oyunu sayı bulmaca sayı bulma gizli sayı rakam basamak beş hane 5 haneli mantık zeka sayısal wordle mastermind"
+                    data-description="Beş haneli gizli sayıyı altı tahminde bul." type="button">
+                    <span>Numble</span>
+                </button>
+                <button class="nav-item" data-tool="omni-ai" data-category="Yapay Zekâ"
+                    data-search="omni ai yapay zeka sohbet asistan chat soru cevap kod yazma kod açıklama hata ayıklama metin yazma düzeltme özetleme fikir üretme eğitim kariyer teknik destek araştırma prompt geliştirme chatbot"
+                    data-description="Sorularınızı sorun, fikir üretin, kod yazın ve yapay zekâ ile çalışın." type="button">
+                    <span>Omni AI</span>
+                </button>
+                <button class="nav-item" data-tool="osint-arastirma" data-category="OSINT"
+                    data-search="osint açık kaynak istihbarat internet araştırma ip adres domain alan adı dns whois url bağlantı subdomain alt alan adı email e-posta user agent network ağ website web sitesi rdap güvenlik"
+                    data-description="Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın." type="button">
+                    <span>OSINT Araştırma</span>
+                </button>
+                <button class="nav-item" data-tool="parolla" data-category="Oyunlar"
+                    data-search="parolla parola kelime oyunu bilgi yarışması quiz soru cevap genel kültür süre zaman harf ipucu bulmaca tahmin oyun"
+                    data-description="Kelime ve genel kültür sorularını süre dolmadan çöz." type="button">
+                    <span>Parolla</span>
+                </button>
+                <button class="nav-item" data-tool="pdf-toolbox" data-category="Araçlar"
+                    data-search="pdf toolbox araç kutusu pdf düzenleme birleştirme bölme split organize sayfa döndürme rotate silme delete sıralama reorder ayırma görsel resim pdf oluşturma belge imza imzalama signature filigran watermark metin yazı ekleme damga"
+                    data-description="PDF sayfalarını birleştirin, bölün, düzenleyin; metin, filigran veya imza ekleyin." type="button">
+                    <span>PDF Araç Kutusu</span>
+                </button>
+                <button class="nav-item" data-tool="prompt-developer" data-category="Yapay Zekâ"
+                    data-search="prompt geliştirici prompt iyileştirme prompt mühendisliği yapay zeka ai komut talimat görev tanımı codex kodlama araştırma görsel oluşturma sosyal medya seo eğitim kariyer pazarlama beyin fırtınası detaylandır netleştir profesyonel teknik yaratıcı sistem mesajı"
+                    data-description="Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün." type="button">
+                    <span>Prompt Geliştirici</span>
+                </button>
+                <button class="nav-item" data-tool="qr-code-scanner" data-category="Araçlar"
+                    data-search="qr code scanner qr kod tarayıcı karekod okuyucu okutma çözme görsel fotoğraf yükleme kamera barkod bağlantı link url"
+                    data-description="Görsel yükleyerek veya kamerayla QR kodların içeriğini oku." type="button">
+                    <span>QR Kod Okuyucu</span>
+                </button>
+                <button class="nav-item" data-tool="qr" data-category="Araçlar"
+                    data-search="qr code generator qr kod karekod oluşturma üretme yapma link url bağlantı metin wifi renkli indir barkod"
+                    data-description="Metin ve bağlantılar için renkli QR kodlar oluştur." type="button">
+                    <span>QR Kod Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="robots-txt-generator" data-category="SEO"
+                    data-search="robots txt oluşturucu robots.txt generator bot arama motoru tarama crawler crawl user agent user-agent googlebot bingbot duckduckbot yandex bot baidu applebot allow izin ver disallow engelle sitemap crawl delay seo site indeksleme dizin gizleme"
+                    data-description="Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun." type="button">
+                    <span>Robots.txt Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="chess" data-category="Oyunlar"
+                    data-search="chess satranç tahta taş şah mat bot bilgisayar rakip strateji zeka masa oyunu"
+                    data-description="Farklı zorluklardaki bota karşı satranç oyna." type="button">
+                    <span>Satranç</span>
+                </button>
+                <button class="nav-item" data-tool="chess-coach" data-category="Oyunlar"
+                    data-search="chess coach satranç koçu antrenör analiz hamle önerisi aday hamle motor stockfish açılış taktik strateji oyun geliştirme"
+                    data-description="Hamlelerini analiz et, aday hamlelerle oyununu geliştir." type="button">
+                    <span>Satranç Koçu</span>
+                </button>
+                <button class="nav-item" data-tool="sitemap-generator" data-category="SEO"
+                    data-search="sitemap oluşturucu sitemap generator sitemap xml site haritası seo url listesi robots txt sitemap index google arama motoru web sitesi sayfa dizin harita"
+                    data-description="URL listenizden SEO uyumlu bir sitemap.xml dosyası oluşturun." type="button">
+                    <span>Sitemap Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="slot-game"
+                    data-category="Oyunlar" data-search="slot game slot makinesi casino kumarhane şans oyunu çevirme makinesi arcade cascade tumble free spins bedava dönüş çarpan"
+                    data-description="Zincirleme düşüş, çarpanlar ve ücretsiz dönüşlerle özgün bir sanal slot deneyimi." type="button">
+                    <span>Slot Oyunu</span>
+                </button>
+                <button class="nav-item" data-tool="sudoku" data-category="Oyunlar"
+                    data-search="sudoku sayı bulmaca mantık zeka kare tablo 9x9 kolay orta zor çözme oyun"
+                    data-description="Kolay, orta ve zor seviyelerde klasik Sudoku çöz." type="button">
+                    <span>Sudoku</span>
+                </button>
+                <button class="nav-item" data-tool="password-strength-analysis" data-category="Güvenlik"
+                    data-search="şifre gücü analizi parola güvenlik kontrol test skor puan entropy entropi kırılma süresi brute force yaygın şifre tekrar qwerty password passphrase güçlü parola"
+                    data-description="Şifrenizin güvenlik seviyesini, entropisini ve tahmini kırılma süresini analiz edin." type="button">
+                    <span>Şifre Gücü Analizi</span>
+                </button>
+                <button class="nav-item" data-tool="password" data-category="Güvenlik"
+                    data-search="password pass parola şifre generator oluşturucu üretici güçlü güvenli rastgele random karmaşık karakter harf sayı sembol kişisel güvenlik"
+                    data-description="Güçlü ve özelleştirilebilir parolalar oluştur." type="button">
+                    <span>Şifre Oluşturucu</span>
+                </button>
+                <button class="nav-item" data-tool="password-game" data-category="Oyunlar"
+                    data-search="şifre oyunu parola oyunu password game bulmaca kural kurallar kümülatif zeka emoji matematik şehir renk kaos oyun"
+                    data-description="Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?" type="button">
+                    <span>Şifre Oyunu</span>
+                </button>
+                <button class="nav-item" data-tool="tabu" data-category="Oyunlar"
+                    data-search="tabu taboo yasak kelime anlatma tahmin takım grup arkadaş aile parti kutu oyunu süre puan oyun"
+                    data-description="Takımını kur, yasak kelimelere takılmadan puan topla." type="button">
+                    <span>Tabu</span>
+                </button>
+                <button class="nav-item" data-tool="timestamp-converter" data-category="Araçlar"
+                    data-search="timestamp converter unix epoch zaman damgası tarih saat dönüştürme çevirme saniye milisaniye utc yerel local timezone saat dilimi geliştirici"
+                    data-description="Unix zaman damgası ve tarih/saat değerlerini anında dönüştürün." type="button">
+                    <span>Timestamp Dönüştürücü</span>
+                </button>
+                <button class="nav-item" data-tool="url-cleaner" data-category="Araçlar"
+                    data-search="url cleaner link bağlantı adres temizleme sadeleştirme utm tracking takip izleme parametre reklam kampanya gizlilik fbclid gclid paylaşılabilir"
+                    data-description="Bağlantılardaki takip ve reklam parametrelerini tek tıkla temizle." type="button">
+                    <span>URL Temizleyici</span>
+                </button>
+                <button class="nav-item" data-tool="uzanti-donusturucu" data-category="Araçlar"
+                    data-search="uzantı dönüştürücü dosya format çevirici converter dönüştürme video ses audio müzik görsel resim fotoğraf belge doküman pdf arşiv font ebook"
+                    data-description="Farklı dosya türlerini doğrudan tarayıcıda dönüştür." type="button">
+                    <span>Uzantı Dönüştürücü</span>
+                </button>
                 <button class="nav-item" data-tool="valorant-crosshair" data-category="Oyunlar"
                     data-search="valorant crosshair nişangah nişangâh aim hedef artı imleç kod pro oyuncu fps riot oyun ayar"
                     data-description="Valorant nişangâhlarını incele ve kodunu kopyala." type="button">
                     <span>Valorant Nişangâhı</span>
                 </button>
-                <button class="nav-item" data-tool="weather-app" data-category="Hava Durumu"
-                    data-search="weather app hava durumu tahmin meteoroloji sıcaklık derece yağmur kar rüzgar nem şehir günlük güncel forecast"
-                    data-description="Şehirlerin güncel hava durumunu görüntüle." type="button">
-                    <span>Hava Durumu</span>
+                <button class="nav-item" data-tool="var-misin-yok-musun" data-category="Oyunlar"
+                    data-search="var mısın yok musun deal or no deal kutu kasa açma yarışma banka teklifi para ödül şans televizyon oyun"
+                    data-description="Kasaları aç, banka tekliflerini değerlendir ve ödülü bul." type="button">
+                    <span>Var Mısın Yok Musun</span>
                 </button>
                 <button class="nav-item" data-tool="wordle" data-category="Oyunlar"
                     data-search="wordle kelime tahmin oyunu beş harf 5 harf altı deneme harf bulmaca türkçe günlük zeka oyun"
@@ -376,6 +399,12 @@
                     data-description="Wordle ipuçlarına uyan olası Türkçe kelimeleri bul." type="button">
                     <span>Wordle Bulucu</span>
                 </button>
+                <button class="nav-item" data-tool="speech" data-category="Erişilebilirlik"
+                    data-search="text to speech tts metin seslendirme yazıyı sese çevirme sesli okuma okutma konuşma telaffuz dinleme erişilebilirlik"
+                    data-description="Yazdığın metni tarayıcının sesiyle dinle." type="button">
+                    <span>Yazıyı Sese Dönüştür</span>
+                </button>
+                <!-- catalog:nav:end -->
             </nav>
         </aside>
 
@@ -398,10 +427,344 @@
 
                 <div class="app-home-category-bar">
                     <span>Kategoriler</span>
-                    <div id="app-home-category-filters" class="app-home-category-filters" aria-label="Uygulama kategorileri"></div>
+                    <div id="app-home-category-filters" class="app-home-category-filters" aria-label="Uygulama kategorileri">
+                        <!-- catalog:filters:start -->
+                        <button class="app-home-category-filter" type="button" data-category="oyunlar" aria-pressed="false"><span>Oyunlar</span><small>19</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="yapay-zeka" aria-pressed="false"><span>Yapay Zekâ</span><small>3</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="uretimlilik" aria-pressed="false"><span>Üretkenlik</span><small>15</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="gelistirici" aria-pressed="false"><span>Geliştirici &amp; Web</span><small>6</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="medya" aria-pressed="false"><span>Medya &amp; Dosyalar</span><small>3</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="guvenlik" aria-pressed="false"><span>Güvenlik &amp; Araştırma</span><small>4</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="sosyal" aria-pressed="false"><span>Sosyal Medya</span><small>3</small></button>
+                        <button class="app-home-category-filter" type="button" data-category="gunluk" aria-pressed="false"><span>Finans &amp; Günlük</span><small>5</small></button>
+                        <!-- catalog:filters:end -->
+                    </div>
                 </div>
                 <h2 id="app-home-list-title" class="sr-only">Tüm uygulamalar</h2>
-                <div id="app-home-grid" class="app-home-grid" aria-labelledby="app-home-list-title"></div>
+                <div id="app-home-grid" class="app-home-grid" aria-labelledby="app-home-list-title">
+                    <!-- catalog:cards:start -->
+                    <section class="app-home-category-section" data-category="oyunlar" id="app-home-category-oyunlar">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h10a4 4 0 0 1 4 4v6a2 2 0 0 1-3.4 1.4L15 16H9l-3.6 2.4A2 2 0 0 1 2 17v-6a4 4 0 0 1 5-4Z"/><path d="M7 10v5m-2.5-2.5h5M16 11h.01M19 14h.01"/></svg></span>
+                                <div><h2>Oyunlar</h2><p>Bulmacalar, masa oyunları ve eğlenceli meydan okumalar</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="oyunlar">19 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="yuzbir-okey" data-category="oyunlar" aria-label="101 Okey uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">101 Okey</span><small class="app-home-card-description">Üç bot rakibe karşı 101 Okey oyna; seri ve çift aç, taşlarını işle.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="game-2048" data-category="oyunlar" aria-label="2048 uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">2048</span><small class="app-home-card-description">Aynı sayıları birleştir, 2048 taşına ulaş.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="blackjack" data-category="oyunlar" aria-label="Blackjack uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Blackjack</span><small class="app-home-card-description">Sanal çiplerle, klasik kurallara göre üst düzey Blackjack oyna.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="farkli-rengi-bul" data-category="oyunlar" aria-label="Farklı Rengi Bul uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Farklı Rengi Bul</span><small class="app-home-card-description">Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="advanced-xox" data-category="oyunlar" aria-label="Gelişmiş XOX uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Gelişmiş XOX</span><small class="app-home-card-description">Akan tahtada bota karşı stratejik XOX oyna.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="milyoner-bilgi-yarismasi" data-category="oyunlar" aria-label="Milyoner Bilgi Yarışması uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Milyoner Bilgi Yarışması</span><small class="app-home-card-description">15 soruyu geç, jokerlerini doğru kullan ve büyük ödüle ulaş.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="nebuu" data-category="oyunlar" aria-label="Nebuu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Nebuu</span><small class="app-home-card-description">Telefonunu alnına koy, kelimeyi tahmin et!</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="numble" data-category="oyunlar" aria-label="Numble uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Numble</span><small class="app-home-card-description">Beş haneli gizli sayıyı altı tahminde bul.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="parolla" data-category="oyunlar" aria-label="Parolla uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Parolla</span><small class="app-home-card-description">Kelime ve genel kültür sorularını süre dolmadan çöz.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="chess" data-category="oyunlar" aria-label="Satranç uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Satranç</span><small class="app-home-card-description">Farklı zorluklardaki bota karşı satranç oyna.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="chess-coach" data-category="oyunlar" aria-label="Satranç Koçu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Satranç Koçu</span><small class="app-home-card-description">Hamlelerini analiz et, aday hamlelerle oyununu geliştir.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="slot-game" data-category="oyunlar" aria-label="Slot Oyunu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Slot Oyunu</span><small class="app-home-card-description">Zincirleme düşüş, çarpanlar ve ücretsiz dönüşlerle özgün bir sanal slot deneyimi.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="sudoku" data-category="oyunlar" aria-label="Sudoku uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Sudoku</span><small class="app-home-card-description">Kolay, orta ve zor seviyelerde klasik Sudoku çöz.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="password-game" data-category="oyunlar" aria-label="Şifre Oyunu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Şifre Oyunu</span><small class="app-home-card-description">Kurallar gittikçe zorlaşıyor. Tek bir şifreyle hepsini geçebilir misin?</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="tabu" data-category="oyunlar" aria-label="Tabu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Tabu</span><small class="app-home-card-description">Takımını kur, yasak kelimelere takılmadan puan topla.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="valorant-crosshair" data-category="oyunlar" aria-label="Valorant Nişangâhı uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Valorant Nişangâhı</span><small class="app-home-card-description">Valorant nişangâhlarını incele ve kodunu kopyala.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="var-misin-yok-musun" data-category="oyunlar" aria-label="Var Mısın Yok Musun uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Var Mısın Yok Musun</span><small class="app-home-card-description">Kasaları aç, banka tekliflerini değerlendir ve ödülü bul.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="wordle" data-category="oyunlar" aria-label="Wordle uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Wordle</span><small class="app-home-card-description">Beş harfli Türkçe kelimeyi altı denemede tahmin et.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="wordle-finder" data-category="oyunlar" aria-label="Wordle Bulucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Wordle Bulucu</span><small class="app-home-card-description">Wordle ipuçlarına uyan olası Türkçe kelimeleri bul.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="yapay-zeka" id="app-home-category-yapay-zeka">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/><path d="M20 2v4m-2-2h4"/></svg></span>
+                                <div><h2>Yapay Zekâ</h2><p>Yaz, geliştir, düzelt ve fikirlerini hızlandır</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="yapay-zeka">3 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="text-corrector" data-category="yapay-zeka" aria-label="Metin Düzeltici uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Metin Düzeltici</span><small class="app-home-card-description">Metninizi yapay zekâ ile düzeltin, daha akıcı, anlaşılır ve istediğiniz tona uygun hale getirin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="omni-ai" data-category="yapay-zeka" aria-label="Omni AI uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Omni AI</span><small class="app-home-card-description">Sorularınızı sorun, fikir üretin, kod yazın ve yapay zekâ ile çalışın.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="prompt-developer" data-category="yapay-zeka" aria-label="Prompt Geliştirici uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Prompt Geliştirici</span><small class="app-home-card-description">Basit fikirlerinizi daha net, detaylı ve etkili yapay zekâ promptlarına dönüştürün.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="uretimlilik" id="app-home-category-uretimlilik">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m13 2-9 12h7l-1 8 10-13h-7l1-7Z"/></svg></span>
+                                <div><h2>Üretkenlik</h2><p>Günlük işlerini daha kısa sürede tamamlayan pratik araçlar</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="uretimlilik">15 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="ambient-display" data-category="uretimlilik" aria-label="Ambiyans Ekranı uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Ambiyans Ekranı</span><small class="app-home-card-description">Ekranını, büyüleyici ışıklar ve zarif bir saatle sakin bir dijital duvar kâğıdına dönüştür.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="link-preview-tester" data-category="uretimlilik" aria-label="Bağlantı Önizleme Testi uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Bağlantı Önizleme Testi</span><small class="app-home-card-description">Bir bağlantının paylaşım kartı ve üst veri bilgilerini kontrol edin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="translate" data-category="uretimlilik" aria-label="Çeviri uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Çeviri</span><small class="app-home-card-description">Metinleri farklı diller arasında hızlıca çevir.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="image-compressor" data-category="uretimlilik" aria-label="Görüntü Sıkıştırıcı uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Görüntü Sıkıştırıcı</span><small class="app-home-card-description">Görsellerinizi tarayıcıda kalite ayarıyla sıkıştırın ve indirin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="typing" data-category="uretimlilik" aria-label="Hızlı Yazma Testi uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Hızlı Yazma Testi</span><small class="app-home-card-description">Türkçe metinlerle yazma hızını ve doğruluğunu ölç.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="json-formatter" data-category="uretimlilik" aria-label="JSON Biçimlendirici uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">JSON Biçimlendirici</span><small class="app-home-card-description">JSON metinlerini formatla, sıkıştır ve hataları satır bilgisiyle denetle.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="encoder-decoder" data-category="uretimlilik" aria-label="Kodlayıcı / Kod Çözücü uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Kodlayıcı / Kod Çözücü</span><small class="app-home-card-description">Base64, URL, HTML, Unicode ve JWT metinlerini dönüştürün.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="social-media-image-resizer" data-category="uretimlilik" aria-label="Medya Boyutlandırıcı uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Medya Boyutlandırıcı</span><small class="app-home-card-description">Görselleri sosyal medya ölçülerine göre kırparak veya sığdırarak yeniden boyutlandırın.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="pdf-toolbox" data-category="uretimlilik" aria-label="PDF Araç Kutusu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">PDF Araç Kutusu</span><small class="app-home-card-description">PDF sayfalarını birleştirin, bölün, düzenleyin; metin, filigran veya imza ekleyin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="qr-code-scanner" data-category="uretimlilik" aria-label="QR Kod Okuyucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">QR Kod Okuyucu</span><small class="app-home-card-description">Görsel yükleyerek veya kamerayla QR kodların içeriğini oku.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="qr" data-category="uretimlilik" aria-label="QR Kod Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">QR Kod Oluşturucu</span><small class="app-home-card-description">Metin ve bağlantılar için renkli QR kodlar oluştur.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="timestamp-converter" data-category="uretimlilik" aria-label="Timestamp Dönüştürücü uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Timestamp Dönüştürücü</span><small class="app-home-card-description">Unix zaman damgası ve tarih/saat değerlerini anında dönüştürün.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="url-cleaner" data-category="uretimlilik" aria-label="URL Temizleyici uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">URL Temizleyici</span><small class="app-home-card-description">Bağlantılardaki takip ve reklam parametrelerini tek tıkla temizle.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="uzanti-donusturucu" data-category="uretimlilik" aria-label="Uzantı Dönüştürücü uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Uzantı Dönüştürücü</span><small class="app-home-card-description">Farklı dosya türlerini doğrudan tarayıcıda dönüştür.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="speech" data-category="uretimlilik" aria-label="Yazıyı Sese Dönüştür uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Yazıyı Sese Dönüştür</span><small class="app-home-card-description">Yazdığın metni tarayıcının sesiyle dinle.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="gelistirici" id="app-home-category-gelistirici">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-14-2 16"/></svg></span>
+                                <div><h2>Geliştirici &amp; Web</h2><p>Kod, GitHub, SEO ve web projeleri için yardımcılar</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="gelistirici">6 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="github-user" data-category="gelistirici" aria-label="GitHub Kullanıcı uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">GitHub Kullanıcı</span><small class="app-home-card-description">GitHub kullanıcı profillerini ve hesap bilgilerini incele.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="github-md-generator" data-category="gelistirici" aria-label="GitHub MD Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">GitHub MD Oluşturucu</span><small class="app-home-card-description">Herkese açık GitHub depolarını analiz ederek projeye özel Markdown belgeleri oluştur.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="gradient" data-category="gelistirici" aria-label="Gradient Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Gradient Oluşturucu</span><small class="app-home-card-description">Renk geçişleri oluştur ve CSS kodunu kopyala.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="meta-tag-generator" data-category="gelistirici" aria-label="Meta Etiket Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Meta Etiket Oluşturucu</span><small class="app-home-card-description">Web siteniz için SEO, Open Graph ve Twitter/X meta etiketlerini oluşturun ve paylaşım önizlemelerini kontrol edin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="robots-txt-generator" data-category="gelistirici" aria-label="Robots.txt Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Robots.txt Oluşturucu</span><small class="app-home-card-description">Web siteniz için arama motoru botlarına uygun robots.txt dosyasını kolayca oluşturun.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="sitemap-generator" data-category="gelistirici" aria-label="Sitemap Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Sitemap Oluşturucu</span><small class="app-home-card-description">URL listenizden SEO uyumlu bir sitemap.xml dosyası oluşturun.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="medya" id="app-home-category-medya">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="3" width="15" height="15" rx="2"/><path d="M3 7v12a2 2 0 0 0 2 2h12m-11-7 4-4 4 4 3-3 4 4"/><circle cx="16.5" cy="7.5" r="1"/></svg></span>
+                                <div><h2>Medya &amp; Dosyalar</h2><p>Görsel, ses ve dosya verilerini yönet</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="medya">3 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="exif-veri-goruntuleme" data-category="medya" aria-label="EXIF Veri Görüntüleme uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">EXIF Veri Görüntüleme</span><small class="app-home-card-description">Fotoğraflarınızdaki EXIF, GPS, kamera, tarih ve diğer meta verileri detaylı olarak görüntüleyin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="medya-veri-temizleyici" data-category="medya" aria-label="Medya Veri Temizleyici uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Medya Veri Temizleyici</span><small class="app-home-card-description">Fotoğraflardaki mahremiyet üst verilerini kayıpsız temizle.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="microphone-test" data-category="medya" aria-label="Mikrofon Testi uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Mikrofon Testi</span><small class="app-home-card-description">Mikrofonunuzu canlı test edin, farklı ses girişlerinden kayıt alın ve kayıtları dinleyerek karşılaştırın.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="guvenlik" id="app-home-category-guvenlik">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 2 8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3Z"/><path d="m8 12 3 3 5-6"/></svg></span>
+                                <div><h2>Güvenlik &amp; Araştırma</h2><p>Hesaplarını güçlendir, açık kaynak verilerini araştır</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="guvenlik">4 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="kullanici-adi-arastirma" data-category="guvenlik" aria-label="Kullanıcı Adı Araştırma uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Kullanıcı Adı Araştırma</span><small class="app-home-card-description">Bir kullanıcı adının internette hangi platformlarda kullanıldığını araştırın.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="osint-arastirma" data-category="guvenlik" aria-label="OSINT Araştırma uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">OSINT Araştırma</span><small class="app-home-card-description">Alan adı, IP, DNS, URL ve diğer herkese açık internet bilgilerini araştırın.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="password-strength-analysis" data-category="guvenlik" aria-label="Şifre Gücü Analizi uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Şifre Gücü Analizi</span><small class="app-home-card-description">Şifrenizin güvenlik seviyesini, entropisini ve tahmini kırılma süresini analiz edin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="password" data-category="guvenlik" aria-label="Şifre Oluşturucu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Şifre Oluşturucu</span><small class="app-home-card-description">Güçlü ve özelleştirilebilir parolalar oluştur.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="sosyal" id="app-home-category-sosyal">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M16 8v6a2 2 0 0 0 4 0v-2a8 8 0 1 0-3.5 6.6"/></svg></span>
+                                <div><h2>Sosyal Medya</h2><p>Sosyal hesaplar ve topluluklar için yardımcı araçlar</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="sosyal">3 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="discord-emoji-indir" data-category="sosyal" aria-label="Discord Emoji İndir uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Discord Emoji İndir</span><small class="app-home-card-description">Discord sunucularındaki özel emoji ve çıkartmaları görüntüleyin ve ZIP olarak indirin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="github-unfollower" data-category="sosyal" aria-label="GitHub Takip Etmeyenler uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">GitHub Takip Etmeyenler</span><small class="app-home-card-description">Seni takip etmeyen GitHub hesaplarını bul ve seçerek takipten çıkar.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="instagram-unfollower" data-category="sosyal" aria-label="Insta Takip Etmeyenler uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Insta Takip Etmeyenler</span><small class="app-home-card-description">Instagram&#39;da seni geri takip etmeyen hesapları güncel betikle incele.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section class="app-home-category-section" data-category="gunluk" id="app-home-category-gunluk">
+                        <div class="app-home-category-heading">
+                            <div class="app-home-category-title-group">
+                                <span class="app-home-category-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3v18h18M7 15l5-5 4 3 5-8m-5 0h5v5"/></svg></span>
+                                <div><h2>Finans &amp; Günlük</h2><p>Kurlar, hava durumu ve kariyer için hızlı çözümler</p></div>
+                            </div>
+                            <span class="app-home-category-count" data-category-count="gunluk">5 araç</span>
+                        </div>
+                        <div class="app-home-category-grid">
+                            <button class="app-home-card" type="button" data-tool="ats-cv-kontrolu" data-category="gunluk" aria-label="ATS CV Kontrolü uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">ATS CV Kontrolü</span><small class="app-home-card-description">CV&#39;nizin ATS uyumluluğunu analiz edin, eksikleri görün ve iş ilanlarıyla eşleşmesini kontrol edin.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="doviz-kurlari" data-category="gunluk" aria-label="Döviz Kurları uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Döviz Kurları</span><small class="app-home-card-description">Dünya para birimlerinin güncel TL karşılığını görüntüle ve kur dönüşümü yap.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="emlak-portfoy-analizi" data-category="gunluk" aria-label="Emlak Portföy Analizi uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Emlak Portföy Analizi</span><small class="app-home-card-description">Gayrimenkul m² fiyatı, kira getirisi, amortisman süresi ve işlem maliyetlerini hesaplayın.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="weather-app" data-category="gunluk" aria-label="Hava Durumu uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Hava Durumu</span><small class="app-home-card-description">Şehirlerin güncel hava durumunu görüntüle.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <button class="app-home-card" type="button" data-tool="crypto" data-category="gunluk" aria-label="Kripto Kurları uygulamasını aç">
+                                <span class="app-home-card-copy"><span class="app-home-card-name">Kripto Kurları</span><small class="app-home-card-description">Popüler kripto para fiyatlarını ve değişimleri takip et.</small></span>
+                                <span class="app-home-card-arrow" aria-hidden="true">→</span>
+                            </button>
+                        </div>
+                    </section>
+                    <!-- catalog:cards:end -->
+                </div>
                 <div id="app-home-empty" class="app-home-empty" hidden>
                     <strong>Uygulama bulunamadı</strong>
                     <span>Farklı bir arama yapmayı deneyin.</span>
@@ -918,8 +1281,8 @@
                             </label>
                         </div>
                         <div class="button-row qr-actions">
-                            <a id="qr-download" class="primary-button" href="#" download="QRCode.png">İndir</a>
-                            <button id="qr-share" class="secondary-button" type="button">Paylaş</button>
+                            <a id="qr-download" class="primary-button" href="#" download="QRCode.png" aria-disabled="true" tabindex="-1">İndir</a>
+                            <button id="qr-share" class="secondary-button" type="button" disabled>Paylaş</button>
                         </div>
                     </div>
                     <div class="qr-preview-card">
@@ -927,7 +1290,7 @@
                             <span>Önizleme</span>
                             <strong id="qr-size-label">640x640</strong>
                         </div>
-                        <div id="qr-code" class="qr-output"></div>
+                        <div id="qr-code" class="qr-output" aria-live="polite" aria-busy="true">QR kütüphanesi yükleniyor…</div>
                     </div>
                 </div>
             </section>
@@ -5320,9 +5683,29 @@ Disallow:</code></pre>
         </main>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        // Select real tool content before waiting for any local or remote library.
+        (() => {
+            const tool = document.documentElement.dataset.initialTool;
+            const item = Array.from(document.querySelectorAll("#tool-nav .nav-item"))
+                .find((button) => button.dataset.tool === tool);
+            const panel = item && document.getElementById(item.dataset.tool);
+            if (!panel) return;
+            document.getElementById("app-home").hidden = true;
+            item.classList.add("active");
+            panel.classList.add("active");
+            document.body.classList.replace("is-app-home", "is-tool-active");
+            if (item.dataset.tool === "ambient-display") document.body.classList.add("is-ambient-display");
+            document.getElementById("initial-tool-style")?.remove();
+            delete document.documentElement.dataset.initialTool;
+        })();
+    </script>
+    <script src="index.js?v=home5"></script>
+    <script src="tools/ambient-display/core.js?v=4"></script>
+    <script src="tools/ambient-display/renderer.js?v=4"></script>
+    <script src="tools/ambient-display/app.js?v=4"></script>
+    <script id="qr-code-library" src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
     <script src="tools/qr-code-scanner/vendor/jsQR.min.js?v=1"></script>
-    <script src="index.js?v=home4"></script>
     <script src="tools/farkli-rengi-bul/config.js?v=7"></script>
     <script src="tools/farkli-rengi-bul/core.js?v=5"></script>
     <script src="tools/farkli-rengi-bul/app.js?v=10"></script>
@@ -5386,7 +5769,8 @@ Disallow:</code></pre>
     <script src="tools/uzanti-donusturucu/font-adapter.js?v=7"></script>
     <script src="tools/uzanti-donusturucu/ebook-adapter.js?v=2"></script>
     <script src="tools/uzanti-donusturucu/engine.js?v=3"></script>
-    <script src="tools/uzanti-donusturucu/app.js?v=5"></script>
+    <script src="tools/uzanti-donusturucu/isolation.js?v=1"></script>
+    <script src="tools/uzanti-donusturucu/app.js?v=6"></script>
     <script src="tools/exif-veri-goruntuleme/core.js?v=2"></script>
     <script src="tools/exif-veri-goruntuleme/app.js?v=3"></script>
     <script src="tools/medya-veri-temizleyici/core.js?v=3"></script>
@@ -5439,9 +5823,6 @@ Disallow:</code></pre>
     <script src="tools/chess-coach/stockfish.asm.js"></script>
     <script src="tools/chess-coach/script.js?v=5"></script>
     <script src="tools/yuzbir-okey/integration.js?v=1"></script>
-    <script src="tools/ambient-display/core.js?v=1"></script>
-    <script src="tools/ambient-display/renderer.js?v=3"></script>
-    <script src="tools/ambient-display/app.js?v=3"></script>
 </body>
 
 </html>

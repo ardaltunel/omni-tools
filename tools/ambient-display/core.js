@@ -10,7 +10,7 @@
     const DEFAULTS = Object.freeze({
         design: "aurora", palette: "black", language: "tr", hourFormat: "24",
         size: 100, position: "center", seconds: false, date: true,
-        animations: true, intensity: 65, drift: false, wake: false,
+        animations: true, intensity: 65, drift: false, wake: false, quality: "balanced",
     });
 
     function languageCode(value) {
@@ -29,6 +29,7 @@
         const choices = {
             design: ["aurora", "studio", "cyber"], palette: ["black", "ivory", "charcoal"],
             language: ["tr", "en"], hourFormat: ["24", "12"], position: ["center", "left", "right"],
+            quality: ["low", "balanced", "high"],
         };
         Object.keys(choices).forEach((key) => {
             if (choices[key].includes(source[key])) result[key] = source[key];

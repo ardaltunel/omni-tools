@@ -15,10 +15,19 @@ test("corrupt and unknown persisted preferences produce safe defaults", () => {
 
 test("persisted controls validate each choice and clamp numeric values", () => {
     const settings = core.normalizeSettings({ design: "cyber", palette: "ivory", language: "en", hourFormat: "12", position: "right", size: "999", intensity: -10, seconds: true, animations: false, date: false, drift: true, wake: true });
-    assert.deepEqual(settings, { design: "cyber", palette: "ivory", language: "en", hourFormat: "12", position: "right", size: 130, intensity: 0, seconds: true, animations: false, date: false, drift: true, wake: true });
+    assert.deepEqual(settings, { design: "cyber", palette: "ivory", language: "en", hourFormat: "12", position: "right", size: 130, intensity: 0, seconds: true, animations: false, date: false, drift: true, wake: true, quality: "balanced" });
     assert.equal(core.normalizeSettings({ size: "", intensity: "" }).size, 100);
     assert.equal(core.normalizeSettings({ size: false, intensity: true }).intensity, 65);
     assert.equal(core.normalizeSettings({ size: 64, intensity: 101 }).size, 65);
+});
+
+test("legacy preferences migrate to balanced without losing display choices", () => {
+    const legacy = { design: "cyber", language: "en", seconds: true, size: 120, intensity: 40, wake: true };
+    const settings = core.normalizeSettings(legacy);
+    assert.equal(settings.quality, "balanced");
+    for (const [key, value] of Object.entries(legacy)) assert.equal(settings[key], value);
+    for (const quality of ["low", "balanced", "high"]) assert.equal(core.normalizeSettings({ quality }).quality, quality);
+    for (const quality of [null, true, "ultra", 0]) assert.equal(core.normalizeSettings({ quality }).quality, "balanced");
 });
 
 test("the clock uses device local time and distinguishes midnight from noon", () => {

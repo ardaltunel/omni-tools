@@ -12,19 +12,25 @@ body.is-ambient-display .workspace { padding: 0; }
 .ambient-stage button:focus-visible, .ambient-stage select:focus-visible, .ambient-stage input:focus-visible { outline: 2px solid #b9b1fc; outline-offset: 5px; }
 .ambient-stage [hidden] { display: none !important; }
 .ambient-backdrop, #ambient-canvas, .ambient-fallback, .ambient-studio-light, .ambient-cyber-grid, .ambient-cyber-orbit, .ambient-vignette { position: absolute; inset: 0; pointer-events: none; }
-.ambient-backdrop { z-index: -1; inset: -3%; overflow: hidden; transform: translate3d(calc(var(--ambient-pointer-x) * 16px), calc(var(--ambient-pointer-y) * 12px), 0) scale(1.025); transition: transform 1.4s cubic-bezier(.16,.8,.25,1); }
+.ambient-backdrop { z-index: -1; overflow: hidden; }
+.ambient-stage[data-quality="high"] .ambient-backdrop { inset: -3%; transform: translate3d(calc(var(--ambient-pointer-x) * 16px), calc(var(--ambient-pointer-y) * 12px), 0) scale(1.025); transition: transform 1.4s cubic-bezier(.16,.8,.25,1); }
 #ambient-canvas { display: block; width: 100%; height: 100%; opacity: 0; image-rendering: auto; transition: opacity 1.4s ease; }
 #ambient-canvas.is-ready { opacity: 1; }
 .ambient-fallback { background: radial-gradient(ellipse at 72% 29%, #452774 0%, transparent 47%), radial-gradient(ellipse at 21% 71%, #114d59 0%, transparent 42%), radial-gradient(ellipse at 45% 52%, #172a54 0%, transparent 65%), #03050d; opacity: calc(.25 + var(--ambient-intensity) * .75); transition: opacity 1.2s ease; }
 #ambient-canvas.is-ready + .ambient-fallback { opacity: 0; }
 .ambient-pointer-light { position: absolute; top: 50%; left: 50%; width: min(60vw, 760px); height: min(75vh, 760px); pointer-events: none; background: radial-gradient(ellipse, #85a2ef3d, #7e7ed316 35%, transparent 70%); opacity: calc(var(--ambient-pointer-active) * var(--ambient-intensity)); transform: translate3d(calc(-50% + var(--ambient-pointer-x) * 35vw), calc(-50% + var(--ambient-pointer-y) * 35vh), 0); transition: transform 1s cubic-bezier(.16,.8,.25,1), opacity 1.6s ease; }
+.ambient-stage:not([data-quality="high"]) .ambient-pointer-light { display: none; }
+.ambient-stage[data-quality="low"] #ambient-canvas { display: none; transition: none; }
+.ambient-stage[data-quality="low"] .ambient-fallback { transition: none; }
+.ambient-stage:not([data-quality="high"]) .ambient-settings,
+.ambient-stage:not([data-quality="high"]) .ambient-toolbar button { backdrop-filter: none; }
 .ambient-stage[data-design="cyber"] .ambient-pointer-light { background: radial-gradient(ellipse, #58b6fa38, #7d50df1f 32%, transparent 68%); }
 .ambient-stage[data-design="studio"] .ambient-pointer-light { display: none; }
 .ambient-stage[data-design="studio"] .ambient-backdrop { transform: none; }
 .ambient-stage[data-animations="false"] .ambient-backdrop, .ambient-stage[data-paused="true"] .ambient-backdrop,
 .ambient-stage[data-animations="false"] .ambient-pointer-light, .ambient-stage[data-paused="true"] .ambient-pointer-light { transition: none; }
 .ambient-stage[data-animations="false"] .ambient-pointer-light, .ambient-stage[data-paused="true"] .ambient-pointer-light { opacity: 0; }
-.ambient-stage[data-animations="true"][data-paused="false"]:not([data-design="studio"]) #ambient-canvas:not(.is-ready) + .ambient-fallback { animation: ambient-fallback-flow 22s ease-in-out infinite alternate; }
+.ambient-stage[data-animations="true"][data-paused="false"]:not([data-design="studio"]):not([data-quality="low"]) #ambient-canvas:not(.is-ready) + .ambient-fallback { animation: ambient-fallback-flow 22s ease-in-out infinite alternate; }
 @keyframes ambient-fallback-flow { from { transform: scale(1.04) translate3d(-2%, 1%, 0) rotate(-3deg); } to { transform: scale(1.18) translate3d(3%, -2%, 0) rotate(3deg); } }
 .ambient-studio-light, .ambient-cyber-grid, .ambient-cyber-orbit { opacity: 0; transition: opacity 1.2s ease; }
 .ambient-vignette { background: radial-gradient(ellipse at 50% 44%, transparent 15%, #02030940 65%, #020309a8 100%); }
@@ -88,8 +94,8 @@ body.is-ambient-display .workspace { padding: 0; }
 .ambient-stage[data-design="cyber"] .ambient-fallback { background: radial-gradient(ellipse at 50% 68%, #22164c 0%, transparent 48%), radial-gradient(ellipse at 40% 74%, #08223a 0%, transparent 55%), #02040b; }
 .ambient-stage[data-design="cyber"] .ambient-cyber-grid { inset: 50% -30% -90%; opacity: calc(.05 + var(--ambient-intensity) * .15); background-image: linear-gradient(#6a67a855 1px, transparent 1px), linear-gradient(90deg, #6a67a855 1px, transparent 1px); background-size: 72px 72px; transform: perspective(450px) rotateX(65deg); transform-origin: 50% 0; mask-image: linear-gradient(transparent, #000 25%, transparent 80%); }
 .ambient-stage[data-design="cyber"] .ambient-cyber-orbit { inset: auto; left: 15%; top: 60%; width: 70%; height: 24%; border: 1px solid #7385f555; border-top-color: #65c5ff99; border-radius: 50%; opacity: calc(.1 + var(--ambient-intensity) * .5); box-shadow: 0 -5px 30px -10px #657cffaa, inset 0 8px 25px -20px #5cc3ff; transform: rotate(-5deg); }
-.ambient-stage[data-design="cyber"][data-animations="true"][data-paused="false"] .ambient-cyber-orbit { animation: ambient-orbit-flow 20s ease-in-out infinite alternate; }
-.ambient-stage[data-design="cyber"][data-animations="true"][data-paused="false"] .ambient-cyber-grid { animation: ambient-grid-flow 18s ease-in-out infinite alternate; }
+.ambient-stage[data-quality="high"][data-design="cyber"][data-animations="true"][data-paused="false"] .ambient-cyber-orbit { animation: ambient-orbit-flow 20s ease-in-out infinite alternate; }
+.ambient-stage[data-quality="high"][data-design="cyber"][data-animations="true"][data-paused="false"] .ambient-cyber-grid { animation: ambient-grid-flow 18s ease-in-out infinite alternate; }
 @keyframes ambient-orbit-flow { from { transform: rotate(-7deg) scale(.98); } to { transform: rotate(1deg) scale(1.025); } }
 @keyframes ambient-grid-flow { from { transform: perspective(450px) rotateX(65deg) translate3d(0, 0, 0); } to { transform: perspective(450px) rotateX(65deg) translate3d(0, 26px, 0); } }
 .ambient-stage[data-design="cyber"] .ambient-clock-heading { display: block; width: max-content; max-width: 100%; margin: 0 auto 25px; padding-left: 19px; position: relative; color: #7b9fbc; font-family: "SFMono-Regular", Consolas, monospace; font-size: 9px; letter-spacing: .3em; }
@@ -132,6 +138,7 @@ body.is-ambient-display .workspace { padding: 0; }
 .ambient-control-label { color: #cfccdc; font-size: 11px; }
 .ambient-settings label { cursor: pointer; }
 .ambient-settings select { max-width: 155px; width: auto; min-height: 32px; padding: 5px 25px 5px 10px; border: 1px solid #ffffff13; border-radius: 6px; background-color: #ffffff05; color: #d9d5e9; font-size: 11px; }
+#ambient-quality { max-width: 180px; }
 .ambient-settings select option { background: #1b1b2b; color: #eae9f3; }
 .ambient-settings output { color: #aaa3c8; font-size: 10px; font-variant-numeric: tabular-nums; }
 .ambient-settings input[type="range"] { display: block; width: 100%; height: 4px; margin: 14px 0 19px; accent-color: #b4a7ed; cursor: pointer; }
