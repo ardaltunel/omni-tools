@@ -1,6 +1,6 @@
 # Omni AI Worker
 
-Omni AI sohbeti doğrudan Cloudflare Workers AI binding'i üzerinden `@cf/zai-org/glm-4.7-flash` modeline gönderilir. Önce başka bir sağlayıcıdan yanıt veya hata beklenmez; ayrı API anahtarı gerekmez. Modelin `chat_template_kwargs.enable_thinking` seçeneği kapalıdır, bu sayede uzun muhakeme üretmeden görünür yanıt akışına başlar.
+Omni AI sohbeti doğrudan Cloudflare Workers AI binding'i üzerinden `@cf/meta/llama-3.3-70b-instruct-fp8-fast` modeline gönderilir. Önce başka bir sağlayıcıdan yanıt veya hata beklenmez; ayrı API anahtarı gerekmez. Varsayılan model ayrı bir düşünme akışı üretmez; Türkçe yanıtlar için sıcaklık `0.2` olarak ayarlanmıştır.
 
 ## Ücretsiz kullanım
 
@@ -26,7 +26,7 @@ Yerel geliştirmedeki AI çıkarımları da Cloudflare hesabının aynı günlü
 
 ## Model ve süre sınırları
 
-- `AI_CHAT_MODEL`: Varsayılan `@cf/zai-org/glm-4.7-flash`. Başka bir model seçerken ücretsiz plana, streaming'e ve bu modelin girdi şemasına uygunluğunu kontrol edin.
+- `AI_CHAT_MODEL`: Varsayılan `@cf/meta/llama-3.3-70b-instruct-fp8-fast`; `max_tokens` kullanır. Yalnızca isteğe bağlı `@cf/zai-org/glm-4.7-flash` modeli de desteklenir; onun için `max_completion_tokens` ve `chat_template_kwargs.enable_thinking: false` kullanılır. Diğer model adları varsayılana döner. İki modelde de sıcaklık `0.2`'dir.
 - `AI_MAX_OUTPUT_TOKENS`: Üst token sınırı; varsayılan 3.500. Yanıt uzunluğu seçimine göre kısa için 600, dengeli için 1.800, detaylı için 3.500 token kullanılır. Yapılandırılan üst sınır bunları ayrıca sınırlar.
 - `AI_TIMEOUT_MS`: Başlatma ve yanıt akışı için tek toplam süre sınırı; varsayılan/en fazla 60 saniye.
 - `ALLOWED_ORIGINS`: İzinli web kaynakları. GitHub Pages, yerel geliştirme ve `file:///` kaynakları desteklenir.
@@ -41,4 +41,4 @@ Geçici kapasite hatasında (`3040`) akış başlamadan önce en fazla bir kısa
 
 Güvenli hata kodları: `AI_QUOTA_EXCEEDED`, `AI_RATE_LIMIT`, `AI_TIMEOUT`, `AI_NOT_CONFIGURED`, `AI_UPSTREAM`, `AI_INCOMPLETE`, `REQUEST_ABORTED`. Sağlayıcının özel hata metinleri veya kullanıcı mesajları hata yanıtlarına eklenmez.
 
-Resmî kaynaklar: [GLM modeli](https://developers.cloudflare.com/workers-ai/models/glm-4.7-flash/), [model giriş şeması](https://github.com/cloudflare/cloudflare-docs/blob/production/src/content/workers-ai-models/glm-4.7-flash.json), [fiyatlandırma ve ücretsiz kota](https://developers.cloudflare.com/workers-ai/platform/pricing/), [hata kodları](https://developers.cloudflare.com/workers-ai/platform/errors/).
+Resmî kaynaklar: [varsayılan Llama modeli](https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/), [isteğe bağlı GLM modeli](https://developers.cloudflare.com/workers-ai/models/glm-4.7-flash/), [fiyatlandırma ve ücretsiz kota](https://developers.cloudflare.com/workers-ai/platform/pricing/), [hata kodları](https://developers.cloudflare.com/workers-ai/platform/errors/).

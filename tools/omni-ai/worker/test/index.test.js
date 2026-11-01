@@ -36,10 +36,12 @@ test("isteği doğrudan anahtarsız Workers AI'a iletir ve tamamlanmış SSE ür
     assert.equal(response.status, 200);
     assert.match(response.headers.get("content-type"), /text\/event-stream/u);
     assert.equal(response.headers.get("access-control-allow-origin"), origin);
-    assert.equal(model, "@cf/zai-org/glm-4.7-flash");
+    assert.equal(model, "@cf/meta/llama-3.3-70b-instruct-fp8-fast");
     assert.equal(body.stream, true);
-    assert.equal(body.store, false);
-    assert.deepEqual(body.chat_template_kwargs, { enable_thinking: false });
+    assert.equal(body.temperature, 0.2);
+    assert.equal(body.max_tokens, 1800);
+    assert.equal(body.max_completion_tokens, undefined);
+    assert.equal(body.chat_template_kwargs, undefined);
     assert.equal(body.messages[0].role, "system");
     assert.equal(providerSignal.aborted, false);
     assert.deepEqual(events(await response.text()), [
@@ -54,11 +56,36 @@ test("çok turlu bağlamı, modları ve yanıt uzunluğuna göre token bütçesi
     assert.match(body.messages[0].content, /Omni AI/u);
     assert.match(body.messages[0].content, /Kod sorularında/u);
     assert.ok(!body.messages[0].content.includes("React öğreniyorum"));
-    assert.equal(body.max_completion_tokens, 3500);
-    assert.equal(internals.createWorkersAiBody({ ...input, responseLength: "short" }, {}).max_completion_tokens, 600);
-    assert.equal(internals.createWorkersAiBody({ ...input, responseLength: "balanced" }, {}).max_completion_tokens, 1800);
-    assert.equal(internals.createWorkersAiBody(input, { AI_MAX_OUTPUT_TOKENS: "1200" }).max_completion_tokens, 1200);
+    assert.equal(body.max_tokens, 3500);
+    assert.equal(internals.createWorkersAiBody({ ...input, responseLength: "short" }, {}).max_tokens, 600);
+    assert.equal(internals.createWorkersAiBody({ ...input, responseLength: "balanced" }, {}).max_tokens, 1800);
+    assert.equal(internals.createWorkersAiBody(input, { AI_MAX_OUTPUT_TOKENS: "1200" }).max_tokens, 1200);
     assert.equal(internals.resolveModel({ AI_CHAT_MODEL: "https://example.org" }), internals.DEFAULT_AI_MODEL);
+    assert.equal(internals.resolveModel({ AI_CHAT_MODEL: "@cf/example/unknown-model" }), internals.DEFAULT_AI_MODEL);
+});
+
+test("isteğe bağlı GLM modeli kendi token ve düşünme parametrelerini kullanır", async () => {
+    let selectedModel;
+    let body;
+    const response = await handleRequest(request(), environment({
+        AI_CHAT_MODEL: "@cf/zai-org/glm-4.7-flash",
+        AI: { run: async (model, input) => { selectedModel = model; body = input; return stream(); } },
+    }));
+    assert.equal(selectedModel, "@cf/zai-org/glm-4.7-flash");
+    assert.equal(body.max_completion_tokens, 1800);
+    assert.equal(body.max_tokens, undefined);
+    assert.deepEqual(body.chat_template_kwargs, { enable_thinking: false });
+    assert.equal(body.temperature, 0.2);
+    assert.equal(body.store, false);
+    assert.equal(events(await response.text()).at(-1).type, "response.completed");
+});
+
+test("varsayılan Llama modelinin response alanlı yerel akışını normalize eder", async () => {
+    const response = await handleRequest(request(), environment({ AI: { run: async () => stream('data: {"response":"Pomodoro: 25 dakika çalışma, 5 dakika mola."}\n\ndata: [DONE]\n\n') } }));
+    assert.deepEqual(events(await response.text()), [
+        { type: "response.output_text.delta", delta: "Pomodoro: 25 dakika çalışma, 5 dakika mola." },
+        { type: "response.completed" },
+    ]);
 });
 
 test("boş, uzun ve geçersiz bağlamları reddeder", () => {

@@ -9,7 +9,9 @@ const MAX_CONTEXT_CHARACTERS = 30000;
 const MAX_CONTEXT_MESSAGES = 16;
 const MAX_BODY_BYTES = 80000;
 const MAX_SSE_BLOCK_CHARACTERS = 128000;
-const DEFAULT_AI_MODEL = "@cf/zai-org/glm-4.7-flash";
+const DEFAULT_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+const GLM_AI_MODEL = "@cf/zai-org/glm-4.7-flash";
+const SUPPORTED_AI_MODELS = new Set([DEFAULT_AI_MODEL, GLM_AI_MODEL]);
 const AI_RETRY_DELAY_MS = 300;
 const MODES = new Set(["general", "coding", "writing", "learning", "brainstorming"]);
 const RESPONSE_LENGTHS = new Set(["short", "balanced", "detailed"]);
@@ -130,19 +132,22 @@ function createInstructions(input) {
 
 function resolveModel(env) {
     const model = String(env?.AI_CHAT_MODEL || "").trim().slice(0, 128);
-    return /^@cf\/[a-z0-9._-]+\/[a-z0-9._-]+$/iu.test(model) ? model : DEFAULT_AI_MODEL;
+    return SUPPORTED_AI_MODELS.has(model) ? model : DEFAULT_AI_MODEL;
 }
 
 function createWorkersAiBody(input, env) {
     const tokenBudgets = { short: 600, balanced: 1800, detailed: 3500 };
     const maximum = clamp(Number(env?.AI_MAX_OUTPUT_TOKENS) || 3500, 300, 4000);
-    return {
+    const body = {
         messages: [{ role: "system", content: createInstructions(input) }, ...input.messages],
-        max_completion_tokens: Math.min(maximum, tokenBudgets[input.responseLength]),
-        chat_template_kwargs: { enable_thinking: false },
         stream: true,
-        store: false,
+        temperature: 0.2,
     };
+    const tokenLimit = Math.min(maximum, tokenBudgets[input.responseLength]);
+    if (resolveModel(env) === GLM_AI_MODEL) {
+        return { ...body, max_completion_tokens: tokenLimit, chat_template_kwargs: { enable_thinking: false }, store: false };
+    }
+    return { ...body, max_tokens: tokenLimit };
 }
 
 function classifyAiError(error) {
