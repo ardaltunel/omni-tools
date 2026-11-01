@@ -19,7 +19,7 @@
     };
 
     const defaultSettings = Object.freeze({ mode: "general", responseLength: "balanced", enterToSend: true });
-    const state = { chats: [], activeId: "", settings: { ...defaultSettings }, controller: null, streaming: false, editingIndex: null, statusTimer: null, renderFrame: 0 };
+    const state = { chats: [], activeId: "", settings: { ...defaultSettings }, controller: null, request: null, requestSerial: 0, streaming: false, editingIndex: null, statusTimer: null, renderFrame: 0 };
 
     function safeParse(value, fallback) {
         if (typeof value !== "string" || !value.trim()) return fallback;
@@ -35,6 +35,7 @@
             updatedAt: Number(chat.updatedAt) || Date.now(),
             messages: (Array.isArray(chat.messages) ? chat.messages : []).filter((message) => ["user", "assistant"].includes(message?.role) && typeof message?.content === "string").slice(-80).map((message) => ({
                 id: typeof message.id === "string" ? message.id : core.createId("message"), role: message.role, content: message.content.slice(0, 40000), rating: ["up", "down"].includes(message.rating) ? message.rating : "",
+                ...(typeof message.errorCode === "string" ? { errorCode: message.errorCode, error: core.getApiErrorMessage(503, message.errorCode) } : {}),
             })),
         })).filter((chat) => core.hasChatContent(chat)).map((chat) => {
             if (chat.title !== "Yeni Sohbet") return chat;
@@ -236,53 +237,51 @@
         message.rating = message.rating === rating ? "" : rating; saveChats(); renderMessages();
     }
 
-    function stopResponse() { state.controller?.abort(); }
+    function isCurrentRequest(request) {
+        return state.request === request && state.requestSerial === request.id;
+    }
+
+    function finishRequest(request, focus = true) {
+        if (state.request !== request) return;
+        window.clearTimeout(request.timeout);
+        if (state.renderFrame) window.cancelAnimationFrame(state.renderFrame);
+        state.renderFrame = 0;
+        state.request = null;
+        state.controller = null;
+        setStreaming(false);
+        request.chat.updatedAt = Date.now();
+        saveChats(); renderAll();
+        if (focus) elements.input.focus();
+    }
+
+    function stopResponse(reason = "user") {
+        const request = state.request;
+        if (!request) return;
+        state.requestSerial += 1;
+        request.assistant.pending = false;
+        if (reason === "timeout" || request.assistant.content) {
+            request.assistant.errorCode = reason === "timeout" ? "AI_TIMEOUT" : "REQUEST_ABORTED";
+            request.assistant.error = core.getApiErrorMessage(503, request.assistant.errorCode);
+        } else {
+            request.chat.messages = request.chat.messages.filter((message) => message !== request.assistant);
+        }
+        request.controller.abort();
+        finishRequest(request, reason !== "navigation");
+    }
 
     async function parseError(response) {
         let payload = null;
         try { payload = await response.json(); } catch { payload = null; }
         const error = new Error(core.getApiErrorMessage(response.status, payload?.code));
+        error.code = payload?.code || "AI_UPSTREAM";
         error.isPublic = true;
         return error;
     }
 
-    function createStreamError(code) {
-        const messages = {
-            insufficient_quota: "API kotası veya kullanım limiti aşıldı.",
-            rate_limit_exceeded: "Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.",
-            provider_unavailable: "Yapay zekâ hizmetine ulaşılamadı. Biraz sonra tekrar deneyin.",
-        };
-        const error = new Error(messages[code] || "Yapay zekâ yanıt oluşturamadı.");
-        error.isPublic = true;
-        return error;
-    }
-
-    async function consumeStream(response, onDelta) {
-        if (!response.body) throw new Error("Akış yanıtı alınamadı.");
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        while (true) {
-            const { done, value } = await reader.read();
-            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-            const blocks = buffer.split(/\n\n/u);
-            buffer = blocks.pop() || "";
-            for (const block of blocks) {
-                const data = block.split("\n").filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trim()).join("");
-                if (!data || data === "[DONE]") continue;
-                let event;
-                try { event = JSON.parse(data); } catch { continue; }
-                if (event.type === "response.output_text.delta" && typeof event.delta === "string") onDelta(event.delta);
-                if (event.type === "error") throw createStreamError(event.error?.code);
-                if (event.type === "response.failed") throw createStreamError(event.response?.error?.code);
-            }
-            if (done) break;
-        }
-    }
-
-    function scheduleStreamingRender(message) {
+    function scheduleStreamingRender(message, request) {
         if (state.renderFrame) return;
         state.renderFrame = window.requestAnimationFrame(() => {
+            if (!isCurrentRequest(request)) return;
             state.renderFrame = 0;
             const target = elements.messages.querySelector(`[data-message-id="${CSS.escape(message.id)}"] .omni-ai-message-content`);
             if (target) markdown.renderMarkdown(target, message.content || "Yanıt oluşturuluyor…");
@@ -294,30 +293,41 @@
         if (state.streaming) return;
         const assistant = { id: core.createId("message"), role: "assistant", content: "", pending: true, rating: "" };
         chat.messages.push(assistant); chat.updatedAt = Date.now();
+        const controller = new AbortController();
+        const request = { id: ++state.requestSerial, controller, chat, assistant, timeout: null };
+        state.request = request;
+        state.controller = controller;
         setStreaming(true); renderMessages(true); renderHistory();
-        const controller = new AbortController(); state.controller = controller;
-        const timeout = window.setTimeout(() => controller.abort(), config.requestTimeoutMs);
+        request.timeout = window.setTimeout(() => {
+            if (isCurrentRequest(request)) stopResponse("timeout");
+        }, config.requestTimeoutMs);
         try {
             const response = await fetch(config.endpoint, {
                 method: "POST", headers: { "content-type": "application/json" },
                 body: JSON.stringify({ messages: core.trimContext(chat.messages), mode: state.settings.mode, responseLength: state.settings.responseLength }),
                 signal: controller.signal, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer",
             });
+            if (!isCurrentRequest(request)) {
+                try { void response.body?.cancel().catch(() => {}); } catch { /* Stopped request. */ }
+                return;
+            }
             if (!response.ok) throw await parseError(response);
-            await consumeStream(response, (delta) => { assistant.content += delta; scheduleStreamingRender(assistant); });
-            if (!assistant.content.trim()) throw new Error("Boş yanıt alındı.");
+            await core.consumeStream(response, (delta) => {
+                if (!isCurrentRequest(request)) return;
+                assistant.content += delta;
+                scheduleStreamingRender(assistant, request);
+            }, { signal: controller.signal });
+            if (!isCurrentRequest(request)) return;
+            if (!assistant.content.trim()) throw core.createStreamError("INVALID_AI_OUTPUT");
             assistant.pending = false;
         } catch (error) {
+            if (!isCurrentRequest(request)) return;
             assistant.pending = false;
-            if (error?.name === "AbortError") {
-                if (!assistant.content) chat.messages.pop();
-                else assistant.content += "\n\n_Yanıt durduruldu._";
-            } else {
-                assistant.error = error?.isPublic ? error.message : "Yapay zekâ hizmetine ulaşılamadı.";
-            }
+            assistant.errorCode = error?.isPublic ? error.code : "AI_UPSTREAM";
+            assistant.error = error?.isPublic ? error.message : core.getApiErrorMessage(503, "AI_UPSTREAM");
         } finally {
-            window.clearTimeout(timeout); state.controller = null; setStreaming(false); chat.updatedAt = Date.now();
-            saveChats(); renderAll(); elements.input.focus();
+            window.clearTimeout(request.timeout);
+            if (isCurrentRequest(request)) finishRequest(request);
         }
     }
 
@@ -400,5 +410,10 @@
     elements.dialogLength.addEventListener("change", () => { state.settings.responseLength = elements.dialogLength.value; elements.length.value = elements.dialogLength.value; saveSettings(); });
     elements.enterSend.addEventListener("change", () => { state.settings.enterToSend = elements.enterSend.checked; saveSettings(); });
     elements.jump.addEventListener("click", () => { elements.messages.scrollTop = elements.messages.scrollHeight; elements.jump.hidden = true; });
-    window.addEventListener("pagehide", () => state.controller?.abort(), { once: true });
+    window.addEventListener("pagehide", () => stopResponse("navigation"));
+    window.addEventListener("pageshow", (event) => {
+        if (!event.persisted) return;
+        stopResponse("navigation");
+        setStreaming(false);
+    });
 })();

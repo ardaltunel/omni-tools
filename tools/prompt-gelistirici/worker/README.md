@@ -1,15 +1,48 @@
 # Prompt Geliştirici Worker
 
-GitHub Pages üzerindeki Prompt Geliştirici arayüzü ile OpenAI Responses API arasında güvenli bir katman sağlar.
+GitHub Pages üzerindeki Prompt Geliştirici, Cloudflare Workers AI binding'i üzerinden `@cf/meta/llama-3.3-70b-instruct-fp8-fast` modelini kullanır. Ayrı bir yapay zekâ API anahtarı veya ücretli sağlayıcıya geçiş yoktur. Tarayıcı yalnızca Worker adresini bilir.
 
-## Yerel kullanım
+## Ücretsiz kullanım
 
-1. `npm install`
-2. `.dev.vars` dosyasına `OPENAI_API_KEY` ekleyin.
-3. `npm run dev`
+Cloudflare hesabındaki **Workers Free planını** kullanın. Workers AI, hesap genelinde günde **10.000 Neuron** ücretsiz kullanım sağlar; bu miktar sabit sayıda istek değildir ve metnin uzunluğuna göre tüketilir. Kota her gün **00.00 UTC / Türkiye saatiyle 03.00**'te yenilenir. Free planda kota bitince istekler durur; otomatik ücretli geçiş yapılmaz. Workers Paid planındaki ücretsiz kotayı aşan kullanım ise ücretlendirilir.
 
-## Yayınlama
+Bu kota aynı Cloudflare hesabındaki diğer Workers AI araçlarıyla ortaktır; her Worker için ayrı 10.000 Neuron verilmez.
 
-API anahtarını kaynak koduna veya Wrangler yapılandırmasına yazmayın. Anahtarı etkileşimli olarak `npx wrangler secret put OPENAI_API_KEY` komutuyla tanımlayın ve ardından `npm run deploy` çalıştırın.
+Varsayılan Llama modeli ücretsiz kotayla ve JSON Mode ile uyumludur. `AI_PROMPT_MODEL` değiştirilirse yeni modelin ücretsiz planda kullanılabildiğini ve JSON Mode desteklediğini ayrıca kontrol edin. Model değiştirmek, hesap genelindeki günlük kotayı yenilemez.
 
-Model `OPENAI_PROMPT_MODEL`, izin verilen kaynaklar `ALLOWED_ORIGINS` değişkeniyle yönetilir.
+## Kurulum
+
+```powershell
+npm install
+npx wrangler login
+npm run deploy
+```
+
+Cloudflare oturumunu açmak yeterlidir; `secret put` veya başka bir sağlayıcı hesabı gerekmez. `wrangler.jsonc` içindeki `ai.binding` alanı model erişimini `AI` adıyla bağlar. Önceki dağıtımdan kalan bir sağlayıcı anahtarı kullanıma alınmaz.
+
+Dağıtımdan sonra oluşan Worker adresini `../config.js` içindeki `endpoint` alanına yazın. Mevcut Worker adı korunduğu için aynı Cloudflare hesabına yapılan güncellemede adres değişmez. Model ve sınırlar `AI_PROMPT_MODEL`, `AI_TIMEOUT_MS` ve `AI_MAX_OUTPUT_TOKENS` değişkenlerinden yönetilir.
+
+Yerel geliştirme için `npm run dev` kullanın. Workers AI çıkarımı Cloudflare hesabında çalışır ve aynı günlük kotayı tüketir.
+
+## Hatalar ve doğrulama
+
+Worker yalnızca izinli origin'lerden gelen `/api/prompt/improve` POST isteklerini kabul eder. GitHub Pages, yerel geliştirme sunucusu ve `file:///` kullanımı desteklenir; gövde boyutu ve 5.000 karakter sınırı uygulanır. Cloudflare rate-limit binding'i IP başına dakikada sekiz istek uygular.
+
+JSON şemalı model çıktısı ayrıca sunucuda doğrulanır. Geçici kapasite hatasında en fazla bir kısa yeniden deneme yapılır. Günlük kota, belirsiz ağ hatası, zaman aşımı ve istemci iptali otomatik yeniden denenmez. İstek için tek bir toplam süre sınırı vardır; model iptal sinyalini işleyemese bile yanıt zaman aşımında serbest bırakılır.
+
+Prompt türü, detay seviyesi, çıktı biçimi ve yeniden geliştirme seçenekleri modelin kullanıcı mesajında ayrı talimatlarla taşınır. Dış API yanıtı her zaman `improvedPrompt` metni ile `improvements` dizisinden oluşur; arayüzde JSON çıktı biçimi seçilmesi bu sözleşmeyi değiştirmez. JSON seçiliyken geliştirilmiş prompt ayrıca geçerli bir JSON nesnesi olarak doğrulanır; model düz metin üretirse talimatlar ek model çağrısı yapılmadan `task` alanında korunur.
+
+- `AI_QUOTA_EXCEEDED`: Günlük ücretsiz kota doldu (`3036`); saat 03.00'teki yenilenmeyi bekleyin.
+- `AI_RATE_LIMIT`: Geçici kapasite/istek sınırı (`3040`); biraz sonra tekrar deneyin.
+- `AI_TIMEOUT`: İstek süresi doldu; metni koruyup yeniden deneyebilirsiniz.
+- `AI_NOT_CONFIGURED`: AI binding'i veya hesap/model erişimi kontrol edilmeli.
+- `AI_UPSTREAM` / `INVALID_AI_OUTPUT`: Sağlayıcıya ulaşılamadı veya sonuç doğrulanamadı.
+
+`GET /api/health`, sağlayıcı/model adını ve binding işlevlerinin mevcut olup olmadığını bildirir. Bu kontrol çıkarım yapmaz ve kalan kotayı ölçmez.
+
+```powershell
+npm test
+npx wrangler deploy --dry-run
+```
+
+Resmî kaynaklar: [Workers AI fiyatlandırması ve ücretsiz kota](https://developers.cloudflare.com/workers-ai/platform/pricing/), [JSON Mode](https://developers.cloudflare.com/workers-ai/features/json-mode/), [AI binding](https://developers.cloudflare.com/workers-ai/configuration/bindings/), [sağlayıcı hata kodları](https://developers.cloudflare.com/workers-ai/platform/errors/).

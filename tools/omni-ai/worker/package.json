@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "secret": "wrangler secret put OPENAI_API_KEY",
     "test": "node --test test/*.test.js"
   },
   "devDependencies": {

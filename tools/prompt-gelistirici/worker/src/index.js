@@ -6,7 +6,9 @@ const DEFAULT_ORIGINS = Object.freeze([
 ]);
 const MAX_PROMPT_LENGTH = 5000;
 const MAX_BODY_BYTES = 20000;
-const MAX_OPENAI_RESPONSE_BYTES = 500000;
+const DEFAULT_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+const MAX_AI_RESPONSE_LENGTH = 500000;
+const AI_RETRY_DELAY_MS = 300;
 const PROMPT_TYPES = new Set(["general", "coding", "codex", "writing", "research", "data-analysis", "image-generation", "social-media", "seo", "education", "business", "career", "marketing", "brainstorming"]);
 const DETAIL_LEVELS = new Set(["short", "balanced", "detailed", "very-detailed"]);
 const OUTPUT_FORMATS = new Set(["auto", "plain", "bullets", "sections", "json", "codex-task"]);
@@ -175,83 +177,137 @@ function createUserInput(input) {
     });
 }
 
-function createOpenAiBody(input, env) {
+function createAiInput(input, env) {
     return {
-        model: sanitizeModel(env?.OPENAI_PROMPT_MODEL) || "gpt-5.4-mini",
-        instructions: createInstructions(),
-        input: [{ role: "user", content: [{ type: "input_text", text: createUserInput(input) }] }],
-        text: {
-            format: {
-                type: "json_schema",
-                name: "improved_prompt_result",
-                strict: true,
-                schema: {
-                    type: "object",
-                    properties: {
-                        improvedPrompt: { type: "string" },
-                        improvements: { type: "array", items: { type: "string" } },
-                    },
-                    required: ["improvedPrompt", "improvements"],
-                    additionalProperties: false,
+        messages: [
+            { role: "system", content: createInstructions() },
+            { role: "user", content: createUserInput(input) },
+        ],
+        response_format: {
+            type: "json_schema",
+            json_schema: {
+                type: "object",
+                properties: {
+                    improvedPrompt: { type: "string" },
+                    improvements: { type: "array", items: { type: "string" } },
                 },
+                required: ["improvedPrompt", "improvements"],
+                additionalProperties: false,
             },
         },
-        max_output_tokens: clamp(Number(env?.OPENAI_MAX_OUTPUT_TOKENS) || 5000, 800, 7000),
-        store: false,
+        max_tokens: clamp(Number(env?.AI_MAX_OUTPUT_TOKENS) || 5000, 800, 7000),
+        temperature: 0.2,
     };
 }
 
-function extractOutputText(payload) {
-    if (typeof payload?.output_text === "string") return payload.output_text;
-    if (!Array.isArray(payload?.output)) return "";
-    return payload.output.flatMap((item) => Array.isArray(item?.content) ? item.content : [])
-        .filter((item) => item?.type === "output_text" && typeof item.text === "string")
-        .map((item) => item.text).join("\n");
-}
-
-function sanitizeModelResult(payload) {
-    let parsed;
-    try { parsed = JSON.parse(extractOutputText(payload)); } catch { throw apiError("Yapay zekâ geçerli bir sonuç döndürmedi.", "INVALID_AI_OUTPUT", 502); }
-    const improvedPrompt = String(parsed?.improvedPrompt || "").replace(/\u0000/g, "").trim().slice(0, 40000);
-    const improvements = Array.isArray(parsed?.improvements)
-        ? parsed.improvements.slice(0, 6).map((item) => String(item || "").replace(/\u0000/g, "").trim().slice(0, 240)).filter(Boolean)
-        : [];
+function sanitizeModelResult(payload, input = {}) {
+    let parsed = payload?.response;
+    try {
+        if (typeof parsed === "string") {
+            if (parsed.length > MAX_AI_RESPONSE_LENGTH) throw new Error("Response too large");
+            parsed = JSON.parse(parsed);
+        }
+    } catch {
+        throw apiError("Yapay zekâ geçerli bir sonuç döndürmedi.", "INVALID_AI_OUTPUT", 502);
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)
+        || typeof parsed.improvedPrompt !== "string" || !Array.isArray(parsed.improvements)
+        || parsed.improvements.some((item) => typeof item !== "string")) {
+        throw apiError("Yapay zekâ geçerli bir sonuç döndürmedi.", "INVALID_AI_OUTPUT", 502);
+    }
+    let improvedPrompt = parsed.improvedPrompt.replace(/\u0000/g, "").trim().slice(0, 40000);
+    const improvements = parsed.improvements.slice(0, 6)
+        .map((item) => item.replace(/\u0000/g, "").trim().slice(0, 240)).filter(Boolean);
     if (!improvedPrompt) throw apiError("Yapay zekâ boş bir sonuç döndürdü.", "INVALID_AI_OUTPUT", 502);
+    if (input.outputFormat === "json") {
+        let task;
+        try { task = JSON.parse(improvedPrompt); } catch { task = null; }
+        // Keep the public string contract even if the model ignores the selected
+        // inner format. Wrapping preserves its instructions without another call.
+        if (!task || typeof task !== "object" || Array.isArray(task)) {
+            improvedPrompt = JSON.stringify({ task: improvedPrompt }, null, 2);
+        }
+    }
     return { improvedPrompt, improvements };
 }
 
-async function readBoundedJson(response) {
-    const length = Number(response.headers.get("content-length")) || 0;
-    const text = await readBoundedText(response.body, length, MAX_OPENAI_RESPONSE_BYTES);
-    try { return JSON.parse(text); } catch { return null; }
+function classifyAiError(error) {
+    // The native binding exposes documented internal codes as "3036: ..." errors.
+    // Inspect only the code; never send provider messages or user text to the client.
+    const prefix = String(error?.message || "").match(/^\s*(\d{4}):/u)?.[1];
+    const code = Number(error?.internalCode || error?.code || prefix);
+    const status = Number(error?.status || error?.statusCode);
+    if (code === 3036) {
+        return apiError("Günlük ücretsiz yapay zekâ kotası doldu. Kota Türkiye saatiyle 03.00'te yenilenir.", "AI_QUOTA_EXCEEDED", 429);
+    }
+    if ([3007, 3008].includes(code) || error?.name === "AbortError" || status === 408 || status === 504) {
+        return apiError("İstek zaman aşımına uğradı. Tekrar deneyin.", "AI_TIMEOUT", 504);
+    }
+    if ([3023, 3041, 5016, 5018, 5035].includes(code) || [401, 403].includes(status)) {
+        return apiError("Yapay zekâ hizmetinin sunucu yapılandırması kontrol edilmeli.", "AI_NOT_CONFIGURED", 503);
+    }
+    const failure = code === 3040 || status === 429
+        ? apiError("Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.", "AI_RATE_LIMIT", 429)
+        : apiError("Yapay zekâ hizmetine ulaşılamadı. Tekrar deneyin.", "AI_UPSTREAM", 503);
+    failure.retryable = code === 3040;
+    return failure;
 }
 
-async function requestOpenAi(input, request, env) {
-    const apiKey = String(env?.OPENAI_API_KEY || "").trim();
-    if (!apiKey) throw apiError("Sunucu yapılandırması eksik.", "OPENAI_NOT_CONFIGURED", 503);
-    const fetcher = typeof env?.OPENAI_FETCH === "function" ? env.OPENAI_FETCH : fetch;
+function waitForRetry(signal) {
+    return new Promise((resolve, reject) => {
+        const finish = () => {
+            clearTimeout(timer);
+            signal.removeEventListener("abort", abort);
+            resolve();
+        };
+        const abort = () => {
+            clearTimeout(timer);
+            signal.removeEventListener("abort", abort);
+            reject(signal.reason);
+        };
+        const timer = setTimeout(finish, AI_RETRY_DELAY_MS);
+        signal.addEventListener("abort", abort, { once: true });
+        if (signal.aborted) abort();
+    });
+}
+
+async function requestWorkersAi(input, request, env) {
+    if (typeof env?.AI?.run !== "function") throw apiError("Yapay zekâ hizmeti yapılandırılmamış.", "AI_NOT_CONFIGURED", 503);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), clamp(Number(env?.OPENAI_TIMEOUT_MS) || 45000, 5000, 60000));
-    const abortFromClient = () => controller.abort();
+    const timeoutMs = clamp(Number(env?.AI_TIMEOUT_MS) || 45000, 5000, 60000);
+    const deadline = Date.now() + timeoutMs;
+    let rejectStopped;
+    const stopped = new Promise((_, reject) => { rejectStopped = reject; });
+    const stop = (error) => {
+        if (controller.signal.aborted) return;
+        controller.abort(error);
+        rejectStopped(error);
+    };
+    const timeoutId = setTimeout(() => stop(apiError("İstek zaman aşımına uğradı. Tekrar deneyin.", "AI_TIMEOUT", 504)), timeoutMs);
+    const abortFromClient = () => stop(apiError("İstek iptal edildi.", "REQUEST_ABORTED", 499));
     request.signal?.addEventListener("abort", abortFromClient, { once: true });
+    if (request.signal?.aborted) abortFromClient();
     try {
-        const response = await fetcher("https://api.openai.com/v1/responses", {
-            method: "POST",
-            headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-            body: JSON.stringify(createOpenAiBody(input, env)),
-            signal: controller.signal,
-        });
-        const payload = await readBoundedJson(response);
-        if (!response.ok) {
-            if ([401, 403].includes(response.status)) throw apiError("Sunucu yapılandırması geçersiz.", "OPENAI_AUTH", 503);
-            if (response.status === 429) throw apiError("Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.", "OPENAI_RATE_LIMIT", 429);
-            throw apiError("Yapay zekâ hizmetine ulaşılamadı.", "OPENAI_UPSTREAM", 503);
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+            try {
+                // Race the shared deadline as well: a binding that ignores abort must
+                // not keep the browser waiting or start another inference on timeout.
+                const payload = await Promise.race([
+                    Promise.resolve().then(() => {
+                        controller.signal.throwIfAborted();
+                        return env.AI.run(resolveModel(env), createAiInput(input, env), { signal: controller.signal });
+                    }),
+                    stopped,
+                ]);
+                return sanitizeModelResult(payload, input);
+            } catch (error) {
+                if (controller.signal.aborted) throw controller.signal.reason;
+                if (error?.publicMessage) throw error;
+                const failure = classifyAiError(error);
+                if (attempt > 0 || !failure.retryable || deadline - Date.now() < AI_RETRY_DELAY_MS + 1000) throw failure;
+                await waitForRetry(controller.signal);
+            }
         }
-        return sanitizeModelResult(payload);
-    } catch (error) {
-        if (error?.status) throw error;
-        if (error?.name === "AbortError") throw apiError("İstek zaman aşımına uğradı.", "OPENAI_TIMEOUT", 504);
-        throw apiError("Yapay zekâ hizmetine ulaşılamadı.", "OPENAI_NETWORK", 503);
     } finally {
         clearTimeout(timeoutId);
         request.signal?.removeEventListener("abort", abortFromClient);
@@ -274,7 +330,7 @@ async function handleImprovement(request, env, origin) {
     try {
         await enforceRateLimit(request, env);
         const input = sanitizeRequest(await parseRequestBody(request));
-        return json(await requestOpenAi(input, request, env), 200, origin, env);
+        return json(await requestWorkersAi(input, request, env), 200, origin, env);
     } catch (error) {
         return json({ error: error?.publicMessage || "Beklenmeyen bir hata oluştu.", code: error?.code || "INTERNAL_ERROR" }, error?.status || 500, origin, env);
     }
@@ -287,16 +343,22 @@ export async function handleRequest(request, env = {}) {
         if (!isAllowedOrigin(origin, env)) return json({ error: "Kaynak izinli değil.", code: "ORIGIN_DENIED" }, 403, "", env);
         return new Response(null, { status: 204, headers: { ...responseHeaders(origin, env), "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS", "access-control-max-age": "86400" } });
     }
-    if (path === "/api/health" && request.method === "GET") return json({ ok: true, service: "omni-tools-prompt-developer", configured: Boolean(String(env?.OPENAI_API_KEY || "").trim()) && Boolean(env?.PROMPT_RATE_LIMITER) }, 200, origin, env);
+    if (path === "/api/health" && request.method === "GET") return json({
+        ok: true,
+        service: "omni-tools-prompt-developer",
+        provider: "cloudflare-workers-ai",
+        model: resolveModel(env),
+        configured: typeof env?.AI?.run === "function" && typeof env?.PROMPT_RATE_LIMITER?.limit === "function",
+    }, 200, origin, env);
     if (path !== "/api/prompt/improve") return json({ error: "Uç nokta bulunamadı.", code: "NOT_FOUND" }, 404, origin, env);
     if (!isAllowedOrigin(origin, env)) return json({ error: "Kaynak izinli değil.", code: "ORIGIN_DENIED" }, 403, "", env);
     if (request.method !== "POST") return json({ error: "Yalnızca POST desteklenir.", code: "METHOD_NOT_ALLOWED" }, 405, origin, env, { allow: "POST, OPTIONS" });
     return handleImprovement(request, env, origin);
 }
 
-function sanitizeModel(value) {
-    const model = String(value || "").trim().slice(0, 64);
-    return /^[a-z0-9._-]+$/iu.test(model) ? model : "";
+function resolveModel(env) {
+    const model = String(env?.AI_PROMPT_MODEL || "").trim().slice(0, 128);
+    return /^@cf\/[a-z0-9._-]+\/[a-z0-9._-]+$/iu.test(model) ? model : DEFAULT_AI_MODEL;
 }
 
 function clamp(value, minimum, maximum) { return Math.min(maximum, Math.max(minimum, value)); }
@@ -305,10 +367,12 @@ export default { fetch: handleRequest };
 
 export const internals = Object.freeze({
     MAX_PROMPT_LENGTH,
+    DEFAULT_AI_MODEL,
+    classifyAiError,
+    resolveModel,
     createInstructions,
-    createOpenAiBody,
+    createAiInput,
     createUserInput,
-    extractOutputText,
     isAllowedOrigin,
     sanitizeModelResult,
     sanitizeRequest,

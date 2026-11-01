@@ -59,11 +59,11 @@
         elements.status.textContent = message;
         elements.status.className = `prompt-developer-status${type ? ` is-${type}` : ""}`;
         elements.status.hidden = !message;
-        statusTimer = message ? window.setTimeout(() => {
+        statusTimer = message && type !== "error" ? window.setTimeout(() => {
             elements.status.hidden = true;
             elements.status.textContent = "";
             statusTimer = null;
-        }, type === "error" ? 5000 : 3000) : null;
+        }, 3000) : null;
     }
 
     function setLoading(loading) {
@@ -74,6 +74,14 @@
         elements.detail.disabled = loading;
         elements.format.disabled = loading;
         panel.querySelectorAll("[data-prompt-developer-action]").forEach((button) => { button.disabled = loading; });
+    }
+
+    function cancelActiveRequest() {
+        const controller = activeController;
+        requestSerial += 1;
+        activeController = null;
+        controller?.abort();
+        setLoading(false);
     }
 
     function setResultVisibility(hasResult) {
@@ -133,7 +141,7 @@
         activeController = controller;
         const timeoutId = window.setTimeout(() => controller.abort(), config.requestTimeoutMs);
         setLoading(true);
-        elements.status.hidden = true;
+        setStatus("");
         try {
             const response = await fetch(config.endpoint, {
                 method: "POST",
@@ -184,17 +192,13 @@
     }
 
     function clearAll() {
-        const controller = activeController;
-        requestSerial += 1;
-        activeController = null;
-        controller?.abort();
+        cancelActiveRequest();
         elements.input.value = "";
         elements.result.value = "";
         elements.improvements.replaceChildren();
         updateCount(elements.input, elements.inputCount);
         updateCount(elements.result, elements.resultCount);
         setResultVisibility(false);
-        setLoading(false);
         setStatus("");
         elements.input.focus();
     }
@@ -241,9 +245,8 @@
         event.preventDefault();
         improvePrompt();
     });
-    window.addEventListener("pagehide", () => {
-        requestSerial += 1;
-        activeController?.abort();
-        activeController = null;
-    }, { once: true });
+    window.addEventListener("pagehide", cancelActiveRequest);
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) cancelActiveRequest();
+    });
 })();

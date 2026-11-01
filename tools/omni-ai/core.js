@@ -98,7 +98,16 @@
             MESSAGE_TOO_LONG: "Mesaj 10.000 karakter sınırını aşıyor.",
             CONTEXT_TOO_LARGE: "Sohbet bağlamı çok uzun. Yeni bir sohbet başlatmayı deneyin.",
             RATE_LIMIT: "Çok fazla istek gönderildi. Biraz sonra tekrar deneyin.",
+            RATE_LIMIT_NOT_CONFIGURED: "Sunucu yapılandırması eksik.",
             DAILY_LIMIT: "Bugünkü ücretsiz kullanım limitinize ulaştınız.",
+            AI_QUOTA_EXCEEDED: "Yapay zekânın günlük ücretsiz kullanım sınırı doldu. Kota Türkiye saatiyle 03.00'te yenilenir.",
+            AI_RATE_LIMIT: "Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.",
+            AI_TIMEOUT: "İstek zaman aşımına uğradı. Tekrar deneyin.",
+            AI_NOT_CONFIGURED: "Yapay zekâ hizmetinin sunucu yapılandırması kontrol edilmeli.",
+            AI_UPSTREAM: "Yapay zekâ hizmetine ulaşılamadı. Tekrar deneyin.",
+            AI_INCOMPLETE: "Yanıt tamamlanmadan kesildi. Tekrar deneyin.",
+            INVALID_AI_OUTPUT: "Yapay zekâ geçerli bir yanıt döndürmedi. Tekrar deneyin.",
+            REQUEST_ABORTED: "Yanıt durduruldu.",
             OPENAI_RATE_LIMIT: "Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.",
             OPENAI_QUOTA: "API kotası veya kullanım limiti aşıldı.",
             OPENAI_TIMEOUT: "İstek zaman aşımına uğradı.",
@@ -111,6 +120,71 @@
         if (status === 504) return messages.OPENAI_TIMEOUT;
         if (status >= 500) return "Yapay zekâ hizmetine ulaşılamadı.";
         return "Mesaj gönderilemedi.";
+    }
+
+    function createStreamError(code) {
+        const aliases = {
+            insufficient_quota: "OPENAI_QUOTA",
+            rate_limit_exceeded: "AI_RATE_LIMIT",
+            provider_unavailable: "AI_UPSTREAM",
+        };
+        const normalized = aliases[code] || code || "AI_UPSTREAM";
+        const error = new Error(getApiErrorMessage(503, normalized));
+        error.code = normalized;
+        error.isPublic = true;
+        return error;
+    }
+
+    async function consumeStream(response, onDelta, { signal } = {}) {
+        if (!response.body) throw createStreamError("AI_INCOMPLETE");
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let completed = false;
+        let rejectStopped;
+        const stopped = new Promise((_, reject) => { rejectStopped = reject; });
+        const abort = () => rejectStopped(signal.reason || createStreamError("REQUEST_ABORTED"));
+        signal?.addEventListener("abort", abort, { once: true });
+
+        function consumeBlock(block) {
+            const data = block.split(/\r?\n/u).filter((line) => line.startsWith("data:"))
+                .map((line) => line.slice(5).replace(/^ /u, "")).join("\n");
+            if (!data.trim() || data.trim() === "[DONE]") return;
+            let event;
+            try { event = JSON.parse(data); } catch { throw createStreamError("INVALID_AI_OUTPUT"); }
+            if (event?.type === "error") throw createStreamError(event.error?.code || event.code);
+            if (event?.type === "response.failed") throw createStreamError(event.response?.error?.code || event.error?.code || event.code);
+            if (event?.type === "response.incomplete") throw createStreamError("AI_INCOMPLETE");
+            if (event?.type === "response.completed") completed = true;
+            if (event?.type === "response.output_text.delta") {
+                if (typeof event.delta !== "string") throw createStreamError("INVALID_AI_OUTPUT");
+                onDelta(event.delta);
+            }
+        }
+
+        try {
+            if (signal?.aborted) abort();
+            while (!completed) {
+                const { done, value } = await Promise.race([reader.read(), stopped]);
+                buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+                const blocks = buffer.split(/\r?\n\r?\n/u);
+                buffer = blocks.pop() || "";
+                for (const block of blocks) {
+                    consumeBlock(block);
+                    if (completed) break;
+                }
+                if (done) {
+                    if (!completed && buffer.trim()) consumeBlock(buffer);
+                    if (!completed) throw createStreamError("AI_INCOMPLETE");
+                    break;
+                }
+            }
+        } finally {
+            signal?.removeEventListener("abort", abort);
+            // Cancellation must not wait for a disconnected provider to acknowledge it.
+            try { void reader.cancel().catch(() => {}); } catch { /* Already closed. */ }
+            reader.releaseLock();
+        }
     }
 
     global.OmniAiCore = Object.freeze({
@@ -129,5 +203,7 @@
         trimContext,
         formatChatDate,
         getApiErrorMessage,
+        createStreamError,
+        consumeStream,
     });
 })(typeof window === "undefined" ? globalThis : window);

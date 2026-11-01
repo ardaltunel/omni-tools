@@ -8,15 +8,11 @@ const MAX_MESSAGE_CHARACTERS = 10000;
 const MAX_CONTEXT_CHARACTERS = 30000;
 const MAX_CONTEXT_MESSAGES = 16;
 const MAX_BODY_BYTES = 80000;
-const MAX_UPSTREAM_ERROR_BYTES = 64000;
+const MAX_SSE_BLOCK_CHARACTERS = 128000;
+const DEFAULT_AI_MODEL = "@cf/zai-org/glm-4.7-flash";
+const AI_RETRY_DELAY_MS = 300;
 const MODES = new Set(["general", "coding", "writing", "learning", "brainstorming"]);
 const RESPONSE_LENGTHS = new Set(["short", "balanced", "detailed"]);
-const OPENAI_FALLBACK_CODES = new Set([
-    "insufficient_quota",
-    "billing_hard_limit_reached",
-    "billing_not_active",
-    "credit_balance_exhausted",
-]);
 
 const MODE_INSTRUCTIONS = Object.freeze({
     general: "Genel amaçlı, doğal ve dengeli biçimde yardımcı ol.",
@@ -132,175 +128,233 @@ function createInstructions(input) {
     ].join("\n");
 }
 
-function sanitizeModel(value) {
-    const model = String(value || "").trim().slice(0, 64);
-    return /^[a-z0-9._-]+$/iu.test(model) ? model : "";
+function resolveModel(env) {
+    const model = String(env?.AI_CHAT_MODEL || "").trim().slice(0, 128);
+    return /^@cf\/[a-z0-9._-]+\/[a-z0-9._-]+$/iu.test(model) ? model : DEFAULT_AI_MODEL;
 }
 
-function createOpenAiBody(input, env) {
+function createWorkersAiBody(input, env) {
+    const tokenBudgets = { short: 600, balanced: 1800, detailed: 3500 };
+    const maximum = clamp(Number(env?.AI_MAX_OUTPUT_TOKENS) || 3500, 300, 4000);
     return {
-        model: sanitizeModel(env?.OPENAI_CHAT_MODEL) || "gpt-5.6-luna",
-        instructions: createInstructions(input),
-        input: input.messages.map((message) => ({ role: message.role, content: message.content })),
-        max_output_tokens: clamp(Number(env?.OPENAI_MAX_OUTPUT_TOKENS) || 1800, 300, 4000),
-        store: false,
+        messages: [{ role: "system", content: createInstructions(input) }, ...input.messages],
+        max_completion_tokens: Math.min(maximum, tokenBudgets[input.responseLength]),
+        chat_template_kwargs: { enable_thinking: false },
         stream: true,
+        store: false,
     };
 }
 
-function sanitizeWorkersAiModel(value) {
-    const model = String(value || "").trim().slice(0, 128);
-    return /^@cf\/[a-z0-9._/-]+$/iu.test(model) ? model : "";
+function classifyAiError(error) {
+    if (error?.publicMessage) return error;
+    const prefix = String(error?.message || "").match(/^\s*(\d{4}):/u)?.[1];
+    const code = Number(error?.internalCode || error?.code || prefix);
+    const status = Number(error?.status || error?.statusCode);
+    if (code === 3036) return apiError("Günlük ücretsiz yapay zekâ kotası doldu. Kota Türkiye saatiyle 03.00'te yenilenir.", "AI_QUOTA_EXCEEDED", 429);
+    if (code === 3040 || status === 429) {
+        const failure = apiError("Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.", "AI_RATE_LIMIT", 429);
+        failure.retryable = code === 3040;
+        return failure;
+    }
+    if ([3007, 3008].includes(code) || [408, 504].includes(status)) return apiError("İstek zaman aşımına uğradı. Tekrar deneyin.", "AI_TIMEOUT", 504);
+    if ([3023, 3041, 5016, 5018, 5035].includes(code) || [401, 403].includes(status)) return apiError("Yapay zekâ hizmetinin sunucu yapılandırması kontrol edilmeli.", "AI_NOT_CONFIGURED", 503);
+    return apiError("Yapay zekâ hizmetine ulaşılamadı. Tekrar deneyin.", "AI_UPSTREAM", 503);
 }
 
-function createWorkersAiBody(input, env, stream = true) {
+function createDeadline(request, env) {
+    const controller = new AbortController();
+    const timeoutMs = clamp(Number(env?.AI_TIMEOUT_MS) || 60000, 5000, 60000);
+    const expiresAt = Date.now() + timeoutMs;
+    let rejectStopped;
+    const stopped = new Promise((_, reject) => { rejectStopped = reject; });
+    // Cancellation can arrive before an inference or reader has attached its race.
+    stopped.catch(() => {});
+    const stop = (error) => {
+        if (controller.signal.aborted) return;
+        controller.abort(error);
+        rejectStopped(error);
+    };
+    const abortFromClient = () => stop(apiError("İstek durduruldu.", "REQUEST_ABORTED", 499));
+    const timeoutId = setTimeout(() => stop(apiError("İstek zaman aşımına uğradı. Tekrar deneyin.", "AI_TIMEOUT", 504)), timeoutMs);
+    request.signal?.addEventListener("abort", abortFromClient, { once: true });
+    if (request.signal?.aborted) abortFromClient();
     return {
-        messages: [
-            { role: "system", content: createInstructions(input) },
-            ...input.messages,
-        ],
-        max_completion_tokens: clamp(Number(env?.OPENAI_MAX_OUTPUT_TOKENS) || 1800, 300, 4000),
-        stream,
+        signal: controller.signal,
+        expiresAt,
+        stop,
+        race: (promise) => Promise.race([promise, stopped]),
+        dispose() {
+            clearTimeout(timeoutId);
+            request.signal?.removeEventListener("abort", abortFromClient);
+        },
     };
 }
 
-function extractErrorCodes(value, result = new Set(), depth = 0) {
-    if (depth > 6 || value === null || value === undefined) return result;
-    if (typeof value === "string") {
-        const normalized = value.trim().toLowerCase();
-        if (normalized) result.add(normalized);
-        return result;
-    }
-    if (Array.isArray(value)) {
-        for (const item of value) extractErrorCodes(item, result, depth + 1);
-        return result;
-    }
-    if (typeof value === "object") {
-        for (const [key, item] of Object.entries(value)) {
-            if (["code", "type"].includes(key)) extractErrorCodes(item, result, depth + 1);
-            else if (["error", "response"].includes(key)) extractErrorCodes(item, result, depth + 1);
+function waitForRetry(signal) {
+    return new Promise((resolve, reject) => {
+        const finish = () => { clearTimeout(timer); signal.removeEventListener("abort", abort); resolve(); };
+        const abort = () => { clearTimeout(timer); signal.removeEventListener("abort", abort); reject(signal.reason); };
+        const timer = setTimeout(finish, AI_RETRY_DELAY_MS);
+        signal.addEventListener("abort", abort, { once: true });
+        if (signal.aborted) abort();
+    });
+}
+
+async function openModelStream(input, env, deadline) {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+            const pending = Promise.resolve().then(() => {
+                deadline.signal.throwIfAborted();
+                return env.AI.run(resolveModel(env), createWorkersAiBody(input, env), { signal: deadline.signal });
+            }).then((stream) => {
+                // A provider ignoring abort must not leave a late inference stream running.
+                if (deadline.signal.aborted) {
+                    try { Promise.resolve(stream?.cancel?.(deadline.signal.reason)).catch(() => {}); } catch { /* Already closed. */ }
+                    throw deadline.signal.reason;
+                }
+                return stream;
+            });
+            const stream = await deadline.race(pending);
+            if (!stream || typeof stream.getReader !== "function") throw apiError("Yapay zekâ akışı başlatılamadı.", "AI_UPSTREAM", 502);
+            return stream;
+        } catch (error) {
+            if (deadline.signal.aborted) throw deadline.signal.reason;
+            const failure = classifyAiError(error);
+            if (attempt > 0 || !failure.retryable || deadline.expiresAt - Date.now() < AI_RETRY_DELAY_MS + 1000) throw failure;
+            await deadline.race(waitForRetry(deadline.signal));
         }
     }
-    return result;
-}
-
-function shouldUseFallback(payload) {
-    const codes = extractErrorCodes(payload);
-    return [...OPENAI_FALLBACK_CODES].some((code) => codes.has(code));
 }
 
 function parseSseData(block) {
-    const data = String(block || "").split("\n")
-        .filter((line) => line.startsWith("data:"))
-        .map((line) => line.slice(5).trim())
-        .join("");
-    if (!data || data === "[DONE]") return null;
-    try { return JSON.parse(data); } catch { return null; }
-}
-
-function sseEvent(payload) {
-    return `data: ${JSON.stringify(payload)}\n\n`;
+    const data = String(block || "").split(/\r?\n/u).filter((line) => line.startsWith("data:"))
+        .map((line) => line.slice(5).trimStart()).join("\n");
+    if (!data.trim()) return null;
+    if (data.trim() === "[DONE]") return { done: true };
+    try { return JSON.parse(data); } catch { throw apiError("Yapay zekâ geçerli bir akış döndürmedi.", "AI_UPSTREAM", 502); }
 }
 
 function extractWorkersAiDelta(payload) {
-    const choiceDelta = payload?.choices?.[0]?.delta?.content;
-    if (typeof choiceDelta === "string") return choiceDelta;
+    const delta = payload?.choices?.[0]?.delta?.content;
+    if (typeof delta === "string") return delta;
     if (typeof payload?.response === "string") return payload.response;
-    if (payload?.type === "response.output_text.delta" && typeof payload?.delta === "string") return payload.delta;
+    if (payload?.type === "response.output_text.delta" && typeof payload.delta === "string") return payload.delta;
     return "";
 }
 
-function workersAiRunner(env) {
-    if (typeof env?.WORKERS_AI_RUN === "function") return env.WORKERS_AI_RUN;
-    if (env?.AI && typeof env.AI.run === "function") return env.AI.run.bind(env.AI);
-    throw apiError("Yedek yapay zekâ hizmeti yapılandırılmamış.", "WORKERS_AI_NOT_CONFIGURED", 503);
-}
-
-async function pipeWorkersAi(input, env, controller, encoder) {
-    const model = sanitizeWorkersAiModel(env?.WORKERS_AI_MODEL) || "@cf/zai-org/glm-4.7-flash";
-    const stream = await workersAiRunner(env)(model, createWorkersAiBody(input, env, true));
-    if (!stream || typeof stream.getReader !== "function") throw apiError("Yedek yapay zekâ akışı başlatılamadı.", "WORKERS_AI_EMPTY_STREAM", 502);
-
-    const reader = stream.getReader();
+function createChatStream(upstream, deadline) {
+    const reader = upstream.getReader();
     const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+    const queue = [];
     let buffer = "";
-    let hasOutput = false;
-    const emitBlock = (block) => {
+    let hasText = false;
+    let terminal = false;
+    let closed = false;
+    const cancelReader = () => {
+        try { Promise.resolve(reader.cancel(deadline.signal.reason)).catch(() => {}); } catch { /* Stream already ended. */ }
+    };
+    const dispose = () => {
+        deadline.dispose();
+        deadline.signal.removeEventListener("abort", cancelReader);
+    };
+    deadline.signal.addEventListener("abort", cancelReader, { once: true });
+    if (deadline.signal.aborted) cancelReader();
+
+    const finish = (payload, error) => {
+        if (terminal || closed) return;
+        terminal = true;
+        queue.push(payload);
+        if (error) deadline.stop(error);
+        dispose();
+        cancelReader();
+    };
+    const fail = (error) => {
+        const failure = classifyAiError(error);
+        finish({ type: "error", error: { code: failure.code, message: failure.publicMessage } }, failure);
+    };
+    const complete = () => {
+        if (!hasText) { fail(apiError("Yapay zekâ boş yanıt verdi. Tekrar deneyin.", "AI_UPSTREAM", 502)); return; }
+        finish({ type: "response.completed" });
+    };
+    const incomplete = () => {
+        const failure = apiError("Yanıt tamamlanmadan kesildi. Yeniden deneyin veya daha kısa yanıt isteyin.", "AI_INCOMPLETE", 502);
+        finish({ type: "response.incomplete", error: { code: failure.code, message: failure.publicMessage } }, failure);
+    };
+    const processBlock = (block) => {
+        if (terminal || !block.trim()) return;
+        if (block.length > MAX_SSE_BLOCK_CHARACTERS) throw apiError("Yapay zekâ akışı sınırı aştı.", "AI_UPSTREAM", 502);
         const payload = parseSseData(block);
         if (!payload) return;
-        if (payload?.error) throw apiError("Yedek yapay zekâ hizmetine ulaşılamadı.", "WORKERS_AI_UPSTREAM", 503);
+        if (payload.type === "response.incomplete") { incomplete(); return; }
+        if (payload.error || payload.type === "error" || payload.type === "response.failed") {
+            throw classifyAiError(payload.error || payload.response?.error || payload);
+        }
         const delta = extractWorkersAiDelta(payload);
-        if (!delta) return;
-        hasOutput = true;
-        controller.enqueue(encoder.encode(sseEvent({ type: "response.output_text.delta", delta })));
+        if (delta) {
+            hasText = true;
+            queue.push({ type: "response.output_text.delta", delta });
+        }
+        const finishReason = payload?.choices?.[0]?.finish_reason;
+        if (finishReason && finishReason !== "stop") { incomplete(); return; }
+        if (payload.done || payload.type === "response.completed" || finishReason === "stop") complete();
     };
-    while (true) {
-        const { done, value } = await reader.read();
-        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-        const blocks = buffer.split(/\r?\n\r?\n/u);
-        buffer = blocks.pop() || "";
-        for (const block of blocks) emitBlock(block);
-        if (done) break;
-    }
-    if (buffer) emitBlock(buffer);
-    if (!hasOutput) throw apiError("Yedek yapay zekâ boş yanıt verdi.", "WORKERS_AI_EMPTY_RESPONSE", 502);
-    controller.enqueue(encoder.encode(sseEvent({ type: "response.completed" })));
-}
 
-function createFailoverStream(openAiStream, input, env) {
-    let reader;
     return new ReadableStream({
-        async start(controller) {
-            reader = openAiStream.getReader();
-            const decoder = new TextDecoder();
-            const encoder = new TextEncoder();
-            let buffer = "";
-            let hasTextDelta = false;
+        async pull(controller) {
+            if (closed) return;
             try {
-                while (true) {
-                    const { done, value } = await reader.read();
+                while (!queue.length && !terminal) {
+                    const { done, value } = await deadline.race(reader.read());
+                    if (closed) return;
+                    deadline.signal.throwIfAborted();
                     buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
                     const blocks = buffer.split(/\r?\n\r?\n/u);
                     buffer = blocks.pop() || "";
-                    for (const block of blocks) {
-                        const payload = parseSseData(block);
-                        if (!hasTextDelta && shouldUseFallback(payload)) {
-                            await reader.cancel();
-                            await pipeWorkersAi(input, env, controller, encoder);
-                            controller.close();
-                            return;
+                    for (const block of blocks) processBlock(block);
+                    if (buffer.length > MAX_SSE_BLOCK_CHARACTERS) throw apiError("Yapay zekâ akışı sınırı aştı.", "AI_UPSTREAM", 502);
+                    if (done && !terminal) {
+                        if (buffer) processBlock(buffer);
+                        buffer = "";
+                        if (!terminal) {
+                            if (hasText) incomplete();
+                            else fail(apiError("Yapay zekâ boş yanıt verdi. Tekrar deneyin.", "AI_UPSTREAM", 502));
                         }
-                        if (payload?.type === "response.output_text.delta" && typeof payload?.delta === "string") hasTextDelta = true;
-                        controller.enqueue(encoder.encode(`${block}\n\n`));
                     }
-                    if (done) break;
                 }
-                if (buffer) controller.enqueue(encoder.encode(buffer));
-                controller.close();
-            } catch {
-                controller.enqueue(encoder.encode(sseEvent({ type: "error", error: { code: "provider_unavailable" } })));
-                controller.close();
+            } catch (error) {
+                if (closed) return;
+                fail(deadline.signal.aborted ? deadline.signal.reason : error);
             }
+            if (closed) return;
+            if (queue.length) controller.enqueue(encoder.encode(`data: ${JSON.stringify(queue.shift())}\n\n`));
+            if (terminal && !queue.length) { closed = true; controller.close(); }
         },
-        async cancel() {
-            try { await reader?.cancel(); } catch { /* İstemci bağlantıyı kapattı. */ }
+        cancel() {
+            if (closed) return;
+            closed = true;
+            terminal = true;
+            queue.length = 0;
+            deadline.stop(apiError("İstek durduruldu.", "REQUEST_ABORTED", 499));
+            dispose();
+            cancelReader();
         },
     });
 }
 
-async function requestWorkersAi(input, env, origin) {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-        async start(controller) {
-            try { await pipeWorkersAi(input, env, controller, encoder); }
-            catch { controller.enqueue(encoder.encode(sseEvent({ type: "error", error: { code: "provider_unavailable" } }))); }
-            controller.close();
-        },
-    });
-    return new Response(stream, {
-        status: 200,
-        headers: { ...corsHeaders(origin, env, "text/event-stream; charset=utf-8"), "x-accel-buffering": "no" },
-    });
+async function requestWorkersAi(input, request, env, origin) {
+    if (typeof env?.AI?.run !== "function") throw apiError("Yapay zekâ hizmeti yapılandırılmamış.", "AI_NOT_CONFIGURED", 503);
+    const deadline = createDeadline(request, env);
+    try {
+        const upstream = await openModelStream(input, env, deadline);
+        return new Response(createChatStream(upstream, deadline), {
+            status: 200,
+            headers: { ...corsHeaders(origin, env, "text/event-stream; charset=utf-8"), "x-accel-buffering": "no" },
+        });
+    } catch (error) {
+        deadline.dispose();
+        throw classifyAiError(deadline.signal.aborted ? deadline.signal.reason : error);
+    }
 }
 
 async function createRateLimitKey(request) {
@@ -315,45 +369,11 @@ async function enforceRateLimit(request, env) {
     if (!result?.success) throw apiError("Çok fazla istek gönderildi. Biraz sonra tekrar deneyin.", "RATE_LIMIT", 429);
 }
 
-async function requestOpenAi(input, request, env, origin) {
-    const apiKey = String(env?.OPENAI_API_KEY || "").trim();
-    if (!apiKey) throw apiError("Sunucu yapılandırması eksik.", "OPENAI_NOT_CONFIGURED", 503);
-    const fetcher = typeof env?.OPENAI_FETCH === "function" ? env.OPENAI_FETCH : fetch;
-    let response;
-    try {
-        response = await fetcher("https://api.openai.com/v1/responses", {
-            method: "POST",
-            headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-            body: JSON.stringify(createOpenAiBody(input, env)),
-            signal: request.signal,
-        });
-    } catch (error) {
-        if (error?.name === "AbortError") throw apiError("İstek durduruldu.", "REQUEST_ABORTED", 499);
-        throw apiError("Yapay zekâ hizmetine ulaşılamadı.", "OPENAI_NETWORK", 503);
-    }
-    if (!response.ok) {
-        let payload = null;
-        try { payload = JSON.parse(await readBoundedText(response.body, Number(response.headers.get("content-length")) || 0, MAX_UPSTREAM_ERROR_BYTES)); } catch { payload = null; }
-        if ([401, 403].includes(response.status)) throw apiError("Sunucu yapılandırması geçersiz.", "OPENAI_AUTH", 503);
-        if (response.status === 429 && shouldUseFallback(payload)) return requestWorkersAi(input, env, origin);
-        if (response.status === 429) throw apiError("Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.", "OPENAI_RATE_LIMIT", 429);
-        throw apiError("Yapay zekâ hizmetine ulaşılamadı.", "OPENAI_UPSTREAM", 503);
-    }
-    if (!response.body) throw apiError("Yapay zekâ akışı başlatılamadı.", "OPENAI_EMPTY_STREAM", 502);
-    return new Response(createFailoverStream(response.body, input, env), {
-        status: 200,
-        headers: {
-            ...corsHeaders(origin, env, "text/event-stream; charset=utf-8"),
-            "x-accel-buffering": "no",
-        },
-    });
-}
-
 async function handleChat(request, env, origin) {
     try {
         await enforceRateLimit(request, env);
         const input = sanitizeRequest(await parseRequestBody(request));
-        return await requestOpenAi(input, request, env, origin);
+        return await requestWorkersAi(input, request, env, origin);
     } catch (error) {
         return json({ error: error?.publicMessage || "Beklenmeyen bir hata oluştu.", code: error?.code || "INTERNAL_ERROR" }, error?.status || 500, origin, env);
     }
@@ -366,7 +386,14 @@ export async function handleRequest(request, env = {}) {
         if (!isAllowedOrigin(origin, env)) return json({ error: "Kaynak izinli değil.", code: "ORIGIN_DENIED" }, 403, "", env);
         return new Response(null, { status: 204, headers: { ...corsHeaders(origin, env), "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS", "access-control-max-age": "86400" } });
     }
-    if (path === "/api/health" && request.method === "GET") return json({ ok: true, service: "omni-tools-omni-ai", configured: Boolean(String(env?.OPENAI_API_KEY || "").trim()) && Boolean(env?.CHAT_RATE_LIMITER) && Boolean(env?.AI) }, 200, origin, env);
+    if (path === "/api/health" && request.method === "GET") return json({
+        ok: true,
+        service: "omni-tools-omni-ai",
+        provider: "cloudflare-workers-ai",
+        model: resolveModel(env),
+        thinking: false,
+        configured: typeof env?.AI?.run === "function" && typeof env?.CHAT_RATE_LIMITER?.limit === "function",
+    }, 200, origin, env);
     if (path !== "/api/chat") return json({ error: "Uç nokta bulunamadı.", code: "NOT_FOUND" }, 404, origin, env);
     if (!isAllowedOrigin(origin, env)) return json({ error: "Kaynak izinli değil.", code: "ORIGIN_DENIED" }, 403, "", env);
     if (request.method !== "POST") return json({ error: "Yalnızca POST desteklenir.", code: "METHOD_NOT_ALLOWED" }, 405, origin, env, { allow: "POST, OPTIONS" });
@@ -379,13 +406,12 @@ export const internals = Object.freeze({
     MAX_MESSAGE_CHARACTERS,
     MAX_CONTEXT_CHARACTERS,
     MAX_CONTEXT_MESSAGES,
+    DEFAULT_AI_MODEL,
     createInstructions,
-    createOpenAiBody,
     createWorkersAiBody,
-    createFailoverStream,
+    createChatStream,
+    classifyAiError,
     isAllowedOrigin,
-    shouldUseFallback,
     sanitizeRequest,
-    sanitizeModel,
-    sanitizeWorkersAiModel,
+    resolveModel,
 });

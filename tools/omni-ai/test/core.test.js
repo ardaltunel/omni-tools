@@ -62,10 +62,10 @@ test("frontend secret, OpenAI URL veya model adı içermez", () => {
 });
 
 test("streaming kota ve hız sınırı hatalarını Türkçe gösterir", () => {
-    const app = fs.readFileSync(path.resolve(directory, "..", "app.js"), "utf8");
-    assert.match(app, /insufficient_quota:[^\n]+API kotası veya kullanım limiti aşıldı\./u);
-    assert.match(app, /rate_limit_exceeded:[^\n]+Yapay zekâ hizmeti şu anda yoğun\./u);
-    assert.match(app, /event\.type === "error"/u);
+    assert.match(core.createStreamError("insufficient_quota").message, /API kotası veya kullanım limiti/u);
+    assert.match(core.createStreamError("rate_limit_exceeded").message, /Yapay zekâ hizmeti şu anda yoğun/u);
+    assert.match(core.createStreamError("AI_QUOTA_EXCEEDED").message, /günlük ücretsiz.*03\.00/u);
+    assert.equal(core.createStreamError("AI_TIMEOUT").code, "AI_TIMEOUT");
 });
 
 test("boş sohbetleri kaydetmez ve ilk mesajı başlık olarak kullanır", () => {

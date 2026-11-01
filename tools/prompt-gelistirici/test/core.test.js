@@ -37,6 +37,14 @@ test("hazır örnekler ilgili prompt türüyle eşleşir", () => {
 
 test("API hata kodlarını güvenli Türkçe mesajlara dönüştürür", () => {
     assert.match(core.getApiErrorMessage(429, "RATE_LIMIT"), /Çok fazla/u);
+    assert.match(core.getApiErrorMessage(429, "AI_QUOTA_EXCEEDED"), /Günlük ücretsiz.*03\.00/u);
+    assert.match(core.getApiErrorMessage(429, "AI_RATE_LIMIT"), /şu anda yoğun/u);
+    assert.match(core.getApiErrorMessage(504, "AI_TIMEOUT"), /zaman aşımına/u);
+    assert.match(core.getApiErrorMessage(503, "AI_NOT_CONFIGURED"), /yapılandırılmamış/u);
+    assert.match(core.getApiErrorMessage(503, "AI_UPSTREAM"), /Tekrar deneyin/u);
+    assert.equal(core.getApiErrorMessage(499, "REQUEST_ABORTED"), "İstek iptal edildi.");
+    assert.match(core.getApiErrorMessage(429, "OPENAI_RATE_LIMIT"), /şu anda yoğun/u);
+    assert.equal(core.getApiErrorMessage(503, "OPENAI_AUTH"), "Sunucu yapılandırması geçersiz.");
     assert.equal(core.getApiErrorMessage(502, "INVALID_AI_OUTPUT"), "Geçersiz yanıt alındı.");
 });
 
