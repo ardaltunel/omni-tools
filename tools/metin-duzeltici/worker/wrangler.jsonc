@@ -9,8 +9,8 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
-  "secrets": {
-    "required": ["OPENAI_API_KEY"]
+  "ai": {
+    "binding": "AI"
   },
   "ratelimits": [
     {
@@ -24,8 +24,8 @@
   ],
   "vars": {
     "ALLOWED_ORIGINS": "https://ardaltunel.github.io,http://localhost:8765,http://127.0.0.1:8765,null",
-    "OPENAI_TEXT_MODEL": "gpt-5.4-mini",
-    "OPENAI_TIMEOUT_MS": "45000",
-    "OPENAI_MAX_OUTPUT_TOKENS": "4000"
+    "AI_TEXT_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    "AI_TIMEOUT_MS": "45000",
+    "AI_MAX_OUTPUT_TOKENS": "4000"
   }
 }

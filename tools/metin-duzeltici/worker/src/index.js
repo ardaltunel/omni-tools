@@ -6,7 +6,9 @@ const DEFAULT_ORIGINS = Object.freeze([
 ]);
 const MAX_TEXT_LENGTH = 10000;
 const MAX_BODY_BYTES = 30000;
-const MAX_OPENAI_RESPONSE_BYTES = 500000;
+const DEFAULT_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+const MAX_AI_RESPONSE_LENGTH = 500000;
+const AI_RETRY_DELAY_MS = 300;
 const CORRECTION_TYPES = new Set(["grammar", "fluent", "professional", "friendly", "shorten", "clarify", "strengthen"]);
 const TONES = new Set(["preserve", "professional", "friendly", "formal", "casual", "polite", "direct", "persuasive", "energetic"]);
 const LANGUAGES = new Set(["auto", "tr", "en", "de", "fr", "es"]);
@@ -160,94 +162,128 @@ function createUserInput(input) {
     });
 }
 
-function createOpenAiBody(input, env) {
-    const model = sanitizeModel(env?.OPENAI_TEXT_MODEL) || "gpt-5.4-mini";
+function createAiInput(input, env) {
     return {
-        model,
-        instructions: createInstructions(),
-        input: [{ role: "user", content: [{ type: "input_text", text: createUserInput(input) }] }],
-        text: {
-            format: {
-                type: "json_schema",
-                name: "corrected_text_result",
-                strict: true,
-                schema: {
-                    type: "object",
-                    properties: {
-                        correctedText: { type: "string" },
-                        changes: { type: "array", items: { type: "string" } },
-                    },
-                    required: ["correctedText", "changes"],
-                    additionalProperties: false,
+        messages: [
+            { role: "system", content: createInstructions() },
+            { role: "user", content: createUserInput(input) },
+        ],
+        response_format: {
+            type: "json_schema",
+            json_schema: {
+                type: "object",
+                properties: {
+                    correctedText: { type: "string" },
+                    changes: { type: "array", items: { type: "string" } },
                 },
+                required: ["correctedText", "changes"],
+                additionalProperties: false,
             },
         },
-        max_output_tokens: clamp(Number(env?.OPENAI_MAX_OUTPUT_TOKENS) || 4000, 500, 6000),
-        store: false,
+        max_tokens: clamp(Number(env?.AI_MAX_OUTPUT_TOKENS) || 4000, 500, 6000),
+        temperature: 0.2,
     };
 }
 
-function extractOutputText(payload) {
-    if (typeof payload?.output_text === "string") return payload.output_text;
-    if (!Array.isArray(payload?.output)) return "";
-    return payload.output.flatMap((item) => Array.isArray(item?.content) ? item.content : [])
-        .filter((item) => item?.type === "output_text" && typeof item.text === "string")
-        .map((item) => item.text)
-        .join("\n");
-}
-
 function sanitizeModelResult(payload) {
-    let parsed;
+    let parsed = payload?.response;
     try {
-        parsed = JSON.parse(extractOutputText(payload));
+        if (typeof parsed === "string") {
+            if (parsed.length > MAX_AI_RESPONSE_LENGTH) throw new Error("Response too large");
+            parsed = JSON.parse(parsed);
+        }
     } catch {
         throw apiError("Yapay zekâ geçerli bir sonuç döndürmedi.", "INVALID_AI_OUTPUT", 502);
     }
-    const correctedText = String(parsed?.correctedText || "").replace(/\u0000/g, "").trim().slice(0, 30000);
-    const changes = Array.isArray(parsed?.changes)
-        ? parsed.changes.slice(0, 6).map((item) => String(item || "").replace(/\u0000/g, "").trim().slice(0, 240)).filter(Boolean)
-        : [];
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)
+        || typeof parsed.correctedText !== "string" || !Array.isArray(parsed.changes)
+        || parsed.changes.some((item) => typeof item !== "string")) {
+        throw apiError("Yapay zekâ geçerli bir sonuç döndürmedi.", "INVALID_AI_OUTPUT", 502);
+    }
+    const correctedText = parsed.correctedText.replace(/\u0000/g, "").trim().slice(0, 30000);
+    const changes = parsed.changes.slice(0, 6)
+        .map((item) => item.replace(/\u0000/g, "").trim().slice(0, 240)).filter(Boolean);
     if (!correctedText) throw apiError("Yapay zekâ boş bir sonuç döndürdü.", "INVALID_AI_OUTPUT", 502);
     return { correctedText, changes };
 }
 
-async function readBoundedJson(response) {
-    const length = Number(response.headers.get("content-length")) || 0;
-    const text = await readBoundedText(response.body, length, MAX_OPENAI_RESPONSE_BYTES);
-    try {
-        return JSON.parse(text);
-    } catch {
-        return null;
+function classifyAiError(error) {
+    // The native binding exposes documented internal codes as "3036: ..." errors.
+    // Inspect only the code; never send provider messages or user text to the client.
+    const prefix = String(error?.message || "").match(/^\s*(\d{4}):/u)?.[1];
+    const code = Number(error?.internalCode || error?.code || prefix);
+    const status = Number(error?.status || error?.statusCode);
+    if (code === 3036) {
+        return apiError("Günlük ücretsiz yapay zekâ kotası doldu. Kota Türkiye saatiyle 03.00'te yenilenir.", "AI_QUOTA_EXCEEDED", 429);
     }
+    if ([3007, 3008].includes(code) || error?.name === "AbortError" || status === 408 || status === 504) {
+        return apiError("İstek zaman aşımına uğradı. Tekrar deneyin.", "AI_TIMEOUT", 504);
+    }
+    if ([3023, 3041, 5016, 5018, 5035].includes(code) || [401, 403].includes(status)) {
+        return apiError("Yapay zekâ hizmetinin sunucu yapılandırması kontrol edilmeli.", "AI_NOT_CONFIGURED", 503);
+    }
+    const failure = code === 3040 || status === 429
+        ? apiError("Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.", "AI_RATE_LIMIT", 429)
+        : apiError("Yapay zekâ hizmetine ulaşılamadı. Tekrar deneyin.", "AI_UPSTREAM", 503);
+    failure.retryable = code === 3040;
+    return failure;
 }
 
-async function requestOpenAi(input, request, env) {
-    const apiKey = String(env?.OPENAI_API_KEY || "").trim();
-    if (!apiKey) throw apiError("Sunucu yapılandırması eksik.", "OPENAI_NOT_CONFIGURED", 503);
-    const fetcher = typeof env?.OPENAI_FETCH === "function" ? env.OPENAI_FETCH : fetch;
+function waitForRetry(signal) {
+    return new Promise((resolve, reject) => {
+        const finish = () => {
+            clearTimeout(timer);
+            signal.removeEventListener("abort", abort);
+            resolve();
+        };
+        const abort = () => {
+            clearTimeout(timer);
+            signal.removeEventListener("abort", abort);
+            reject(signal.reason);
+        };
+        const timer = setTimeout(finish, AI_RETRY_DELAY_MS);
+        signal.addEventListener("abort", abort, { once: true });
+        if (signal.aborted) abort();
+    });
+}
+
+async function requestWorkersAi(input, request, env) {
+    if (typeof env?.AI?.run !== "function") throw apiError("Yapay zekâ hizmeti yapılandırılmamış.", "AI_NOT_CONFIGURED", 503);
     const controller = new AbortController();
-    const timeoutMs = clamp(Number(env?.OPENAI_TIMEOUT_MS) || 45000, 5000, 60000);
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    const abortFromClient = () => controller.abort();
+    const timeoutMs = clamp(Number(env?.AI_TIMEOUT_MS) || 45000, 5000, 60000);
+    const deadline = Date.now() + timeoutMs;
+    let rejectStopped;
+    const stopped = new Promise((_, reject) => { rejectStopped = reject; });
+    const stop = (error) => {
+        if (controller.signal.aborted) return;
+        controller.abort(error);
+        rejectStopped(error);
+    };
+    const timeoutId = setTimeout(() => stop(apiError("İstek zaman aşımına uğradı. Tekrar deneyin.", "AI_TIMEOUT", 504)), timeoutMs);
+    const abortFromClient = () => stop(apiError("İstek iptal edildi.", "REQUEST_ABORTED", 499));
     request.signal?.addEventListener("abort", abortFromClient, { once: true });
+    if (request.signal?.aborted) abortFromClient();
     try {
-        const response = await fetcher("https://api.openai.com/v1/responses", {
-            method: "POST",
-            headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-            body: JSON.stringify(createOpenAiBody(input, env)),
-            signal: controller.signal,
-        });
-        const payload = await readBoundedJson(response);
-        if (!response.ok) {
-            if ([401, 403].includes(response.status)) throw apiError("Sunucu yapılandırması geçersiz.", "OPENAI_AUTH", 503);
-            if (response.status === 429) throw apiError("Yapay zekâ hizmeti şu anda yoğun. Biraz sonra tekrar deneyin.", "OPENAI_RATE_LIMIT", 429);
-            throw apiError("Yapay zekâ hizmetine ulaşılamadı.", "OPENAI_UPSTREAM", 503);
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+            try {
+                // Race the shared deadline as well: a binding that ignores abort must
+                // not keep the browser waiting or start another inference on timeout.
+                const payload = await Promise.race([
+                    Promise.resolve().then(() => {
+                        controller.signal.throwIfAborted();
+                        return env.AI.run(resolveModel(env), createAiInput(input, env), { signal: controller.signal });
+                    }),
+                    stopped,
+                ]);
+                return sanitizeModelResult(payload);
+            } catch (error) {
+                if (controller.signal.aborted) throw controller.signal.reason;
+                if (error?.publicMessage) throw error;
+                const failure = classifyAiError(error);
+                if (attempt > 0 || !failure.retryable || deadline - Date.now() < AI_RETRY_DELAY_MS + 1000) throw failure;
+                await waitForRetry(controller.signal);
+            }
         }
-        return sanitizeModelResult(payload);
-    } catch (error) {
-        if (error?.status) throw error;
-        if (error?.name === "AbortError") throw apiError("İstek zaman aşımına uğradı.", "OPENAI_TIMEOUT", 504);
-        throw apiError("Yapay zekâ hizmetine ulaşılamadı.", "OPENAI_NETWORK", 503);
     } finally {
         clearTimeout(timeoutId);
         request.signal?.removeEventListener("abort", abortFromClient);
@@ -272,7 +308,7 @@ async function handleCorrection(request, env, origin) {
     try {
         await enforceRateLimit(request, env);
         const input = sanitizeRequest(await parseRequestBody(request));
-        const result = await requestOpenAi(input, request, env);
+        const result = await requestWorkersAi(input, request, env);
         return json(result, 200, origin, env);
     } catch (error) {
         return json({ error: error?.publicMessage || "Beklenmeyen bir hata oluştu.", code: error?.code || "INTERNAL_ERROR" }, error?.status || 500, origin, env);
@@ -295,7 +331,13 @@ export async function handleRequest(request, env = {}) {
         });
     }
     if (path === "/api/health" && request.method === "GET") {
-        return json({ ok: true, service: "omni-tools-text-corrector", configured: Boolean(String(env?.OPENAI_API_KEY || "").trim()) && Boolean(env?.TEXT_RATE_LIMITER) }, 200, origin, env);
+        return json({
+            ok: true,
+            service: "omni-tools-text-corrector",
+            provider: "cloudflare-workers-ai",
+            model: resolveModel(env),
+            configured: typeof env?.AI?.run === "function" && typeof env?.TEXT_RATE_LIMITER?.limit === "function",
+        }, 200, origin, env);
     }
     if (path !== "/api/text/correct") return json({ error: "Uç nokta bulunamadı.", code: "NOT_FOUND" }, 404, origin, env);
     if (!isAllowedOrigin(origin, env)) return json({ error: "Kaynak izinli değil.", code: "ORIGIN_DENIED" }, 403, "", env);
@@ -303,9 +345,9 @@ export async function handleRequest(request, env = {}) {
     return handleCorrection(request, env, origin);
 }
 
-function sanitizeModel(value) {
-    const model = String(value || "").trim().slice(0, 64);
-    return /^[a-z0-9._-]+$/iu.test(model) ? model : "";
+function resolveModel(env) {
+    const model = String(env?.AI_TEXT_MODEL || "").trim().slice(0, 128);
+    return /^@cf\/[a-z0-9._-]+\/[a-z0-9._-]+$/iu.test(model) ? model : DEFAULT_AI_MODEL;
 }
 
 function clamp(value, minimum, maximum) {
@@ -316,12 +358,14 @@ export default { fetch: handleRequest };
 
 export const internals = Object.freeze({
     MAX_TEXT_LENGTH,
+    DEFAULT_AI_MODEL,
     allowedOrigins,
+    classifyAiError,
+    createAiInput,
     createInstructions,
-    createOpenAiBody,
     createUserInput,
-    extractOutputText,
     isAllowedOrigin,
+    resolveModel,
     sanitizeModelResult,
     sanitizeRequest,
 });

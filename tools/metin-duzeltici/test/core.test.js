@@ -39,6 +39,10 @@ test("uzun metinlerde sınırlı bellek kullanan fark yöntemine geçer", () => 
 
 test("API hata kodlarını Türkçe güvenli mesajlara dönüştürür", () => {
     assert.match(core.getApiErrorMessage(429, "RATE_LIMIT"), /Çok fazla/u);
+    assert.match(core.getApiErrorMessage(429, "AI_QUOTA_EXCEEDED"), /günlük ücretsiz kullanım sınırı/u);
+    assert.match(core.getApiErrorMessage(429, "AI_RATE_LIMIT"), /yoğun/u);
+    assert.match(core.getApiErrorMessage(504, "AI_TIMEOUT"), /Tekrar deneyin/u);
+    assert.match(core.getApiErrorMessage(503, "AI_NOT_CONFIGURED"), /yapılandırılmamış/u);
     assert.equal(core.getApiErrorMessage(503, "UNKNOWN"), "AI hizmetine ulaşılamadı.");
 });
 
