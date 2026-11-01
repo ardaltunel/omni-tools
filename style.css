@@ -1125,19 +1125,16 @@ a {
     text-transform: uppercase;
 }
 
-.app-home-category-bar > span::before {
-    content: "tune";
+.app-home-category-bar > span svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
     color: #79d8cc;
-    font-family: "Material Symbols Rounded";
-    font-size: 18px;
-    font-weight: 500;
-    font-style: normal;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    font-feature-settings: "liga";
-    font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
-    -webkit-font-feature-settings: "liga";
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .app-home-category-filters {
@@ -1249,14 +1246,10 @@ a {
     border-radius: 12px;
     background: linear-gradient(145deg, rgba(24, 169, 153, 0.18), rgba(244, 211, 94, 0.08));
     color: #8ee8dc;
-    font-family: "Material Symbols Rounded";
     font-size: 21px;
     font-weight: 500;
     font-style: normal;
     line-height: 1;
-    font-feature-settings: "liga";
-    font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
-    -webkit-font-feature-settings: "liga";
     text-rendering: optimizeLegibility;
     white-space: nowrap;
 }
@@ -1334,14 +1327,10 @@ a {
     border-radius: 10px;
     background: color-mix(in srgb, var(--accent) 9%, transparent);
     color: var(--accent);
-    font-family: "Material Symbols Rounded";
     font-size: 20px;
     font-weight: 500;
     font-style: normal;
     line-height: 1;
-    font-feature-settings: "liga";
-    font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
-    -webkit-font-feature-settings: "liga";
     text-rendering: optimizeLegibility;
 }
 

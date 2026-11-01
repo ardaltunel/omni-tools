@@ -5,16 +5,18 @@
     const form = document.getElementById("real-estate-form");
     const core = window.RealEstateAnalysisCore;
     const config = window.RealEstateAnalysisConfig;
-    if (!panel || !form || !core || !config) return;
+    const valuation = window.RealEstateValuation;
+    const listing = window.RealEstateListing;
+    if (!panel || !form || !core || !config || !valuation || !listing) return;
 
     const currencyFields = new Set([
         "price", "dues", "monthlyRent", "annualExpenses", "landComparablePrice",
         "titleDeedTransactionValue", "buyerOtherCosts", "sellerOtherCosts", "deposit",
-        "rentalServiceFee", "offerPrice",
+        "rentalServiceFee", "offerPrice", "referencePricePerM2",
     ]);
     const decimalFields = new Set([
         "netArea", "grossArea", "totalArea", "floorAreaRatio", "buyerTitleDeedRate",
-        "sellerTitleDeedRate", "buyerServiceFeeRate", "sellerServiceFeeRate", "vatRate", "rentalVatRate",
+        "sellerTitleDeedRate", "buyerServiceFeeRate", "sellerServiceFeeRate", "vatRate", "rentalVatRate", "targetYield",
     ]);
     const integerFields = new Set(["buildingAge", "totalFloors"]);
     const elements = {
@@ -56,6 +58,12 @@
     let hasSuccessfulAnalysis = false;
     let autoCalculationTimer = null;
     let copyStatusTimer = null;
+    let latestValuation = null;
+    let importedSource = "";
+    let importedTitle = "";
+    let comparableSequence = 0;
+    let areaBasisCustomized = false;
+    const byId = (id) => document.getElementById(`real-estate-${id}`);
 
     function parseCurrency(value) {
         const text = String(value ?? "").trim();
@@ -88,9 +96,7 @@
     }
 
     function sanitizeDecimalInput(value) {
-        const normalized = String(value ?? "").replace(/[^\d,.]/g, "").replace(/,/g, ".");
-        const parts = normalized.split(".");
-        return parts.length > 1 ? `${parts.shift()}.${parts.join("").slice(0, 2)}` : parts[0];
+        return String(value ?? "").replace(/[^\d,.]/g, "");
     }
 
     function getTransactionType() {
@@ -120,7 +126,7 @@
             const field = form.elements[name];
             state[name] = field ? String(field.value ?? "") : String(config.defaultForm[name] ?? "");
         });
-        state.comparables = [];
+        state.comparables = readComparables();
         return state;
     }
 
@@ -129,11 +135,13 @@
         currencyFields.forEach((name) => { parsed[name] = parseCurrency(state[name]); });
         decimalFields.forEach((name) => { parsed[name] = parseLocalizedDecimal(state[name]); });
         integerFields.forEach((name) => { parsed[name] = parseCurrency(state[name]); });
-        parsed.comparables = [];
+        parsed.comparables = state.comparables;
+        if (parsed.valuationMethod === "reference" && getPropertyGroup(parsed.propertyType) === "land") parsed.landComparablePrice = parsed.referencePricePerM2;
         return parsed;
     }
 
     function applyState(state) {
+        areaBasisCustomized = false;
         const safeState = { ...config.defaultForm, ...(state || {}) };
         form.querySelectorAll("[aria-invalid='true']").forEach((field) => field.removeAttribute("aria-invalid"));
         Object.keys(config.defaultForm).forEach((name) => {
@@ -150,6 +158,8 @@
         });
         rentalServiceFeeCustomized = Boolean(safeState.rentalServiceFeeCustomized);
         titleDeedTransactionValueCustomized = Boolean(safeState.titleDeedTransactionValueCustomized);
+        byId("valuation-comparables").replaceChildren();
+        safeState.comparables.forEach((item) => addComparable(item));
         if (!titleDeedTransactionValueCustomized && form.elements.price.value) {
             form.elements.titleDeedTransactionValue.value = form.elements.price.value;
         }
@@ -185,8 +195,15 @@
         elements.saleInvestment.hidden = isRental || isLand;
         elements.saleCosts.hidden = isRental;
         elements.rentalCosts.hidden = !isRental;
-        elements.priceLabel.textContent = isRental ? "Aylık kira" : "İlan / satış fiyatı";
-        form.querySelector('button[type="submit"]').lastChild.textContent = isRental ? " Giriş Maliyetini Hesapla" : " Analiz Et";
+        elements.priceLabel.textContent = isRental ? "Aylık kira" : "İstenen fiyat (isteğe bağlı)";
+        form.querySelector('button[type="submit"]').lastChild.textContent = isRental ? " Giriş Maliyetini Hesapla" : " Değerini ve Maliyetini Hesapla";
+        byId("valuation-input").hidden = isRental;
+        byId("area-basis-field").hidden = isLand;
+        panel.querySelector(".real-estate-building-details").hidden = isLand;
+        const rentalOption = form.elements.valuationMethod.querySelector('option[value="rental"]');
+        rentalOption.disabled = isLand;
+        if (isLand && form.elements.valuationMethod.value === "rental") form.elements.valuationMethod.value = "reference";
+        updateValuationMethod();
         form.querySelectorAll(".real-estate-rental-optional").forEach((item) => { item.hidden = !isRental; });
         renumberVisibleSections();
     }
@@ -232,7 +249,7 @@
         form.querySelectorAll("[aria-invalid='true']").forEach((field) => field.removeAttribute("aria-invalid"));
     }
 
-    function validate(state) {
+    function validate(state, estimate) {
         const errors = [];
         const mark = (name, message) => {
             errors.push(message);
@@ -240,13 +257,11 @@
         };
         const isRental = state.transactionType === "rent";
         const isLand = getPropertyGroup(state.propertyType) === "land";
-        if (!(state.price > 0)) mark("price", isRental ? "Aylık kira tutarını girin." : "Satış fiyatını girin.");
+        if (!(state.price > 0) && (isRental || !estimate.available)) mark("price", isRental ? "Aylık kira tutarını girin." : "Bir ilan fiyatı veya değerleme için emsal m² fiyatı, benzer ilan ya da kira hedefi ekleyin.");
         if (!isRental && isLand && !(state.totalArea > 0)) mark("totalArea", "Toplam alan 0'dan büyük olmalıdır.");
         if (!isRental && !isLand) {
-            if (!(state.netArea > 0)) mark("netArea", "Net alan 0'dan büyük olmalıdır.");
-            if (!(state.grossArea > 0)) mark("grossArea", "Brüt alan 0'dan büyük olmalıdır.");
+            if (!(state.netArea > 0) && !(state.grossArea > 0) && state.valuationMethod !== "rental") mark("grossArea", "Net veya brüt alan bilgilerinden birini girin.");
             if (state.netArea > 0 && state.grossArea > 0 && state.netArea > state.grossArea) mark("netArea", "Net alan brüt alandan büyük olamaz.");
-            if (!(state.monthlyRent > 0)) mark("monthlyRent", "Tahmini aylık kira tutarını girin.");
         }
         const numericFloor = /^\d+$/.test(String(state.floor || "")) ? Number(state.floor) : null;
         if (numericFloor !== null && state.totalFloors > 0 && numericFloor > state.totalFloors) mark("floor", "Kat değeri toplam kat sayısından büyük olamaz.");
@@ -256,6 +271,7 @@
         rateNames.forEach((name) => {
             if (state[name] !== null && state[name] > 100) mark(name, "Oran alanları %100'ü geçemez.");
         });
+        if (!isRental && state.valuationMethod === "rental" && state.targetYield > 100) mark("targetYield", "Hedef getiri %100'ü geçemez.");
         return [...new Set(errors)];
     }
 
@@ -351,6 +367,8 @@
         elements.rentalResult.hidden = true;
         elements.saleResult.hidden = false;
         const scoreCard = document.getElementById("real-estate-score-card");
+        scoreCard.hidden = !(state.monthlyRent > 0);
+        document.getElementById("real-estate-score-components-title").closest("section").hidden = !(state.monthlyRent > 0);
         scoreCard.dataset.level = result.portfolio.level.id;
         setText("real-estate-score", result.portfolio.score);
         setText("real-estate-score-label", result.portfolio.level.label);
@@ -367,7 +385,7 @@
         setText("real-estate-annual-expenses-result", formatOptionalCurrency(state.annualExpenses));
         setText("real-estate-net-yield", core.formatPercentage(result.rent.netYield, 2));
         renderCostDetails(result);
-        setText("real-estate-analysis-summary", `Girilen verilere göre yıllık brüt kira getirisi ${core.formatPercentage(result.rent.grossYield, 1)}, amortisman süresi ${formatYears(result.amortizationYears)} ve Finansal Verim Skoru ${result.portfolio.score}/100 seviyesinde.`);
+        setText("real-estate-analysis-summary", state.monthlyRent > 0 ? `Girilen verilere göre yıllık brüt kira getirisi ${core.formatPercentage(result.rent.grossYield, 1)}, amortisman süresi ${formatYears(result.amortizationYears)} ve Finansal Verim Skoru ${result.portfolio.score}/100 seviyesinde.` : "Fiyat ve alan bilgileriyle işlem maliyetleri hesaplandı. Aylık kira eklerseniz getiri ve geri dönüş süresini de görebilirsiniz.");
         const list = document.getElementById("real-estate-analysis-list");
         list.replaceChildren(...result.analysis.map((insight) => {
             const item = document.createElement("li");
@@ -419,6 +437,8 @@
         elements.rentalResult.hidden = true;
         latestResult = null;
         latestState = null;
+        latestValuation = null;
+        byId("valuation-result").hidden = true;
     }
 
     function optionalLine(lines, label, value, formatter = (item) => item) {
@@ -429,6 +449,8 @@
     function buildPropertyDetailLines(state) {
         const lines = [];
         optionalLine(lines, "Tür", state.propertyType);
+        optionalLine(lines, "Konum", state.location);
+        optionalLine(lines, "Kaynak ilan", importedSource);
         if (getPropertyGroup(state.propertyType) === "land") {
             optionalLine(lines, "Alan", state.totalArea, (value) => `${core.formatDecimal(value, 0)} m²`);
             optionalLine(lines, "Ada", state.blockNo);
@@ -450,20 +472,20 @@
     function buildGeneralSaleReport(state, result) {
         const lines = ["Gayrimenkul Analizi", "", ...buildPropertyDetailLines(state), "", `Satış Fiyatı: ${core.formatCurrency(state.price)}`, `Brüt m² Fiyatı: ${formatSquareMeterPrice(result.pricePerGrossArea)}`, `Net m² Fiyatı: ${formatSquareMeterPrice(result.pricePerNetArea)}`, `Tahmini Aylık Kira: ${core.formatCurrency(state.monthlyRent)}`, `Yıllık Brüt Getiri: ${core.formatPercentage(result.rent.grossYield, 2)}`, `Amortisman Süresi: ${formatYears(result.amortizationYears)}`, `Finansal Verim Skoru: ${result.portfolio.score}/100`, `Veri Tamlığı: ${core.formatPercentage(result.portfolio.completeness.percentage, 0)}`];
         lines.push("", `Tahmini Alıcı Toplam Maliyeti: ${core.formatCurrency(result.buyer.total)}`, `Tahmini Satıcı Net Tutarı: ${core.formatCurrency(result.seller.net)}`, "", "Bu değerler tahmini ve bilgilendirme amaçlıdır.");
-        return lines.join("\n");
+        return [lines.join("\n"), valuationReport()].filter(Boolean).join("\n\n");
     }
 
     function buildBuyerReport(state, result) {
         const lines = ["Gayrimenkul Analizi", "", ...buildPropertyDetailLines(state), "", `Satış Fiyatı: ${core.formatCurrency(state.price)}`, `Brüt m² Fiyatı: ${formatSquareMeterPrice(result.pricePerGrossArea)}`, `Tahmini Aylık Kira: ${core.formatCurrency(state.monthlyRent)}`, `Yıllık Brüt Getiri: ${core.formatPercentage(result.rent.grossYield, 2)}`, `Amortisman: ${formatYears(result.amortizationYears)}`];
         lines.push(`Tahmini Alıcı Toplam Maliyeti: ${core.formatCurrency(result.buyer.total)}`, "", "Bu değerler tahmini ve bilgilendirme amaçlıdır.");
-        return lines.join("\n");
+        return [lines.join("\n"), valuationReport()].filter(Boolean).join("\n\n");
     }
 
     function buildOwnerReport(state, result) {
         const lines = ["Gayrimenkul Fiyat Analizi", "", ...buildPropertyDetailLines(state), "", `Satış Fiyatı: ${core.formatCurrency(state.price)}`, `Brüt m² Fiyatı: ${formatSquareMeterPrice(result.pricePerGrossArea)}`];
         lines.push(`Tahmini Satıcı Net Tutarı: ${core.formatCurrency(result.seller.net)}`, `Tapu Harcı: ${core.formatCurrency(result.seller.titleDeedFee)}`, `Hizmet Bedeli: ${core.formatCurrency(result.seller.serviceFee + result.seller.serviceFeeVat)}`);
         lines.push("", "Bu değerler tahmini ve bilgilendirme amaçlıdır.");
-        return lines.join("\n");
+        return [lines.join("\n"), valuationReport()].filter(Boolean).join("\n\n");
     }
 
     function buildLandReport(state, result) {
@@ -471,7 +493,7 @@
         optionalLine(lines, "Emsal m² Fiyatı", result.comparablePrice, formatSquareMeterPrice);
         if (result.comparableDifference !== null) lines.push(`Emsallere Göre: ${result.comparisonText}`);
         lines.push(`Tahmini Alıcı Toplam Maliyeti: ${core.formatCurrency(result.buyer.total)}`, `Satıcı Net Tutarı: ${core.formatCurrency(result.seller.net)}`, "", "Bu değerler tahmini ve bilgilendirme amaçlıdır.");
-        return lines.join("\n");
+        return [lines.join("\n"), valuationReport()].filter(Boolean).join("\n\n");
     }
 
     function buildRentalReport(state, result) {
@@ -514,19 +536,214 @@
         }
     }
 
+    function updateValuationMethod() {
+        const method = form.elements.valuationMethod.value;
+        byId("reference-fields").hidden = method !== "reference";
+        byId("comparable-fields").hidden = method !== "comparables";
+        byId("yield-fields").hidden = method !== "rental";
+        if (method === "rental") elements.saleInvestment.open = true;
+        if (method === "comparables" && !byId("valuation-comparables").children.length) addComparable();
+    }
+
+    function readComparables() {
+        return [...byId("valuation-comparables").children].map((row) => ({
+            price: parseCurrency(row.querySelector('[data-value="price"]').value),
+            area: parseLocalizedDecimal(row.querySelector('[data-value="area"]').value),
+            areaBasis: row.querySelector('[data-value="basis"]').value,
+            propertyType: row.dataset.propertyType,
+            location: row.dataset.location || "",
+            sourceUrl: row.dataset.sourceUrl || "",
+        }));
+    }
+
+    function addComparable(data = {}) {
+        const container = byId("valuation-comparables");
+        if (container.children.length >= config.maxComparables) {
+            setImportStatus(`En fazla ${config.maxComparables} emsal ekleyebilirsiniz. Birini silip tekrar deneyin.`, true);
+            return false;
+        }
+        const row = document.createElement("div");
+        row.className = "real-estate-comparable-row";
+        row.dataset.propertyType = data.propertyType || form.elements.propertyType.value;
+        row.dataset.location = data.location || "";
+        row.dataset.sourceUrl = data.sourceUrl || "";
+        const rowId = ++comparableSequence;
+        const name = document.createElement("strong");
+        name.textContent = `${row.dataset.propertyType}${data.location ? ` · ${data.location}` : ""}`;
+        row.append(name);
+        const fields = document.createElement("div");
+        fields.className = "real-estate-comparable-grid";
+        for (const [key, text, value, placeholder] of [["price", "İlan fiyatı (TL)", data.price, "6.000.000"], ["area", "Alan (m²)", data.area, "100"]]) {
+            const label = document.createElement("label");
+            label.className = "real-estate-field";
+            const caption = document.createElement("span");
+            caption.textContent = text;
+            const input = document.createElement("input");
+            input.id = `real-estate-comparable-${rowId}-${key}`;
+            input.type = "text";
+            input.inputMode = key === "price" ? "numeric" : "decimal";
+            input.dataset.value = key;
+            input.value = value == null ? "" : key === "price" ? formatCurrencyInput(Math.round(Number(value))) : String(value);
+            input.placeholder = placeholder;
+            label.htmlFor = input.id;
+            label.append(caption, input);
+            fields.append(label);
+        }
+        const basisLabel = document.createElement("label");
+        basisLabel.className = "real-estate-field";
+        const basisText = document.createElement("span");
+        basisText.textContent = "Alan türü";
+        const select = document.createElement("select");
+        select.id = `real-estate-comparable-${rowId}-basis`;
+        select.dataset.value = "basis";
+        const isLand = getPropertyGroup(row.dataset.propertyType) === "land";
+        (isLand ? [["total", "Toplam"]] : [["gross", "Brüt"], ["net", "Net"]]).forEach(([value, text]) => select.add(new Option(text, value)));
+        select.value = data.areaBasis || (isLand ? "total" : form.elements.areaBasis.value);
+        basisLabel.htmlFor = select.id;
+        basisLabel.append(basisText, select);
+        fields.append(basisLabel);
+        const remove = document.createElement("button");
+        remove.className = "ghost-button";
+        remove.type = "button";
+        remove.textContent = "Sil";
+        remove.setAttribute("aria-label", `${row.dataset.propertyType} emsalini sil`);
+        remove.addEventListener("click", () => { row.remove(); scheduleAutomaticCalculation(); });
+        fields.append(remove);
+        row.append(fields);
+        if (data.sourceUrl) {
+            const source = document.createElement("a");
+            try {
+                source.href = listing.normalizeUrl(data.sourceUrl);
+                source.target = "_blank";
+                source.rel = "noopener noreferrer";
+                source.textContent = "Kaynak ilanı aç";
+                row.append(source);
+            } catch { /* Geçersiz kaynak bağlantısı rapora aktarılmaz. */ }
+        }
+        container.append(row);
+        return true;
+    }
+
+    function estimateValue(state) {
+        const method = state.valuationMethod;
+        return valuation.estimate({ ...state,
+            referencePricePerM2: method === "reference" ? state.referencePricePerM2 : null,
+            comparables: method === "comparables" ? state.comparables : [],
+            targetYield: method === "rental" ? state.targetYield : null,
+        });
+    }
+
+    function renderValuation(state, result) {
+        latestValuation = result;
+        byId("valuation-result").hidden = state.transactionType === "rent";
+        byId("valuation-result").dataset.position = result.position;
+        setText("real-estate-valuation-confidence", result.confidenceLabel);
+        setText("real-estate-valuation-title", result.available ? result.method === "rental" ? "Hedef getiriye göre alım aralığı" : "Tahmini değer aralığı" : "Değer aralığı için bir dayanak ekleyin");
+        setText("real-estate-valuation-range", result.available ? `${core.formatCurrency(result.low)} – ${core.formatCurrency(result.high)}` : "Henüz hesaplanmadı");
+        setText("real-estate-valuation-midpoint", result.available ? `Hesaplanan orta değer: ${core.formatCurrency(result.estimate)}` : "Tek bir ilanın fiyatı, piyasa değerini belirlemek için yeterli değildir.");
+        setText("real-estate-valuation-source", result.available ? `${result.areaBasis === "total" ? "Toplam" : result.areaBasis === "net" ? "Net" : "Brüt"} alan: ${result.area === null ? "Girilmedi" : `${core.formatDecimal(result.area, 1)} m²`} · Birim değer: ${formatSquareMeterPrice(result.pricePerM2)}` : "");
+        const position = byId("valuation-position");
+        position.hidden = result.differencePercent === null;
+        const difference = Math.abs(result.differencePercent || 0);
+        position.textContent = result.position === "fair" ? "İstenen fiyat, hesaplanan değere yakın (±%5)." : `İstenen fiyat, hesaplanan değerin %${core.formatDecimal(difference, 1)} ${result.position === "above" ? "üzerinde" : "altında"}.`;
+        byId("valuation-reasons").replaceChildren(...result.reasons.map((text) => { const li = document.createElement("li"); li.textContent = text; return li; }));
+        setText("real-estate-valuation-warning", result.warnings.join(" "));
+        byId("valuation-copy").hidden = !result.available;
+    }
+
+    function valuationReport() {
+        if (!latestValuation?.available) return "";
+        const r = latestValuation;
+        const lines = ["Gayrimenkul Değerleme Özeti", importedTitle, latestState?.location, `Tahmini aralık: ${core.formatCurrency(r.low)} – ${core.formatCurrency(r.high)}`, `Orta değer: ${core.formatCurrency(r.estimate)}`, `Dayanak: ${r.confidenceLabel}`, ...r.reasons];
+        if (r.differencePercent !== null) lines.push(`İstenen fiyatın orta değere farkı: ${formatSignedPercentage(r.differencePercent)}`);
+        if (importedSource) lines.push(`Kaynak: ${importedSource}`);
+        lines.push(...r.warnings);
+        return lines.filter(Boolean).join("\n");
+    }
+
+    function setImportStatus(text, error = false) {
+        byId("import-status").textContent = text;
+        byId("import-status").dataset.error = String(error);
+    }
+
+    function applyListing(data, target) {
+        const fields = data?.fields;
+        if (!fields || !Object.keys(fields).some((key) => ["price", "grossArea", "netArea", "totalArea"].includes(key))) throw new Error("Fiyat veya alan bilgisi bulunamadı. İlanın fiyat ve özellikler bölümünü birlikte kopyalayın.");
+        if (target === "comparable") {
+            if (fields.transactionType === "rent") throw new Error("Satış değerlemesi için kiralık yerine satılık bir emsal ekleyin.");
+            const canonical = (url) => String(url || "").split(/[?#]/)[0].replace(/\/$/, "");
+            if (data.sourceUrl && (canonical(data.sourceUrl) === canonical(importedSource) || readComparables().some((item) => canonical(item.sourceUrl) === canonical(data.sourceUrl)))) throw new Error("Bu ilan zaten eklendi. Karşılaştırmak için farklı bir ilan seçin.");
+            const type = fields.propertyType;
+            if (!type) throw new Error("Emsalin gayrimenkul türü bulunamadı. Metne “Satılık daire” veya “Satılık arsa” bilgisini ekleyin.");
+            if (type !== form.elements.propertyType.value) throw new Error("Emsal, analiz ettiğiniz mülkle aynı türde olmalı. Örneğin daireyi başka bir daireyle karşılaştırın.");
+            const land = getPropertyGroup(type) === "land";
+            const basis = land ? "total" : form.elements.areaBasis.value;
+            const area = fields[land ? "totalArea" : basis === "net" ? "netArea" : "grossArea"];
+            if (!(Number(fields.price) > 0) || !(Number(area) > 0)) throw new Error(`Emsalin satış fiyatı ve ${land ? "toplam" : basis === "net" ? "net" : "brüt"} m² bilgisi gerekli.`);
+            if (!addComparable({ price: fields.price, area, areaBasis: basis, propertyType: type, location: fields.location, sourceUrl: data.sourceUrl })) throw new Error(`En fazla ${config.maxComparables} emsal ekleyebilirsiniz.`);
+            form.elements.valuationMethod.value = "comparables";
+            updateValuationMethod();
+        } else {
+            const cleanFields = {};
+            Object.keys(config.defaultForm).forEach((key) => {
+                if (["comparables", "valuationMethod", "referencePricePerM2", "targetYield", "rentalServiceFeeCustomized", "titleDeedTransactionValueCustomized"].includes(key)) return;
+                const value = fields[key];
+                if (typeof value === "number" && Number.isFinite(value) && value >= 0) cleanFields[key] = currencyFields.has(key) ? String(Math.round(value)) : String(value);
+                else if (typeof value === "string") cleanFields[key] = value.slice(0, 250);
+            });
+            if (cleanFields.floor && ![...form.elements.floor.options].some((item) => item.value === cleanFields.floor)) form.elements.floor.add(new Option(cleanFields.floor, cleanFields.floor));
+            if (cleanFields.roomCount && ![...form.elements.roomCount.options].some((item) => item.value === cleanFields.roomCount)) form.elements.roomCount.add(new Option(cleanFields.roomCount, cleanFields.roomCount));
+            importedSource = data.sourceUrl || "";
+            importedTitle = String(data.title || "").slice(0, 250);
+            hasSuccessfulAnalysis = false;
+            applyState({ ...config.defaultForm, ...cleanFields, areaBasis: !fields.grossArea && fields.netArea ? "net" : "gross" });
+            if (getTransactionType() === "rent") form.elements.rentalServiceFee.value = form.elements.price.value;
+            showEmptyResult();
+        }
+
+        const label = target === "comparable" ? "Emsal eklendi." : "İlan bilgileri dolduruldu. Kontrol edip bir değerleme dayanağı ekleyin.";
+        setImportStatus(`${label}${data.warnings?.length ? ` ${data.warnings.join(" ")}` : ""}`);
+        calculateAndRender({ showValidation: false });
+    }
+
+    byId("parse-text").addEventListener("click", () => {
+        try {
+            const text = byId("listing-text").value.trim();
+            if (!text) throw new Error("Önce ilan metnini yapıştırın.");
+            applyListing(listing.parseText(text), byId("import-target").value);
+        } catch (error) { setImportStatus(error.message, true); }
+    });
+    byId("add-comparable").addEventListener("click", () => addComparable());
+    byId("valuation-copy").addEventListener("click", () => copyText(valuationReport(), "Değerleme özeti kopyalandı."));
+    panel.querySelectorAll("[data-estate-example]").forEach((button) => button.addEventListener("click", () => {
+        const land = button.dataset.estateExample === "land";
+        importedSource = "";
+        importedTitle = "Örnek verilerle analiz";
+
+        applyState({ ...config.defaultForm, propertyType: land ? "Arsa" : "Daire", price: land ? "3000000" : "6500000", totalArea: land ? "500" : "", grossArea: land ? "" : "110", netArea: land ? "" : "85", monthlyRent: land ? "" : "30000", roomCount: land ? "" : "2+1", referencePricePerM2: land ? "5500" : "60000" });
+        setImportStatus("Örnek veriler gösteriliyor. Bunlar gerçek bir ilan veya güncel bölge fiyatı değildir.");
+        calculateAndRender();
+    }));
+
     function calculateAndRender({ shouldScroll = false, showValidation = true } = {}) {
         clearErrors();
         const rawState = readState();
         const state = getNumericState(rawState);
-        const errors = validate(state);
+        const estimate = estimateValue(state);
+        const errors = validate(state, estimate);
         if (errors.length) {
+            showEmptyResult();
             if (showValidation) showErrors(errors, shouldScroll);
             return false;
         }
         const isRental = state.transactionType === "rent";
         const isLand = !isRental && getPropertyGroup(state.propertyType) === "land";
+        if (isLand && estimate.available) state.landComparablePrice = estimate.pricePerM2;
+        showEmptyResult();
         latestState = state;
-        if (isRental) {
+        if (!isRental && !(state.price > 0)) {
+            elements.emptyResult.hidden = true;
+        } else if (isRental) {
             latestResult = core.calculateRentalMoveInCost({ monthlyRent: state.price, deposit: state.deposit, rentalServiceFee: state.rentalServiceFee, vatRate: state.rentalVatRate, dues: state.dues });
             renderRental(state, latestResult);
         } else if (isLand) {
@@ -536,10 +753,12 @@
             latestResult = core.calculateSaleAnalysis(state);
             renderSale(state, latestResult);
         }
+        renderValuation(state, estimate);
+        if (!isRental && !isLand && latestResult) updateShareLinks(state, latestResult);
         hasSuccessfulAnalysis = true;
         elements.copyStatus.textContent = "";
         if (shouldScroll) {
-            const target = isRental ? elements.rentalResult : isLand ? elements.landResult : elements.saleResult;
+            const target = isRental ? elements.rentalResult : byId("valuation-result");
             target.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
         }
         return true;
@@ -560,9 +779,17 @@
     form.addEventListener("input", (event) => {
         const field = event.target;
         if (!(field instanceof HTMLInputElement)) return;
-        if (currencyFields.has(field.name)) field.value = formatCurrencyInput(field.value);
+
+        if (field.dataset.value === "price" || currencyFields.has(field.name)) field.value = formatCurrencyInput(field.value);
+        else if (field.dataset.value === "area") field.value = sanitizeDecimalInput(field.value);
         else if (decimalFields.has(field.name)) field.value = sanitizeDecimalInput(field.value);
         else if (integerFields.has(field.name)) field.value = field.value.replace(/\D/g, "");
+        if (["netArea", "grossArea"].includes(field.name) && !areaBasisCustomized) {
+            const basis = form.elements.areaBasis.value;
+            const selectedArea = parseLocalizedDecimal(form.elements[basis === "net" ? "netArea" : "grossArea"].value);
+            const alternative = parseLocalizedDecimal(form.elements[basis === "net" ? "grossArea" : "netArea"].value);
+            if (!(selectedArea > 0) && alternative > 0) form.elements.areaBasis.value = basis === "net" ? "gross" : "net";
+        }
         if (field.name === "rentalServiceFee") rentalServiceFeeCustomized = true;
         if (field.name === "titleDeedTransactionValue") titleDeedTransactionValueCustomized = true;
         if (field.name === "price" && getTransactionType() === "rent" && config.rentalServiceFeeMode === "one-month-rent" && !rentalServiceFeeCustomized) form.elements.rentalServiceFee.value = field.value;
@@ -574,6 +801,8 @@
     });
 
     form.addEventListener("change", (event) => {
+
+        if (event.target.name === "areaBasis") areaBasisCustomized = true;
         if (event.target.name === "transactionType") {
             const isRental = getTransactionType() === "rent";
             if (isRental && config.rentalServiceFeeMode === "one-month-rent" && !rentalServiceFeeCustomized && !form.elements.rentalServiceFee.value) form.elements.rentalServiceFee.value = form.elements.price.value;
@@ -586,7 +815,10 @@
             updateDynamicView();
             showEmptyResult();
             hasSuccessfulAnalysis = false;
-        } else scheduleAutomaticCalculation();
+        } else {
+            if (event.target.name === "valuationMethod") updateValuationMethod();
+            scheduleAutomaticCalculation();
+        }
     });
 
     form.addEventListener("submit", (event) => {
@@ -595,6 +827,13 @@
     });
 
     elements.reset.addEventListener("click", () => {
+
+        window.clearTimeout(autoCalculationTimer);
+        importedSource = "";
+        importedTitle = "";
+        byId("listing-text").value = "";
+        byId("import-target").value = "property";
+        setImportStatus("İlan metnini yapıştırın veya aşağıdaki alanları doldurun.");
         rentalServiceFeeCustomized = false;
         titleDeedTransactionValueCustomized = false;
         hasSuccessfulAnalysis = false;

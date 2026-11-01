@@ -187,6 +187,8 @@ test("config sınırları ve varsayılan oranları tek yerde tutar", () => {
     assert.equal(config.maxComparables, 5);
     assert.equal(config.minRecommendedComparables, 3);
     assert.equal(config.copyStatusDurationMs, 2000);
+    assert.equal(config.defaultForm.valuationMethod, "reference");
+    assert.equal(config.defaultForm.areaBasis, "gross");
     assert.deepEqual(config.priceScenarioDiscounts, [0, 2.5, 5, 7.5]);
 });
 
@@ -199,14 +201,23 @@ test("araç DOM, metadata, route fallback ve istemci modülleriyle kayıtlıdır
 
     assert.match(html, /data-tool="emlak-portfoy-analizi"/);
     assert.match(html, /id="real-estate-land-details"/);
-    assert.doesNotMatch(html, /id="real-estate-comparable-list"/);
+    assert.match(html, /id="real-estate-valuation-comparables"/);
+    assert.match(html, /<textarea[^>]*id="real-estate-listing-text"/);
+    assert.match(html, /<select[^>]*id="real-estate-import-target"/);
+    assert.match(html, /id="real-estate-parse-text"/);
+    assert.doesNotMatch(html, /id="real-estate-(?:import-form|listing-url|helper-help)"/);
+    assert.doesNotMatch(html, /browser-helper\/omni-tools-ilan-yardimcisi\.zip/);
     assert.doesNotMatch(html, /id="real-estate-offer-section"/);
     assert.match(html, /Finansal Verim Skoru/);
-    assert.match(html, /tools\/emlak-portfoy-analizi\/app\.js\?v=5/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/style\.css\?v=9/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/config\.js\?v=6/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/core\.js\?v=2/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/valuation\.js\?v=1/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/listing\.js\?v=2/);
+    assert.match(html, /tools\/emlak-portfoy-analizi\/app\.js\?v=8/);
     assert.doesNotMatch(html, /id="real-estate-clear-storage"/);
     assert.doesNotMatch(app, /localStorage\.(?:getItem|setItem)/);
     assert.match(app, /clearRetiredSavedState/);
-    assert.doesNotMatch(app, /real-estate-comparable-list/);
     assert.match(app, /setTimeout/);
     assert.match(redirect, /noindex,follow/);
     assert.match(redirect, /emlak-portfoy-analizi/);
