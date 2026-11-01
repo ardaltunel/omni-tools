@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "omni-tools-text-corrector",
+  "account_id": "b1a0c404a59941b8cc0fcf380b863f55",
   "main": "src/index.js",
   "compatibility_date": "2026-08-24",
   "workers_dev": true,
