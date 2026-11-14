@@ -475,7 +475,7 @@
     }
 
     function flyChip(source) {
-        const target = seats[selectedSpot].button;
+        const target = seats[selectedSpot].bet;
         if (prefersReducedMotion.matches) return;
         const from = source.getBoundingClientRect(), to = target.getBoundingClientRect();
         const chip = document.createElement("span");
