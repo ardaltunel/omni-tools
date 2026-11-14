@@ -78,7 +78,7 @@
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=14">
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
-    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=55">
+    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=56">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=21">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=8">
@@ -850,64 +850,68 @@
                     <div class="blackjack-table-shell">
                         <div class="blackjack-table-rim">
                             <div class="blackjack-table" aria-label="Blackjack masası">
-                                <div class="blackjack-table-grain" aria-hidden="true"></div>
-                                <div class="blackjack-table-arc" aria-hidden="true"></div>
-
-                                <div class="blackjack-bankroll" aria-label="Sanal kredi bilgisi">
-                                    <div class="blackjack-bankroll-item">
-                                        <span>BAKİYE</span>
-                                        <strong id="blackjack-balance">10.000</strong>
+                                <div class="blackjack-felt">
+                                    <div class="blackjack-table-grain" aria-hidden="true"></div>
+                                    <div class="blackjack-table-top">
+                                        <div class="blackjack-bankroll" aria-label="Sanal kredi bilgisi">
+                                            <div class="blackjack-bankroll-item">
+                                                <span>BAKİYE</span>
+                                                <strong id="blackjack-balance">10.000</strong>
+                                            </div>
+                                            <div class="blackjack-bankroll-divider" aria-hidden="true"></div>
+                                            <div class="blackjack-bankroll-item">
+                                                <span>YER BAHİSİ</span>
+                                                <strong id="blackjack-current-bet">0</strong>
+                                            </div>
+                                            <div class="blackjack-bankroll-divider" aria-hidden="true"></div>
+                                            <div class="blackjack-bankroll-item">
+                                                <span>TOPLAM BAHİS</span>
+                                                <strong id="blackjack-total-bet">0</strong>
+                                            </div>
+                                            <span id="blackjack-balance-delta" class="blackjack-balance-delta" aria-live="polite" aria-atomic="true" hidden></span>
+                                        </div>
+                                        <div id="blackjack-shoe" class="blackjack-shoe" aria-label="Altı destelik kart shoe'u" title="6 deste shoe">
+                                            <img class="blackjack-shoe-machine" src="tools/blackjack/shoe.svg" alt="" draggable="false">
+                                        </div>
                                     </div>
-                                    <div class="blackjack-bankroll-divider" aria-hidden="true"></div>
-                                <div class="blackjack-bankroll-item">
-                                    <span>BAHİS</span>
-                                    <strong id="blackjack-current-bet">0</strong>
-                                </div>
-                                <span id="blackjack-balance-delta" class="blackjack-balance-delta" aria-live="polite" aria-atomic="true" hidden></span>
-                                </div>
 
-                                <div id="blackjack-shoe" class="blackjack-shoe" aria-label="Altı destelik kart shoe'u" title="6 deste shoe">
-                                    <img class="blackjack-shoe-machine" src="tools/blackjack/shoe.svg" alt="" draggable="false">
+                                    <section class="blackjack-hand-area blackjack-dealer-area" aria-labelledby="blackjack-dealer-title">
+                                        <div class="blackjack-hand-heading">
+                                            <span id="blackjack-dealer-title">KRUPİYE</span>
+                                            <strong id="blackjack-dealer-total">Toplam: —</strong>
+                                        </div>
+                                        <div id="blackjack-dealer-cards" class="blackjack-card-row blackjack-dealer-cards" aria-live="polite"></div>
+                                    </section>
 
+                                    <div class="blackjack-table-arc" aria-hidden="true"></div>
 
-                                </div>
-
-                                <section class="blackjack-hand-area blackjack-dealer-area" aria-labelledby="blackjack-dealer-title">
-                                    <div class="blackjack-hand-heading">
-                                        <span id="blackjack-dealer-title">KRUPİYE</span>
-                                        <strong id="blackjack-dealer-total">Toplam: —</strong>
+                                    <div id="blackjack-insurance" class="blackjack-insurance" aria-live="polite" hidden>
+                                        <div>
+                                            <strong>Sigorta</strong>
+                                            <span id="blackjack-insurance-note">Krupiyenin açık kartı as. Sigorta bahsi 2:1 öder.</span>
+                                        </div>
+                                        <div class="blackjack-insurance-actions">
+                                            <button id="blackjack-insurance-take" type="button">Sigorta Al</button>
+                                            <button id="blackjack-insurance-decline" type="button">Devam Et</button>
+                                        </div>
                                     </div>
-                                    <div id="blackjack-dealer-cards" class="blackjack-card-row blackjack-dealer-cards" aria-live="polite"></div>
-                                </section>
 
-                                <div class="blackjack-table-copy" aria-hidden="true">
-                                    <strong>BLACKJACK</strong>
-                                    <span>BLACKJACK PAYS 3 TO 2</span>
-                                    <small>DEALER MUST STAND ON 17</small>
+                                    <section class="blackjack-hand-area blackjack-player-area" aria-labelledby="blackjack-player-title">
+                                        <div class="blackjack-seat-picker">
+                                            <p id="blackjack-seat-instruction">Bir yer seçip çip ekle. İstersen birden fazla yerde oyna.</p>
+                                            <div id="blackjack-seats" class="blackjack-seats" role="group" aria-label="Oyuncu yerleri" aria-describedby="blackjack-seat-instruction"></div>
+                                        </div>
+                                        <div class="blackjack-hand-heading blackjack-player-heading">
+                                            <span id="blackjack-player-title">OYUNCU ELLERİ</span>
+                                            <strong id="blackjack-player-total">Toplam: —</strong>
+                                        </div>
+                                        <div id="blackjack-player-hands" class="blackjack-player-hands" aria-live="polite"></div>
+                                        <div id="blackjack-status" class="blackjack-status" role="status" aria-live="polite">
+                                            <strong>Hazır</strong>
+                                            <span>Bahsini yerleştir ve dağıt.</span>
+                                        </div>
+                                    </section>
                                 </div>
-
-                                <div id="blackjack-insurance" class="blackjack-insurance" aria-live="polite" hidden>
-                                    <div>
-                                        <strong>Sigorta?</strong>
-                                        <span>Krupiye As gösteriyor. Bahsinin yarısı ile 2:1 koruma al.</span>
-                                    </div>
-                                    <div class="blackjack-insurance-actions">
-                                        <button id="blackjack-insurance-take" type="button">Sigorta Al</button>
-                                        <button id="blackjack-insurance-decline" type="button">Devam Et</button>
-                                    </div>
-                                </div>
-
-                                <section class="blackjack-hand-area blackjack-player-area" aria-label="Oyuncu eli">
-                                <div class="blackjack-hand-heading blackjack-player-heading">
-                                    <span id="blackjack-player-title">SEN</span>
-                                    <strong id="blackjack-player-total">Toplam: —</strong>
-                                </div>
-                                <div id="blackjack-status" class="blackjack-status" role="status" aria-live="polite">
-                                    <strong>Hazır</strong>
-                                    <span>Bahsini yerleştir ve dağıt.</span>
-                                </div>
-                                <div id="blackjack-player-hands" class="blackjack-player-hands" aria-live="polite"></div>
-                                </section>
 
                                 <div class="blackjack-bottom-grid" aria-label="Masa kontrolleri">
                         <section class="blackjack-betting-panel" aria-labelledby="blackjack-betting-title">
@@ -5771,8 +5775,8 @@ Disallow:</code></pre>
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=5"></script>
     <script src="tools/nebuu/app.js?v=13"></script>
-    <script src="tools/blackjack/engine.js?v=7"></script>
-    <script src="tools/blackjack/app.js?v=25"></script>
+    <script src="tools/blackjack/engine.js?v=8"></script>
+    <script src="tools/blackjack/app.js?v=26"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
     <script src="tools/slot-game/app.js?v=13"></script>
     <script src="tools/2048/script.js?v=1"></script>

@@ -12,6 +12,9 @@
         balance: document.getElementById("blackjack-balance"),
         balanceDelta: document.getElementById("blackjack-balance-delta"),
         currentBet: document.getElementById("blackjack-current-bet"),
+        totalBet: document.getElementById("blackjack-total-bet"),
+        seats: document.getElementById("blackjack-seats"),
+        seatInstruction: document.getElementById("blackjack-seat-instruction"),
         dealerCards: document.getElementById("blackjack-dealer-cards"),
         dealerTotal: document.getElementById("blackjack-dealer-total"),
         playerHands: document.getElementById("blackjack-player-hands"),
@@ -19,11 +22,11 @@
         actionKicker: document.getElementById("blackjack-action-kicker"),
         status: document.getElementById("blackjack-status"),
         insurance: document.getElementById("blackjack-insurance"),
+        insuranceNote: document.getElementById("blackjack-insurance-note"),
         insuranceTake: document.getElementById("blackjack-insurance-take"),
         insuranceDecline: document.getElementById("blackjack-insurance-decline"),
         shoe: document.getElementById("blackjack-shoe"),
         chips: Array.from(document.querySelectorAll("[data-blackjack-chip]")),
-        bettingPanel: document.querySelector(".blackjack-betting-panel"),
         clearBet: document.getElementById("blackjack-clear-bet"),
         repeatBet: document.getElementById("blackjack-repeat-bet"),
         deal: document.getElementById("blackjack-deal"),
@@ -51,12 +54,12 @@
     const volumeControl = volumeInput.closest(".blackjack-volume-control");
     volumeControl.addEventListener("pointerleave", (event) => { if (event.pointerType === "mouse" && volumeControl.contains(document.activeElement)) document.activeElement.blur(); });
     let busy = false;
+    let selectedSpot = Math.max(0, game.spotBets.findIndex(Boolean));
     let view = createViewState();
-    let autoNextRoundTimer = 0;
     let shoeDealTimer = 0;
     let balanceDeltaTimer = 0;
-    let dealButtonPositionFrame = 0;
     let roundStartingBalance = getRoundStartingBalance();
+    const seats = createSeats();
 
     function getRoundStartingBalance() {
         if ([engine.PHASES.BETTING, engine.PHASES.ROUND_OVER].includes(game.phase)) return game.balance;
@@ -67,8 +70,8 @@
 
     function createViewState() {
         return {
-            dealerVisible: 0,
-            playerVisible: [],
+            dealerVisible: null,
+            playerVisible: new Map(),
             initialDeals: new Map(),
             lastDealtCardId: "",
         };
@@ -78,7 +81,9 @@
         try {
             const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
             return {
-                balance: Number.isInteger(value.balance) && value.balance >= 0 ? value.balance : engine.STARTING_BALANCE,
+                balance: Number.isSafeInteger(value.balance * 2) && typeof value.balance === "number" && value.balance >= 0
+                    ? value.balance
+                    : engine.STARTING_BALANCE,
                 lastBet: Number.isInteger(value.lastBet) && value.lastBet >= 0 ? value.lastBet : 0,
                 stats: value.stats && typeof value.stats === "object" ? value.stats : {},
                 soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : true,
@@ -110,7 +115,7 @@
         const value = Math.max(0, Number(units) || 0) / engine.MONEY_SCALE;
         return new Intl.NumberFormat("tr-TR", {
             minimumFractionDigits: Number.isInteger(value) ? 0 : 1,
-            maximumFractionDigits: 1,
+            maximumFractionDigits: 2,
         }).format(value);
     }
 
@@ -232,7 +237,7 @@
     }
 
     function renderDealer() {
-        const visibleCards = game.dealerHand.slice(0, view.dealerVisible || game.dealerHand.length);
+        const visibleCards = game.dealerHand.slice(0, view.dealerVisible ?? game.dealerHand.length);
         renderCards(elements.dealerCards, visibleCards, {
             hiddenAt: (index) => !game.dealerRevealed && index === 1,
         });
@@ -245,7 +250,7 @@
         elements.dealerTotal.textContent = `Toplam: ${handText(totalCards)}`;
     }
 
-    function outcomeLabel(hand) {
+    function outcomeLabel(hand, active) {
         const labels = {
             blackjack: "BLACKJACK!",
             win: "Kazandın",
@@ -255,63 +260,142 @@
             "dealer-bust": "Krupiye BUST",
         };
         if (hand.outcome) return labels[hand.outcome] || hand.outcome;
+        if (hand.naturalBlackjack) return "Blackjack";
         if (hand.status === "standing") return "Durdu";
-        return "Oynanıyor";
+        return active ? "Oynanıyor" : "Sırada";
     }
 
-    function renderPlayerHands() {
-        const scrollPositions = new Map(Array.from(elements.playerHands.children, (panel) => [
-            panel.dataset.handId, {left: panel.querySelector('.blackjack-card-row')?.scrollLeft || 0, revealNewest: panel.dataset.revealNewest === 'true'},
+    function createSeats() {
+        return Array.from({ length: engine.MAX_SPOTS }, (_, spotIndex) => {
+            const button = document.createElement("button");
+            const title = document.createElement("strong");
+            const bet = document.createElement("span");
+            const status = document.createElement("small");
+            button.type = "button";
+            button.className = "blackjack-seat";
+            button.dataset.seat = String(spotIndex + 1);
+            title.className = "blackjack-seat-title";
+            title.textContent = `Yer ${spotIndex + 1}`;
+            bet.className = "blackjack-seat-bet";
+            status.className = "blackjack-seat-state";
+            button.append(title, bet, status);
+            button.addEventListener("click", () => {
+                if (busy || game.phase !== engine.PHASES.BETTING) return;
+                selectedSpot = spotIndex;
+                game.message = `${spotIndex + 1}. yeri seçtin. Çip ekleyebilirsin.`;
+                render();
+            });
+            elements.seats.append(button);
+            return { button, bet, status };
+        });
+    }
+
+    function renderSeats(handsBySpot) {
+        const isBetting = game.phase === engine.PHASES.BETTING;
+        const isSettled = game.phase === engine.PHASES.ROUND_OVER;
+        const activeHand = game.phase === engine.PHASES.PLAYER_TURN ? game.playerHands[game.activeHandIndex] : null;
+        const stakes = isBetting ? game.spotBets : handsBySpot.map((hands) => hands.reduce((sum, hand) => sum + hand.bet, 0));
+        const selectedOrFundedSpot = isBetting || stakes[selectedSpot] ? selectedSpot : stakes.findIndex(Boolean);
+        const displayedSpot = activeHand?.spotIndex ?? selectedOrFundedSpot;
+        elements.currentBet.textContent = formatCredits(stakes[displayedSpot]);
+        elements.totalBet.textContent = formatCredits(engine.totalBet(game));
+        elements.seatInstruction.textContent = isBetting
+            ? "Bir yer seçip çip ekle. Aynı turda beş yere kadar oynayabilirsin."
+            : "Her yerin eli aynı krupiyeye karşı ayrı sonuçlanır.";
+
+        seats.forEach(({ button, bet, status }, spotIndex) => {
+            const stake = stakes[spotIndex];
+            const hands = handsBySpot[spotIndex];
+            const isSelected = isBetting && spotIndex === selectedSpot;
+            const isPlaying = spotIndex === activeHand?.spotIndex;
+            button.disabled = !isBetting || busy;
+            button.setAttribute("aria-pressed", String(isSelected));
+            if (isPlaying) button.setAttribute("aria-current", "true");
+            else button.removeAttribute("aria-current");
+            button.classList.toggle("is-selected", isSelected);
+            button.classList.toggle("is-playing", isPlaying);
+            button.classList.toggle("is-settled", isSettled && stake > 0);
+            button.classList.toggle("has-bet", stake > 0);
+            bet.textContent = stake ? `${formatCredits(stake)} kredi` : "—";
+            if (!stake) status.textContent = isSelected ? "Seçili" : "Boş";
+            else if (isBetting) status.textContent = isSelected ? "Seçili" : "Bahis hazır";
+            else if (isPlaying) status.textContent = "Sıra burada";
+            else if (game.phase === engine.PHASES.DEALING) status.textContent = "Dağıtılıyor";
+            else if (isSettled) status.textContent = hands.length === 1 ? outcomeLabel(hands[0]) : "İki el sonuçlandı";
+            else status.textContent = hands.some((hand) => hand.status === "playing") ? "Sırada" : "El tamamlandı";
+        });
+    }
+
+    function renderPlayerHands(handsBySpot) {
+        const scrollPositions = new Map(Array.from(elements.playerHands.querySelectorAll(".blackjack-player-hand"), (panel) => [
+            panel.dataset.handId,
+            {
+                left: panel.querySelector(".blackjack-card-row").scrollLeft,
+                revealNewest: panel.dataset.revealNewest === "true",
+            },
         ]));
         const fragment = document.createDocumentFragment();
-        game.playerHands.forEach((hand, index) => {
-            const panel = document.createElement("section");
-            const meta = document.createElement("div");
-            const cards = document.createElement("div");
-            const name = document.createElement("strong");
-            const total = document.createElement("span");
-            const outcome = document.createElement("em");
-            const visibleCount = view.playerVisible[index] ?? hand.cards.length;
-
-            panel.className = "blackjack-player-hand";
-            panel.dataset.handId = hand.id;
-            if (game.phase === engine.PHASES.PLAYER_TURN && index === game.activeHandIndex) panel.classList.add("is-active");
-            meta.className = "blackjack-player-hand-meta";
-            cards.className = "blackjack-card-row";
-            cards.tabIndex = 0;
-            cards.setAttribute("role", "group");
-            cards.setAttribute("aria-label", `${index + 1}. elin kartları`);
-            name.textContent = game.playerHands.length > 1 ? `El ${index + 1}` : "Elin";
-            total.textContent = handText(hand.cards.slice(0, visibleCount));
-            outcome.textContent = outcomeLabel(hand);
-            meta.append(name, total, outcome);
-            renderCards(cards, hand.cards.slice(0, visibleCount));
-            panel.append(meta, cards);
-            fragment.appendChild(panel);
+        const activeHand = game.phase === engine.PHASES.PLAYER_TURN ? game.playerHands[game.activeHandIndex] : null;
+        handsBySpot.forEach((hands, spotIndex) => {
+            if (!hands.length) return;
+            const group = document.createElement("div");
+            group.className = "blackjack-seat-hands";
+            group.dataset.seat = String(spotIndex + 1);
+            group.classList.toggle("is-active", activeHand?.spotIndex === spotIndex);
+            hands.forEach((hand, index) => group.append(createPlayerHand(hand, hands.length, index, hand === activeHand)));
+            fragment.appendChild(group);
         });
         elements.playerHands.replaceChildren(fragment);
-        Array.from(elements.playerHands.children).forEach((panel, index) => {
-            const row = panel.querySelector('.blackjack-card-row');
-            const newCard = game.playerHands[index].cards.some(card => card.id === view.lastDealtCardId);
+        elements.playerHands.querySelectorAll(".blackjack-player-hand").forEach((panel) => {
+            const row = panel.querySelector(".blackjack-card-row");
+            const newCard = Boolean(view.lastDealtCardId && row.querySelector(".blackjack-card[data-dealing-from-shoe]"));
             const previous = scrollPositions.get(panel.dataset.handId);
             panel.dataset.revealNewest = String(newCard);
             row.scrollLeft = newCard || previous?.revealNewest ? row.scrollWidth : (previous?.left || 0);
         });
 
-        if (!game.playerHands.length) {
-            elements.playerTotal.textContent = "Toplam: —";
-        } else if (game.playerHands.length === 1) {
-            const hand = game.playerHands[0];
-            const count = view.playerVisible[0] ?? hand.cards.length;
-            elements.playerTotal.textContent = `Toplam: ${handText(hand.cards.slice(0, count))}`;
-        } else {
-            elements.playerTotal.textContent = `${game.playerHands.length} el`;
-        }
+        const handCount = game.playerHands.length;
+        if (activeHand) elements.playerTotal.textContent = `Sıra: ${activeHand.spotIndex + 1}. yer`;
+        else elements.playerTotal.textContent = handCount ? `${handCount} el` : "—";
+    }
+
+    function createPlayerHand(hand, spotHandCount, index, active) {
+        const panel = document.createElement("section");
+        const meta = document.createElement("div");
+        const cards = document.createElement("div");
+        const name = document.createElement("strong");
+        const total = document.createElement("span");
+        const outcome = document.createElement("em");
+        const wager = document.createElement("small");
+        const visibleCount = view.playerVisible.get(hand.id) ?? hand.cards.length;
+        const visibleCards = hand.cards.slice(0, visibleCount);
+
+        panel.className = "blackjack-player-hand";
+        panel.dataset.handId = hand.id;
+        if (hand.outcome) panel.dataset.outcome = hand.outcome;
+        panel.classList.toggle("is-active", active);
+        meta.className = "blackjack-player-hand-meta";
+        cards.className = "blackjack-card-row";
+        cards.tabIndex = 0;
+        cards.setAttribute("role", "group");
+        name.textContent = `Yer ${hand.spotIndex + 1}${spotHandCount > 1 ? ` · El ${index + 1}` : ""}`;
+        cards.setAttribute("aria-label", `${name.textContent} kartları`);
+        total.textContent = visibleCount ? handText(visibleCards) : "—";
+        outcome.textContent = outcomeLabel(hand, active);
+        wager.className = "blackjack-hand-wager";
+        wager.textContent = game.phase === engine.PHASES.ROUND_OVER
+            ? `Bahis ${formatCredits(hand.bet)} · Ödeme ${formatCredits(hand.payout)}`
+            : `Bahis ${formatCredits(hand.bet)} kredi`;
+        meta.append(name, total, outcome);
+        renderCards(cards, visibleCards);
+        panel.append(meta, cards, wager);
+        return panel;
     }
 
     function getStatusPresentation() {
         if (game.phase === engine.PHASES.ROUND_OVER) {
             const outcomes = game.playerHands.map((hand) => hand.outcome);
+            if (new Set(outcomes).size > 1) return { title: "TUR TAMAMLANDI", tone: "" };
             if (outcomes.includes("blackjack")) return { title: "BLACKJACK!", tone: "win" };
             if (outcomes.includes("dealer-bust")) return { title: "KRUPİYE BUST", tone: "win" };
             if (outcomes.every((outcome) => outcome === "push")) return { title: "BERABERE · PUSH", tone: "push" };
@@ -320,8 +404,11 @@
         }
         if (game.phase === engine.PHASES.INSURANCE) return { title: "SİGORTA KARARI", tone: "" };
         if (game.phase === engine.PHASES.DEALER_TURN) return { title: "KRUPİYE OYNUYOR", tone: "" };
-        if (game.phase === engine.PHASES.RESOLVING) return { title: "EL HESAPLANIYOR", tone: "" };
-        if (game.phase === engine.PHASES.PLAYER_TURN) return { title: "SIRA SENDE", tone: "" };
+        if (game.phase === engine.PHASES.RESOLVING) return { title: "TUR HESAPLANIYOR", tone: "" };
+        if (game.phase === engine.PHASES.PLAYER_TURN) {
+            const spot = game.playerHands[game.activeHandIndex].spotIndex + 1;
+            return { title: `SIRA ${spot}. YERDE`, tone: "" };
+        }
         if (game.phase === engine.PHASES.DEALING) return { title: "KARTLAR DAĞITILIYOR", tone: "" };
         return { title: "BAHİSLER AÇIK", tone: "" };
     }
@@ -336,21 +423,32 @@
     }
 
     function getActionKicker() {
+        if (game.phase === engine.PHASES.PLAYER_TURN) {
+            const hand = game.playerHands[game.activeHandIndex];
+            const visibleCount = view.playerVisible.get(hand.id) ?? hand.cards.length;
+            return `${hand.spotIndex + 1}. YER · ${handText(hand.cards.slice(0, visibleCount))}`;
+        }
         const labels = {
             [engine.PHASES.BETTING]: "BAHİSLER AÇIK",
             [engine.PHASES.DEALING]: "KARTLAR DAĞITILIYOR",
             [engine.PHASES.INSURANCE]: "SİGORTA KARARI",
-            [engine.PHASES.PLAYER_TURN]: "SIRA SENDE",
             [engine.PHASES.DEALER_TURN]: "KRUPİYE OYNUYOR",
-            [engine.PHASES.RESOLVING]: "EL HESAPLANIYOR",
-            [engine.PHASES.ROUND_OVER]: "BAHİSLER AÇIK",
+            [engine.PHASES.RESOLVING]: "TUR HESAPLANIYOR",
+            [engine.PHASES.ROUND_OVER]: "TUR TAMAMLANDI",
         };
         return labels[game.phase] || "MASA HAZIR";
+    }
+
+    function canDeal() {
+        return !busy && game.phase === engine.PHASES.BETTING
+            && game.currentBet > 0 && game.currentBet <= game.balance
+            && game.spotBets.every((stake) => stake === 0 || stake >= MINIMUM_BET);
     }
 
     function renderControls() {
         const isBetting = game.phase === engine.PHASES.BETTING && !busy;
         const isPlayerTurn = game.phase === engine.PHASES.PLAYER_TURN && !busy;
+        const isRoundOver = game.phase === engine.PHASES.ROUND_OVER;
         const hand = game.playerHands[game.activeHandIndex];
         const insuranceAmount = Math.floor(game.currentBet / 2);
 
@@ -358,9 +456,10 @@
             const amount = Number(chip.dataset.blackjackChip) * engine.MONEY_SCALE;
             chip.disabled = !isBetting || game.currentBet + amount > game.balance;
         });
-        elements.clearBet.disabled = !isBetting || !game.currentBet;
+        elements.clearBet.disabled = !isBetting || !game.spotBets[selectedSpot];
         elements.repeatBet.disabled = !isBetting || !game.lastBet || game.lastBet > game.balance;
-        elements.deal.disabled = !isBetting || game.currentBet < MINIMUM_BET;
+        elements.deal.disabled = isRoundOver ? busy : !canDeal();
+        elements.deal.textContent = isRoundOver ? "Yeni Tur" : "Dağıt";
         elements.hit.disabled = !isPlayerTurn;
         elements.stand.disabled = !isPlayerTurn;
         elements.double.disabled = !isPlayerTurn || !engine.canDouble(hand) || game.balance < (hand?.bet || 0);
@@ -368,45 +467,16 @@
         elements.insurance.hidden = game.phase !== engine.PHASES.INSURANCE;
         elements.insuranceTake.disabled = busy || insuranceAmount <= 0 || game.balance < insuranceAmount;
         elements.insuranceDecline.disabled = busy || game.phase !== engine.PHASES.INSURANCE;
-        const totalBet = engine.totalBet(game);
-        elements.betNote.textContent = totalBet ? `Masada ${formatCredits(totalBet)} kredi` : "Minimum 10 kredi";
+        if (!elements.insurance.hidden) {
+            elements.insuranceNote.textContent = `Krupiyenin açık kartı as. Toplam ${formatCredits(insuranceAmount)} krediye tüm yerleri sigortala. Sigorta 2:1 öder.`;
+        }
+        elements.betNote.textContent = isBetting ? `${selectedSpot + 1}. yer · En az 10 kredi` : "";
         elements.actionKicker.textContent = getActionKicker();
     }
 
-    function renderTableChips() {
-        let pile = app.querySelector(".blackjack-table-chips");
-        if (!pile) {
-            pile = document.createElement("div");
-            pile.className = "blackjack-table-chips";
-            app.querySelector(".blackjack-table").append(pile);
-        }
-        pile.replaceChildren();
-        const totalBet = engine.totalBet(game);
-        pile.hidden = !totalBet;
-        pile.setAttribute("aria-label", `Masadaki bahis: ${formatCredits(totalBet)} kredi`);
-        let remaining = totalBet;
-        const chips = [...elements.chips].sort((a,b) => Number(b.dataset.blackjackChip) - Number(a.dataset.blackjackChip));
-        let count = 0;
-        for (const source of chips) {
-            const value = Number(source.dataset.blackjackChip) * engine.MONEY_SCALE;
-            while (remaining >= value && count < 6) {
-                const chip = document.createElement("span");
-                chip.className = source.className;
-                chip.innerHTML = source.innerHTML;
-                chip.setAttribute("aria-hidden", "true");
-                chip.style.setProperty("--stack", String(count++));
-                pile.append(chip);
-                remaining -= value;
-            }
-        }
-        const label = document.createElement("small");
-        label.textContent = formatCredits(totalBet);
-        pile.append(label);
-    }
-
     function flyChip(source) {
-        const target = app.querySelector(".blackjack-table-chips");
-        if (!target || prefersReducedMotion.matches) return;
+        const target = seats[selectedSpot].button;
+        if (prefersReducedMotion.matches) return;
         const from = source.getBoundingClientRect(), to = target.getBoundingClientRect();
         const chip = document.createElement("span");
         chip.className = `${source.className} blackjack-flying-chip`;
@@ -428,43 +498,18 @@
     function render() {
         app.dataset.phase = game.phase;
         elements.balance.textContent = formatCredits(game.balance);
-        elements.currentBet.textContent = formatCredits(engine.totalBet(game));
+        const handsBySpot = Array.from({ length: engine.MAX_SPOTS }, () => []);
+        game.playerHands.forEach((hand) => handsBySpot[hand.spotIndex].push(hand));
+        renderSeats(handsBySpot);
         renderDealer();
-        renderPlayerHands();
+        renderPlayerHands(handsBySpot);
         renderStatus();
         renderControls();
-        renderTableChips();
         elements.shoe.classList.toggle("is-shuffling", Boolean(busy && game.phase === engine.PHASES.DEALING && game.round?.reshuffled));
         animateCardsFromShoe();
         elements.sound.setAttribute("aria-pressed", String(soundEnabled));
         elements.sound.setAttribute("aria-label", soundEnabled ? "Oyun seslerini kapat" : "Oyun seslerini aç");
         elements.sound.querySelector("span").textContent = soundEnabled ? "🔊" : "🔇";
-        positionDealButton();
-    }
-
-    function positionDealButton() {
-        const blackjackPanel = app.closest(".tool-panel");
-        const useDesktopTableLayout = window.matchMedia("(min-width: 1181px)").matches;
-        const lastChip = elements.chips.at(-1);
-        if (!blackjackPanel?.classList.contains("active") || !useDesktopTableLayout || !lastChip || !elements.bettingPanel) {
-            elements.bettingPanel?.classList.remove("is-deal-positioned");
-            elements.bettingPanel?.style.removeProperty("--blackjack-deal-left");
-            return;
-        }
-
-        const panelRect = elements.bettingPanel.getBoundingClientRect();
-        const chipRect = lastChip.getBoundingClientRect();
-        const offset = Math.max(0, Math.round(chipRect.right - panelRect.left + 12));
-        elements.bettingPanel.style.setProperty("--blackjack-deal-left", `${offset}px`);
-        elements.bettingPanel.classList.add("is-deal-positioned");
-    }
-
-    function scheduleDealButtonPosition() {
-        window.cancelAnimationFrame(dealButtonPositionFrame);
-        dealButtonPositionFrame = window.requestAnimationFrame(() => {
-            dealButtonPositionFrame = 0;
-            positionDealButton();
-        });
     }
 
     function showBalanceDelta(delta) {
@@ -599,7 +644,6 @@
         await completeRound();
         busy = false;
         render();
-        scheduleAutoNextRound();
     }
 
     async function resolveNaturalRound() {
@@ -608,11 +652,10 @@
         await completeRound();
         busy = false;
         render();
-        scheduleAutoNextRound();
     }
 
     async function beginDeal() {
-        if (busy || game.phase !== engine.PHASES.BETTING || game.currentBet < MINIMUM_BET) return;
+        if (!canDeal()) return;
         busy = true;
         roundStartingBalance = game.balance;
         const deal = engine.beginRound(game);
@@ -622,19 +665,22 @@
         }
         saveState();
         view = createViewState();
-        view.dealerVisible = 2;
-        view.playerVisible = [2];
-        deal.sequence.forEach((item, index) => view.initialDeals.set(item.card.id, index * 125));
         if (deal.reshuffled) {
+            view.dealerVisible = 0;
+            game.playerHands.forEach((hand) => view.playerVisible.set(hand.id, 0));
             game.message = "Kartlar karıştırılıyor…";
             playSound("shuffle");
             render();
             await delay(360);
         }
+        view.dealerVisible = null;
+        view.playerVisible.clear();
+        const spacing = deal.sequence.length > 4 ? 85 : 125;
+        deal.sequence.forEach(({ card }, index) => view.initialDeals.set(card.id, index * spacing));
         game.message = "Kartlar dağıtılıyor.";
         render();
         playSound("deal");
-        await delay(850);
+        await delay(520 + (deal.sequence.length - 1) * spacing);
         view.initialDeals.clear();
         const decision = engine.afterInitialDeal(game);
         saveState();
@@ -672,14 +718,12 @@
     async function takeHit() {
         if (busy) return;
         busy = true;
-        const activeIndex = game.activeHandIndex;
         const result = engine.hit(game);
         if (!result) {
             busy = false;
             return;
         }
         saveState();
-        view.playerVisible[activeIndex] = game.playerHands[activeIndex].cards.length;
         view.lastDealtCardId = result.card.id;
         render();
         playSound("deal");
@@ -712,14 +756,12 @@
     async function takeDouble() {
         if (busy) return;
         busy = true;
-        const activeIndex = game.activeHandIndex;
         const result = engine.doubleDown(game);
         if (!result) {
             busy = false;
             return;
         }
         saveState();
-        view.playerVisible[activeIndex] = game.playerHands[activeIndex].cards.length;
         view.lastDealtCardId = result.card.id;
         render();
         playSound("deal");
@@ -741,12 +783,13 @@
             return;
         }
         saveState();
-        view.playerVisible = [2, 1];
+        const secondHand = game.playerHands[result.handIndex + 1];
+        view.playerVisible.set(secondHand.id, 1);
         view.lastDealtCardId = result.cards[0].id;
         render();
         playSound("deal");
         await delay(360);
-        view.playerVisible = [2, 2];
+        view.playerVisible.delete(secondHand.id);
         view.lastDealtCardId = result.cards[1].id;
         render();
         playSound("deal");
@@ -759,34 +802,19 @@
         }
     }
 
-    function clearAutoNextRound() {
-        if (!autoNextRoundTimer) return;
-        window.clearTimeout(autoNextRoundTimer);
-        autoNextRoundTimer = 0;
-    }
-
-    function scheduleAutoNextRound() {
-        clearAutoNextRound();
-        autoNextRoundTimer = window.setTimeout(() => {
-            autoNextRoundTimer = 0;
-            resetToBetting();
-        }, 2000);
-    }
-
     function resetToBetting() {
-        clearAutoNextRound();
         if (busy || !engine.prepareNextRound(game)) return;
         view = createViewState();
         replenishCreditsIfEmpty();
         saveState();
         render();
+        seats[selectedSpot].button.focus();
     }
 
     async function resumeSavedGame() {
         if (game.phase === engine.PHASES.DEALING) {
             busy = true;
             view.dealerVisible = game.dealerHand.length;
-            view.playerVisible = game.playerHands.map((hand) => hand.cards.length);
             const decision = engine.afterInitialDeal(game);
             saveState();
             if (["player-turn", "insurance"].includes(decision.type)) {
@@ -808,18 +836,14 @@
             await completeRound();
             busy = false;
             render();
-            scheduleAutoNextRound();
-            return;
         }
-
-        if (game.phase === engine.PHASES.ROUND_OVER) scheduleAutoNextRound();
     }
 
     function handleChipClick(event) {
         if (busy) return;
         const credits = Number(event.currentTarget.dataset.blackjackChip);
-        if (!engine.addBet(game, credits * engine.MONEY_SCALE)) return;
-        game.message = `${formatCredits(game.currentBet)} kredi bahis masasında.`;
+        if (!engine.addBet(game, credits * engine.MONEY_SCALE, selectedSpot)) return;
+        game.message = `${selectedSpot + 1}. yere ${formatCredits(game.spotBets[selectedSpot])} kredi koydun.`;
         saveState();
         render();
         flyChip(event.currentTarget);
@@ -827,8 +851,8 @@
     }
 
     function clearBet() {
-        if (busy || !engine.clearBet(game)) return;
-        game.message = "Bahis alanı temizlendi.";
+        if (busy || !engine.clearBet(game, selectedSpot)) return;
+        game.message = `${selectedSpot + 1}. yerin bahsi temizlendi.`;
         saveState();
         render();
         playSound("click");
@@ -836,7 +860,8 @@
 
     function repeatBet() {
         if (busy || !engine.repeatBet(game)) return;
-        game.message = "Son bahis masaya yerleştirildi.";
+        if (!game.spotBets[selectedSpot]) selectedSpot = game.spotBets.findIndex(Boolean);
+        game.message = "Önceki turun başlangıç bahisleri geri kondu.";
         saveState();
         render();
         playSound("chip");
@@ -852,18 +877,16 @@
         elements.chips.forEach((chip) => chip.addEventListener("click", handleChipClick));
         elements.clearBet.addEventListener("click", clearBet);
         elements.repeatBet.addEventListener("click", repeatBet);
-        elements.deal.addEventListener("click", beginDeal);
+        elements.deal.addEventListener("click", () => {
+            if (game.phase === engine.PHASES.ROUND_OVER) resetToBetting();
+            else beginDeal();
+        });
         elements.hit.addEventListener("click", takeHit);
         elements.stand.addEventListener("click", takeStand);
         elements.double.addEventListener("click", takeDouble);
         elements.split.addEventListener("click", takeSplit);
         elements.insuranceTake.addEventListener("click", () => decideInsurance(true));
         elements.insuranceDecline.addEventListener("click", () => decideInsurance(false));
-        window.addEventListener("resize", scheduleDealButtonPosition, { passive: true });
-        document.addEventListener("tool-activated", (event) => {
-            if (event.detail?.tool === "blackjack") scheduleDealButtonPosition();
-        });
-        window.addEventListener("pagehide", saveState);
         elements.sound.addEventListener("click", () => {
             soundEnabled = !soundEnabled;
             saveState();
@@ -875,11 +898,10 @@
 
     function handleKeyboard(event) {
         const activePanel = document.querySelector(".tool-panel.active");
-        if (activePanel?.id !== "blackjack" || busy || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (activePanel?.id !== "blackjack" || busy || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
         const target = event.target;
-        const isInteractive = target instanceof HTMLElement
-            && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A"].includes(target.tagName));
-        if (isInteractive) return;
+        if (target instanceof HTMLElement
+            && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))) return;
 
         const key = event.key.toLowerCase();
         const actions = { h: takeHit, s: takeStand, d: takeDouble, p: takeSplit };
@@ -889,7 +911,8 @@
             return;
         }
         if ([" ", "enter"].includes(key)) {
-            if (game.phase === engine.PHASES.BETTING && game.currentBet >= MINIMUM_BET) {
+            if (target instanceof HTMLElement && target.closest("button, a")) return;
+            if (canDeal()) {
                 event.preventDefault();
                 beginDeal();
             }
