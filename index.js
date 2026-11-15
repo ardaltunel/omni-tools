@@ -652,6 +652,11 @@ function updatePageMetadata(tool) {
             description: "Sanal çiplerle, klasik Blackjack kurallarına göre tarayıcıda üst düzey masa deneyimi yaşa.",
             keywords: "blackjack, iskambil, kart oyunu, casino masası, sanal kredi, 21 oyunu",
         },
+        "block-blast": {
+            title: "Block Blast | Omni Tools",
+            description: "Blokları 8×8 tahtaya yerleştir, dolu satır ve sütunları temizleyerek rekorunu yükselt.",
+            keywords: "block blast, blockblast, blok bulmaca, blok yerleştirme, 8x8 blok oyunu, puzzle",
+        },
         "farkli-rengi-bul": {
             title: "Farklı Rengi Bul | Omni Tools",
             description: "Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul.",
@@ -685,7 +690,7 @@ function updatePageMetadata(tool) {
     const canonicalUrl = tool && defaultCanonicalUrl
         ? new URL(encodeURIComponent(getPreferredToolRoute(tool)), defaultCanonicalUrl).href
         : defaultCanonicalUrl;
-    const socialImageAlt = toolName ? `${toolName} — Omni Tools paylaşım önizlemesi` : "Omni Tools — 56 uygulama, tek panel";
+    const socialImageAlt = toolName ? `${toolName} — Omni Tools paylaşım önizlemesi` : `Omni Tools — ${navItems.length} uygulama, tek panel`;
 
     document.title = title;
     if (descriptionMeta) descriptionMeta.content = description;

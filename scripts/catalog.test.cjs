@@ -14,7 +14,7 @@ const source = fs.readFileSync(path.join(root, "index.js"), "utf8");
 const result = catalog.generateCatalog(html, source);
 
 test("committed first paint contains every canonical tool and category", () => {
-    assert.equal(result.tools.length, 58);
+    assert.equal(result.tools.length, 59);
     assert.equal(result.categories.length, 8);
     assert.equal((html.match(/class="app-home-card"/g) || []).length, result.tools.length);
     assert.equal((html.match(/class="app-home-category-section"/g) || []).length, result.categories.length);
@@ -69,9 +69,9 @@ test("only catalog literals execute and malformed source or duplicate IDs fail",
 
 test("critical local bootstrap and direct selection precede remote dependencies", () => {
     const footer = html.slice(html.indexOf("// Select real tool content"));
-    assert.ok(footer.indexOf('src="index.js?v=home5"') < footer.indexOf('id="qr-code-library"'));
+    assert.ok(footer.indexOf('src="index.js?v=home6"') < footer.indexOf('id="qr-code-library"'));
     assert.ok(footer.indexOf('src="tools/ambient-display/app.js') < footer.indexOf('id="qr-code-library"'));
-    assert.match(html, /rel="preload" as="script" href="index.js\?v=home5" fetchpriority="high"/);
+    assert.match(html, /rel="preload" as="script" href="index.js\?v=home6" fetchpriority="high"/);
     assert.match(html, /id="qr-code-library"[^>]* async>/);
     assert.match(html, /window\.coi = \{ quiet: true, doReload: \(\) => \{\} \}/);
     assert.ok(source.lastIndexOf("initializeToolRouting();") > source.lastIndexOf("prepareTypingTest(true);"));
@@ -98,6 +98,7 @@ test("head route selection avoids a catalog flash for query, path, file and lega
         ["https://example.test/?tool=converter", undefined, "uzanti-donusturucu"],
         ["https://owner.github.io/omni-tools/ambient-display", "https://owner.github.io/omni-tools/", "ambient-display"],
         ["file:///C:/site/index.html#/ambient-display", "file:///C:/site/", "ambient-display"],
+        ["https://owner.github.io/omni-tools/block-blast", "https://owner.github.io/omni-tools/", "block-blast"],
     ]) {
         const document = select(url, base);
         assert.equal(document.documentElement.dataset.initialTool, expected);
@@ -111,7 +112,6 @@ test("head route selection avoids a catalog flash for query, path, file and lega
 test("Ambiyans Ekranı preserves its internal ID and previous route while adding its Turkish route", () => {
     const tool = result.tools.find((item) => item.id === "ambient-display");
     assert.equal(tool.name, "Ambiyans Ekranı");
-    assert.equal(result.tools.length, 58);
     assert.match(html, /data-tool="ambient-display"[^>]*aria-label="Ambiyans Ekranı uygulamasını aç"/);
     assert.match(html, /class="app-home-card-name">Ambiyans Ekranı<\/span>/);
     const definitions = source.slice(source.indexOf("const legacyToolRoutes"), source.indexOf("const appHomeCategories"));

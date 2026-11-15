@@ -47,6 +47,7 @@ The project mainly focuses on:
 * 2048
 * Gelişmiş XOX
 * Blackjack
+* Block Blast
 * Slot Oyunu
 * Nebuu
 * Satranç
