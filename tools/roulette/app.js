@@ -252,14 +252,31 @@
     }
 
     function renderHistory() {
-        const entries = state.history.map((entry) => {
+        const entries = state.history.map((entry, index) => {
             const item = document.createElement("li");
+            const number = document.createElement("span");
             item.dataset.color = entry.color;
-            item.textContent = entry.number;
+            number.className = "roulette-history-number";
+            number.textContent = entry.number;
+            number.setAttribute("aria-hidden", "true");
+            if (index === 0) {
+                const label = document.createElement("span");
+                label.className = "roulette-history-latest";
+                label.textContent = "SON";
+                label.setAttribute("aria-hidden", "true");
+                item.append(label);
+            }
+            item.append(number);
             item.title = `${entry.number} · ${colors[entry.color]} · Ödeme ${format.format(entry.payout)} kredi`;
+            item.setAttribute("aria-label", `${index === 0 ? "Son sonuç. " : ""}${item.title}`);
             return item;
         });
-        get("history").replaceChildren(...entries);
+        const history = get("history");
+        const newest = String(state.history[0]?.id || "");
+        history.replaceChildren(...entries);
+        history.hidden = entries.length === 0;
+        if (history.dataset.newest !== newest) history.scrollLeft = 0;
+        history.dataset.newest = newest;
         get("empty-history").hidden = entries.length > 0;
     }
 

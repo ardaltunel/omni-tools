@@ -128,9 +128,9 @@
     font-variant-numeric: tabular-nums;
 }
 
-.roulette-result-number[data-color="red"],.roulette-history [data-color="red"] { background: var(--roulette-red); }
-.roulette-result-number[data-color="black"],.roulette-history [data-color="black"] { background: var(--roulette-black); }
-.roulette-result-number[data-color="green"],.roulette-history [data-color="green"] { background: var(--roulette-green); }
+.roulette-result-number[data-color="red"] { background: var(--roulette-red); }
+.roulette-result-number[data-color="black"] { background: var(--roulette-black); }
+.roulette-result-number[data-color="green"] { background: var(--roulette-green); }
 #roulette-result-label { color: var(--roulette-muted); font-size: 12px; text-align: left; }
 
 .roulette-status { display: grid; align-items: center; min-height: 2.8em; margin: 0 0 10px; color: #d5dfd8; font-size: 12px; line-height: 1.4; }
@@ -139,11 +139,22 @@
 .roulette-app .roulette-spin:disabled { opacity: 0.6; }
 .roulette-refill { width: 100%; margin-top: 8px; }
 
-.roulette-history-section { margin-top: 22px; text-align: left; }
+.roulette-history-section { min-width: 0; margin-top: 22px; padding: 14px 14px 6px; border: 1px solid #dfc28d24; border-radius: 14px; background: linear-gradient(135deg, #1d2923, #151e1a); box-shadow: inset 0 1px #ffffff04; text-align: left; }
 .roulette-app h3 { margin: 0 0 10px; color: #f1e7d3; font-size: 14px; font-weight: 600; }
-.roulette-history { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
-.roulette-history li { display: grid; width: 30px; height: 32px; place-items: center; border: 1px solid #657367; border-radius: 5px; color: #fff4df; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.roulette-history li:first-child { border-color: #ecd09a; box-shadow: 0 0 0 1px #ecd09a44; }
+.roulette-history-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.roulette-history-heading h3 { margin: 0; font-size: 12px; }
+.roulette-history-heading > span { color: #98a89e; font-size: 10px; white-space: nowrap; }
+.roulette-history-heading > span span { margin-left: 4px; color: var(--roulette-gold); }
+.roulette-history { display: flex; align-items: center; gap: 9px; max-width: 100%; min-width: 0; margin: 0; padding: 7px 2px 9px; overflow-x: auto; overscroll-behavior-x: contain; list-style: none; scrollbar-width: thin; scrollbar-color: #78674770 transparent; }
+.roulette-history:focus-visible { outline: 2px solid var(--roulette-gold); outline-offset: 3px; border-radius: 6px; }
+.roulette-history li { --history-pocket: #202c27; display: grid; flex: 0 0 38px; grid-template-rows: 11px 48px; justify-items: center; align-items: center; gap: 5px; color: #fff4df; font-variant-numeric: tabular-nums; }
+.roulette-history [data-color="red"] { --history-pocket: #a32c3b; }
+.roulette-history [data-color="green"] { --history-pocket: #237052; }
+.roulette-history-number { display: grid; grid-row: 2; place-items: center; width: 36px; height: 36px; box-sizing: border-box; border: 1px solid #ffffff25; border-radius: 50%; background: linear-gradient(145deg, #ffffff0f, #00000018), var(--history-pocket); box-shadow: inset 0 1px #ffffff12, inset 0 -2px #0003, 0 3px 5px #0002; font-size: 13px; font-weight: 650; }
+.roulette-history li:first-child { position: sticky; left: 0; z-index: 1; flex-basis: 64px; box-sizing: border-box; padding-right: 13px; margin-right: 2px; border-right: 1px solid #dfc28d26; background: #1b2721; box-shadow: 7px 0 9px #1b2721e6; }
+.roulette-history li:first-child .roulette-history-number { width: 48px; height: 48px; border-color: #e5c68a; box-shadow: inset 0 0 0 3px #0002, 0 0 0 2px #dfc28d16, 0 4px 9px #0003; font-size: 20px; font-weight: 700; }
+.roulette-history-latest { grid-row: 1; color: #e5c68a; font-size: 8px; font-weight: 700; letter-spacing: 0.14em; }
+.roulette-history-section .roulette-empty { padding: 12px 0 13px; }
 .roulette-empty { margin: 0; color: var(--roulette-muted); font-size: 12px; line-height: 1.5; }
 
 .roulette-betting-panel { display: grid; gap: 19px; min-width: 0; container: roulette-betting / inline-size; }
