@@ -78,7 +78,7 @@
 .pisti-table {
     position: relative;
     min-width: 0;
-    min-height: 640px;
+    min-height: 658px;
     margin: 4px 5px 22px;
     isolation: isolate;
     border: 13px solid #392a20;
@@ -89,7 +89,7 @@
 .pisti-table::before { content: ""; position: absolute; inset: 14px; border: 1px solid #d8c19525; border-radius: inherit; pointer-events: none; }
 .pisti-table::after { content: "PİŞTİ"; position: absolute; top: 49%; left: 50%; transform: translate(-50%, -50%); color: #d7c89d0d; font-family: Georgia, serif; font-size: clamp(32px, 6cqw, 66px); font-weight: 700; letter-spacing: .18em; pointer-events: none; }
 .pisti-seat { position: absolute; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; text-align: center; }
-.pisti-seat[data-seat="0"] { bottom: 14px; left: 50%; width: calc(100% - 38px); max-width: 520px; transform: translateX(-50%); }
+.pisti-seat[data-seat="0"] { bottom: 14px; left: 50%; width: calc(100% - 38px); max-width: 520px; gap: 18px; transform: translateX(-50%); }
 .pisti-seat[data-seat="0"] .pisti-seat-meta { order: 2; }
 .pisti-table[data-players="2"] .pisti-seat[data-seat="1"], .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] { top: 22px; left: 50%; width: min(45%, 280px); transform: translateX(-50%); }
 .pisti-table[data-players="4"] .pisti-seat[data-seat="1"] { top: 44%; right: 16px; width: 115px; transform: translateY(-50%); }
@@ -197,8 +197,8 @@
 }
 
 @container pisti (max-width: 700px) {
-    .pisti-table { min-height: 610px; border-width: 10px; border-radius: 38% / 18%; }
-    .pisti-table[data-players="4"] { min-height: 630px; }
+    .pisti-table { min-height: 628px; border-width: 10px; border-radius: 38% / 18%; }
+    .pisti-table[data-players="4"] { min-height: 648px; }
     .pisti-center { gap: 20px; }
     .pisti-pile-count { left: 75px; }
     .pisti-hand-card { width: clamp(84px, 14cqw, 96px); }
@@ -232,10 +232,10 @@
     .pisti-team-detail { grid-column: 1 / -1; grid-row: 3; justify-content: center; gap: 4px 8px; }
     .pisti-stat { gap: 3px; font-size: 8px; }
     .pisti-stat b { font-size: 10px; }
-    .pisti-table { min-height: 570px; margin-inline: 4px; border-width: 8px; border-radius: 36px; }
-    .pisti-table[data-players="4"] { min-height: 610px; }
+    .pisti-table { min-height: 582px; margin-inline: 4px; border-width: 8px; border-radius: 36px; }
+    .pisti-table[data-players="4"] { min-height: 622px; }
     .pisti-table::before { inset: 10px; border-radius: 23px; }
-    .pisti-seat[data-seat="0"] { bottom: 13px; width: calc(100% - 18px); gap: 10px; }
+    .pisti-seat[data-seat="0"] { bottom: 13px; width: calc(100% - 18px); gap: 16px; }
     .pisti-seat[data-seat="0"] .pisti-seat-meta { width: min(205px, 100%); }
     .pisti-table[data-players="2"] .pisti-seat[data-seat="1"], .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] { top: 18px; width: 70%; }
     .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-opponent-hand { order: -1; }
