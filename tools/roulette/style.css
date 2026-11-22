@@ -7,13 +7,14 @@
     --roulette-red: #a72e3c;
     --roulette-black: #18221f;
     --roulette-green: #1f6e50;
+    container: roulette-app / inline-size;
     max-width: 1400px;
     margin-inline: auto;
     color: var(--roulette-cream);
 }
 
 .roulette-app [hidden] { display: none !important; }
-.roulette-app button,.roulette-app select { font: inherit; }
+.roulette-app :where(button, input) { font: inherit; }
 
 .roulette-header {
     display: flex;
@@ -44,9 +45,37 @@
 
 .roulette-button:hover:not(:disabled) { border-color: var(--roulette-gold); background: #354136; }
 .roulette-app button:disabled { opacity: 0.46; cursor: default; }
-.roulette-app button:focus-visible,.roulette-app select:focus-visible,.roulette-table-scroll:focus-visible { outline: 2px solid #f5db9f; outline-offset: 3px; }
-.roulette-sound { flex: 0 0 auto; }
+.roulette-app button:focus-visible,.roulette-app input:focus-visible { outline: 2px solid #f5db9f; outline-offset: 3px; }
+.roulette-volume-control { position: relative; z-index: 20; flex: 0 0 auto; }
+.roulette-sound { width: 44px; height: 44px; min-height: 44px; padding: 0; font-size: 19px; }
 .roulette-sound[data-muted="true"] { color: #a7b6af; }
+.roulette-volume-popover {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 180px;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    border: 1px solid #52664f;
+    border-radius: 24px;
+    background: #202d26;
+    box-shadow: 0 4px 14px #0005;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(8px, -50%);
+    transform-origin: right center;
+    transition: opacity 150ms ease, visibility 150ms ease, transform 150ms ease;
+}
+.roulette-volume-control:hover .roulette-volume-popover,
+.roulette-volume-control:focus-within .roulette-volume-popover { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+.roulette-volume-popover::before { content: ""; position: absolute; inset-block: 0; left: 100%; width: 12px; }
+.roulette-volume-popover label { order: 2; flex: 0 0 34px; margin: 0; font-size: 0; }
+.roulette-volume-popover output { color: var(--roulette-gold); font-size: 11px; font-variant-numeric: tabular-nums; }
+.roulette-volume-popover input { flex: 1; min-width: 0; width: 108px; min-height: 44px; margin: 0; accent-color: var(--roulette-gold); cursor: pointer; touch-action: pan-y; }
 
 .roulette-bankroll {
     display: grid;
@@ -117,23 +146,27 @@
 .roulette-history li:first-child { border-color: #ecd09a; box-shadow: 0 0 0 1px #ecd09a44; }
 .roulette-empty { margin: 0; color: var(--roulette-muted); font-size: 12px; line-height: 1.5; }
 
-.roulette-betting-panel { display: grid; gap: 19px; min-width: 0; }
-.roulette-bet-section,.roulette-specific-bet,.roulette-wagers-section { min-width: 0; }
+.roulette-betting-panel { display: grid; gap: 19px; min-width: 0; container: roulette-betting / inline-size; }
+.roulette-bet-section,.roulette-wagers-section { min-width: 0; }
 .roulette-section-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 10px; }
 .roulette-section-heading h3 { margin: 0; }
 .roulette-section-heading > span { color: var(--roulette-muted); font-size: 11px; }
-.roulette-table-scroll { overflow-x: auto; padding: 4px 4px 9px; border: 1px solid #5a745d; border-radius: 10px; background: #0d412e; scrollbar-color: #78977e #123b2d; scrollbar-width: thin; overscroll-behavior-x: contain; }
-.roulette-table { display: grid; grid-template-columns: 1.15fr repeat(12, minmax(0, 1fr)) 1.1fr; grid-template-rows: repeat(3, 49px) 42px 43px; gap: 2px; min-width: 650px; }
+.roulette-bet-preview { display: -webkit-box; min-height: 2.8em; height: 2.8em; margin: 0 0 10px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #cfdbcf; font-size: 12px; line-height: 1.4; }
+.roulette-table-scroll { min-width: 0; padding: 10px; border: 1px solid #5a745d; border-radius: 10px; background: #0d412e; }
+.roulette-table { position: relative; width: 100%; min-width: 0; aspect-ratio: var(--roulette-table-ratio, 2.2916667); isolation: isolate; }
 
 .roulette-table-bet {
-    position: relative;
+    position: absolute;
     display: grid;
     place-items: center;
     min-width: 0;
     min-height: 0;
+    box-sizing: border-box;
+    margin: 0;
     padding: 2px;
-    border: 1px solid #c0d3bd9c;
+    border: 2px solid #0d412e;
     border-radius: 3px;
+    box-shadow: inset 0 0 0 1px #c0d3bd9c;
     background: #11523a;
     color: #fff6df;
     font-size: 14px;
@@ -145,29 +178,42 @@
 
 .roulette-table-bet[data-color="red"] { background: #a22b37; }
 .roulette-table-bet[data-color="black"] { background: #182722; }
-.roulette-table-zero { font-size: 23px; border-radius: 8px 3px 3px 8px; }
-.roulette-table-dozen,.roulette-table-outside,.roulette-table-column { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
-.roulette-table-bet:hover:not(:disabled),.roulette-table-bet.is-covered { outline: 2px solid #f8dca2; outline-offset: -3px; z-index: 1; filter: brightness(1.13); }
+.roulette-table-bet[data-bet-id="straight:0"] { font-size: 23px; border-radius: 8px 3px 3px 8px; }
+.roulette-table-bet:not([data-bet-type="straight"]):not(.roulette-junction) { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+.roulette-table-bet:hover:not(:disabled),.roulette-table-bet.is-covered,.roulette-table-bet.is-target { outline: 2px solid #f8dca2; outline-offset: -3px; z-index: 2; filter: brightness(1.13); }
 .roulette-table-bet.is-winner { outline: 3px solid #ffe2a2; outline-offset: -3px; z-index: 1; box-shadow: inset 0 0 14px #ffe2a260; }
+.roulette-table-bet:focus-visible { z-index: 8; }
+.roulette-junction { z-index: 3; padding: 0; border: 1px solid transparent; border-radius: 50%; background: transparent; box-shadow: none; color: #f4e6ba; font-size: 9px; line-height: 1; }
+.roulette-junction > span:first-child { position: relative; z-index: 1; opacity: 0; pointer-events: none; }
+.roulette-junction::after { content: ""; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: #c4b181; opacity: 0.65; transform: translate(-50%, -50%); pointer-events: none; }
+.roulette-junction:is([data-bet-type="street"], [data-bet-type="sixline"]) > span:first-child { opacity: 1; color: #d3c498; }
+.roulette-junction:is([data-bet-type="street"], [data-bet-type="sixline"])::after { width: 14px; height: 14px; border: 1px solid #789373; background: #174d36; opacity: 0.8; }
+.roulette-junction:hover:not(:disabled),.roulette-junction:focus,.roulette-junction.is-covered,.roulette-junction.is-target { z-index: 5; border-color: #e3c892; outline: 1px solid #e3c892; outline-offset: 0; background: #205b40; box-shadow: none; }
+.roulette-junction:is(:hover, :focus, .is-covered, .is-target) > span:first-child { opacity: 1; }
+.roulette-junction:is(:hover, :focus, .is-covered, .is-target, .has-bet)::after { opacity: 0; }
+.roulette-junction.has-bet { z-index: 6; border-color: var(--roulette-gold); box-shadow: 0 0 0 1px #dfc28d99; }
+.roulette-junction:focus-visible { z-index: 8; outline-offset: 2px; }
+.roulette-table[data-orientation="portrait"] [data-bet-id="straight:0"] { border-radius: 8px 8px 3px 3px; }
+.roulette-table[data-orientation="portrait"] .roulette-table-bet:not(.roulette-junction) { font-size: clamp(12px, 3.4cqw, 18px); }
+.roulette-table[data-orientation="portrait"] .roulette-table-bet:not([data-bet-type="straight"]):not(.roulette-junction) { font-size: clamp(10px, 2.8cqw, 14px); }
 .roulette-app .roulette-table-bet:disabled { opacity: 1; }
-.roulette-stake-marker { position: absolute; display: grid; place-items: center; right: -1px; bottom: -1px; z-index: 2; min-width: 22px; height: 22px; padding: 1px 3px; border: 2px dashed #ffeac2; border-radius: 50%; background: #bf9e5d; color: #211a10; font-size: 9px; font-weight: 800; box-shadow: 0 2px 3px #0006; }
+.roulette-stake-marker { position: absolute; display: grid; place-items: center; right: -1px; bottom: -1px; z-index: 2; min-width: 22px; height: 22px; box-sizing: border-box; padding: 1px 3px; border: 2px dashed #ffeac2; border-radius: 50%; background: #bf9e5d; color: #211a10; font-size: 9px; font-weight: 800; box-shadow: 0 2px 3px #0006; pointer-events: none; }
+.roulette-junction .roulette-stake-marker { inset: 50% auto auto 50%; transform: translate(-50%, -50%); }
 
-.roulette-chips { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 18px); min-height: 70px; padding-top: 8px; }
+.roulette-chips { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px clamp(9px, 2cqw, 18px); min-height: 70px; box-sizing: border-box; padding: 14px 5px 4px; }
 .roulette-chip { position: relative; display: grid; flex: 0 0 47px; width: 47px; height: 47px; place-items: center; padding: 0; border: 3px dashed #e8ebe3d9; border-radius: 50%; background: #48545d; box-shadow: inset 0 0 0 3px #ffffff16, 0 4px 0 #0b1210, 0 7px 8px #0003; color: #fff7e6; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; cursor: grab; touch-action: none; user-select: none; transition: transform 140ms ease, outline-color 140ms ease; }
 .roulette-chip[data-roulette-chip="5"] { background: #a22f3c; }
 .roulette-chip[data-roulette-chip="25"] { background: #287a57; }
+.roulette-chip[data-roulette-chip="50"] { background: #285b9c; }
 .roulette-chip[data-roulette-chip="100"] { background: #202c35; }
 .roulette-chip[data-roulette-chip="500"] { background: #765294; }
+.roulette-chip[data-roulette-chip="1000"] { background: #c8a14d; border-color: #fff0bc; color: #241e13; }
 .roulette-chip.is-selected { outline: 2px solid #f0d29b; outline-offset: 4px; transform: translateY(-3px); }
 .roulette-chip.is-dragging { opacity: 0.35; }
 .roulette-chip-ghost { position: fixed; z-index: 1200; top: 0; left: 0; pointer-events: none; }
 .roulette-bet-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 9px; }
 .roulette-bet-actions .roulette-button { padding-inline: 5px; font-size: 11px; }
 
-.roulette-specific-bet { padding-top: 16px; border-top: 1px solid var(--roulette-line); }
-.roulette-selects { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto; align-items: end; gap: 8px; }
-.roulette-selects label { display: grid; gap: 5px; min-width: 0; color: var(--roulette-muted); font-size: 11px; }
-.roulette-selects select { width: 100%; min-width: 0; min-height: 42px; padding: 8px 28px 8px 9px; border: 1px solid #46564c; border-radius: 8px; background: #202c26; color: #f3ecda; font-size: 12px; }
 .roulette-wagers { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; max-height: 268px; overflow-y: auto; scrollbar-width: thin; }
 .roulette-wager { display: grid; grid-template-columns: minmax(0, 1fr) auto auto 32px 32px; align-items: center; gap: 8px; min-width: 0; padding: 6px 8px; border: 1px solid var(--roulette-line); border-radius: 7px; background: #1d2a23; }
 .roulette-wager-label { min-width: 0; color: #e2e8dc; font-size: 12px; overflow-wrap: anywhere; }
@@ -187,9 +233,15 @@
     .roulette-wheel-panel { width: min(100%, 460px); margin-inline: auto; }
 }
 
+@container roulette-app (max-width: 1080px) {
+    .roulette-workspace { grid-template-columns: minmax(0, 1fr); gap: 25px; }
+    .roulette-wheel-panel { width: min(100%, 460px); margin-inline: auto; }
+}
+
 @media (max-width: 600px) {
     #roulette.active { padding: 12px; }
-    .roulette-header { gap: 8px; margin-bottom: 13px; }
+    .roulette-header { flex-wrap: wrap; gap: 12px 8px; margin-bottom: 13px; }
+    .roulette-header > div:first-child { flex: 1 1 180px; min-width: 0; }
     .roulette-header h2 { font-size: 25px; }
     .roulette-header p { font-size: 11px; line-height: 1.4; }
     .roulette-button { min-height: 44px; }
@@ -203,9 +255,6 @@
     .roulette-status { margin-bottom: 7px; }
     .roulette-history-section { margin-top: 15px; }
     .roulette-workspace { gap: 20px; }
-    .roulette-selects { grid-template-columns: minmax(0, 1fr) auto; }
-    .roulette-selects label:first-child { grid-column: 1 / -1; }
-    .roulette-selects select { min-height: 44px; }
     .roulette-wager { grid-template-columns: minmax(0, 1fr) auto 38px 38px; gap: 7px; }
     .roulette-wager small { display: none; }
     .roulette-wager button { min-width: 38px; min-height: 44px; }
@@ -213,6 +262,39 @@
     .roulette-chip { flex-basis: 44px; width: 44px; height: 44px; }
     .roulette-bet-actions { gap: 5px; }
     .roulette-bet-actions .roulette-button { font-size: 10px; }
+}
+
+@container roulette-betting (max-width: 600px) {
+    .roulette-table-scroll { padding: 8px; }
+    .roulette-chips { gap: 14px 12px; padding-block: 15px 7px; }
+    .roulette-chip { flex-basis: 44px; width: 44px; height: 44px; }
+    .roulette-wager { grid-template-columns: minmax(0, 1fr) auto 44px 44px; gap: 7px; }
+    .roulette-wager small { display: none; }
+    .roulette-wager button { min-width: 44px; min-height: 44px; }
+}
+
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) { display: flex; flex-direction: column; }
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-section-heading { order: 0; }
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-bet-preview { order: 1; }
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-chips {
+    position: sticky;
+    top: 8px;
+    z-index: 12;
+    order: 2;
+    margin-bottom: 10px;
+    padding: 13px 8px 10px;
+    border: 1px solid #4d624b;
+    border-radius: 12px;
+    background: #182b22;
+    box-shadow: 0 5px 16px #0004;
+}
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-table-scroll { order: 3; }
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-bet-actions { order: 4; }
+
+@media (max-width: 700px), (hover: none), (pointer: coarse) {
+    .roulette-volume-control { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .roulette-volume-popover { position: static; order: -1; width: 155px; height: 44px; opacity: 1; visibility: visible; transform: none !important; }
+    .roulette-volume-popover::before { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,7 +2,8 @@
     "use strict";
 
     const panel = document.getElementById("roulette");
-    if (!panel || !window.OmniRouletteCore || !window.OmniRouletteWheel) return;
+    if (!panel || !window.OmniRouletteCore || !window.OmniRouletteWheel
+        || !window.OmniRouletteLayout || !window.OmniRouletteAudio) return;
     if (panel.classList.contains("active")) {
         initialize(panel, window.OmniRouletteCore);
         return;
@@ -21,16 +22,10 @@
     const table = get("table");
     const chips = get("chips");
     const wagers = get("wagers");
-    const betType = get("bet-type");
-    const betOption = get("bet-option");
     const status = get("status");
     const storageKey = "omni-roulette-v1";
-    const denominations = [1, 5, 25, 100, 500];
-    const labels = {
-        straight: "Tek sayı", split: "İkili", street: "Üçlü sıra", corner: "Dörtlü köşe",
-        sixline: "Altılı sıra", trio: "Sıfırlı üçlü", firstfour: "İlk dört",
-        dozen: "Düzine", column: "Sütun", outside: "Dış bahis",
-    };
+    const denominations = [1, 5, 25, 50, 100, 500, 1000];
+    const layout = window.OmniRouletteLayout;
     const colors = { red: "Kırmızı", black: "Siyah", green: "Yeşil" };
     const format = new Intl.NumberFormat("tr-TR");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -39,15 +34,21 @@
     let state = core.restoreState(saved.game) || core.createState();
     let selectedChip = denominations.includes(saved.chip) ? saved.chip : 25;
     let muted = saved.muted === true;
+    let soundVolume = Number.isFinite(saved.volume) ? Math.max(0, Math.min(1, saved.volume)) : 0.45;
+    const audio = window.OmniRouletteAudio.create({ volume: soundVolume, muted });
     let storageWritable = true;
     let spinToken = 0;
     let drag = null;
+    let dragScrollFrame = 0;
     let ignoreChipClick = false;
-    let audio;
     let tickTime = 0;
+    let currentLayout = null;
+    let focusedBet = "straight:0";
     const tableButtons = buildTable();
     buildChips();
-    buildBetSelector();
+    applyTableLayout();
+    const tableObserver = new ResizeObserver(applyTableLayout);
+    tableObserver.observe(table);
 
     function readSaved() {
         try {
@@ -61,7 +62,7 @@
     function save() {
         try {
             localStorage.setItem(storageKey, JSON.stringify({
-                game: core.serializeState(state), chip: selectedChip, muted,
+                game: core.serializeState(state), chip: selectedChip, muted, volume: soundVolume,
             }));
         } catch {
             storageWritable = false;
@@ -71,10 +72,14 @@
 
     function adoptSavedGame(restored, snapshot) {
         spinToken += 1;
+        audio.stopSpin();
         wheel.cancel();
         cancelDrag();
         state = restored;
         muted = snapshot.muted === true;
+        soundVolume = Number.isFinite(snapshot.volume) ? Math.max(0, Math.min(1, snapshot.volume)) : soundVolume;
+        audio.setMuted(muted);
+        audio.setVolume(soundVolume);
         render();
         if (state.pending) animatePending();
         else {
@@ -92,50 +97,53 @@
         return true;
     }
 
-    function betButton(id, text, column, row, span = 1, className = "") {
-        const button = document.createElement("button");
-        const label = document.createElement("span");
-        const marker = document.createElement("span");
-        button.type = "button";
-        button.className = `roulette-table-bet ${className}`.trim();
-        button.dataset.betId = id;
-        button.style.gridColumn = `${column} / span ${span}`;
-        button.style.gridRow = row;
-        label.textContent = text;
-        marker.className = "roulette-stake-marker";
-        marker.hidden = true;
-        marker.setAttribute("aria-hidden", "true");
-        button.append(label, marker);
-        table.append(button);
-        return button;
+    function buildTable() {
+        return layout.createLayout("landscape").spots.map((spot) => {
+            const button = document.createElement("button");
+            const label = document.createElement("span");
+            const marker = document.createElement("span");
+            button.type = "button";
+            button.className = `roulette-table-bet${spot.kind === "junction" ? " roulette-junction" : ""}`;
+            button.dataset.betId = spot.id;
+            button.dataset.label = spot.label;
+            button.dataset.betType = spot.type;
+            button.tabIndex = spot.id === focusedBet ? 0 : -1;
+            if (spot.color) button.dataset.color = spot.color;
+            label.textContent = spot.shortLabel;
+            marker.className = "roulette-stake-marker";
+            marker.hidden = true;
+            marker.setAttribute("aria-hidden", "true");
+            button.append(label, marker);
+            table.append(button);
+            return button;
+        });
     }
 
-    function buildTable() {
-        const buttons = [];
-        const zero = betButton("straight:0", "0", 1, "1 / span 3", 1, "roulette-table-zero");
-        zero.dataset.color = "green";
-        buttons.push(zero);
-        for (let street = 0; street < 12; street += 1) {
-            for (let row = 0; row < 3; row += 1) {
-                const number = street * 3 + 3 - row;
-                const button = betButton(`straight:${number}`, number, street + 2, row + 1);
-                button.dataset.color = core.getColor(number);
-                buttons.push(button);
-            }
-        }
-        for (let row = 0; row < 3; row += 1) {
-            buttons.push(betButton(`column:${3 - row}`, "2:1", 14, row + 1, 1, "roulette-table-column"));
-        }
-        for (let dozen = 1; dozen <= 3; dozen += 1) {
-            buttons.push(betButton(`dozen:${dozen}`, `${(dozen - 1) * 12 + 1}–${dozen * 12}`, 2 + (dozen - 1) * 4, 4, 4, "roulette-table-dozen"));
-        }
-        const outside = [["low", "1–18"], ["even", "ÇİFT"], ["red", "KIRMIZI"], ["black", "SİYAH"], ["odd", "TEK"], ["high", "19–36"]];
-        outside.forEach(([id, label], index) => {
-            const button = betButton(id, label, 2 + index * 2, 5, 2, "roulette-table-outside");
-            if (id === "red" || id === "black") button.dataset.color = id;
-            buttons.push(button);
+    function applyTableLayout() {
+        const width = table.getBoundingClientRect().width;
+        if (!width) return;
+        const orientation = width < 600 ? "portrait" : "landscape";
+        if (currentLayout?.orientation === orientation) return;
+        cancelDrag();
+        currentLayout = layout.createLayout(orientation);
+        table.dataset.orientation = orientation;
+        table.style.aspectRatio = String(currentLayout.aspectRatio);
+        const positions = new Map(currentLayout.spots.map((spot) => [spot.id, spot]));
+        tableButtons.forEach((button) => {
+            const spot = positions.get(button.dataset.betId);
+            button.style.left = `${(spot.x - spot.width / 2) / currentLayout.width * 100}%`;
+            button.style.top = `${(spot.y - spot.height / 2) / currentLayout.height * 100}%`;
+            button.style.width = `${spot.width / currentLayout.width * 100}%`;
+            button.style.height = `${spot.height / currentLayout.height * 100}%`;
         });
-        return buttons;
+    }
+
+    function betAtPoint(event) {
+        if (!currentLayout) return null;
+        const bounds = table.getBoundingClientRect();
+        return layout.hitTest(currentLayout,
+            (event.clientX - bounds.left) / bounds.width * currentLayout.width,
+            (event.clientY - bounds.top) / bounds.height * currentLayout.height)?.id || null;
     }
 
     function buildChips() {
@@ -148,26 +156,6 @@
             button.textContent = format.format(amount);
             chips.append(button);
         });
-    }
-
-    function definitionType(bet) {
-        return labels[bet.type] ? bet.type : "outside";
-    }
-
-    function buildBetSelector() {
-        Object.entries(labels).forEach(([value, text]) => {
-            if (core.BET_DEFINITIONS.some((bet) => definitionType(bet) === value)) {
-                betType.add(new Option(text, value));
-            }
-        });
-        updateBetOptions();
-    }
-
-    function updateBetOptions() {
-        const options = core.BET_DEFINITIONS
-            .filter((bet) => definitionType(bet) === betType.value)
-            .map((bet) => new Option(`${bet.label} · ${bet.payoutMultiplier - 1}:1`, bet.id));
-        betOption.replaceChildren(...options);
     }
 
     function totalStake() {
@@ -195,13 +183,7 @@
             || repeatedLayout || Object.values(state.lastBets).reduce((sum, amount) => sum + amount, 0) > state.balance;
         get("double").disabled = spinning || !core.totalBet(state) || core.totalBet(state) * 2 > state.balance;
         get("refill").hidden = spinning || state.balance >= 1;
-        betType.disabled = spinning;
-        betOption.disabled = spinning;
-        get("add-bet").disabled = spinning || !betOption.value || core.totalBet(state) + selectedChip > state.balance;
-        get("sound").setAttribute("aria-pressed", String(!muted));
-        get("sound").dataset.muted = String(muted);
-        get("sound").title = muted ? "Sesi aç" : "Sesi kapat";
-        get("sound").textContent = muted ? "Ses kapalı" : "Ses açık";
+        updateSoundControls();
         chips.querySelectorAll(".roulette-chip").forEach((button) => {
             const amount = Number(button.dataset.rouletteChip);
             const selected = amount === selectedChip;
@@ -220,11 +202,22 @@
             marker.textContent = format.format(amount);
             button.classList.toggle("has-bet", amount > 0);
             button.classList.toggle("is-winner", Boolean(!spinning && latest && id === `straight:${latest.number}`));
-            button.setAttribute("aria-label", `${bet.label}, ${bet.payoutMultiplier - 1}:1${amount ? `, bahis ${format.format(amount)} kredi` : ""}`);
+            const description = `${button.dataset.label}, ${bet.payoutMultiplier - 1}:1${amount ? `, bahis ${format.format(amount)} kredi` : ""}`;
+            button.setAttribute("aria-label", description);
+            button.title = description;
         });
         renderWagers(activeBets, spinning);
         renderHistory();
         highlightBet(null);
+    }
+
+    function updateSoundControls() {
+        get("sound").setAttribute("aria-pressed", String(!muted));
+        get("sound").setAttribute("aria-label", muted ? "Oyun seslerini aç" : "Oyun seslerini kapat");
+        get("sound").title = muted ? "Sesi aç" : "Sesi kapat";
+        get("sound").querySelector("span").textContent = muted || soundVolume === 0 ? "🔇" : "🔊";
+        get("volume").value = String(Math.round(soundVolume * 100));
+        get("volume-value").textContent = `%${get("volume").value}`;
     }
 
     function renderWagers(bets, spinning) {
@@ -271,10 +264,16 @@
     }
 
     function highlightBet(id) {
-        const numbers = core.getBet(id)?.numbers || [];
+        const bet = core.getBet(id);
+        const numbers = bet?.numbers || [];
+        const spot = currentLayout?.spots.find((candidate) => candidate.id === id);
+        get("bet-preview").textContent = bet
+            ? `${spot?.label || bet.label} · ${bet.payoutMultiplier - 1}:1 · ${format.format(selectedChip)} kredi`
+            : "Çizgiler ikili, kesişimler dörtlü bahis içindir.";
         tableButtons.forEach((button) => {
             const straight = core.getBet(button.dataset.betId);
             button.classList.toggle("is-covered", straight.type === "straight" && numbers.includes(straight.numbers[0]));
+            button.classList.toggle("is-target", id === button.dataset.betId);
         });
     }
 
@@ -301,34 +300,8 @@
     }
 
     function playSound(kind) {
-        if (muted || !panel.classList.contains("active") || document.hidden) return;
-        try {
-            const Audio = window.AudioContext || window.webkitAudioContext;
-            if (!Audio) return;
-            audio ??= new Audio();
-            if (audio.state === "suspended") audio.resume().catch(() => {});
-            const frequencies = {
-                chip: [1100, 1450], tick: [850], bounce: [420], win: [440, 554, 659], lose: [240, 180],
-            }[kind] || [500];
-            const start = audio.currentTime;
-            frequencies.forEach((frequency, index) => {
-                const at = start + index * 0.065;
-                const oscillator = audio.createOscillator();
-                const gain = audio.createGain();
-                oscillator.type = kind === "tick" ? "sine" : "triangle";
-                oscillator.frequency.setValueAtTime(frequency, at);
-                oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.7, at + 0.065);
-                gain.gain.setValueAtTime(0.0001, at);
-                gain.gain.exponentialRampToValueAtTime(kind === "tick" ? 0.018 : 0.045, at + 0.003);
-                gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.09);
-                oscillator.connect(gain).connect(audio.destination);
-                oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
-                oscillator.start(at);
-                oscillator.stop(at + 0.1);
-            });
-        } catch {
-            // Audio is optional when the browser cannot create an output device.
-        }
+        if (muted || soundVolume === 0 || !panel.classList.contains("active") || document.hidden) return;
+        audio.play(kind);
     }
 
     async function animatePending() {
@@ -338,16 +311,19 @@
         const token = ++spinToken;
         status.textContent = "Bahisler kapandı. Çark ve top dönüyor…";
         render();
+        if (panel.classList.contains("active") && !document.hidden && !motion.matches) audio.startSpin();
         let finished;
+        let ballPhase = "orbiting";
         try {
             finished = await wheel.spin(number, {
                 reducedMotion: motion.matches,
-                onTick() {
+                onTick({ phase }) {
                     const now = performance.now();
-                    if (now - tickTime > 55) {
+                    if (phase !== ballPhase && (phase === "dropping" || phase === "pocket") && now - tickTime > 150) {
                         tickTime = now;
-                        playSound("tick");
+                        playSound("bounce");
                     }
+                    ballPhase = phase;
                 },
             });
         } catch {
@@ -355,6 +331,7 @@
             wheel.showResult(number);
         }
         if (token !== spinToken || finished?.cancelled || state.pending?.id !== pendingId) return;
+        audio.stopSpin();
         if (syncSavedGame()) return;
         const settlement = core.settleSpin(state);
         if (!settlement) return;
@@ -368,6 +345,7 @@
     }
 
     function spin() {
+        audio.unlock();
         if (syncSavedGame()) return;
         if (state.phase !== "betting" || !core.totalBet(state)) return;
         cancelDrag();
@@ -389,16 +367,19 @@
     function startDrag(event) {
         const button = event.target.closest(".roulette-chip");
         if (!button || button.disabled || !event.isPrimary || event.button !== 0 || drag) return;
+        audio.unlock();
         ignoreChipClick = false;
         drag = {
             button, amount: Number(button.dataset.rouletteChip), pointerId: event.pointerId,
-            x: event.clientX, y: event.clientY, ghost: null,
+            x: event.clientX, y: event.clientY, clientX: event.clientX, clientY: event.clientY, ghost: null,
         };
         button.setPointerCapture(event.pointerId);
     }
 
     function moveDrag(event) {
         if (event.pointerId !== drag?.pointerId) return;
+        drag.clientX = event.clientX;
+        drag.clientY = event.clientY;
         if (!drag.ghost) {
             if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
             const ghost = drag.button.cloneNode(true);
@@ -412,11 +393,28 @@
             drag.button.classList.add("is-dragging");
         }
         drag.ghost.style.transform = `translate3d(${event.clientX - 23}px, ${event.clientY - 23}px, 0)`;
-        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".roulette-table-bet");
-        highlightBet(table.contains(target) ? target.dataset.betId : null);
+        highlightBet(betAtPoint(event));
+        if (!dragScrollFrame) dragScrollFrame = requestAnimationFrame(scrollDrag);
+    }
+
+    function scrollDrag() {
+        dragScrollFrame = 0;
+        if (!drag?.ghost) return;
+        const edge = 64;
+        const bottom = window.innerHeight - edge;
+        const speed = drag.clientY < edge ? -Math.min(16, (edge - drag.clientY) / 3)
+            : drag.clientY > bottom ? Math.min(16, (drag.clientY - bottom) / 3) : 0;
+        if (!speed) return;
+        const previous = window.scrollY;
+        window.scrollBy({ top: speed, behavior: "instant" });
+        if (window.scrollY === previous) return;
+        highlightBet(betAtPoint(drag));
+        dragScrollFrame = requestAnimationFrame(scrollDrag);
     }
 
     function cancelDrag() {
+        if (dragScrollFrame) cancelAnimationFrame(dragScrollFrame);
+        dragScrollFrame = 0;
         if (!drag) return;
         const { button, ghost, pointerId } = drag;
         drag = null;
@@ -429,10 +427,17 @@
     function finishDrag(event) {
         if (event.pointerId !== drag?.pointerId) return;
         const { ghost, amount } = drag;
-        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".roulette-table-bet");
+        const target = betAtPoint(event);
         ignoreChipClick = Boolean(ghost);
         cancelDrag();
-        if (ghost && table.contains(target)) addBet(target.dataset.betId, amount);
+        if (ghost && target) {
+            const previousChip = selectedChip;
+            selectedChip = amount;
+            if (!addBet(target, amount)) {
+                selectedChip = previousChip;
+                render();
+            }
+        }
     }
 
     chips.addEventListener("pointerdown", startDrag);
@@ -454,12 +459,45 @@
     });
     table.addEventListener("click", (event) => {
         const button = event.target.closest(".roulette-table-bet");
-        if (button) addBet(button.dataset.betId);
+        const id = event.detail === 0 ? button?.dataset.betId : betAtPoint(event);
+        if (!id) return;
+        audio.unlock();
+        focusedBet = id;
+        tableButtons.forEach((target) => { target.tabIndex = target.dataset.betId === id ? 0 : -1; });
+        addBet(id);
     });
-    table.addEventListener("pointerover", (event) => {
-        if (!drag) highlightBet(event.target.closest(".roulette-table-bet")?.dataset.betId);
+    table.addEventListener("pointermove", (event) => {
+        if (!drag && state.phase === "betting" && event.pointerType !== "touch") highlightBet(betAtPoint(event));
     });
     table.addEventListener("pointerleave", () => { if (!drag) highlightBet(null); });
+    table.addEventListener("focusin", (event) => {
+        const button = event.target.closest(".roulette-table-bet");
+        if (button) highlightBet(button.dataset.betId);
+    });
+    table.addEventListener("focusout", (event) => {
+        if (!table.contains(event.relatedTarget)) highlightBet(null);
+    });
+    table.addEventListener("keydown", (event) => {
+        const directions = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+        const direction = directions[event.key];
+        const button = event.target.closest(".roulette-table-bet");
+        if (!direction || !button || state.phase !== "betting") return;
+        event.preventDefault();
+        const start = currentLayout.spots.find((spot) => spot.id === button.dataset.betId);
+        const candidates = currentLayout.spots.map((spot) => {
+            const dx = (spot.x - start.x) * currentLayout.unitWidth;
+            const dy = (spot.y - start.y) * currentLayout.unitHeight;
+            const forward = dx * direction[0] + dy * direction[1];
+            const sideways = Math.abs(dx * direction[1] - dy * direction[0]);
+            return { spot, forward, distance: Math.hypot(dx, dy) + sideways * 3 };
+        }).filter((candidate) => candidate.forward > 0.1).sort((a, b) => a.distance - b.distance);
+        if (!candidates.length) return;
+        focusedBet = candidates[0].spot.id;
+        tableButtons.forEach((target) => {
+            target.tabIndex = target.dataset.betId === focusedBet ? 0 : -1;
+            if (target.tabIndex === 0) target.focus({ preventScroll: true });
+        });
+    });
     wagers.addEventListener("click", (event) => {
         const button = event.target.closest("button[data-action]");
         if (!button || state.phase !== "betting") return;
@@ -470,10 +508,6 @@
     });
     wagers.addEventListener("pointerover", (event) => highlightBet(event.target.closest(".roulette-wager")?.dataset.betId));
     wagers.addEventListener("pointerleave", () => highlightBet(null));
-    betType.addEventListener("change", () => { updateBetOptions(); highlightBet(betOption.value); });
-    betOption.addEventListener("change", () => highlightBet(betOption.value));
-    betOption.addEventListener("blur", () => highlightBet(null));
-    get("add-bet").addEventListener("click", () => addBet(betOption.value));
     get("spin").addEventListener("click", spin);
     get("undo").addEventListener("click", () => changeBet(core.undoBet, "Son bahis değişikliği geri alındı."));
     get("clear").addEventListener("click", () => changeBet(core.clearBets, "Bahisler temizlendi."));
@@ -482,10 +516,25 @@
     get("refill").addEventListener("click", () => changeBet(core.replenishBalance, "10.000 sanal kredi yüklendi."));
     get("sound").addEventListener("click", () => {
         if (syncSavedGame()) return;
+        audio.unlock();
         muted = !muted;
+        audio.setMuted(muted);
         save();
-        render();
+        updateSoundControls();
         if (!muted) playSound("chip");
+    });
+    get("volume").addEventListener("input", (event) => {
+        const nextVolume = Math.max(0, Math.min(1, Number(event.currentTarget.value) / 100));
+        syncSavedGame();
+        audio.unlock();
+        soundVolume = nextVolume;
+        audio.setVolume(soundVolume);
+        updateSoundControls();
+        save();
+    });
+    get("volume").addEventListener("change", () => playSound("chip"));
+    get("volume").closest(".roulette-volume-control").addEventListener("pointerleave", (event) => {
+        if (event.pointerType === "mouse" && event.currentTarget.contains(document.activeElement)) document.activeElement.blur();
     });
     window.addEventListener("blur", cancelDrag);
     window.addEventListener("pagehide", cancelDrag);
@@ -493,7 +542,16 @@
         if (event.key !== storageKey) return;
         syncSavedGame();
     });
-    new MutationObserver(() => { if (!panel.classList.contains("active")) cancelDrag(); })
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) audio.stopSpin();
+        else if (panel.classList.contains("active") && state.phase === "spinning" && !motion.matches) audio.startSpin();
+    });
+    new MutationObserver(() => {
+        if (!panel.classList.contains("active")) {
+            cancelDrag();
+            audio.stopSpin();
+        } else if (state.phase === "spinning" && !motion.matches) audio.startSpin();
+    })
         .observe(panel, { attributes: true, attributeFilter: ["class"] });
 
     render();

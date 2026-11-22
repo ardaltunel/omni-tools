@@ -80,7 +80,7 @@
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=57">
     <link rel="stylesheet" href="tools/block-blast/style.css?v=1">
-    <link rel="stylesheet" href="tools/roulette/style.css?v=1">
+    <link rel="stylesheet" href="tools/roulette/style.css?v=2">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=21">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=8">
@@ -856,7 +856,15 @@
                             <h2 id="roulette-title">Rulet</h2>
                             <p>37 cepli Avrupa ruleti · Yalnızca sanal kredi</p>
                         </div>
-                        <button id="roulette-sound" class="roulette-button roulette-sound" type="button" aria-label="Oyun sesi" aria-pressed="true">Ses açık</button>
+                        <div class="roulette-volume-control">
+                            <button id="roulette-sound" class="roulette-button roulette-sound" type="button" aria-label="Oyun seslerini kapat" aria-pressed="true" title="Ses">
+                                <span aria-hidden="true">🔊</span>
+                            </button>
+                            <div class="roulette-volume-popover">
+                                <label for="roulette-volume">Ses seviyesi <output id="roulette-volume-value" for="roulette-volume">%100</output></label>
+                                <input id="roulette-volume" type="range" min="0" max="100" step="1" value="100">
+                            </div>
+                        </div>
                     </header>
 
                     <dl class="roulette-bankroll" aria-label="Sanal kredi bilgileri">
@@ -887,9 +895,10 @@
                             <section class="roulette-bet-section" aria-labelledby="roulette-betting-title">
                                 <div class="roulette-section-heading">
                                     <h3 id="roulette-betting-title">Bahis masası</h3>
-                                    <span>Alanlara dokun veya çip sürükle</span>
+                                    <span>Dokun veya çip sürükle</span>
                                 </div>
-                                <div class="roulette-table-scroll" tabindex="0" role="group" aria-label="Bahis masası, dar ekranda yatay kaydırılabilir">
+                                <p id="roulette-bet-preview" class="roulette-bet-preview" role="status" aria-live="polite" aria-atomic="true">Sayıya, çizgiye veya birleşim noktasına dokun; istersen çipini sürükleyip bırak.</p>
+                                <div class="roulette-table-scroll" role="group" aria-label="Rulet bahis masası">
                                     <div id="roulette-table" class="roulette-table"></div>
                                 </div>
                                 <div id="roulette-chips" class="roulette-chips" role="group" aria-label="Bahis çipi seç"></div>
@@ -898,15 +907,6 @@
                                     <button id="roulette-clear" class="roulette-button" type="button">Temizle</button>
                                     <button id="roulette-repeat" class="roulette-button" type="button">Tekrarla</button>
                                     <button id="roulette-double" class="roulette-button" type="button">İkiye katla</button>
-                                </div>
-                            </section>
-
-                            <section class="roulette-specific-bet" aria-labelledby="roulette-specific-title">
-                                <h3 id="roulette-specific-title">Bahis ekle</h3>
-                                <div class="roulette-selects">
-                                    <label>Bahis türü<select id="roulette-bet-type"></select></label>
-                                    <label>Sayı veya grup<select id="roulette-bet-option"></select></label>
-                                    <button id="roulette-add-bet" class="roulette-button" type="button">Ekle</button>
                                 </div>
                             </section>
 
@@ -5940,7 +5940,9 @@ Disallow:</code></pre>
     <script src="tools/block-blast/app.js?v=1"></script>
     <script src="tools/roulette/core.js?v=1"></script>
     <script src="tools/roulette/wheel.js?v=1"></script>
-    <script src="tools/roulette/app.js?v=2"></script>
+    <script src="tools/roulette/layout.js?v=1"></script>
+    <script src="tools/roulette/audio.js?v=1"></script>
+    <script src="tools/roulette/app.js?v=3"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
     <script src="tools/slot-game/app.js?v=13"></script>
     <script src="tools/2048/script.js?v=1"></script>
