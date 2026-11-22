@@ -77,22 +77,6 @@
 .roulette-volume-popover output { color: var(--roulette-gold); font-size: 11px; font-variant-numeric: tabular-nums; }
 .roulette-volume-popover input { flex: 1; min-width: 0; width: 108px; min-height: 44px; margin: 0; accent-color: var(--roulette-gold); cursor: pointer; touch-action: pan-y; }
 
-.roulette-bankroll {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin: 0 0 20px;
-    padding: 13px 18px;
-    border: 1px solid var(--roulette-line);
-    border-radius: 12px;
-    background: #17211e;
-}
-
-.roulette-bankroll > div { min-width: 0; }
-.roulette-bankroll > div + div { border-left: 1px solid var(--roulette-line); padding-left: 18px; }
-.roulette-bankroll dt { color: var(--roulette-muted); font-size: 11px; }
-.roulette-bankroll dd { margin: 3px 0 0; color: #f4ebd7; font-size: clamp(19px, 2.2vw, 27px); font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-#roulette-balance { color: #e8cf9d; }
-
 .roulette-workspace {
     display: grid;
     grid-template-columns: minmax(310px, 0.85fr) minmax(0, 1.25fr);
@@ -102,7 +86,14 @@
 
 .roulette-wheel-panel { min-width: 0; text-align: center; }
 .roulette-wheel-stage { position: relative; width: 100%; margin: -6px auto -8px; }
-.roulette-wheel-canvas { display: block; width: 100%; height: auto; aspect-ratio: 1.125; }
+.roulette-wheel-canvas { display: block; width: 100%; height: auto; aspect-ratio: 1.125; border-radius: 18px; cursor: grab; touch-action: none; user-select: none; }
+.roulette-wheel-canvas[data-interaction="dragging"] { cursor: grabbing; }
+.roulette-wheel-canvas[data-interactive="false"] { cursor: default; }
+.roulette-wheel-canvas:focus-visible { border-radius: 50%; outline: 2px solid var(--roulette-gold); outline-offset: -8px; }
+.roulette-wheel-hint { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px 8px; margin: 4px 0 14px; color: #a9b6a8; font-size: 11px; line-height: 1.4; }
+.roulette-wheel-hint > svg { flex: 0 0 15px; width: 15px; height: 15px; color: #d4b986; }
+.roulette-wheel-keys { display: inline-flex; align-items: center; gap: 4px; color: #819387; font-size: 10px; }
+.roulette-wheel-keys kbd { display: grid; place-items: center; min-width: 16px; height: 17px; border: 1px solid #526048; border-radius: 4px; background: #1c2921; color: #bfcbb8; font: inherit; line-height: 1; }
 
 .roulette-result {
     display: flex;
@@ -211,7 +202,14 @@
 .roulette-stake-marker { position: absolute; display: grid; place-items: center; right: -1px; bottom: -1px; z-index: 2; min-width: 22px; height: 22px; box-sizing: border-box; padding: 1px 3px; border: 2px dashed #ffeac2; border-radius: 50%; background: #bf9e5d; color: #211a10; font-size: 9px; font-weight: 800; box-shadow: 0 2px 3px #0006; pointer-events: none; }
 .roulette-junction .roulette-stake-marker { inset: 50% auto auto 50%; transform: translate(-50%, -50%); }
 
-.roulette-chips { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px clamp(9px, 2cqw, 18px); min-height: 70px; box-sizing: border-box; padding: 14px 5px 4px; }
+.roulette-bankroll-tray { min-width: 0; margin-top: 12px; padding: 12px; border: 1px solid #dfc28d35; border-radius: 14px; background: linear-gradient(135deg, #223329, #17271f); box-shadow: inset 0 1px #ffffff06; }
+.roulette-wallet { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 0 2px 10px; border-bottom: 1px solid #dfc28d21; }
+.roulette-wallet-label { display: flex; align-items: center; gap: 8px; color: #c2cbb9; font-size: 11px; white-space: nowrap; }
+.roulette-wallet-label svg { flex: 0 0 32px; width: 32px; height: 32px; padding: 6px; border: 1px solid #dfc28d33; border-radius: 9px; background: #dfc28d0a; color: #ddc28f; }
+.roulette-wallet-amount { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-end; gap: 3px 6px; min-width: 0; text-align: right; }
+#roulette-balance { color: #eed5a3; font-size: clamp(19px, 3.3cqw, 25px); font-weight: 650; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.roulette-wallet-amount > span { color: #9dad9d; font-size: 10px; }
+.roulette-chips { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px clamp(9px, 2cqw, 18px); min-height: 70px; box-sizing: border-box; padding: 14px 2px 4px; }
 .roulette-chip { position: relative; display: grid; flex: 0 0 47px; width: 47px; height: 47px; place-items: center; padding: 0; border: 3px dashed #e8ebe3d9; border-radius: 50%; background: #48545d; box-shadow: inset 0 0 0 3px #ffffff16, 0 4px 0 #0b1210, 0 7px 8px #0003; color: #fff7e6; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; cursor: grab; touch-action: none; user-select: none; transition: transform 140ms ease, outline-color 140ms ease; }
 .roulette-chip[data-roulette-chip="5"] { background: #a22f3c; }
 .roulette-chip[data-roulette-chip="25"] { background: #287a57; }
@@ -219,6 +217,8 @@
 .roulette-chip[data-roulette-chip="100"] { background: #202c35; }
 .roulette-chip[data-roulette-chip="500"] { background: #765294; }
 .roulette-chip[data-roulette-chip="1000"] { background: #c8a14d; border-color: #fff0bc; color: #241e13; }
+.roulette-chip[data-roulette-chip="5000"] { border-color: #c3edf0; background: linear-gradient(145deg, #34757b, #193e50); box-shadow: inset 0 0 0 3px #b4ecdf26, 0 4px 0 #0b1210, 0 7px 8px #0003; color: #e6fff8; }
+.roulette-chip[data-roulette-chip="10000"] { border-color: #f3dba1; background: linear-gradient(145deg, #69517a, #33223d); box-shadow: inset 0 0 0 3px #e4c98d30, 0 4px 0 #0b1210, 0 7px 8px #0003; color: #f6e4b5; }
 .roulette-chip.is-selected { outline: 2px solid #f0d29b; outline-offset: 4px; transform: translateY(-3px); }
 .roulette-chip.is-dragging { opacity: 0.35; }
 .roulette-chip-ghost { position: fixed; z-index: 1200; top: 0; left: 0; pointer-events: none; }
@@ -256,10 +256,6 @@
     .roulette-header h2 { font-size: 25px; }
     .roulette-header p { font-size: 11px; line-height: 1.4; }
     .roulette-button { min-height: 44px; }
-    .roulette-bankroll { padding: 11px 10px; margin-bottom: 10px; }
-    .roulette-bankroll > div + div { padding-left: 9px; }
-    .roulette-bankroll dt { font-size: 10px; }
-    .roulette-bankroll dd { font-size: 19px; }
     .roulette-wheel-panel { max-width: 400px; }
     .roulette-result { margin-top: -7px; min-height: 49px; }
     .roulette-result-number { width: 42px; height: 42px; flex-basis: 42px; font-size: 23px; }
@@ -277,7 +273,11 @@
 
 @container roulette-betting (max-width: 600px) {
     .roulette-table-scroll { padding: 8px; }
-    .roulette-chips { gap: 14px 12px; padding-block: 15px 7px; }
+    .roulette-bankroll-tray { padding: 10px 8px 8px; }
+    .roulette-wallet { padding: 0 0 8px; }
+    .roulette-wallet-label { gap: 6px; }
+    .roulette-wallet-label svg { flex-basis: 28px; width: 28px; height: 28px; padding: 5px; }
+    .roulette-chips { gap: 8px 5px; max-width: 268px; min-height: 0; margin-inline: auto; padding: 12px 0 5px; }
     .roulette-chip { flex-basis: 44px; width: 44px; height: 44px; }
     .roulette-wager { grid-template-columns: minmax(0, 1fr) auto 44px 44px; gap: 7px; }
     .roulette-wager small { display: none; }
@@ -287,16 +287,13 @@
 .roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) { display: flex; flex-direction: column; }
 .roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-section-heading { order: 0; }
 .roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-bet-preview { order: 1; }
-.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-chips {
+.roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-bankroll-tray {
     position: sticky;
     top: 8px;
     z-index: 12;
     order: 2;
+    margin-top: 0;
     margin-bottom: 10px;
-    padding: 13px 8px 10px;
-    border: 1px solid #4d624b;
-    border-radius: 12px;
-    background: #182b22;
     box-shadow: 0 5px 16px #0004;
 }
 .roulette-bet-section:has(.roulette-table[data-orientation="portrait"]) > .roulette-table-scroll { order: 3; }

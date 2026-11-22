@@ -80,7 +80,7 @@
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=57">
     <link rel="stylesheet" href="tools/block-blast/style.css?v=1">
-    <link rel="stylesheet" href="tools/roulette/style.css?v=3">
+    <link rel="stylesheet" href="tools/roulette/style.css?v=4">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=21">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=8">
@@ -867,17 +867,16 @@
                         </div>
                     </header>
 
-                    <dl class="roulette-bankroll" aria-label="Sanal kredi bilgileri">
-                        <div><dt>Bakiye</dt><dd id="roulette-balance">10.000</dd></div>
-                        <div><dt>Toplam bahis</dt><dd id="roulette-total-bet">0</dd></div>
-                        <div><dt>Son ödeme</dt><dd id="roulette-win">—</dd></div>
-                    </dl>
-
                     <div class="roulette-workspace">
                         <div class="roulette-wheel-panel">
                             <div class="roulette-wheel-stage">
-                                <canvas id="roulette-wheel" class="roulette-wheel-canvas" width="720" height="640" role="img" aria-label="37 cepli Avrupa ruleti çarkı"></canvas>
+                                <canvas id="roulette-wheel" class="roulette-wheel-canvas" width="720" height="640" role="img" tabindex="0" aria-label="37 cepli Avrupa ruleti çarkı" aria-describedby="roulette-wheel-hint"></canvas>
                             </div>
+                            <p id="roulette-wheel-hint" class="roulette-wheel-hint">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7a9 9 0 0 0-15-2L3 7m0-4v4h4M4 17a9 9 0 0 0 15 2l2-2m0 4v-4h-4"/></svg>
+                                <span>Basılı tutup çevir</span>
+                                <span class="roulette-wheel-keys"><kbd>←</kbd> <kbd>→</kbd> ile döndür</span>
+                            </p>
                             <div class="roulette-result" aria-label="Sonuç">
                                 <strong id="roulette-result-number" class="roulette-result-number">—</strong>
                                 <span id="roulette-result-label">İlk tur için bahsini yerleştir.</span>
@@ -904,7 +903,16 @@
                                 <div class="roulette-table-scroll" role="group" aria-label="Rulet bahis masası">
                                     <div id="roulette-table" class="roulette-table"></div>
                                 </div>
-                                <div id="roulette-chips" class="roulette-chips" role="group" aria-label="Bahis çipi seç"></div>
+                                <div class="roulette-bankroll-tray">
+                                    <div class="roulette-wallet">
+                                        <div class="roulette-wallet-label">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8V6a2 2 0 0 0-2-2H6a3 3 0 0 0 0 6h14v8a2 2 0 0 1-2 2H6a3 3 0 0 1-3-3V7"/><path d="M20 12h-4a2 2 0 0 0 0 4h4M16 14h.01"/></svg>
+                                            <span>Sanal bakiye</span>
+                                        </div>
+                                        <div class="roulette-wallet-amount"><strong id="roulette-balance">10.000</strong><span>kredi</span></div>
+                                    </div>
+                                    <div id="roulette-chips" class="roulette-chips" role="group" aria-label="Bahis çipi seç"></div>
+                                </div>
                                 <div class="roulette-bet-actions" role="group" aria-label="Bahis işlemleri">
                                     <button id="roulette-undo" class="roulette-button" type="button">Geri al</button>
                                     <button id="roulette-clear" class="roulette-button" type="button">Temizle</button>
@@ -5942,10 +5950,10 @@ Disallow:</code></pre>
     <script src="tools/block-blast/core.js?v=1"></script>
     <script src="tools/block-blast/app.js?v=1"></script>
     <script src="tools/roulette/core.js?v=1"></script>
-    <script src="tools/roulette/wheel.js?v=1"></script>
+    <script src="tools/roulette/wheel.js?v=2"></script>
     <script src="tools/roulette/layout.js?v=1"></script>
-    <script src="tools/roulette/audio.js?v=1"></script>
-    <script src="tools/roulette/app.js?v=4"></script>
+    <script src="tools/roulette/audio.js?v=2"></script>
+    <script src="tools/roulette/app.js?v=5"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
     <script src="tools/slot-game/app.js?v=13"></script>
     <script src="tools/2048/script.js?v=1"></script>

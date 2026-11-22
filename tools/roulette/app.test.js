@@ -137,12 +137,14 @@ function createRenderHarness() {
         table: get("table"),
         chips: get("chips"),
         wagers: get("wagers"),
-        denominations: [1, 5, 25, 50, 100, 500, 1000],
+        denominations: [1, 5, 25, 50, 100, 500, 1000, 5000, 10000],
         colors: { red: "Kırmızı", black: "Siyah", green: "Yeşil" },
         format: new Intl.NumberFormat("tr-TR"),
         updateSoundControls() {},
+        wheel: { setInteractive() {} },
+        panel: { classList: { contains: () => true } },
     });
-    const functions = ["buildTable", "buildChips", "totalStake", "render", "renderWagers", "renderHistory", "highlightBet"]
+    const functions = ["buildTable", "chipLabel", "buildChips", "render", "renderWagers", "renderHistory", "highlightBet"]
         .map(readAppFunction).join("\n");
     vm.runInContext(`
         let state = core.createState();
@@ -172,11 +174,14 @@ function draw(number) {
     return { getRandomValues(buffer) { buffer[0] = number; return buffer; } };
 }
 
-function createInteractionHarness(initial = core.createState()) {
-    let saved = JSON.stringify({ game: core.serializeState(initial), chip: 25, muted: true, volume: 0.45 });
+function createInteractionHarness(initial = core.createState(), { chip = 25 } = {}) {
+    let saved = JSON.stringify({ game: core.serializeState(initial), chip, muted: true, volume: 0.45 });
     let writes = 0;
     const spins = [];
     const audioVolumes = [];
+    const interactiveStates = [];
+    const documentListeners = new Map();
+    let panelMutation;
     const animationFrames = new Map();
     let nextFrame = 1;
     const elements = new Map();
@@ -276,7 +281,7 @@ function createInteractionHarness(initial = core.createState()) {
         activeElement: null,
         getElementById: (id) => id === "roulette" ? panel : get(id.replace(/^roulette-/u, "")),
         createElement: (name) => new Element(name),
-        addEventListener() {},
+        addEventListener(name, callback) { documentListeners.set(name, callback); },
     };
     const audio = {
         unlock() {}, play() {}, startSpin() {}, stopSpin() {}, setMuted() {},
@@ -289,6 +294,7 @@ function createInteractionHarness(initial = core.createState()) {
             OmniRouletteLayout: layout,
             OmniRouletteWheel: { create: () => ({
                 cancel() {}, showResult() {},
+                setInteractive(value) { interactiveStates.push(value); },
                 spin(number) { spins.push(number); return new Promise(() => {}); },
             }) },
             OmniRouletteAudio: { create: () => audio },
@@ -297,7 +303,7 @@ function createInteractionHarness(initial = core.createState()) {
             innerHeight: 900,
         },
         ResizeObserver: class { observe() {} },
-        MutationObserver: class { observe() {} },
+        MutationObserver: class { constructor(callback) { panelMutation = callback; } observe() {} },
         performance: { now: () => 0 },
         requestAnimationFrame(callback) {
             const id = nextFrame++;
@@ -316,6 +322,9 @@ function createInteractionHarness(initial = core.createState()) {
         get,
         spins,
         audioVolumes,
+        interactiveStates,
+        setHidden(value) { document.hidden = value; documentListeners.get("visibilitychange")(); },
+        setActive(value) { panel.classList.toggle("active", value); panelMutation(); },
         pendingFrames: () => animationFrames.size,
         snapshot: () => JSON.parse(saved),
         writes: () => writes,
@@ -340,7 +349,7 @@ test("winner highlighting stays stable across chip selections, zero results and 
     assert.equal(app.get("table").children.length, 157);
     assert.deepEqual(app.winners(), []);
 
-    for (const chip of [1, 5, 25, 50, 100, 500, 1000, 5]) {
+    for (const chip of [1, 5, 25, 50, 100, 500, 1000, 5000, 10000, 5]) {
         app.selectChip(chip);
         assert.deepEqual(app.winners(), []);
         assert.equal(app.get("table").querySelectorAll(".is-covered").length, 0);
@@ -487,4 +496,43 @@ test("kredisi yetmeyen sürükleme önceki çip seçimini ve sonraki bahis tutar
     app.get("table").dispatch("click", { target: app.bet("straight:17"), detail: 0 });
     assert.deepEqual(app.snapshot().game.bets, { "straight:17": 25 });
     assert.equal(app.snapshot().chip, 25);
+});
+
+test("1K, 5K ve 10K çipleri tam kredi tutarlarıyla oynanır ve kayıttan geri gelir", () => {
+    const app = createInteractionHarness(core.createState(), { chip: 10000 });
+    assert.equal(app.chip(10000).attributes["aria-pressed"], "true");
+    assert.deepEqual(app.get("chips").children.map((button) => button.textContent),
+        ["1", "5", "25", "50", "100", "500", "1K", "5K", "10K"]);
+    for (const amount of [1000, 5000, 10000]) {
+        app.get("clear").dispatch("click");
+        app.get("chips").dispatch("click", { target: app.chip(amount), detail: 0 });
+        app.get("table").dispatch("click", { target: app.bet("straight:0"), detail: 0 });
+        assert.deepEqual(app.snapshot().game.bets, { "straight:0": amount });
+        assert.equal(app.snapshot().chip, amount);
+        assert.equal(app.bet("straight:0").querySelector(".roulette-stake-marker").textContent, `${amount / 1000}K`);
+    }
+    app.get("table").dispatch("click", { target: app.bet("red"), detail: 0 });
+    assert.deepEqual(app.snapshot().game.bets, { "straight:0": 10000 });
+    assert.equal(app.get("balance").textContent, "10.000");
+});
+
+test("çark etkileşimi gizli araçta ve bahisli dönüş sırasında kapatılır", () => {
+    const app = createInteractionHarness();
+    assert.equal(app.interactiveStates.at(-1), true);
+    app.setHidden(true);
+    assert.equal(app.interactiveStates.at(-1), false);
+    app.setHidden(false);
+    assert.equal(app.interactiveStates.at(-1), true);
+    app.setActive(false);
+    assert.equal(app.interactiveStates.at(-1), false);
+    app.setActive(true);
+    assert.equal(app.interactiveStates.at(-1), true);
+    app.get("table").dispatch("click", { target: app.bet("red"), detail: 0 });
+    app.get("spin").dispatch("click");
+    assert.equal(app.interactiveStates.at(-1), false);
+    assert.equal(app.get("app").dataset.phase, "spinning");
+    assert.ok(app.get("chips").children.every((button) => button.disabled));
+    app.setHidden(true);
+    app.setHidden(false);
+    assert.equal(app.interactiveStates.at(-1), false);
 });

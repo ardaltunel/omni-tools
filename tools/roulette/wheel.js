@@ -14,6 +14,9 @@
     const CAPTURE_AT = 0.82;
     const DROP_AT = 0.59;
     const DEFAULT_DURATION = 6800;
+    const MAX_MANUAL_SPEED = 9;
+    const INERTIA_DECAY = 3.2;
+    const STOP_SPEED = 0.02;
     const order = core.WHEEL_ORDER;
     const normalize = (angle) => ((angle % TAU) + TAU) % TAU;
     const easeOut = (value) => 1 - (1 - value) ** 3;
@@ -25,14 +28,16 @@
         if (index < 0) throw new RangeError("Rulet sayısı 0 ile 36 arasında olmalı.");
         const durationMs = options.durationMs ?? DEFAULT_DURATION;
         if (!Number.isFinite(durationMs) || durationMs <= 0) throw new RangeError("Geçerli bir dönüş süresi gerekli.");
+        const direction = options.direction ?? 1;
+        if (direction !== 1 && direction !== -1) throw new RangeError("Dönüş yönü 1 veya -1 olmalı.");
         const wheelStart = normalize(Number.isFinite(options.wheelAngle) ? options.wheelAngle : 0);
         const ballStart = normalize(Number.isFinite(options.ballAngle) ? options.ballAngle : TOP);
-        const wheelEnd = wheelStart + 3 * TAU + normalize(-index * STEP - wheelStart);
+        const wheelEnd = wheelStart + direction * (3 * TAU + normalize(direction * (-index * STEP - wheelStart)));
         const wheelCapture = wheelStart + (wheelEnd - wheelStart) * easeOut(CAPTURE_AT);
         const captureTarget = TOP + wheelCapture + index * STEP;
-        const ballCapture = ballStart - 7 * TAU - normalize(ballStart - captureTarget);
+        const ballCapture = ballStart - direction * (7 * TAU + normalize(direction * (ballStart - captureTarget)));
         return Object.freeze({
-            number, index, durationMs, wheelStart, wheelEnd, wheelCapture, ballStart, ballCapture,
+            number, index, direction, durationMs, wheelStart, wheelEnd, wheelCapture, ballStart, ballCapture,
             ballEnd: ballCapture + wheelEnd - wheelCapture,
             ballStartRadius: options.ballRadius ?? 0.885,
         });
@@ -204,12 +209,13 @@
         circle(context, radius * 0.072, radial(context, radius * 0.072, [[0, "#fff5cf"], [0.4, "#e0c38a"], [1, "#8b693b"]]));
     }
 
-    function create(canvas) {
+    function create(canvas, options = {}) {
         if (!canvas || typeof canvas.getContext !== "function") throw new TypeError("Çark için canvas gerekli.");
         const context = canvas.getContext("2d");
         if (!context) throw new Error("Çark çizimi başlatılamadı.");
         const view = canvas.ownerDocument.defaultView;
         const document = canvas.ownerDocument;
+        const motion = view.matchMedia?.("(prefers-reduced-motion: reduce)");
         const rotor = createRotorTexture(document);
         const backdrop = document.createElement("canvas");
         let width = 0;
@@ -221,7 +227,143 @@
         let animation = null;
         let frame = 0;
         let disposed = false;
+        let interactive = true;
+        let interaction = "idle";
+        let drag = null;
+        let coast = null;
+        let manualFrame = 0;
+        let lastDirection = 1;
         let current = { wheelAngle: 0, ballAngle: TOP, ballRadius: 0.885, ballHeight: 0, phase: "idle", number: null };
+        const now = () => view.performance?.now() ?? Date.now();
+        const reducedMotion = () => options.reducedMotion === true || motion?.matches === true;
+        const canInteract = () => interactive && !animation && !disposed && !document.hidden;
+
+        function updateInteraction(next = interaction) {
+            interaction = next;
+            canvas.dataset.interaction = interaction;
+            canvas.dataset.interactive = String(canInteract());
+        }
+
+        function cancelManual() {
+            if (manualFrame) view.cancelAnimationFrame(manualFrame);
+            manualFrame = 0;
+            coast = null;
+            const active = drag;
+            drag = null;
+            if (active && canvas.hasPointerCapture?.(active.id)) canvas.releasePointerCapture(active.id);
+            updateInteraction("idle");
+        }
+
+        function rotateManually(delta) {
+            if (Math.abs(delta) > 1e-8) lastDirection = Math.sign(delta);
+            current = {
+                ...current,
+                wheelAngle: normalize(current.wheelAngle + delta),
+                // A settled ball belongs to its pocket even while the rotor is handled manually.
+                ballAngle: current.phase === "settled" ? normalize(current.ballAngle + delta) : current.ballAngle,
+            };
+            draw();
+        }
+
+        function pointerAngle(event) {
+            const bounds = canvas.getBoundingClientRect();
+            if (!bounds.width || !bounds.height || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return null;
+            const x = event.clientX - bounds.left - bounds.width / 2;
+            const y = (event.clientY - bounds.top - bounds.height * 0.46) / TILT;
+            const wheelRadius = Math.min(bounds.width * 0.475, bounds.height * 0.54);
+            const distance = Math.hypot(x, y) / wheelRadius;
+            if (distance < 0.14 || distance > 1) return null;
+            return Math.atan2(y, x);
+        }
+
+        function startCoast(velocity) {
+            if (!canInteract() || reducedMotion() || Math.abs(velocity) < STOP_SPEED) return;
+            const active = { velocity: Math.max(-MAX_MANUAL_SPEED, Math.min(MAX_MANUAL_SPEED, velocity)), start: now(), travel: 0 };
+            coast = active;
+            updateInteraction("coasting");
+            function advance(timestamp) {
+                if (coast !== active) return;
+                if (!canInteract() || reducedMotion()) { cancelManual(); return; }
+                manualFrame = 0;
+                const elapsed = Math.max(0, timestamp - active.start) / 1000;
+                const decay = Math.exp(-INERTIA_DECAY * elapsed);
+                // Integrating the exponential makes the travel independent of the display refresh rate.
+                const travel = active.velocity / INERTIA_DECAY * (1 - decay);
+                rotateManually(travel - active.travel);
+                active.travel = travel;
+                if (Math.abs(active.velocity * decay) < STOP_SPEED) cancelManual();
+                else manualFrame = view.requestAnimationFrame(advance);
+            }
+            manualFrame = view.requestAnimationFrame(advance);
+        }
+
+        function pointerDown(event) {
+            if (!canInteract() || drag || event.isPrimary === false || event.button !== 0) return;
+            const angle = pointerAngle(event);
+            if (angle === null) return;
+            cancelManual();
+            drag = { id: event.pointerId, angle, time: now(), velocity: 0 };
+            try { canvas.setPointerCapture(event.pointerId); }
+            catch { cancelManual(); return; }
+            event.preventDefault();
+            canvas.focus?.({ preventScroll: true });
+            updateInteraction("dragging");
+        }
+
+        function pointerMove(event) {
+            if (event.pointerId !== drag?.id) return;
+            if (!canInteract()) { cancelManual(); return; }
+            event.preventDefault();
+            const angle = pointerAngle(event);
+            const time = now();
+            if (angle === null || drag.angle === null) {
+                drag.angle = angle;
+                drag.time = time;
+                drag.velocity = 0;
+                return;
+            }
+            const delta = Math.atan2(Math.sin(angle - drag.angle), Math.cos(angle - drag.angle));
+            const elapsed = Math.max(1, time - drag.time);
+            const measured = Math.max(-MAX_MANUAL_SPEED, Math.min(MAX_MANUAL_SPEED, delta * 1000 / elapsed));
+            drag.velocity += (measured - drag.velocity) * (1 - Math.exp(-elapsed / 45));
+            drag.angle = angle;
+            drag.time = time;
+            rotateManually(delta);
+        }
+
+        function pointerUp(event) {
+            if (event.pointerId !== drag?.id) return;
+            const angle = pointerAngle(event);
+            if (angle !== null && drag.angle !== null && Math.abs(angle - drag.angle) > 1e-8) pointerMove(event);
+            if (!drag) return;
+            const velocity = angle !== null && now() - drag.time <= 120 ? drag.velocity : 0;
+            cancelManual();
+            startCoast(velocity);
+        }
+
+        function pointerCancel(event) {
+            if (event.pointerId === drag?.id) cancelManual();
+        }
+
+        function keyDown(event) {
+            if (!canInteract() || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
+            event.preventDefault();
+            cancelManual();
+            const direction = event.key === "ArrowRight" ? 1 : -1;
+            rotateManually(direction * STEP);
+            startCoast(direction * 0.9);
+        }
+
+        function visibilityChange() {
+            if (document.hidden) cancelManual();
+            updateInteraction();
+        }
+
+        function motionChange() {
+            if (!reducedMotion()) return;
+            cancelManual();
+            if (animation) completeSpin(animation);
+        }
 
         function draw() {
             if (!width || !height || disposed) return;
@@ -267,6 +409,7 @@
             if (disposed) return;
             const bounds = canvas.getBoundingClientRect();
             if (!bounds.width || !bounds.height) return;
+            if (drag && (bounds.width !== width || bounds.height !== height)) cancelManual();
             ratio = Math.min(view.devicePixelRatio || 1, 2.5);
             width = bounds.width;
             height = bounds.height;
@@ -288,12 +431,28 @@
         }
 
         function cancel() {
+            cancelManual();
             view.cancelAnimationFrame(frame);
             frame = 0;
-            if (!animation) return;
-            const resolve = animation.resolve;
+            if (animation) {
+                const resolve = animation.resolve;
+                animation = null;
+                resolve({ ...result(), cancelled: true });
+            }
+            updateInteraction();
+            return result();
+        }
+
+        function completeSpin(active) {
+            if (animation !== active) return;
+            view.cancelAnimationFrame(frame);
+            current = sampleSpin(active.timeline, active.timeline.durationMs);
             animation = null;
-            resolve({ ...result(), cancelled: true });
+            frame = 0;
+            canvas.setAttribute("aria-label", `Rulet çarkı, sonuç ${current.number}`);
+            updateInteraction();
+            draw();
+            active.resolve(result());
         }
 
         function showResult(number) {
@@ -305,15 +464,16 @@
             return result();
         }
 
-        function spin(number, options = {}) {
+        function spin(number, spinOptions = {}) {
             if (disposed) return Promise.reject(new Error("Çark kapatıldı."));
             cancel();
-            const timeline = createSpinTimeline(number, current);
-            if (options.reducedMotion) return Promise.resolve(showResult(number));
+            const timeline = createSpinTimeline(number, { ...current, direction: lastDirection });
+            if (spinOptions.reducedMotion || reducedMotion()) return Promise.resolve(showResult(number));
             resize();
             canvas.setAttribute("aria-label", "Rulet çarkı dönüyor");
             return new Promise((resolve) => {
                 animation = { resolve, timeline, start: null, lastPocket: -1, lastTick: -Infinity };
+                updateInteraction();
                 function advance(timestamp) {
                     const active = animation;
                     if (!active || active.timeline !== timeline) return;
@@ -323,16 +483,13 @@
                     if (pocket !== active.lastPocket && timestamp - active.lastTick > 45) {
                         active.lastPocket = pocket;
                         active.lastTick = timestamp;
-                        if (typeof options.onTick === "function") {
-                            try { options.onTick({ number: order[pocket], index: pocket, phase: current.phase }); } catch { /* Sound does not interrupt the wheel. */ }
+                        if (typeof spinOptions.onTick === "function") {
+                            try { spinOptions.onTick({ number: order[pocket], index: pocket, phase: current.phase }); } catch { /* Sound does not interrupt the wheel. */ }
                         }
                     }
                     draw();
                     if (current.progress === 1) {
-                        animation = null;
-                        frame = 0;
-                        canvas.setAttribute("aria-label", `Rulet çarkı, sonuç ${number}`);
-                        resolve(result());
+                        completeSpin(active);
                     } else frame = view.requestAnimationFrame(advance);
                 }
                 frame = view.requestAnimationFrame(advance);
@@ -342,14 +499,32 @@
         const observer = typeof view.ResizeObserver === "function" ? new view.ResizeObserver(resize) : null;
         observer?.observe(canvas);
         view.addEventListener("resize", resize);
+        view.addEventListener("blur", cancelManual);
+        document.addEventListener("visibilitychange", visibilityChange);
+        const pointerListeners = { pointerdown: pointerDown, pointermove: pointerMove, pointerup: pointerUp,
+            pointercancel: pointerCancel, lostpointercapture: pointerCancel, keydown: keyDown };
+        Object.entries(pointerListeners).forEach(([name, listener]) => canvas.addEventListener(name, listener));
+        motion?.addEventListener?.("change", motionChange);
+        updateInteraction();
         resize();
         return Object.freeze({
             spin, showResult, cancel,
+            getState: result,
+            setInteractive(enabled) {
+                interactive = !disposed && Boolean(enabled);
+                if (!interactive) cancelManual();
+                updateInteraction();
+            },
             destroy() {
                 cancel();
                 disposed = true;
+                updateInteraction();
                 observer?.disconnect();
                 view.removeEventListener("resize", resize);
+                view.removeEventListener("blur", cancelManual);
+                document.removeEventListener("visibilitychange", visibilityChange);
+                Object.entries(pointerListeners).forEach(([name, listener]) => canvas.removeEventListener(name, listener));
+                motion?.removeEventListener?.("change", motionChange);
             },
         });
     }

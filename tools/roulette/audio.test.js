@@ -13,6 +13,7 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
     const requests = [];
     const downloads = [];
     let blocked = resumeBlocked;
+    let time = 0;
 
     function parameter(value = 0) {
         return {
@@ -55,7 +56,7 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
         }
         async decodeAudioData() {
             const samples = Float32Array.from({ length: 100 }, () => 0.95);
-            const buffer = { numberOfChannels: 1, sampleRate: 1000, length: samples.length, getChannelData: () => samples };
+            const buffer = { numberOfChannels: 1, sampleRate: 1000, duration: 6.8, length: samples.length, getChannelData: () => samples };
             this.decoded.push(buffer);
             return buffer;
         }
@@ -63,7 +64,8 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
             const voice = node({
                 started: false,
                 stopTimes: [],
-                start() { this.started = true; },
+                playbackRate: parameter(1),
+                start(_time, offset) { this.started = true; this.offset = offset; },
                 stop(time) { this.stopTimes.push(time); this.onended?.(); },
             });
             this.sources.push(voice);
@@ -75,6 +77,7 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
     const context = vm.createContext({
         AudioContext,
         URL,
+        performance: { now: () => time },
         document: { currentScript: { src: "https://example.test/omni-tools/tools/roulette/audio.js?v=2" } },
         fetch(url) {
             requests.push(url);
@@ -89,6 +92,7 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
         contexts,
         requests,
         allowResume() { blocked = false; },
+        advanceTime(milliseconds) { time += milliseconds; },
         finishDownloads() { downloads.splice(0).forEach((finish) => finish()); },
     };
 }
@@ -96,14 +100,14 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 test("audio recordings ship with valid audio headers and explicit CC0 provenance", () => {
-    for (const file of ["chip-lay-1.mp3", "chips-collide-1.mp3", "chips-stack-3.mp3", "roulette-spin.mp3"]) {
+    for (const file of ["chip-lay-1.mp3", "chips-collide-1.mp3", "chips-stack-3.mp3", "roulette-roll.mp3"]) {
         const bytes = fs.readFileSync(path.join(__dirname, "audio", file));
         assert.ok(bytes.toString("ascii", 0, 3) === "ID3" || (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0));
         assert.ok(bytes.length > 1000);
     }
     const attribution = fs.readFileSync(path.join(__dirname, "audio", "ATTRIBUTION.md"), "utf8");
     assert.match(attribution, /CC0 1\.0/);
-    assert.match(attribution, /freesound\.org\/people\/takecoins\/sounds\/588351/);
+    assert.match(attribution, /freesound\.org\/people\/KaleidacousticsAudio\/sounds\/629002/);
     assert.match(attribution, /Kenney/);
 });
 
@@ -118,7 +122,7 @@ test("first interaction unlocks and loads samples once relative to the audio scr
     assert.ok(harness.requests.every((url) => url.startsWith("https://example.test/omni-tools/tools/roulette/audio/")));
     assert.ok(harness.requests.every((url) => url.endsWith(".mp3")));
     assert.equal(harness.contexts[0].sources.length, 1);
-    assert.equal(harness.contexts[0].gains[0].gain.value, 0.5 * 0.5 * 0.65);
+    assert.equal(harness.contexts[0].gains[0].gain.value, 0.5 * 0.6);
     assert.equal(await audio.play("win"), true);
     assert.equal(await audio.unlock(), true);
     assert.equal(harness.requests.length, 4);
@@ -131,14 +135,14 @@ test("volume is clamped and smoothly updated, and mute blocks all one-shots", as
     await audio.unlock();
     const master = harness.contexts[0].gains[0].gain;
     audio.setVolume(2);
-    assert.equal(master.targets.at(-1), 0.65);
+    assert.equal(master.targets.at(-1), 0.6);
     audio.setVolume(-1);
     assert.equal(master.targets.at(-1), 0);
     assert.equal(await audio.play("chip"), false);
     audio.setVolume(0.4);
-    assert.equal(master.targets.at(-1), 0.4 * 0.4 * 0.65);
+    assert.equal(master.targets.at(-1), 0.4 * 0.6);
     audio.setVolume(NaN);
-    assert.equal(master.targets.at(-1), 0.4 * 0.4 * 0.65);
+    assert.equal(master.targets.at(-1), 0.4 * 0.6);
     audio.setMuted(true);
     assert.equal(master.targets.at(-1), 0);
     assert.equal(await audio.play("win"), false);
@@ -153,9 +157,9 @@ test("normalization caps sample peaks and RMS and fades edges before playback", 
     await audio.unlock();
     for (const buffer of harness.contexts[0].decoded) {
         const samples = buffer.getChannelData(0);
-        assert.ok(Math.max(...samples.map(Math.abs)) <= 0.600001);
+        assert.ok(Math.max(...samples.map(Math.abs)) <= 0.400001);
         const rms = Math.sqrt(samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length);
-        assert.ok(rms <= 0.120001);
+        assert.ok(rms <= 0.060001);
         assert.equal(samples[0], 0);
         assert.equal(samples.at(-1), 0);
     }
@@ -197,26 +201,67 @@ test("an old delayed spin cannot start sound after stop or after a newer spin be
     audio.startSpin();
     audio.startSpin();
     await flush();
-    assert.equal(harness.contexts[0].sources.filter((voice) => voice.loop).length, 1);
+    assert.equal(harness.contexts[0].sources.length, 1);
+    assert.equal(harness.contexts[0].sources[0].loop, false);
     audio.stopSpin();
     assert.equal(harness.contexts[0].sources[0].stopTimes.length, 1);
     assert.equal(harness.contexts[0].sources[0].stopTimes[0], 0.16);
     audio.destroy();
 });
 
-test("rapid wheel ticks are throttled and voice count remains bounded", async () => {
+test("repeated wheel ticks remain quiet and other voice counts are bounded", async () => {
     const harness = createHarness();
     const audio = harness.create();
-    assert.equal(await audio.play("tick"), true);
     assert.equal(await audio.play("tick"), false);
-    harness.contexts[0].currentTime = 0.1;
-    assert.equal(await audio.play("tick"), true);
+    assert.equal(await audio.play("tick"), false);
     for (let index = 0; index < 20; index += 1) await audio.play("chip");
     assert.equal(harness.contexts[0].sources.length, 8);
     audio.destroy();
     assert.equal(harness.contexts[0].state, "closed");
     assert.equal(await audio.play("chip"), false);
     assert.equal(await audio.unlock(), false);
+});
+
+test("a spin is one timed recording that skips elapsed audio after loading or unmute", async () => {
+    const harness = createHarness({ deferred: true });
+    const audio = harness.create();
+    audio.startSpin();
+    harness.advanceTime(1800);
+    harness.finishDownloads();
+    await flush();
+    const voice = harness.contexts[0].sources[0];
+    assert.equal(voice.loop, false);
+    assert.equal(voice.playbackRate.value, 1);
+    assert.equal(voice.offset, 1.8);
+    assert.equal(await audio.play("tick"), false);
+    assert.equal(await audio.play("bounce"), false);
+    audio.stopSpin();
+    audio.setMuted(true);
+    audio.startSpin({ durationMs: 3400 });
+    await flush();
+    harness.advanceTime(1000);
+    audio.setMuted(false);
+    await flush();
+    const shorterVoice = harness.contexts[0].sources[1];
+    assert.equal(shorterVoice.loop, false);
+    assert.equal(shorterVoice.playbackRate.value, 2);
+    assert.equal(shorterVoice.offset, 2);
+    audio.destroy();
+});
+
+test("an expired spin cannot start a full recording when a download finally completes", async () => {
+    const harness = createHarness({ deferred: true });
+    const audio = harness.create();
+    audio.startSpin();
+    harness.advanceTime(7000);
+    harness.finishDownloads();
+    await flush();
+    assert.equal(harness.contexts[0].sources.length, 0);
+    audio.setMuted(true);
+    audio.setMuted(false);
+    await flush();
+    assert.equal(harness.contexts[0].sources.length, 0);
+    audio.destroy();
 });
 
 test("mute or destroy during loading never produces a delayed sound", async () => {

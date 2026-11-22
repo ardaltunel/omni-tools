@@ -24,7 +24,7 @@
     const wagers = get("wagers");
     const status = get("status");
     const storageKey = "omni-roulette-v1";
-    const denominations = [1, 5, 25, 50, 100, 500, 1000];
+    const denominations = [1, 5, 25, 50, 100, 500, 1000, 5000, 10000];
     const layout = window.OmniRouletteLayout;
     const colors = { red: "Kırmızı", black: "Siyah", green: "Yeşil" };
     const format = new Intl.NumberFormat("tr-TR");
@@ -146,6 +146,10 @@
             (event.clientY - bounds.top) / bounds.height * currentLayout.height)?.id || null;
     }
 
+    function chipLabel(amount) {
+        return amount >= 1000 && amount % 1000 === 0 ? `${amount / 1000}K` : format.format(amount);
+    }
+
     function buildChips() {
         denominations.forEach((amount) => {
             const button = document.createElement("button");
@@ -153,24 +157,20 @@
             button.type = "button";
             button.dataset.rouletteChip = amount;
             button.setAttribute("aria-label", `${amount} kredilik çip`);
-            button.textContent = format.format(amount);
+            button.title = `${format.format(amount)} sanal kredi`;
+            button.textContent = chipLabel(amount);
             chips.append(button);
         });
     }
 
-    function totalStake() {
-        return state.pending?.stake ?? core.totalBet(state);
-    }
-
     function render() {
         const spinning = state.phase === "spinning";
+        wheel.setInteractive(!spinning && panel.classList.contains("active") && !document.hidden);
         app.dataset.phase = state.phase;
         get("balance").textContent = format.format(state.balance);
-        get("total-bet").textContent = format.format(totalStake());
         const latest = state.history[0];
         const repeatedLayout = Object.keys(state.lastBets).length === Object.keys(state.bets).length
             && Object.entries(state.lastBets).every(([id, amount]) => state.bets[id] === amount);
-        get("win").textContent = latest ? format.format(latest.payout) : "—";
         get("result-number").textContent = latest ? String(latest.number) : "—";
         get("result-number").dataset.color = latest?.color || "none";
         get("result-label").textContent = latest
@@ -199,7 +199,7 @@
             const marker = button.querySelector(".roulette-stake-marker");
             button.disabled = spinning;
             marker.hidden = !amount;
-            marker.textContent = format.format(amount);
+            marker.textContent = chipLabel(amount);
             button.classList.toggle("has-bet", amount > 0);
             button.classList.toggle("is-winner", Boolean(!spinning && latest && id === `straight:${latest.number}`));
             const description = `${button.dataset.label}, ${bet.payoutMultiplier - 1}:1${amount ? `, bahis ${format.format(amount)} kredi` : ""}`;
@@ -560,10 +560,12 @@
         syncSavedGame();
     });
     document.addEventListener("visibilitychange", () => {
+        wheel.setInteractive(!document.hidden && panel.classList.contains("active") && state.phase === "betting");
         if (document.hidden) audio.stopSpin();
         else if (panel.classList.contains("active") && state.phase === "spinning" && !motion.matches) audio.startSpin();
     });
     new MutationObserver(() => {
+        wheel.setInteractive(panel.classList.contains("active") && !document.hidden && state.phase === "betting");
         if (!panel.classList.contains("active")) {
             cancelDrag();
             audio.stopSpin();

@@ -13,14 +13,12 @@
         chip: "chip-lay-1.mp3",
         collision: "chips-collide-1.mp3",
         stack: "chips-stack-3.mp3",
-        spin: "roulette-spin.mp3",
+        spin: "roulette-roll.mp3",
     };
     const EFFECTS = {
-        chip: { sample: "chip", gain: 0.7 },
-        tick: { sample: "collision", gain: 0.13 },
-        bounce: { sample: "collision", gain: 0.4 },
-        win: { sample: "stack", gain: 0.65 },
-        lose: { sample: "chip", gain: 0.28 },
+        chip: { sample: "chip", gain: 0.9 },
+        bounce: { sample: "collision", gain: 0.15 },
+        win: { sample: "stack", gain: 0.24 },
     };
 
     function normalizedVolume(value, fallback = 0.45) {
@@ -38,7 +36,7 @@
             }
         }
         const rms = Math.sqrt(energy / Math.max(1, buffer.length * buffer.numberOfChannels));
-        const gain = Math.min(8, 0.6 / Math.max(peak, 0.0001), 0.12 / Math.max(rms, 0.0001));
+        const gain = Math.min(1, 0.4 / Math.max(peak, 0.0001), 0.06 / Math.max(rms, 0.0001));
         const edgeLength = Math.min(Math.floor(buffer.sampleRate * 0.005), Math.floor(buffer.length / 2));
         for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
             const samples = buffer.getChannelData(channel);
@@ -61,13 +59,14 @@
         let spinning = false;
         let spinVoice = null;
         let spinGeneration = 0;
-        let lastTick = -Infinity;
+        let spinStartedAt = 0;
+        let spinDuration = 6.8;
         const buffers = new Map();
         const voices = new Set();
 
         function updateMaster() {
             if (!master) return;
-            const level = muted ? 0 : volume * volume * 0.65;
+            const level = muted ? 0 : volume * 0.6;
             master.gain.cancelScheduledValues(context.currentTime);
             master.gain.setTargetAtTime(level, context.currentTime, 0.025);
         }
@@ -80,10 +79,10 @@
             try {
                 context = new AudioContext({ latencyHint: "interactive" });
                 master = context.createGain();
-                master.gain.value = muted ? 0 : volume * volume * 0.65;
+                master.gain.value = muted ? 0 : volume * 0.6;
                 filter = context.createBiquadFilter();
                 filter.type = "lowpass";
-                filter.frequency.value = 4800;
+                filter.frequency.value = 3200;
                 filter.Q.value = 0.5;
                 const compressor = context.createDynamicsCompressor();
                 compressor.threshold.value = -18;
@@ -121,23 +120,25 @@
             }
         }
 
-        function makeVoice(sample, gain, loop) {
+        function makeVoice(sample, gain, { offset = 0, playbackRate = 1, fadeIn = 0.006 } = {}) {
             if (destroyed || muted || volume === 0 || !buffers.has(sample) || context.state !== "running") return null;
             try {
                 const source = context.createBufferSource();
                 const envelope = context.createGain();
                 source.buffer = buffers.get(sample);
-                source.loop = loop;
+                source.loop = false;
+                source.playbackRate.value = playbackRate;
                 envelope.gain.setValueAtTime(0, context.currentTime);
-                envelope.gain.linearRampToValueAtTime(gain, context.currentTime + (loop ? 0.18 : 0.006));
+                envelope.gain.linearRampToValueAtTime(gain, context.currentTime + fadeIn);
                 source.connect(envelope).connect(filter);
                 const voice = { source, envelope };
                 source.onended = () => {
                     voices.delete(voice);
+                    if (spinVoice === voice) spinVoice = null;
                     source.disconnect();
                     envelope.disconnect();
                 };
-                source.start();
+                source.start(0, offset);
                 voices.add(voice);
                 return voice;
             } catch {
@@ -148,14 +149,11 @@
         async function play(kind) {
             const effect = EFFECTS[kind];
             if (!effect || destroyed || muted || volume === 0) return false;
+            if (kind === "bounce" && spinning) return false;
             const generation = spinGeneration;
             if (!(await unlock()) || muted || volume === 0 || generation !== spinGeneration) return false;
-            if (kind === "tick") {
-                if (context.currentTime - lastTick < 0.09) return false;
-                lastTick = context.currentTime;
-            }
             if (voices.size >= 8) return false;
-            return Boolean(makeVoice(effect.sample, effect.gain, false));
+            return Boolean(makeVoice(effect.sample, effect.gain));
         }
 
         function fadeVoice(voice, duration) {
@@ -168,12 +166,24 @@
 
         async function resumeSpin(generation) {
             if (!(await unlock()) || !spinning || generation !== spinGeneration || spinVoice) return;
-            spinVoice = makeVoice("spin", 0.58, true);
+            const elapsed = (now() - spinStartedAt) / 1000;
+            const buffer = buffers.get("spin");
+            if (!buffer || elapsed >= spinDuration) return;
+            const playbackRate = buffer.duration / spinDuration;
+            spinVoice = makeVoice("spin", 0.75, {
+                offset: Math.max(0, elapsed * playbackRate), playbackRate, fadeIn: 0.12,
+            });
         }
 
-        function startSpin() {
+        function now() {
+            return root.performance?.now() ?? Date.now();
+        }
+
+        function startSpin({ durationMs = 6800 } = {}) {
             if (destroyed || spinning) return;
             spinning = true;
+            spinStartedAt = now();
+            spinDuration = Number.isFinite(durationMs) ? Math.min(12, Math.max(0.3, durationMs / 1000)) : 6.8;
             spinGeneration += 1;
             resumeSpin(spinGeneration);
         }
