@@ -219,7 +219,7 @@
             marker.hidden = !amount;
             marker.textContent = format.format(amount);
             button.classList.toggle("has-bet", amount > 0);
-            button.classList.toggle("is-winner", !spinning && latest && id === `straight:${latest.number}`);
+            button.classList.toggle("is-winner", Boolean(!spinning && latest && id === `straight:${latest.number}`));
             button.setAttribute("aria-label", `${bet.label}, ${bet.payoutMultiplier - 1}:1${amount ? `, bahis ${format.format(amount)} kredi` : ""}`);
         });
         renderWagers(activeBets, spinning);

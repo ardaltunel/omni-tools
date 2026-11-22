@@ -87,9 +87,114 @@ function createSettlementHarness(initial, { stored = initial, blockedWrites = fa
     };
 }
 
+function createRenderHarness() {
+    class Element {
+        constructor() {
+            this.children = [];
+            this.dataset = {};
+            this.style = {};
+            this.attributes = {};
+            this.classes = new Set();
+            this.classList = {
+                contains: (token) => this.classes.has(token),
+                toggle: (token, force) => {
+                    // An omitted or undefined optional force toggles the token.
+                    const include = force === undefined ? !this.classes.has(token) : Boolean(force);
+                    if (include) this.classes.add(token);
+                    else this.classes.delete(token);
+                    return include;
+                },
+            };
+        }
+
+        set className(value) { this.classes = new Set(value.split(/\s+/u).filter(Boolean)); }
+        append(...children) { this.children.push(...children); }
+        replaceChildren(...children) { this.children = children; }
+        setAttribute(name, value) { this.attributes[name] = String(value); }
+        querySelectorAll(selector) {
+            const descendants = this.children.flatMap((child) => [child, ...child.querySelectorAll(selector)]);
+            return descendants.filter((element) => element.classList.contains(selector.slice(1)));
+        }
+        querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
+    }
+
+    const elements = new Map();
+    const get = (name) => {
+        if (!elements.has(name)) elements.set(name, new Element());
+        return elements.get(name);
+    };
+    const context = vm.createContext({
+        core,
+        document: { createElement: () => new Element() },
+        get,
+        app: get("app"),
+        table: get("table"),
+        chips: get("chips"),
+        wagers: get("wagers"),
+        betType: get("bet-type"),
+        betOption: get("bet-option"),
+        denominations: [1, 5, 25, 100, 500],
+        colors: { red: "Kırmızı", black: "Siyah", green: "Yeşil" },
+        format: new Intl.NumberFormat("tr-TR"),
+    });
+    const functions = ["betButton", "buildTable", "buildChips", "totalStake", "render", "renderWagers", "renderHistory", "highlightBet"]
+        .map(readAppFunction).join("\n");
+    vm.runInContext(`
+        let state = core.createState();
+        let selectedChip = 25;
+        let muted = true;
+        ${functions}
+        const tableButtons = buildTable();
+        buildChips();
+        this.renderGame = render;
+        this.selectChip = (value) => { selectedChip = value; render(); };
+        this.setGame = (next) => { state = next; render(); };
+        this.currentState = () => state;
+    `, context);
+    return {
+        get,
+        render: context.renderGame,
+        selectChip: context.selectChip,
+        setGame: context.setGame,
+        current: context.currentState,
+        winners: () => get("table").querySelectorAll(".is-winner").map((button) => button.dataset.betId),
+    };
+}
+
 function draw(number) {
     return { getRandomValues(buffer) { buffer[0] = number; return buffer; } };
 }
+
+test("winner highlighting stays stable across chip selections, zero results and spinning", () => {
+    const app = createRenderHarness();
+    app.render();
+    assert.equal(app.get("table").children.length, 49);
+    assert.deepEqual(app.winners(), []);
+
+    for (const chip of [5, 25, 5, 25, 5]) {
+        app.selectChip(chip);
+        assert.deepEqual(app.winners(), []);
+        assert.equal(app.get("table").querySelectorAll(".is-covered").length, 0);
+        assert.equal(app.current().balance, 10000);
+        assert.equal(core.totalBet(app.current()), 0);
+        assert.equal(app.get("wagers").children.length, 0);
+        assert.deepEqual(app.get("chips").querySelectorAll(".is-selected").map((button) => Number(button.dataset.rouletteChip)), [chip]);
+    }
+
+    for (const number of [0, 17]) {
+        const pending = core.beginSpin(core.addBet(core.createState(), "red", 25), draw(number));
+        app.setGame(core.settleSpin(pending).state);
+        assert.deepEqual(app.winners(), [`straight:${number}`]);
+        app.selectChip(25);
+        app.selectChip(5);
+        assert.deepEqual(app.winners(), [`straight:${number}`]);
+    }
+
+    app.setGame(core.beginSpin(core.addBet(app.current(), "red", 25), draw(0)));
+    assert.deepEqual(app.winners(), []);
+    app.setGame(core.createState());
+    assert.deepEqual(app.winners(), []);
+});
 
 test("a stale wheel completion adopts a newer stored spin before its storage event arrives", async () => {
     const first = core.beginSpin(core.addBet(core.createState(), "red", 25), draw(1));
