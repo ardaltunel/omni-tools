@@ -337,7 +337,16 @@
                     count.dataset.captures = "true";
                     count.setAttribute("aria-label", `${names(game)[index]}: ${game.capturedCounts[index]} kart topladı. Takımınızın kazandığı kartları gör`);
                 }
-                meta.replaceChildren(avatar("pisti-seat-avatar"), name, count);
+                if (index === 0) {
+                    meta.classList.add("pisti-player-plaque");
+                    meta.dataset.state = canPlay ? "ready" : playing ? "waiting" : "finished";
+                    const identity = element("span", "pisti-player-identity");
+                    const stateLabel = !playing ? "El tamamlandı" : !ui.active ? "Oyun beklemede" : ui.busy ? "Hazırlanıyor" : canPlay ? "Sıra sende"
+                        : game.mode === "teams" && game.currentSeat === 2 ? "Eşinin sırası" : "Rakibin sırası";
+                    identity.append(name, element("span", "pisti-player-state", stateLabel));
+                    count.append(element("small", "pisti-captured-caption", "Toplanan"));
+                    meta.replaceChildren(avatar("pisti-seat-avatar"), identity, count);
+                } else meta.replaceChildren(avatar("pisti-seat-avatar"), name, count);
                 if (renderedCounts && game.capturedCounts[index] > (renderedCounts[index] || 0)) counterPop(count);
                 if (index > 0) {
                     seat.querySelector(".pisti-opponent-hand").replaceChildren(...Array.from({ length: game.handCounts[index] }, () => cards.create(null, { faceDown: true, small: true })));
