@@ -181,6 +181,7 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
     const audioVolumes = [];
     const interactiveStates = [];
     const documentListeners = new Map();
+    let wheelOptions;
     let panelMutation;
     const animationFrames = new Map();
     let nextFrame = 1;
@@ -277,6 +278,7 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
     volumeControl.className = "roulette-volume-control";
     volumeControl.append(get("volume"));
     const document = {
+        body: get("body"),
         hidden: false,
         activeElement: null,
         getElementById: (id) => id === "roulette" ? panel : get(id.replace(/^roulette-/u, "")),
@@ -292,11 +294,11 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
         window: {
             OmniRouletteCore: core,
             OmniRouletteLayout: layout,
-            OmniRouletteWheel: { create: () => ({
+            OmniRouletteWheel: { create: (_canvas, options) => { wheelOptions = options; return {
                 cancel() {}, showResult() {},
                 setInteractive(value) { interactiveStates.push(value); },
                 spin(number) { spins.push(number); return new Promise(() => {}); },
-            }) },
+            }; } },
             OmniRouletteAudio: { create: () => audio },
             matchMedia: () => ({ matches: false }),
             addEventListener() {},
@@ -323,6 +325,7 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
         spins,
         audioVolumes,
         interactiveStates,
+        releaseWheel: () => wheelOptions.onRelease(),
         setHidden(value) { document.hidden = value; documentListeners.get("visibilitychange")(); },
         setActive(value) { panel.classList.toggle("active", value); panelMutation(); },
         pendingFrames: () => animationFrames.size,
@@ -465,7 +468,7 @@ test("fare ile köşeye sürüklenen çip tek bahis koyar ve son tıklama ikinci
     app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 80, clientY: 550 });
     assert.equal(chip.hasPointerCapture(7), true);
     app.get("chips").dispatch("pointermove", { ...pointer, ...point });
-    assert.equal(app.get("app").querySelectorAll(".roulette-chip-ghost").length, 1);
+    assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 1);
     assert.equal(app.bet("corner:32-33-35-36").classList.contains("is-target"), true);
     app.get("chips").dispatch("pointerup", { ...pointer, ...point });
 
@@ -473,7 +476,7 @@ test("fare ile köşeye sürüklenen çip tek bahis koyar ve son tıklama ikinci
     assert.equal(app.snapshot().chip, 1000);
     assert.equal(chip.hasPointerCapture(7), false);
     assert.equal(chip.classList.contains("is-dragging"), false);
-    assert.equal(app.get("app").querySelectorAll(".roulette-chip-ghost").length, 0);
+    assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 0);
     assert.equal(app.pendingFrames(), 0);
     const writes = app.writes();
     app.get("chips").dispatch("click", { target: chip, detail: 1 });
@@ -535,4 +538,54 @@ test("çark etkileşimi gizli araçta ve bahisli dönüş sırasında kapatılı
     app.setHidden(true);
     app.setHidden(false);
     assert.equal(app.interactiveStates.at(-1), false);
+});
+
+test("çarkı bırakmak mevcut bahsi tek kez başlatır ve bakiyeyi bir kez düşer", () => {
+    const app = createInteractionHarness();
+    assert.equal(app.releaseWheel(), false);
+    assert.equal(app.spins.length, 0);
+    assert.equal(app.writes(), 0);
+    app.get("table").dispatch("click", { target: app.bet("corner:1-2-4-5"), detail: 0 });
+    assert.equal(app.releaseWheel(), true);
+    const pending = app.snapshot().game;
+    assert.equal(pending.phase, "spinning");
+    assert.equal(pending.balance, 9975);
+    assert.equal(pending.pending.stake, 25);
+    assert.deepEqual(pending.pending.bets, { "corner:1-2-4-5": 25 });
+    assert.equal(app.spins.length, 1);
+    const writes = app.writes();
+    assert.equal(app.releaseWheel(), false);
+    assert.equal(app.spins.length, 1);
+    assert.equal(app.writes(), writes);
+    assert.deepEqual(app.snapshot().game, pending);
+});
+
+test("sürüklenen çip boyutunu, rengini ve tutulan noktayı koruyarak anında fareyi izler", () => {
+    const app = createInteractionHarness();
+    const chip = app.chip(5000);
+    chip.getBoundingClientRect = () => ({ left: 120, top: 650, width: 44, height: 44 });
+    const pointer = { target: chip, pointerId: 17, pointerType: "mouse", isPrimary: true, button: 0 };
+    app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 130, clientY: 660 });
+    app.get("chips").dispatch("pointermove", { ...pointer, clientX: 300, clientY: 400 });
+    const ghost = app.get("body").querySelector(".roulette-chip-ghost");
+    assert.ok(ghost, "the live chip is outside layout/query containers");
+    assert.equal(app.get("app").querySelectorAll(".roulette-chip-ghost").length, 0);
+    assert.equal(ghost.dataset.rouletteChip, 5000);
+    assert.equal(ghost.style.width, "44px");
+    assert.equal(ghost.style.height, "44px");
+    assert.equal(ghost.style.transform, "translate3d(290px, 390px, 0)");
+    app.get("chips").dispatch("pointermove", { ...pointer, clientX: 310, clientY: 415 });
+    assert.equal(ghost.style.transform, "translate3d(300px, 405px, 0)");
+    app.get("chips").dispatch("pointercancel", pointer);
+    assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 0);
+    assert.equal(chip.hasPointerCapture(17), false);
+    assert.equal(app.pendingFrames(), 0);
+    assert.equal(app.writes(), 0);
+    app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 130, clientY: 660 });
+    app.get("chips").dispatch("pointermove", { ...pointer, clientX: 300, clientY: 400 });
+    app.setHidden(true);
+    assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 0);
+    assert.equal(chip.hasPointerCapture(17), false);
+    assert.equal(app.pendingFrames(), 0);
+    assert.equal(app.writes(), 0);
 });

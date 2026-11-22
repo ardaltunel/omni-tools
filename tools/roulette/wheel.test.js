@@ -238,10 +238,10 @@ test("yakalanan işaretçi elips eğimini düzeltir ve açı sınırını iki y�
     renderer.destroy();
 });
 
-test("merkez, çark dışı ve başka işaretçiler dönüş başlatmaz veya açı sıçraması oluşturmaz", () => {
+test("merkez, çark dışından başlama ve başka işaretçiler açı sıçraması oluşturmaz", () => {
     const mock = mockCanvas();
     const renderer = wheel.create(mock.canvas);
-    for (const options of [{ radius: 0.05 }, { radius: 1.1 }, { button: 2 }, { isPrimary: false }]) {
+    for (const options of [{ radius: 1.1 }, { button: 2 }, { isPrimary: false }]) {
         mock.pointer("pointerdown", 0, options);
         assert.equal(mock.canvas.dataset.interaction, "idle");
         assert.equal(mock.captured.size, 0);
@@ -255,8 +255,9 @@ test("merkez, çark dışı ve başka işaretçiler dönüş başlatmaz veya aç
     mock.pointer("pointermove", 2.2, { time: 46 });
     assert.ok(distance(renderer.getState().wheelAngle, 0.2) < 1e-10);
     mock.pointer("pointermove", 2.5, { time: 50, radius: 1.1 });
-    mock.pointer("pointermove", -2, { time: 60 });
-    assert.ok(distance(renderer.getState().wheelAngle, 0.2) < 1e-10);
+    assert.ok(distance(renderer.getState().wheelAngle, 0.5) < 1e-10);
+    mock.pointer("pointermove", 2.7, { time: 60 });
+    assert.ok(distance(renderer.getState().wheelAngle, 0.7) < 1e-10);
     renderer.cancel();
     assert.equal(mock.frames.size, 0);
     renderer.destroy();
@@ -472,4 +473,248 @@ test("klavye ve azaltılmış hareket ayarı resmi sonucu koruyarak gereksiz ani
     assert.equal((await reduced.spin(0)).number, 0);
     assert.equal(explicit.frames.size, 0);
     reduced.destroy();
+});
+
+test("tamamlanan bilinçli sürükleme bırakma kancasını yakalama temizlendikten sonra yalnızca bir kez çağırır", () => {
+    for (const direction of [1, -1]) {
+        const mock = mockCanvas();
+        const releases = [];
+        const renderer = wheel.create(mock.canvas, {
+            onRelease(release) {
+                assert.equal(mock.captured.size, 0);
+                assert.equal(mock.canvas.dataset.interaction, "idle");
+                releases.push(release);
+                return true;
+            },
+        });
+        mock.pointer("pointerdown", 0, { time: 0 });
+        mock.pointer("pointermove", direction * 0.8, { time: 16 });
+        mock.pointer("pointerup", direction * 0.8, { time: 16 });
+        mock.pointer("pointerup", direction * 0.8, { time: 20 });
+        assert.equal(releases.length, 1);
+        assert.equal(releases[0].direction, direction);
+        assert.equal(Math.sign(releases[0].velocity), direction);
+        assert.ok(Math.abs(releases[0].velocity) <= 9);
+        assert.ok(Math.abs(releases[0].rotation - direction * 0.8) < 1e-10);
+        assert.ok(Math.abs(releases[0].angularTravel - 0.8) < 1e-10);
+        assert.ok(releases[0].distance > 6);
+        assert.equal(mock.frames.size, 0);
+        renderer.destroy();
+    }
+});
+
+test("çarktan başlayan yakalanmış sürükleme canvas dışında bırakılınca da turu başlatır", () => {
+    for (const direction of [1, -1]) {
+        const mock = mockCanvas();
+        const releases = [];
+        const renderer = wheel.create(mock.canvas, { onRelease(release) { releases.push(release); return true; } });
+        mock.pointer("pointerdown", 0, { time: 0 });
+        mock.pointer("pointermove", direction * 0.3, { time: 16, radius: 1.2 });
+        assert.ok(distance(renderer.getState().wheelAngle, direction * 0.3) < 1e-10);
+        assert.equal(mock.captured.has(1), true);
+        mock.pointer("pointerup", direction * 0.8, { time: 32, radius: 2 });
+        assert.ok(distance(renderer.getState().wheelAngle, direction * 0.8) < 1e-10);
+        assert.equal(releases.length, 1);
+        assert.equal(releases[0].direction, direction);
+        assert.ok(Math.abs(releases[0].rotation - direction * 0.8) < 1e-10);
+        assert.equal(mock.captured.size, 0);
+        assert.equal(mock.frames.size, 0);
+        mock.pointer("pointerup", direction * 0.8, { radius: 2 });
+        assert.equal(releases.length, 1);
+        renderer.destroy();
+    }
+});
+
+test("merkezden yatay veya dikey çekme iki yönde de döner ve dışarıda bırakılınca tur başlatır", () => {
+    for (const [dx, dy, direction] of [[50, 3, 1], [-50, 3, -1], [3, -50, 1], [3, 50, -1]]) {
+        const mock = mockCanvas();
+        const releases = [];
+        const renderer = wheel.create(mock.canvas, { onRelease(release) { releases.push(release); return true; } });
+        const bounds = mock.canvas.getBoundingClientRect();
+        const radius = Math.min(bounds.width * 0.475, bounds.height * 0.54);
+        const point = (name, x, y, time) => mock.pointer(name, 0, {
+            radius: 0, clientX: bounds.left + bounds.width / 2 + x,
+            clientY: bounds.top + bounds.height * 0.46 + y, time,
+        });
+        point("pointerdown", 0, 0, 0);
+        assert.equal(mock.captured.has(1), true);
+        point("pointermove", 2, 1, 8);
+        assert.equal(renderer.getState().wheelAngle, 0);
+        point("pointermove", dx, dy, 24);
+        const horizontal = Math.abs(dx) > Math.abs(dy);
+        const expected = (horizontal ? dx : -dy) / radius;
+        assert.ok(distance(renderer.getState().wheelAngle, expected) < 1e-10);
+        point("pointerup", horizontal ? direction * bounds.width * 2 : 3,
+            horizontal ? 3 : -direction * bounds.height * 2, 40);
+        assert.equal(releases.length, 1);
+        assert.equal(releases[0].direction, direction);
+        assert.ok(Math.abs(releases[0].velocity) <= 9);
+        assert.equal(mock.captured.size, 0);
+        assert.equal(mock.canvas.dataset.interaction, "idle");
+        assert.equal(mock.frames.size, 0);
+        renderer.destroy();
+    }
+});
+
+test("merkezden çekmenin ekseni ilk belirgin harekette sabitlenir ve kutupsal moda sıçramaz", () => {
+    for (const axis of ["x", "y"]) {
+        const mock = mockCanvas();
+        const renderer = wheel.create(mock.canvas);
+        const bounds = mock.canvas.getBoundingClientRect();
+        const radius = Math.min(bounds.width * 0.475, bounds.height * 0.54);
+        const point = (name, dx, dy, time) => mock.pointer(name, 0, {
+            radius: 0, clientX: bounds.left + bounds.width / 2 + dx,
+            clientY: bounds.top + bounds.height * 0.46 + dy, time,
+        });
+        point("pointerdown", 0, 0, 0);
+        point("pointermove", axis === "x" ? 10 : 1, axis === "x" ? 1 : -10, 16);
+        assert.ok(distance(renderer.getState().wheelAngle, 10 / radius) < 1e-10);
+        point("pointermove", axis === "x" ? 20 : 1000, axis === "x" ? 1000 : -20, 32);
+        assert.ok(distance(renderer.getState().wheelAngle, 20 / radius) < 1e-10);
+        renderer.destroy();
+    }
+});
+
+test("merkez tıklaması ve altı pikselden küçük titreşim tur başlatmaz, iptal edilen çekme de başlatmaz", () => {
+    for (const action of ["click", "jitter", "cancel"]) {
+        const mock = mockCanvas();
+        let releases = 0;
+        const renderer = wheel.create(mock.canvas, { onRelease() { releases += 1; return true; } });
+        const bounds = mock.canvas.getBoundingClientRect();
+        const point = (name, dx, dy, time) => mock.pointer(name, 0, {
+            radius: 0, clientX: bounds.left + bounds.width / 2 + dx,
+            clientY: bounds.top + bounds.height * 0.46 + dy, time,
+        });
+        point("pointerdown", 0, 0, 0);
+        if (action === "jitter") {
+            for (let move = 1; move <= 12; move += 1) point("pointermove", move % 2 ? 2 : -2, 1, move * 16);
+        }
+        if (action === "cancel") {
+            point("pointermove", 50, 1, 16);
+            mock.dispatch("pointercancel", { pointerId: 1 });
+        }
+        point("pointerup", action === "cancel" ? 50 : 0, 0, 200);
+        assert.equal(releases, 0, action);
+        assert.equal(mock.frames.size, 0);
+        assert.equal(mock.captured.size, 0);
+        renderer.destroy();
+    }
+});
+
+test("son taşıma olayı gelmese veya çekme merkezden geçse de bırakmanın son koordinatı değerlendirilir", () => {
+    for (const gesture of ["radial", "center", "cross-center"]) {
+        const mock = mockCanvas();
+        const releases = [];
+        const renderer = wheel.create(mock.canvas, { onRelease(release) { releases.push(release); return true; } });
+        mock.pointer("pointerdown", 0, { time: 0, radius: gesture === "center" ? 0 : 0.7 });
+        if (gesture === "cross-center") mock.pointer("pointermove", 0, { time: 16, radius: 0.05 });
+        mock.pointer("pointerup", 0, { time: 32, radius: gesture === "cross-center" ? 0.05 : 2 });
+        assert.equal(releases.length, 1, gesture);
+        assert.ok(releases[0].distance >= 6);
+        if (gesture === "center") assert.ok(releases[0].rotation > 0);
+        assert.equal(mock.captured.size, 0);
+        assert.equal(mock.frames.size, 0);
+        renderer.destroy();
+    }
+});
+
+test("tıklama, küçük titreşim veya iptal edilmiş sürükleme bahis turu başlatmaz", () => {
+    for (const reason of ["click", "jitter", "pointercancel", "lostpointercapture", "blur", "hidden", "resize", "route", "cancel", "destroy"]) {
+        const mock = mockCanvas();
+        let releases = 0;
+        const renderer = wheel.create(mock.canvas, { onRelease() { releases += 1; return true; } });
+        mock.pointer("pointerdown", 0, { time: 0 });
+        if (reason === "jitter") {
+            // Accumulated movement is large, but the cursor never leaves a tiny neighborhood.
+            for (let move = 1; move <= 12; move += 1) {
+                mock.pointer("pointermove", move % 2 ? 0.01 : -0.01, { time: move * 16 });
+            }
+        } else if (reason !== "click") mock.pointer("pointermove", 0.8, { time: 16 });
+        if (reason === "pointercancel" || reason === "lostpointercapture") mock.pointer(reason, 0.8);
+        if (reason === "blur") mock.listeners.get("blur")();
+        if (reason === "hidden") mock.hide();
+        if (reason === "resize") mock.resize(320, 280);
+        if (reason === "route") renderer.setInteractive(false);
+        if (reason === "cancel") renderer.cancel();
+        if (reason === "destroy") renderer.destroy();
+        const angle = reason === "click" ? 0 : reason === "jitter" ? -0.01 : 0.8;
+        mock.pointer("pointerup", angle);
+        assert.equal(releases, 0, reason);
+        renderer.destroy();
+    }
+});
+
+test("bırakma kancası turu üstlenmediğinde serbest çevirmenin ataleti devam eder", () => {
+    for (const response of [false, undefined, "throw"]) {
+        const mock = mockCanvas();
+        let releases = 0;
+        const renderer = wheel.create(mock.canvas, {
+            onRelease() {
+                releases += 1;
+                if (response === "throw") throw new Error("Round unavailable");
+                return response;
+            },
+        });
+        renderer.showResult(17);
+        mock.pointer("pointerdown", 0, { time: 0 });
+        mock.pointer("pointermove", 0.8, { time: 16 });
+        mock.pointer("pointerup", 0.8, { time: 16, radius: response === false ? 2 : 0.7 });
+        assert.equal(releases, 1);
+        assert.equal(mock.canvas.dataset.interaction, "coasting");
+        assert.equal(mock.frames.size, 1);
+        const before = renderer.getState();
+        mock.tick(116);
+        const after = renderer.getState();
+        assert.ok(after.wheelAngle > before.wheelAngle);
+        assert.ok(distance(after.ballAngle, after.wheelAngle + wheel.TOP + after.index * wheel.STEP) < 1e-10);
+        mock.tick(5016);
+        assert.equal(mock.frames.size, 0);
+        renderer.destroy();
+    }
+});
+
+test("bırakma kancasının başlattığı gerçek dönüş 37 güvenli sonucu da tek animasyonla doğru cebe indirir", async () => {
+    for (const number of core.WHEEL_ORDER) {
+        const mock = mockCanvas();
+        let releases = 0;
+        let pending;
+        let state = core.addBet(core.createState(), "red", 25);
+        const direction = number % 2 ? -1 : 1;
+        const renderer = wheel.create(mock.canvas, {
+            onRelease(release) {
+                releases += 1;
+                assert.equal(release.direction, direction);
+                assert.equal(mock.captured.size, 0);
+                state = core.beginSpin(state, { getRandomValues(buffer) { buffer[0] = number; return buffer; } });
+                assert.equal(state.pending.number, number);
+                renderer.setInteractive(false);
+                pending = renderer.spin(state.pending.number);
+                return true;
+            },
+        });
+        mock.pointer("pointerdown", 0, { time: 0 });
+        mock.pointer("pointermove", direction * 0.8, { time: 16 });
+        mock.pointer("pointerup", direction * 0.8, { time: 16, radius: number % 2 ? 2 : 0.7 });
+        assert.equal(releases, 1);
+        assert.equal(mock.canvas.dataset.interaction, "idle");
+        assert.equal(mock.canvas.dataset.interactive, "false");
+        assert.equal(mock.frames.size, 1);
+        mock.pointer("pointerup", direction * 0.8, { time: 17 });
+        assert.equal(releases, 1);
+        mock.tick(20);
+        const start = renderer.getState();
+        mock.tick(120);
+        assert.equal(Math.sign(renderer.getState().wheelAngle - start.wheelAngle), direction);
+        assert.equal(mock.canvas.dataset.interaction, "idle");
+        mock.tick(20 + wheel.DEFAULT_DURATION);
+        const final = await pending;
+        assert.equal(final.number, number);
+        assert.ok(distance(final.ballAngle, final.wheelAngle + wheel.TOP + final.index * wheel.STEP) < 1e-10);
+        assert.equal(mock.frames.size, 0);
+        assert.equal(state.balance, 9975);
+        const settled = core.settleSpin(state);
+        assert.equal(settled.result.number, number);
+        assert.equal(settled.state.history.length, 1);
+        renderer.destroy();
+    }
 });

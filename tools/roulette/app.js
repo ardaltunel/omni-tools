@@ -30,7 +30,7 @@
     const format = new Intl.NumberFormat("tr-TR");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const saved = readSaved();
-    const wheel = window.OmniRouletteWheel.create(get("wheel"));
+    const wheel = window.OmniRouletteWheel.create(get("wheel"), { onRelease: spin });
     let state = core.restoreState(saved.game) || core.createState();
     let selectedChip = denominations.includes(saved.chip) ? saved.chip : 25;
     let muted = saved.muted === true;
@@ -171,11 +171,6 @@
         const latest = state.history[0];
         const repeatedLayout = Object.keys(state.lastBets).length === Object.keys(state.bets).length
             && Object.entries(state.lastBets).every(([id, amount]) => state.bets[id] === amount);
-        get("result-number").textContent = latest ? String(latest.number) : "—";
-        get("result-number").dataset.color = latest?.color || "none";
-        get("result-label").textContent = latest
-            ? `${spinning ? "Önceki sonuç" : colors[latest.color]} · ${latest.net >= 0 ? "+" : "−"}${format.format(Math.abs(latest.net))} net`
-            : "İlk tur için bahis koy";
         get("spin").disabled = spinning || !core.totalBet(state);
         get("undo").disabled = spinning || !state.undoStack.length;
         get("clear").disabled = spinning || !core.totalBet(state);
@@ -357,18 +352,23 @@
         render();
         get("wheel").setAttribute("aria-label", `Rulet çarkı. Sonuç ${number}, ${colors[core.getColor(number)]}.`);
         const result = settlement.result;
-        status.textContent = `${number} · ${colors[result.color]}. Ödeme ${format.format(result.payout)} kredi. Net ${result.net >= 0 ? "+" : "−"}${format.format(Math.abs(result.net))}.`;
+        status.textContent = `Ödeme ${format.format(result.payout)} kredi. Net ${result.net >= 0 ? "+" : "−"}${format.format(Math.abs(result.net))}.`;
         playSound(result.net > 0 ? "win" : "lose");
     }
 
     function spin() {
+        if (!panel.classList.contains("active") || document.hidden) return false;
         audio.unlock();
-        if (syncSavedGame()) return;
-        if (state.phase !== "betting" || !core.totalBet(state)) return;
+        if (syncSavedGame()) return false;
+        if (state.phase !== "betting") return false;
+        if (!core.totalBet(state)) {
+            status.textContent = "Tur başlatmak için masaya çip yerleştir.";
+            return false;
+        }
         cancelDrag();
         try {
             const next = core.beginSpin(state);
-            if (!next) return;
+            if (!next) return false;
             state = next;
             save();
             animatePending();
@@ -376,8 +376,10 @@
             if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
                 get("wheel").scrollIntoView({ behavior: motion.matches ? "auto" : "smooth", block: "center" });
             }
+            return true;
         } catch {
             status.textContent = "Güvenli rastgele sayı üretimi kullanılamıyor. Güncel bir tarayıcıda tekrar dene.";
+            return false;
         }
     }
 
@@ -386,9 +388,12 @@
         if (!button || button.disabled || !event.isPrimary || event.button !== 0 || drag) return;
         audio.unlock();
         ignoreChipClick = false;
+        const bounds = button.getBoundingClientRect();
         drag = {
             button, amount: Number(button.dataset.rouletteChip), pointerId: event.pointerId,
             x: event.clientX, y: event.clientY, clientX: event.clientX, clientY: event.clientY, ghost: null,
+            width: bounds.width, height: bounds.height,
+            offsetX: event.clientX - bounds.left, offsetY: event.clientY - bounds.top,
         };
         button.setPointerCapture(event.pointerId);
     }
@@ -401,17 +406,27 @@
             if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
             const ghost = drag.button.cloneNode(true);
             ghost.removeAttribute("id");
-            ghost.removeAttribute("data-roulette-chip");
             ghost.classList.add("roulette-chip-ghost");
             ghost.setAttribute("aria-hidden", "true");
             ghost.tabIndex = -1;
-            app.append(ghost);
+            ghost.style.width = `${drag.width}px`;
+            ghost.style.height = `${drag.height}px`;
+            // A query container establishes a containing block for fixed descendants.
+            // Keep the live chip in the viewport, outside the app's query containers.
+            document.body.append(ghost);
             drag.ghost = ghost;
             drag.button.classList.add("is-dragging");
         }
-        drag.ghost.style.transform = `translate3d(${event.clientX - 23}px, ${event.clientY - 23}px, 0)`;
-        highlightBet(betAtPoint(event));
+        drag.ghost.style.transform = `translate3d(${event.clientX - drag.offsetX}px, ${event.clientY - drag.offsetY}px, 0)`;
+        previewDragBet();
         if (!dragScrollFrame) dragScrollFrame = requestAnimationFrame(scrollDrag);
+    }
+
+    function previewDragBet() {
+        const target = betAtPoint(drag);
+        if (drag.target === target) return;
+        drag.target = target;
+        highlightBet(target);
     }
 
     function scrollDrag() {
@@ -425,7 +440,7 @@
         const previous = window.scrollY;
         window.scrollBy({ top: speed, behavior: "instant" });
         if (window.scrollY === previous) return;
-        highlightBet(betAtPoint(drag));
+        previewDragBet();
         dragScrollFrame = requestAnimationFrame(scrollDrag);
     }
 
@@ -561,7 +576,10 @@
     });
     document.addEventListener("visibilitychange", () => {
         wheel.setInteractive(!document.hidden && panel.classList.contains("active") && state.phase === "betting");
-        if (document.hidden) audio.stopSpin();
+        if (document.hidden) {
+            cancelDrag();
+            audio.stopSpin();
+        }
         else if (panel.classList.contains("active") && state.phase === "spinning" && !motion.matches) audio.startSpin();
     });
     new MutationObserver(() => {

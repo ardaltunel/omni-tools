@@ -80,7 +80,7 @@
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=57">
     <link rel="stylesheet" href="tools/block-blast/style.css?v=1">
-    <link rel="stylesheet" href="tools/roulette/style.css?v=4">
+    <link rel="stylesheet" href="tools/roulette/style.css?v=5">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=21">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=8">
@@ -870,16 +870,8 @@
                     <div class="roulette-workspace">
                         <div class="roulette-wheel-panel">
                             <div class="roulette-wheel-stage">
-                                <canvas id="roulette-wheel" class="roulette-wheel-canvas" width="720" height="640" role="img" tabindex="0" aria-label="37 cepli Avrupa ruleti çarkı" aria-describedby="roulette-wheel-hint"></canvas>
-                            </div>
-                            <p id="roulette-wheel-hint" class="roulette-wheel-hint">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7a9 9 0 0 0-15-2L3 7m0-4v4h4M4 17a9 9 0 0 0 15 2l2-2m0 4v-4h-4"/></svg>
-                                <span>Basılı tutup çevir</span>
-                                <span class="roulette-wheel-keys"><kbd>←</kbd> <kbd>→</kbd> ile döndür</span>
-                            </p>
-                            <div class="roulette-result" aria-label="Sonuç">
-                                <strong id="roulette-result-number" class="roulette-result-number">—</strong>
-                                <span id="roulette-result-label">İlk tur için bahsini yerleştir.</span>
+                                <canvas id="roulette-wheel" class="roulette-wheel-canvas" width="720" height="640" role="img" tabindex="0" aria-label="37 cepli Avrupa ruleti çarkı" aria-describedby="roulette-wheel-description"></canvas>
+                                <p id="roulette-wheel-description" class="roulette-visually-hidden">Çarkı sürükleyip bırak. Bahis yerleştirdiysen tur başlar. Çarkı sol ve sağ ok tuşlarıyla da döndürebilirsin.</p>
                             </div>
                             <p id="roulette-status" class="roulette-status" role="status" aria-live="polite" aria-atomic="true">Çip seç, bahsini yerleştir ve çarkı çevir.</p>
                             <button id="roulette-spin" class="roulette-spin" type="button">Çarkı çevir</button>
@@ -5950,10 +5942,10 @@ Disallow:</code></pre>
     <script src="tools/block-blast/core.js?v=1"></script>
     <script src="tools/block-blast/app.js?v=1"></script>
     <script src="tools/roulette/core.js?v=1"></script>
-    <script src="tools/roulette/wheel.js?v=2"></script>
+    <script src="tools/roulette/wheel.js?v=3"></script>
     <script src="tools/roulette/layout.js?v=1"></script>
     <script src="tools/roulette/audio.js?v=3"></script>
-    <script src="tools/roulette/app.js?v=5"></script>
+    <script src="tools/roulette/app.js?v=6"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
     <script src="tools/slot-game/app.js?v=13"></script>
     <script src="tools/2048/script.js?v=1"></script>

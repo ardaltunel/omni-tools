@@ -90,39 +90,7 @@
 .roulette-wheel-canvas[data-interaction="dragging"] { cursor: grabbing; }
 .roulette-wheel-canvas[data-interactive="false"] { cursor: default; }
 .roulette-wheel-canvas:focus-visible { border-radius: 50%; outline: 2px solid var(--roulette-gold); outline-offset: -8px; }
-.roulette-wheel-hint { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px 8px; margin: 4px 0 14px; color: #a9b6a8; font-size: 11px; line-height: 1.4; }
-.roulette-wheel-hint > svg { flex: 0 0 15px; width: 15px; height: 15px; color: #d4b986; }
-.roulette-wheel-keys { display: inline-flex; align-items: center; gap: 4px; color: #819387; font-size: 10px; }
-.roulette-wheel-keys kbd { display: grid; place-items: center; min-width: 16px; height: 17px; border: 1px solid #526048; border-radius: 4px; background: #1c2921; color: #bfcbb8; font: inherit; line-height: 1; }
-
-.roulette-result {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    min-height: 58px;
-    margin: 0 auto 4px;
-}
-
-.roulette-result-number {
-    display: grid;
-    flex: 0 0 48px;
-    width: 48px;
-    height: 48px;
-    place-items: center;
-    border: 1px solid #d0b57d88;
-    border-radius: 9px;
-    background: #28362d;
-    font-size: 26px;
-    line-height: 1;
-    font-weight: 650;
-    font-variant-numeric: tabular-nums;
-}
-
-.roulette-result-number[data-color="red"] { background: var(--roulette-red); }
-.roulette-result-number[data-color="black"] { background: var(--roulette-black); }
-.roulette-result-number[data-color="green"] { background: var(--roulette-green); }
-#roulette-result-label { color: var(--roulette-muted); font-size: 12px; text-align: left; }
+.roulette-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
 .roulette-status { display: grid; align-items: center; min-height: 2.8em; margin: 0 0 10px; color: #d5dfd8; font-size: 12px; line-height: 1.4; }
 .roulette-spin { width: 100%; min-height: 49px; padding: 11px 20px; border: 1px solid #f5dca3; border-radius: 10px; background: linear-gradient(#e9d1a2, #c6a466); box-shadow: inset 0 1px #fff3d7, 0 5px 16px #0003; color: #2c2518; font-size: 15px; font-weight: 750; cursor: pointer; touch-action: manipulation; }
@@ -221,7 +189,8 @@
 .roulette-chip[data-roulette-chip="10000"] { border-color: #f3dba1; background: linear-gradient(145deg, #69517a, #33223d); box-shadow: inset 0 0 0 3px #e4c98d30, 0 4px 0 #0b1210, 0 7px 8px #0003; color: #f6e4b5; }
 .roulette-chip.is-selected { outline: 2px solid #f0d29b; outline-offset: 4px; transform: translateY(-3px); }
 .roulette-chip.is-dragging { opacity: 0.35; }
-.roulette-chip-ghost { position: fixed; z-index: 1200; top: 0; left: 0; pointer-events: none; }
+.roulette-chip-ghost { position: fixed; z-index: 1200; top: 0; left: 0; box-sizing: border-box; pointer-events: none; font-family: inherit; transition: none !important; animation: none !important; will-change: transform; }
+.roulette-chip-ghost.is-selected { transform: none; outline: none; }
 .roulette-bet-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 9px; }
 .roulette-bet-actions .roulette-button { padding-inline: 5px; font-size: 11px; }
 
@@ -257,8 +226,6 @@
     .roulette-header p { font-size: 11px; line-height: 1.4; }
     .roulette-button { min-height: 44px; }
     .roulette-wheel-panel { max-width: 400px; }
-    .roulette-result { margin-top: -7px; min-height: 49px; }
-    .roulette-result-number { width: 42px; height: 42px; flex-basis: 42px; font-size: 23px; }
     .roulette-status { margin-bottom: 7px; }
     .roulette-history-section { margin-top: 15px; }
     .roulette-workspace { gap: 20px; }

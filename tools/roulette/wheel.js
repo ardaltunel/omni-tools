@@ -265,15 +265,14 @@
             draw();
         }
 
-        function pointerAngle(event) {
+        function pointerPosition(event) {
             const bounds = canvas.getBoundingClientRect();
             if (!bounds.width || !bounds.height || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return null;
             const x = event.clientX - bounds.left - bounds.width / 2;
             const y = (event.clientY - bounds.top - bounds.height * 0.46) / TILT;
             const wheelRadius = Math.min(bounds.width * 0.475, bounds.height * 0.54);
             const distance = Math.hypot(x, y) / wheelRadius;
-            if (distance < 0.14 || distance > 1) return null;
-            return Math.atan2(y, x);
+            return { angle: Math.atan2(y, x), distance, radius: wheelRadius };
         }
 
         function startCoast(velocity) {
@@ -299,10 +298,15 @@
 
         function pointerDown(event) {
             if (!canInteract() || drag || event.isPrimary === false || event.button !== 0) return;
-            const angle = pointerAngle(event);
-            if (angle === null) return;
+            const point = pointerPosition(event);
+            if (!point || point.distance > 1) return;
             cancelManual();
-            drag = { id: event.pointerId, angle, time: now(), velocity: 0 };
+            drag = {
+                id: event.pointerId, angle: point.angle, time: now(), velocity: 0,
+                mode: point.distance < 0.14 ? "linear" : "polar", axis: null, position: 0, radius: point.radius,
+                startX: event.clientX, startY: event.clientY, distance: 0,
+                rotation: 0, angularTravel: 0, maxRotation: 0,
+            };
             try { canvas.setPointerCapture(event.pointerId); }
             catch { cancelManual(); return; }
             event.preventDefault();
@@ -314,30 +318,64 @@
             if (event.pointerId !== drag?.id) return;
             if (!canInteract()) { cancelManual(); return; }
             event.preventDefault();
-            const angle = pointerAngle(event);
+            const point = pointerPosition(event);
             const time = now();
-            if (angle === null || drag.angle === null) {
+            if (point) drag.distance = Math.max(drag.distance, Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY));
+            let delta;
+            if (drag.mode === "linear") {
+                if (!point) { drag.velocity = 0; drag.time = time; return; }
+                const dx = event.clientX - drag.startX;
+                const dy = event.clientY - drag.startY;
+                if (!drag.axis) {
+                    if (Math.hypot(dx, dy) < 6) return;
+                    drag.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+                }
+                const position = (drag.axis === "x" ? dx : -dy) / drag.radius;
+                delta = position - drag.position;
+                drag.position = position;
+            } else {
+                const angle = point && point.distance >= 0.14 ? point.angle : null;
+                if (angle === null || drag.angle === null) {
+                    drag.angle = angle;
+                    drag.time = time;
+                    drag.velocity = 0;
+                    return;
+                }
+                delta = Math.atan2(Math.sin(angle - drag.angle), Math.cos(angle - drag.angle));
                 drag.angle = angle;
-                drag.time = time;
-                drag.velocity = 0;
-                return;
             }
-            const delta = Math.atan2(Math.sin(angle - drag.angle), Math.cos(angle - drag.angle));
             const elapsed = Math.max(1, time - drag.time);
             const measured = Math.max(-MAX_MANUAL_SPEED, Math.min(MAX_MANUAL_SPEED, delta * 1000 / elapsed));
             drag.velocity += (measured - drag.velocity) * (1 - Math.exp(-elapsed / 45));
-            drag.angle = angle;
+            drag.rotation += delta;
+            drag.angularTravel += Math.abs(delta);
+            drag.maxRotation = Math.max(drag.maxRotation, Math.abs(drag.rotation));
             drag.time = time;
             rotateManually(delta);
         }
 
         function pointerUp(event) {
             if (event.pointerId !== drag?.id) return;
-            const angle = pointerAngle(event);
-            if (angle !== null && drag.angle !== null && Math.abs(angle - drag.angle) > 1e-8) pointerMove(event);
+            if (!canInteract()) { cancelManual(); return; }
+            const point = pointerPosition(event);
+            const previousTime = drag.time;
+            const previousRotation = drag.rotation;
+            if (point) pointerMove(event);
             if (!drag) return;
-            const velocity = angle !== null && now() - drag.time <= 120 ? drag.velocity : 0;
+            const recent = now() - previousTime <= 120 || drag.rotation !== previousRotation;
+            const velocity = point && recent ? drag.velocity : 0;
+            const deliberate = point && (drag.distance >= 6 || drag.maxRotation >= 0.06);
+            const release = {
+                direction: lastDirection, velocity,
+                rotation: drag.rotation, angularTravel: drag.angularTravel, distance: drag.distance,
+            };
             cancelManual();
+            if (deliberate && canInteract() && typeof options.onRelease === "function") {
+                try {
+                    // The app may synchronously save a wagered round, disable input and start spin().
+                    if (options.onRelease(release) === true) return;
+                } catch { /* A rejected round can still leave the wheel free to turn. */ }
+            }
             startCoast(velocity);
         }
 
