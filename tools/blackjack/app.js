@@ -82,7 +82,7 @@
     const engine = window.OmniBlackjackEngine;
     const wallet = window.OmniGameWallet;
     const app = document.getElementById("blackjack-app");
-    if (!engine || !app || !wallet) return;
+    if (!engine || !app || !wallet || !window.OmniBlackjackCards || !window.OmniBlackjackEffects || !window.OmniBlackjackAudio) return;
 
     const STORAGE_KEY = "omni-blackjack-v1";
     const MINIMUM_BET = 10 * engine.MONEY_SCALE;
@@ -122,35 +122,45 @@
     const game = walletBridge.game;
     let soundEnabled = saved.soundEnabled;
     let soundVolume = saved.soundVolume ?? 1;
+    let animationSpeed = saved.animationSpeed === "fast" ? "fast" : "normal";
+    let ambienceEnabled = saved.ambienceEnabled === true;
+    const panel = document.getElementById("blackjack");
+    const isTableActive = () => panel.classList.contains("active") && !document.hidden;
+    const effects = window.OmniBlackjackEffects.create({ document, host: window, reduceMotion: () => prefersReducedMotion.matches, isActive: isTableActive, speed: animationSpeed === "fast" ? 1.8 : 1 });
+    const audio = window.OmniBlackjackAudio.create({ volume: soundVolume, muted: !soundEnabled, ambience: ambienceEnabled, isActive: isTableActive });
+    const localAnimations = new Set();
+    const speedInput = document.getElementById("blackjack-speed");
+    const ambienceButton = document.getElementById("blackjack-ambience");
+    speedInput.value = animationSpeed;
     const volumeInput = document.getElementById("blackjack-volume");
     const volumeOutput = document.getElementById("blackjack-volume-value");
     volumeInput.value = String(Math.round(soundVolume * 100));
     volumeOutput.textContent = `%${volumeInput.value}`;
-    volumeInput.addEventListener("input", () => { soundVolume = Number(volumeInput.value) / 100; volumeOutput.textContent = `%${volumeInput.value}`; if (playSound.master) playSound.master.gain.setTargetAtTime(soundVolume, playSound.context.currentTime, 0.02); saveState(); });
+    volumeInput.addEventListener("input", () => { soundVolume = Number(volumeInput.value) / 100; volumeOutput.textContent = `%${volumeInput.value}`; audio.setVolume(soundVolume); audio.unlock(); saveState(); });
     const volumeControl = volumeInput.closest(".blackjack-volume-control");
     volumeControl.addEventListener("pointerleave", (event) => { if (event.pointerType === "mouse" && volumeControl.contains(document.activeElement)) document.activeElement.blur(); });
     let busy = false;
     let actionGeneration = 0;
     let selectedSpot = Math.max(0, game.spotBets.findIndex(Boolean));
     let view = createViewState();
-    let shoeDealTimer = 0;
     let balanceDeltaTimer = 0;
-    let roundStartingBalance = getRoundStartingBalance();
+    let resumeTimer = 0;
+    let drag = null;
+    let suppressChipClick = false;
     const seats = createSeats();
-
-    function getRoundStartingBalance() {
-        if ([engine.PHASES.BETTING, engine.PHASES.ROUND_OVER].includes(game.phase)) return game.balance;
-        const handBets = game.playerHands.reduce((total, hand) => total + hand.bet, 0);
-        const insurancePayout = game.round?.insuranceWon ? game.insuranceBet * 3 : 0;
-        return game.balance + handBets + game.insuranceBet - insurancePayout;
-    }
 
     function createViewState() {
         return {
             dealerVisible: null,
             playerVisible: new Map(),
-            initialDeals: new Map(),
             lastDealtCardId: "",
+            settledSpotChips: new Set(game.phase === engine.PHASES.ROUND_OVER ? game.playerHands.map((hand) => hand.spotIndex) : []),
+            pendingCardIds: new Set(game.phase === engine.PHASES.DEALING
+                ? [...game.dealerHand, ...game.playerHands.flatMap((hand) => hand.cards)].map((card) => card.id)
+                : game.phase === engine.PHASES.RESOLVING ? game.dealerHand.slice(2).map((card) => card.id) : []),
+            holeRevealed: game.phase === engine.PHASES.ROUND_OVER && game.dealerRevealed,
+            focusHandId: null,
+            inFlightCardId: null,
         };
     }
 
@@ -165,6 +175,8 @@
                 stats: value.stats && typeof value.stats === "object" ? value.stats : {},
                 soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : true,
                 soundVolume: Number.isFinite(value.soundVolume) ? Math.max(0, Math.min(1, value.soundVolume)) : 1,
+                animationSpeed: value.animationSpeed === "fast" ? "fast" : "normal",
+                ambienceEnabled: value.ambienceEnabled === true,
                 game: value.game && typeof value.game === "object" ? value.game : null,
             };
         } catch {
@@ -180,6 +192,8 @@
             stats: state.stats,
             soundEnabled,
             soundVolume,
+            animationSpeed,
+            ambienceEnabled,
             game: engine.serializeState(state),
         };
     }
@@ -196,12 +210,13 @@
     async function commitAction(update, required = 0) {
         const token = actionGeneration;
         const result = await walletBridge.act(update, required);
-        if (token !== actionGeneration) return null;
+        if (token !== actionGeneration) { scheduleResume(); return null; }
         if (result.ok) {
             saveState();
             return result.value;
         }
         actionGeneration += 1;
+        cancelPresentation();
         busy = false;
         view = createViewState();
         if (result.reason === "funds") game.message = "Ortak bakiyen bu işlem için yeterli değil.";
@@ -219,12 +234,17 @@
         const change = walletBridge.sync();
         if (change.changed) {
             actionGeneration += 1;
+            cancelPresentation();
             busy = false;
             view = createViewState();
-            roundStartingBalance = getRoundStartingBalance();
         }
-        if (change.changed || change.balanceChanged) render();
-        if (change.changed) resumeSavedGame();
+        if (change.changed) { render(); scheduleResume(); }
+        else if (change.balanceChanged) {
+            // A lower wallet balance can invalidate reserved, un-dealt bets.
+            if (game.phase === engine.PHASES.BETTING) { render(); return; }
+            elements.balance.textContent = formatCredits(walletBridge.balance() * engine.MONEY_SCALE);
+            renderControls();
+        }
     }
 
     function formatCredits(units) {
@@ -236,7 +256,98 @@
     }
 
     function delay(milliseconds) {
-        return new Promise((resolve) => window.setTimeout(resolve, prefersReducedMotion.matches ? 0 : milliseconds));
+        return new Promise((resolve) => window.setTimeout(resolve, prefersReducedMotion.matches || !isTableActive() ? 0 : milliseconds / (animationSpeed === "fast" ? 1.8 : 1)));
+    }
+
+    function cancelPresentation() {
+        effects.cancel();
+        localAnimations.forEach((animation) => animation.cancel());
+        localAnimations.clear();
+        cancelChipDrag();
+        elements.shoe.classList.remove("is-dealing", "is-shuffling");
+    }
+
+    function scheduleResume() {
+        if (resumeTimer || !isTableActive()) return;
+        resumeTimer = window.setTimeout(() => {
+            resumeTimer = 0;
+            if (!busy && !walletBridge.isPending() && isTableActive()) resumeSavedGame();
+        }, 0);
+    }
+
+    async function animateNode(node, frames, duration = 240) {
+        if (!node?.animate || prefersReducedMotion.matches || !isTableActive()) return;
+        let animation;
+        try {
+            animation = node.animate(frames, { duration: duration / (animationSpeed === "fast" ? 1.8 : 1), easing: "cubic-bezier(.2,.7,.2,1)", fill: "both" });
+            localAnimations.add(animation);
+            await animation.finished;
+        } catch { /* Interrupted presentation never changes the recorded hand. */ }
+        finally {
+            localAnimations.delete(animation);
+            try { animation?.cancel(); } catch { /* Already detached. */ }
+        }
+    }
+
+    function shoeOrigin() {
+        const box = elements.shoe.getBoundingClientRect();
+        return { left: box.left + box.width * 0.13, top: box.top + box.height * 0.62, width: box.width * 0.36, height: box.width * 0.5 };
+    }
+
+    function cardNode(cardId) {
+        return [...app.querySelectorAll(".blackjack-card[data-card-id]")].find((node) => node.dataset.cardId === cardId);
+    }
+
+    function snapshotCardRects() {
+        return new Map([...app.querySelectorAll(".blackjack-card[data-card-id]")].map((node) => [node.dataset.cardId, { node, rect: node.getBoundingClientRect() }]));
+    }
+
+    async function deliverCard(card, { hidden = false, token = actionGeneration } = {}) {
+        if (token !== actionGeneration || !isTableActive()) return false;
+        view.pendingCardIds.delete(card.id);
+        view.inFlightCardId = card.id;
+        render();
+        const node = hidden ? elements.dealerCards.querySelector(".blackjack-card.is-hidden") : cardNode(card.id);
+        // A presentation failure must never strand a committed round. The
+        // engine checkpoint remains authoritative if a browser drops a target.
+        if (!node) { view.inFlightCardId = null; render(); return true; }
+        const target = node.getBoundingClientRect();
+        playSound("deal");
+        elements.shoe.classList.add("is-dealing");
+        try {
+            await effects.flyCard(node, shoeOrigin(), target, { flip: !hidden, duration: 300 });
+        } catch {
+            // Card outcomes are already saved. Fall back to the settled card
+            // when animation support fails, without replaying a game action.
+        } finally {
+            if (token === actionGeneration) {
+                elements.shoe.classList.remove("is-dealing");
+                view.inFlightCardId = null;
+                render();
+            }
+        }
+        return token === actionGeneration && isTableActive();
+    }
+
+    function initialDealSequence() {
+        const sequence = [];
+        for (let pass = 0; pass < 2; pass += 1) {
+            game.playerHands.forEach((hand) => sequence.push({ card: hand.cards[pass], owner: "player", handId: hand.id }));
+            sequence.push({ card: game.dealerHand[pass], owner: "dealer", hidden: pass === 1 });
+        }
+        return sequence;
+    }
+
+    async function presentInitialDeal(sequence, token) {
+        view.pendingCardIds = new Set(sequence.map(({ card }) => card.id));
+        view.holeRevealed = false;
+        render();
+        for (const item of sequence) {
+            if (!await deliverCard(item.card, { hidden: item.hidden, token })) return false;
+            await delay(55);
+            if (token !== actionGeneration) return false;
+        }
+        return true;
     }
 
     function rankName(rank) {
@@ -256,114 +367,55 @@
     function createCard(card, options = {}) {
         const hidden = Boolean(options.hidden);
         const element = document.createElement("article");
-        element.className = `blackjack-card blackjack-${card.color} ${hidden ? "is-hidden" : "is-face-up"}`;
-        if (options.isDealing) element.dataset.dealingFromShoe = "true";
-        if (options.delay) element.style.setProperty("--blackjack-deal-delay", `${options.delay}ms`);
-        element.dataset.cardId = card.id;
-        element.setAttribute("aria-label", hidden ? "Kapalı krupiye kartı" : cardLabel(card));
+        element.className = `blackjack-card ${hidden ? "is-hidden" : `blackjack-${card.color} is-face-up`}`;
+        element.dataset.cardId = hidden ? (options.pending ? `pending-${options.index}` : "dealer-hole") : card.id;
+        element.style.setProperty("--card-rotation", `${((options.index || 0) % 3 - 1) * 1.1}deg`);
+        element.setAttribute("aria-label", hidden ? "Kapalı kart" : cardLabel(card));
+        if (options.pending) {
+            element.style.visibility = "hidden";
+            element.setAttribute("aria-hidden", "true");
+        }
 
         const inner = document.createElement("div");
         inner.className = "blackjack-card-inner";
         const back = document.createElement("div");
         back.className = "blackjack-card-back";
         back.setAttribute("aria-hidden", "true");
+        back.innerHTML = window.OmniBlackjackCards.svg(null, { faceDown: true });
 
         const face = document.createElement("div");
-        face.className = "blackjack-card-face";
+        face.className = "blackjack-card-face blackjack-card-front";
         face.setAttribute("aria-hidden", "true");
-        face.append(
-            createCardCorner(card, "top"),
-            createCardCenter(card),
-            createCardCorner(card, "bottom"),
-        );
+        if (!hidden) face.innerHTML = window.OmniBlackjackCards.svg(card);
         inner.append(back, face);
         element.appendChild(inner);
         return element;
     }
 
-    function createCardCorner(card, position) {
-        const corner = document.createElement("span");
-        corner.className = `blackjack-card-corner ${position}`;
-        const rank = document.createElement("b");
-        const suit = document.createElement("small");
-        rank.textContent = card.rank;
-        suit.textContent = card.suitSymbol;
-        corner.append(rank, suit);
-        return corner;
-    }
-
-    function createCardCenter(card) {
-        if (["J", "Q", "K"].includes(card.rank)) {
-            const face = document.createElement("span");
-            const label = document.createElement("strong");
-            face.className = "blackjack-card-face-card";
-            label.textContent = card.rank;
-            face.appendChild(label);
-            return face;
-        }
-        const pip = document.createElement("span");
-        pip.className = "blackjack-card-pip";
-        pip.textContent = card.suitSymbol;
-        return pip;
-    }
-
     function renderCards(container, cards, options = {}) {
         const fragment = document.createDocumentFragment();
         cards.forEach((card, index) => {
-            const initialDelay = view.initialDeals.get(card.id);
+            const pending = view.pendingCardIds.has(card.id);
             fragment.appendChild(createCard(card, {
-                hidden: Boolean(options.hiddenAt?.(index)),
-                isDealing: view.lastDealtCardId === card.id || initialDelay !== undefined,
-                delay: initialDelay,
+                hidden: Boolean(options.hiddenAt?.(index)) || pending,
+                pending, index,
             }));
         });
         container.replaceChildren(fragment);
     }
 
-    function animateCardsFromShoe() {
-        const queuedCards = Array.from(app.querySelectorAll(".blackjack-card[data-dealing-from-shoe='true']"));
-        if (!queuedCards.length) return;
-
-        const shoeRect = elements.shoe.getBoundingClientRect();
-        const sourceX = shoeRect.left + shoeRect.width * 0.23;
-        const sourceY = shoeRect.top + shoeRect.height * 0.8;
-        let longestDelay = 0;
-
-        queuedCards.forEach((card, index) => {
-            const cardRect = card.getBoundingClientRect();
-            const delay = Number.parseFloat(card.style.getPropertyValue("--blackjack-deal-delay")) || 0;
-            const fromX = sourceX - (cardRect.left + cardRect.width / 2);
-            const fromY = sourceY - (cardRect.top + cardRect.height / 2);
-            const rotation = Math.max(-12, Math.min(12, -fromX * 0.025 + (index % 2 ? 3 : -3)));
-
-            card.style.setProperty("--blackjack-deal-from-x", `${fromX.toFixed(1)}px`);
-            card.style.setProperty("--blackjack-deal-from-y", `${fromY.toFixed(1)}px`);
-            card.style.setProperty("--blackjack-deal-rotation", `${rotation.toFixed(1)}deg`);
-            card.classList.add("is-dealing");
-            delete card.dataset.dealingFromShoe;
-            longestDelay = Math.max(longestDelay, delay);
-        });
-
-        window.clearTimeout(shoeDealTimer);
-        elements.shoe.classList.add("is-dealing");
-        shoeDealTimer = window.setTimeout(() => {
-            elements.shoe.classList.remove("is-dealing");
-            shoeDealTimer = 0;
-        }, longestDelay + 520);
-    }
-
     function renderDealer() {
         const visibleCards = game.dealerHand.slice(0, view.dealerVisible ?? game.dealerHand.length);
         renderCards(elements.dealerCards, visibleCards, {
-            hiddenAt: (index) => !game.dealerRevealed && index === 1,
+            hiddenAt: (index) => !view.holeRevealed && index === 1,
         });
 
         if (!visibleCards.length) {
             elements.dealerTotal.textContent = "Toplam: —";
             return;
         }
-        const totalCards = game.dealerRevealed ? visibleCards : visibleCards.slice(0, 1);
-        elements.dealerTotal.textContent = `Toplam: ${handText(totalCards)}`;
+        const totalCards = visibleCards.filter((card, index) => !view.pendingCardIds.has(card.id) && card.id !== view.inFlightCardId && (index !== 1 || view.holeRevealed));
+        elements.dealerTotal.textContent = totalCards.length ? `Toplam: ${handText(totalCards)}` : "Toplam: —";
     }
 
     function outcomeLabel(hand, active) {
@@ -409,7 +461,8 @@
     function renderSeats(handsBySpot) {
         const isBetting = game.phase === engine.PHASES.BETTING;
         const isSettled = game.phase === engine.PHASES.ROUND_OVER;
-        const activeHand = game.phase === engine.PHASES.PLAYER_TURN ? game.playerHands[game.activeHandIndex] : null;
+        const activeHand = game.playerHands.find((hand) => hand.id === view.focusHandId)
+            || (game.phase === engine.PHASES.PLAYER_TURN ? game.playerHands[game.activeHandIndex] : null);
         const stakes = isBetting ? game.spotBets : handsBySpot.map((hands) => hands.reduce((sum, hand) => sum + hand.bet, 0));
         const selectedOrFundedSpot = isBetting || stakes[selectedSpot] ? selectedSpot : stakes.findIndex(Boolean);
         const displayedSpot = activeHand?.spotIndex ?? selectedOrFundedSpot;
@@ -432,7 +485,10 @@
             button.classList.toggle("is-playing", isPlaying);
             button.classList.toggle("is-settled", isSettled && stake > 0);
             button.classList.toggle("has-bet", stake > 0);
-            bet.textContent = stake ? `${formatCredits(stake)} kredi` : "—";
+            if (isSettled && hands.length) button.dataset.outcome = hands.every((hand) => hand.payout === 0) ? "loss"
+                : hands.every((hand) => hand.outcome === "push") ? "push" : "win";
+            else delete button.dataset.outcome;
+            renderSpotChips(button, stake);
             if (!stake) status.textContent = isSelected ? "Seçili" : "Boş";
             else if (isBetting) status.textContent = isSelected ? "Seçili" : "Bahis hazır";
             else if (isPlaying) status.textContent = "Sıra burada";
@@ -451,7 +507,8 @@
             },
         ]));
         const fragment = document.createDocumentFragment();
-        const activeHand = game.phase === engine.PHASES.PLAYER_TURN ? game.playerHands[game.activeHandIndex] : null;
+        const activeHand = game.playerHands.find((hand) => hand.id === view.focusHandId)
+            || (game.phase === engine.PHASES.PLAYER_TURN ? game.playerHands[game.activeHandIndex] : null);
         handsBySpot.forEach((hands, spotIndex) => {
             if (!hands.length) return;
             const group = document.createElement("div");
@@ -464,7 +521,7 @@
         elements.playerHands.replaceChildren(fragment);
         elements.playerHands.querySelectorAll(".blackjack-player-hand").forEach((panel) => {
             const row = panel.querySelector(".blackjack-card-row");
-            const newCard = Boolean(view.lastDealtCardId && row.querySelector(".blackjack-card[data-dealing-from-shoe]"));
+            const newCard = Boolean(view.lastDealtCardId && [...row.querySelectorAll(".blackjack-card")].some((card) => card.dataset.cardId === view.lastDealtCardId));
             const previous = scrollPositions.get(panel.dataset.handId);
             panel.dataset.revealNewest = String(newCard);
             row.scrollLeft = newCard || previous?.revealNewest ? row.scrollWidth : (previous?.left || 0);
@@ -485,10 +542,12 @@
         const wager = document.createElement("small");
         const visibleCount = view.playerVisible.get(hand.id) ?? hand.cards.length;
         const visibleCards = hand.cards.slice(0, visibleCount);
+        const arrivedCards = visibleCards.filter((card) => !view.pendingCardIds.has(card.id) && card.id !== view.inFlightCardId);
+        const pending = arrivedCards.length !== visibleCards.length;
 
         panel.className = "blackjack-player-hand";
         panel.dataset.handId = hand.id;
-        if (hand.outcome) panel.dataset.outcome = hand.outcome;
+        if (hand.outcome && !pending) panel.dataset.outcome = hand.outcome;
         panel.classList.toggle("is-active", active);
         meta.className = "blackjack-player-hand-meta";
         cards.className = "blackjack-card-row";
@@ -496,8 +555,8 @@
         cards.setAttribute("role", "group");
         name.textContent = `Yer ${hand.spotIndex + 1}${spotHandCount > 1 ? ` · El ${index + 1}` : ""}`;
         cards.setAttribute("aria-label", `${name.textContent} kartları`);
-        total.textContent = visibleCount ? handText(visibleCards) : "—";
-        outcome.textContent = outcomeLabel(hand, active);
+        total.textContent = arrivedCards.length ? handText(arrivedCards) : "—";
+        outcome.textContent = pending ? "Dağıtılıyor" : outcomeLabel(hand, active);
         wager.className = "blackjack-hand-wager";
         wager.textContent = game.phase === engine.PHASES.ROUND_OVER
             ? `Bahis ${formatCredits(hand.bet)} · Ödeme ${formatCredits(hand.payout)}`
@@ -509,6 +568,7 @@
     }
 
     function getStatusPresentation() {
+        if (busy && (view.inFlightCardId || view.pendingCardIds.size)) return { title: "KART DAĞITILIYOR", tone: "" };
         if (game.phase === engine.PHASES.ROUND_OVER) {
             const outcomes = game.playerHands.map((hand) => hand.outcome);
             if (new Set(outcomes).size > 1) return { title: "TUR TAMAMLANDI", tone: "" };
@@ -535,14 +595,16 @@
         const title = elements.status.querySelector("strong");
         const detail = elements.status.querySelector("span");
         title.textContent = presentation.title;
-        detail.textContent = game.message;
+        detail.textContent = busy && (view.inFlightCardId || view.pendingCardIds.size) ? "Kartlar masaya geliyor…" : game.message;
     }
 
     function getActionKicker() {
+        if (busy && view.pendingCardIds.size) return "KARTLAR DAĞITILIYOR";
         if (game.phase === engine.PHASES.PLAYER_TURN) {
             const hand = game.playerHands[game.activeHandIndex];
             const visibleCount = view.playerVisible.get(hand.id) ?? hand.cards.length;
-            return `${hand.spotIndex + 1}. YER · ${handText(hand.cards.slice(0, visibleCount))}`;
+            const shown = hand.cards.slice(0, visibleCount).filter((card) => !view.pendingCardIds.has(card.id) && card.id !== view.inFlightCardId);
+            return shown.length ? `${hand.spotIndex + 1}. YER · ${handText(shown)}` : "KARTLAR DAĞITILIYOR";
         }
         const labels = {
             [engine.PHASES.BETTING]: "BAHİSLER AÇIK",
@@ -590,25 +652,91 @@
         elements.actionKicker.textContent = getActionKicker();
     }
 
-    function flyChip(source) {
-        const target = seats[selectedSpot].bet;
-        if (prefersReducedMotion.matches) return;
-        const from = source.getBoundingClientRect(), to = target.getBoundingClientRect();
+    function visualChip(credits) {
+        const values = [10000, 1000, 500, 100, 50, 25, 10];
+        const value = values.find((amount) => amount <= credits) || 10;
+        const source = elements.chips.find((chip) => Number(chip.dataset.blackjackChip) === value);
         const chip = document.createElement("span");
-        chip.className = `${source.className} blackjack-flying-chip`;
+        chip.className = source.className;
+        chip.dataset.blackjackChip = String(value);
         chip.innerHTML = source.innerHTML;
+        if (credits > 0 && credits < 10) {
+            chip.dataset.blackjackChip = String(credits);
+            chip.querySelector("strong").textContent = formatCredits(credits * engine.MONEY_SCALE);
+        }
         chip.setAttribute("aria-hidden", "true");
-        Object.assign(chip.style, {left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px`});
-        document.body.append(chip);
-        const x = to.left + to.width / 2 - from.left - from.width / 2;
-        const y = to.top + to.height / 2 - from.top - from.height / 2;
-        const motion = chip.animate([
-            {transform: "translate(0,0) rotate(0) scale(1)", opacity: 1},
-            {transform: `translate(${x*.6}px,${y-35}px) rotate(100deg) scale(.95)`, offset: .65},
-            {transform: `translate(${x}px,${y}px) rotate(160deg) scale(.82)`, opacity: 1}
-        ], {duration: 420, easing: "cubic-bezier(.2,.7,.3,1)"});
-        motion.onfinish = () => { chip.remove(); target.animate([{transform:"scale(.94)"},{transform:"scale(1)"}],{duration:160}); };
-        motion.oncancel = () => chip.remove();
+        return chip;
+    }
+
+    function renderSpotChips(button, stake) {
+        if (view.settledSpotChips.has(Number(button.dataset.seat) - 1)) stake = 0;
+        const target = button.querySelector(".blackjack-seat-bet");
+        const amount = document.createElement("span");
+        amount.className = "blackjack-spot-amount";
+        amount.textContent = stake ? formatCredits(stake) : "";
+        const stack = document.createElement("span");
+        stack.className = "blackjack-spot-chips";
+        stack.setAttribute("aria-hidden", "true");
+        if (stake) {
+            const credits = stake / engine.MONEY_SCALE;
+            let remaining = credits;
+            for (let index = 0; index < 4 && remaining > 0; index += 1) {
+                const chip = visualChip(remaining);
+                remaining -= Number(chip.dataset.blackjackChip);
+                chip.classList.add("blackjack-mini-chip");
+                chip.style.setProperty("--chip-level", index);
+                stack.append(chip);
+            }
+        }
+        target.replaceChildren(stack, amount);
+    }
+
+    function chipRect(box, size = 30) {
+        return { left: box.left + box.width / 2 - size / 2, top: box.top + box.height / 2 - size / 2, width: size, height: size };
+    }
+
+    async function flyChip(source, spot = selectedSpot, fromOverride = null) {
+        const token = actionGeneration;
+        const to = chipRect(seats[spot].bet.getBoundingClientRect());
+        const from = fromOverride || source.getBoundingClientRect();
+        await effects.flyChip(source, from, to, { hide: false, duration: 280 });
+        if (token === actionGeneration && isTableActive()) {
+            playSound("chip");
+            animateNode(seats[spot].bet, [{ transform: "scale(.96)" }, { transform: "scale(1)" }], 120);
+        }
+    }
+
+    async function animateStake(units, spot, token = actionGeneration) {
+        const node = visualChip(units / engine.MONEY_SCALE);
+        const source = elements.chips.find((chip) => chip.dataset.blackjackChip === node.dataset.blackjackChip) || elements.chips[0];
+        await effects.flyChip(node, source.getBoundingClientRect(), chipRect(seats[spot].bet.getBoundingClientRect()), { hide: false, duration: 240 });
+        if (token === actionGeneration) playSound("chip");
+        return token === actionGeneration;
+    }
+
+    async function presentPayouts(results, token) {
+        for (const result of results) {
+            if (token !== actionGeneration || !isTableActive()) return;
+            const node = visualChip((result.payout || result.handBet || 10 * engine.MONEY_SCALE) / engine.MONEY_SCALE);
+            const spot = chipRect(seats[result.spotIndex].bet.getBoundingClientRect());
+            const tray = elements.chips.find((chip) => chip.dataset.blackjackChip === node.dataset.blackjackChip) || elements.chips[0];
+            if (!result.payout) {
+                playSound("collect");
+                await effects.flyChip(node, spot, chipRect(elements.shoe.getBoundingClientRect()), { hide: false, fade: true, duration: 290 });
+            } else {
+                if (result.outcome !== "push") {
+                    playSound("pay");
+                    await effects.flyChip(node, chipRect(elements.shoe.getBoundingClientRect()), spot, { hide: false, duration: 220 });
+                } else playSound("push");
+                if (token !== actionGeneration) return;
+                await effects.flyChip(node, spot, chipRect(tray.getBoundingClientRect(), 40), { hide: false, duration: 280 });
+            }
+            if (token !== actionGeneration) return;
+            if (!results.slice(results.indexOf(result) + 1).some((next) => next.spotIndex === result.spotIndex)) {
+                view.settledSpotChips.add(result.spotIndex);
+                renderSpotChips(seats[result.spotIndex].button, 0);
+            }
+        }
     }
 
     function render() {
@@ -622,10 +750,15 @@
         renderStatus();
         renderControls();
         elements.shoe.classList.toggle("is-shuffling", Boolean(busy && game.phase === engine.PHASES.DEALING && game.round?.reshuffled));
-        animateCardsFromShoe();
+        renderAudioControls();
+    }
+
+    function renderAudioControls() {
         elements.sound.setAttribute("aria-pressed", String(soundEnabled));
         elements.sound.setAttribute("aria-label", soundEnabled ? "Oyun seslerini kapat" : "Oyun seslerini aç");
         elements.sound.querySelector("span").textContent = soundEnabled ? "🔊" : "🔇";
+        ambienceButton.setAttribute("aria-pressed", String(ambienceEnabled));
+        ambienceButton.classList.toggle("is-active", ambienceEnabled);
     }
 
     function showBalanceDelta(delta) {
@@ -649,120 +782,65 @@
     }
 
     function playSound(kind) {
-        if (!soundEnabled) return;
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        try {
-            if (!playSound.context) playSound.context = new AudioContextClass();
-            const context = playSound.context;
-            if (!playSound.master) { playSound.master = context.createGain(); playSound.master.connect(context.destination); }
-            playSound.master.gain.setValueAtTime(soundVolume, context.currentTime);
-            if (context.state === "suspended") context.resume();
-            // Layer filtered paper friction with a soft contact transient.
-            if (["deal", "flip", "shuffle", "chip"].includes(kind)) {
-                const now = context.currentTime;
-                const noise = (offset, duration, frequency, level, q = 0.7) => {
-                    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-                    const source = context.createBufferSource();
-                    const filter = context.createBiquadFilter();
-                    const gain = context.createGain();
-                    source.buffer = buffer;
-                    filter.type = "lowpass";
-                    filter.frequency.setValueAtTime(frequency, now + offset);
-                    filter.Q.value = q;
-                    gain.gain.setValueAtTime(0.0001, now + offset);
-                    gain.gain.exponentialRampToValueAtTime(level, now + offset + 0.018);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + duration);
-                    source.connect(filter).connect(gain).connect(playSound.master);
-                    source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
-                    source.start(now + offset);
-                    source.stop(now + offset + duration);
-                };
-                const variation = 0.97 + Math.random() * 0.06;
-                if (kind === "shuffle") {
-                    for (let i = 0; i < 5; i++) noise(i * 0.065, 0.11, 750 * variation, 0.045);
-                    noise(0.33, 0.12, 300, 0.04);
-                } else if (kind === "chip") {
-                    noise(0, 0.09, 620 * variation, 0.065);
-                } else {
-                    noise(0, kind === "flip" ? 0.18 : 0.14, 850 * variation, 0.055);
-                    noise(kind === "flip" ? 0.1 : 0.07, 0.1, 280 * variation, 0.05);
-                }
-                return;
-            }
-            const tones = {
-                chip: [300, 0.04, "sine"],
-                deal: [170, 0.045, "triangle"],
-                flip: [260, 0.08, "triangle"],
-                win: [523, 0.14, "sine"],
-                loss: [160, 0.15, "sine"],
-                blackjack: [659, 0.2, "sine"],
-                shuffle: [110, 0.1, "triangle"],
-                click: [210, 0.035, "sine"],
-            };
-            const [frequency, duration, type] = tones[kind] || tones.click;
-            const oscillator = context.createOscillator();
-            const gain = context.createGain();
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(frequency, context.currentTime);
-            gain.gain.setValueAtTime(0.0001, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.025, context.currentTime + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
-            oscillator.connect(gain).connect(playSound.master);
-            oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
-            oscillator.start();
-            oscillator.stop(context.currentTime + duration + 0.02);
-        } catch {
-            // Audio is an enhancement; unsupported or blocked contexts are silent.
-        }
+        if (!soundEnabled || !isTableActive()) return;
+        audio.play(({ click: 'tap', loss: 'bust' })[kind] || kind);
     }
 
     async function revealDealerCard() {
-        const hiddenCard = elements.dealerCards.querySelector(".blackjack-card.is-hidden");
-        if (!hiddenCard) return;
-        hiddenCard.classList.add("is-revealed", "is-flipping");
-        const hiddenCardData = game.dealerHand[1];
-        if (hiddenCardData) hiddenCard.setAttribute("aria-label", cardLabel(hiddenCardData));
-        playSound("flip");
-        await delay(450);
+        if (view.holeRevealed || !game.dealerHand[1]) return;
+        const token = actionGeneration;
+        const node = elements.dealerCards.querySelector('.blackjack-card.is-hidden');
+        if (!node) return;
+        const card = game.dealerHand[1];
+        node.querySelector('.blackjack-card-front').innerHTML = window.OmniBlackjackCards.svg(card);
+        node.setAttribute('aria-label', cardLabel(card));
+        node.dataset.cardId = card.id;
+        node.classList.add('is-revealed');
+        playSound('flip');
+        await animateNode(node.querySelector('.blackjack-card-inner'), [{ transform: 'rotateY(180deg)' }, { transform: 'rotateY(0deg)' }], 340);
+        if (token !== actionGeneration) return;
+        view.holeRevealed = true;
+        render();
     }
 
     async function completeRound() {
+        const token = actionGeneration;
         const result = await commitAction((state) => engine.resolveRound(state));
-        if (!result) return;
-        view.dealerVisible = game.dealerHand.length;
-        view.lastDealtCardId = "";
-        saveState();
+        if (!result || token !== actionGeneration) return;
+        view.holeRevealed = true;
+        view.focusHandId = null;
         render();
         const net = result.results.reduce((sum, hand) => sum + hand.payout, 0)
             + (game.round?.insuranceWon ? game.insuranceBet * 3 : 0) - engine.totalBet(game);
         showBalanceDelta(net);
-        if (result?.results?.some((item) => item.outcome === "blackjack")) playSound("blackjack");
-        else if (result?.results?.some((item) => ["win", "dealer-bust"].includes(item.outcome))) playSound("win");
-        else if (result?.results?.every((item) => ["lose", "bust"].includes(item.outcome))) playSound("loss");
+        if (result.results.some((item) => item.outcome === 'blackjack')) playSound('blackjack');
+        else if (result.results.some((item) => ['win', 'dealer-bust'].includes(item.outcome))) playSound('win');
+        else if (result.results.every((item) => item.outcome === 'push')) playSound('push');
+        else playSound('bust');
+        const pulses = [...elements.playerHands.querySelectorAll('.blackjack-player-hand')].map((node) => animateNode(node,
+            [{ filter: 'brightness(1)' }, { filter: 'brightness(1.12)', offset: .4 }, { filter: 'brightness(1)' }], 320));
+        await Promise.all([presentPayouts(result.results.map((entry) => ({ ...entry, handBet: game.playerHands.find((hand) => hand.id === entry.handId)?.bet })), token), ...pulses]);
     }
 
     async function runDealerTurn() {
         const token = actionGeneration;
+        if (!isTableActive()) return;
         busy = true;
         render();
+        await delay(240);
+        if (token !== actionGeneration) return;
         await revealDealerCard();
         if (token !== actionGeneration) return;
         const dealerCards = await commitAction((state) => state.phase === engine.PHASES.DEALER_TURN ? engine.dealerPlay(state) : null);
         if (!dealerCards) return;
-        view.dealerVisible = Math.min(2, game.dealerHand.length);
+        dealerCards.forEach((card) => view.pendingCardIds.add(card.id));
         render();
-        for (const dealtCard of dealerCards) {
-            view.dealerVisible += 1;
-            view.lastDealtCardId = dealtCard.id;
-            render();
-            playSound("deal");
-            await delay(440);
-            if (token !== actionGeneration) return;
-            view.lastDealtCardId = "";
+        for (const card of dealerCards) {
+            await delay(180);
+            if (!await deliverCard(card, { token })) return;
         }
+        await delay(120);
+        if (token !== actionGeneration) return;
         await completeRound();
         if (token !== actionGeneration) return;
         busy = false;
@@ -772,6 +850,8 @@
     async function resolveNaturalRound() {
         const token = actionGeneration;
         busy = true;
+        await delay(180);
+        if (token !== actionGeneration) return;
         await revealDealerCard();
         if (token !== actionGeneration) return;
         await completeRound();
@@ -782,179 +862,172 @@
 
     async function beginDeal() {
         syncWallet();
-        if (!canDeal()) return;
+        if (!canDeal() || !isTableActive()) return;
         const token = actionGeneration;
         busy = true;
-        roundStartingBalance = game.balance;
+        audio.unlock();
+        effects.cancel();
         const deal = await commitAction((state) => engine.beginRound(state), (state) => state.currentBet);
-        if (!deal) return;
-        saveState();
+        if (!deal || token !== actionGeneration) return;
         view = createViewState();
-        if (deal.reshuffled) {
-            view.dealerVisible = 0;
-            game.playerHands.forEach((hand) => view.playerVisible.set(hand.id, 0));
-            game.message = "Kartlar karıştırılıyor…";
-            playSound("shuffle");
-            render();
-            await delay(360);
-            if (token !== actionGeneration) return;
-        }
-        view.dealerVisible = null;
-        view.playerVisible.clear();
-        const spacing = deal.sequence.length > 4 ? 85 : 125;
-        deal.sequence.forEach(({ card }, index) => view.initialDeals.set(card.id, index * spacing));
-        game.message = "Kartlar dağıtılıyor.";
-        render();
-        playSound("deal");
-        await delay(520 + (deal.sequence.length - 1) * spacing);
-        if (token !== actionGeneration) return;
-        view.initialDeals.clear();
+        if (deal.reshuffled) { playSound('shuffle'); await delay(240); }
+        if (token !== actionGeneration || !await presentInitialDeal(deal.sequence, token)) return;
         const decision = await commitAction((state) => engine.afterInitialDeal(state));
         if (!decision) return;
-        if (decision.type === "player-turn") {
-            busy = false;
-            render();
-        } else if (decision.type === "insurance") {
-            busy = false;
-            render();
-        } else {
-            await resolveNaturalRound();
-        }
+        if (['player-turn', 'insurance'].includes(decision.type)) { busy = false; render(); }
+        else await resolveNaturalRound();
     }
 
     async function decideInsurance(accept) {
-        if (busy || game.phase !== engine.PHASES.INSURANCE) return;
+        if (busy || game.phase !== engine.PHASES.INSURANCE || !isTableActive()) return;
+        const token = actionGeneration;
+        const amount = Math.floor(game.currentBet / 2);
         busy = true;
         const decision = await commitAction((state) => accept ? engine.takeInsurance(state) : engine.declineInsurance(state),
             (state) => accept ? Math.floor(state.currentBet / 2) : 0);
         if (!decision) return;
-        saveState();
-        if (accept) playSound("chip");
-        if (decision.type === "player-turn") {
-            busy = false;
-            render();
-            return;
+        render();
+        if (accept) {
+            const chip = visualChip(amount / engine.MONEY_SCALE);
+            playSound('chip');
+            await effects.flyChip(chip, elements.chips[0].getBoundingClientRect(), chipRect(elements.shoe.getBoundingClientRect()), { hide: false, duration: 220 });
+            if (token !== actionGeneration) return;
+            if (decision.insuranceWon) {
+                playSound('pay');
+                await effects.flyChip(chip, chipRect(elements.shoe.getBoundingClientRect()), chipRect(elements.chips[0].getBoundingClientRect()), { hide: false, duration: 240 });
+            }
         }
-        elements.insurance.hidden = true;
-        await resolveNaturalRound();
+        if (token !== actionGeneration) return;
+        if (decision.type === 'player-turn') { busy = false; render(); }
+        else await resolveNaturalRound();
     }
 
     async function takeHit() {
-        if (busy) return;
+        if (busy || !isTableActive()) return;
         const token = actionGeneration;
+        const handId = game.playerHands[game.activeHandIndex]?.id;
+        const before = snapshotCardRects();
         busy = true;
         const result = await commitAction((state) => engine.hit(state));
         if (!result) return;
-        saveState();
+        view.focusHandId = handId;
+        view.pendingCardIds.add(result.card.id);
         view.lastDealtCardId = result.card.id;
         render();
-        playSound("deal");
-        await delay(430);
-        if (token !== actionGeneration) return;
-        view.lastDealtCardId = "";
-        if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
-        else {
-            busy = false;
-            render();
+        await effects.layoutFLIP(before, snapshotCardRects(), { duration: 150 });
+        if (token !== actionGeneration || !await deliverCard(result.card, { token })) return;
+        if (result.bust) {
+            playSound('bust');
+            const hand = [...elements.playerHands.querySelectorAll('.blackjack-player-hand')].find((node) => node.dataset.handId === handId);
+            await animateNode(hand, [{ transform: 'translateX(0)' }, { transform: 'translateX(-3px)', offset: .3 }, { transform: 'translateX(3px)', offset: .6 }, { transform: 'translateX(0)' }], 210);
         }
+        if (token !== actionGeneration) return;
+        view.focusHandId = null;
+        view.lastDealtCardId = '';
+        if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
+        else { busy = false; render(); }
     }
 
     async function takeStand() {
-        if (busy) return;
+        if (busy || !isTableActive()) return;
+        const token = actionGeneration;
+        const handId = game.playerHands[game.activeHandIndex]?.id;
         busy = true;
         const result = await commitAction((state) => engine.stand(state));
         if (!result) return;
-        saveState();
         render();
+        playSound('tap');
+        const node = [...elements.playerHands.querySelectorAll('.blackjack-player-hand')].find((item) => item.dataset.handId === handId);
+        await animateNode(node, [{ opacity: 1 }, { opacity: .8 }, { opacity: 1 }], 140);
+        if (token !== actionGeneration) return;
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
-        else {
-            busy = false;
-            render();
-        }
+        else { busy = false; render(); }
     }
 
     async function takeDouble() {
-        if (busy) return;
+        if (busy || !isTableActive()) return;
         const token = actionGeneration;
+        const hand = game.playerHands[game.activeHandIndex];
+        const before = snapshotCardRects();
+        const stake = hand?.bet;
+        const spot = hand?.spotIndex;
+        const handId = hand?.id;
         busy = true;
         const result = await commitAction((state) => engine.doubleDown(state), (state) => state.playerHands[state.activeHandIndex]?.bet || 0);
         if (!result) return;
-        saveState();
+        view.focusHandId = handId;
+        view.pendingCardIds.add(result.card.id);
         view.lastDealtCardId = result.card.id;
         render();
-        playSound("deal");
-        await delay(430);
+        await animateStake(stake, spot, token);
         if (token !== actionGeneration) return;
-        view.lastDealtCardId = "";
+        await effects.layoutFLIP(before, snapshotCardRects(), { duration: 150 });
+        if (!await deliverCard(result.card, { token })) return;
+        if (result.bust) playSound('bust');
+        view.focusHandId = null;
+        view.lastDealtCardId = '';
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
-        else {
-            busy = false;
-            render();
-        }
+        else { busy = false; render(); }
     }
 
     async function takeSplit() {
-        if (busy) return;
+        if (busy || !isTableActive()) return;
         const token = actionGeneration;
+        const before = snapshotCardRects();
+        const stake = game.playerHands[game.activeHandIndex]?.bet;
+        const spot = game.playerHands[game.activeHandIndex]?.spotIndex;
         busy = true;
         const result = await commitAction((state) => engine.split(state), (state) => state.playerHands[state.activeHandIndex]?.bet || 0);
         if (!result) return;
-        saveState();
-        const secondHand = game.playerHands[result.handIndex + 1];
-        view.playerVisible.set(secondHand.id, 1);
-        view.lastDealtCardId = result.cards[0].id;
+        result.cards.forEach((card) => view.pendingCardIds.add(card.id));
         render();
-        playSound("deal");
-        await delay(360);
+        await animateStake(stake, spot, token);
         if (token !== actionGeneration) return;
-        view.playerVisible.delete(secondHand.id);
-        view.lastDealtCardId = result.cards[1].id;
-        render();
-        playSound("deal");
-        await delay(360);
-        if (token !== actionGeneration) return;
-        view.lastDealtCardId = "";
-        if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
-        else {
-            busy = false;
-            render();
+        await effects.layoutFLIP(before, snapshotCardRects(), { duration: 260 });
+        for (const card of result.cards) {
+            if (!await deliverCard(card, { token })) return;
+            await delay(60);
+            if (token !== actionGeneration) return;
         }
+        if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
+        else { busy = false; render(); }
     }
 
     async function resetToBetting() {
-        if (busy) return;
+        if (busy || !isTableActive()) return;
+        const token = actionGeneration;
         busy = true;
+        renderControls();
+        playSound('collect');
+        const destination = chipRect(elements.dealerCards.getBoundingClientRect(), 38);
+        await Promise.all([...app.querySelectorAll('.blackjack-card')].map((node, index) => effects.flyCard(node, node.getBoundingClientRect(), destination,
+            { duration: 180, delay: Math.min(index, 10) * 12, fade: true })));
+        if (token !== actionGeneration) return;
         if (!await commitAction((state) => engine.prepareNextRound(state))) return;
         busy = false;
         view = createViewState();
-        saveState();
         render();
-        seats[selectedSpot].button.focus();
+        seats[selectedSpot].button.focus({ preventScroll: true });
     }
 
     async function resumeSavedGame() {
+        if (busy || walletBridge.isPending() || !isTableActive()) return;
+        const token = actionGeneration;
         if (game.phase === engine.PHASES.DEALING) {
             busy = true;
-            view.dealerVisible = game.dealerHand.length;
+            if (!await presentInitialDeal(initialDealSequence(), token)) return;
             const decision = await commitAction((state) => engine.afterInitialDeal(state));
             if (!decision) return;
-            if (["player-turn", "insurance"].includes(decision.type)) {
-                busy = false;
-                render();
-                return;
-            }
-            await resolveNaturalRound();
-            return;
-        }
-
-        if (game.phase === engine.PHASES.DEALER_TURN) {
-            await runDealerTurn();
-            return;
-        }
-
-        if (game.phase === engine.PHASES.RESOLVING) {
-            const token = actionGeneration;
+            if (['player-turn', 'insurance'].includes(decision.type)) { busy = false; render(); }
+            else await resolveNaturalRound();
+        } else if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
+        else if (game.phase === engine.PHASES.RESOLVING) {
             busy = true;
+            game.dealerHand.slice(2).forEach((card) => view.pendingCardIds.add(card.id));
+            render();
+            await revealDealerCard();
+            if (token !== actionGeneration) return;
+            for (const card of game.dealerHand.slice(2)) if (!await deliverCard(card, { token })) return;
             await completeRound();
             if (token !== actionGeneration) return;
             busy = false;
@@ -963,17 +1036,8 @@
     }
 
     async function handleChipClick(event) {
-        if (busy) return;
-        const source = event.currentTarget;
-        const credits = Number(source.dataset.blackjackChip);
-        busy = true;
-        if (!await commitAction((state) => engine.addBet(state, credits * engine.MONEY_SCALE, selectedSpot))) return;
-        busy = false;
-        game.message = `${selectedSpot + 1}. yere ${formatCredits(game.spotBets[selectedSpot])} kredi koydun.`;
-        saveState();
-        render();
-        flyChip(source);
-        playSound("chip");
+        if (event.detail > 0 && suppressChipClick) { suppressChipClick = false; return; }
+        await placeBet(Number(event.currentTarget.dataset.blackjackChip), selectedSpot, event.currentTarget);
     }
 
     async function clearBet() {
@@ -999,8 +1063,126 @@
         playSound("chip");
     }
 
+    async function placeBet(credits, spot, source, from = null) {
+        if (busy || !isTableActive() || game.phase !== engine.PHASES.BETTING || !Number.isInteger(spot) || spot < 0 || spot >= engine.MAX_SPOTS) return false;
+        audio.unlock();
+        busy = true;
+        selectedSpot = spot;
+        if (!await commitAction((state) => engine.addBet(state, credits * engine.MONEY_SCALE, spot))) return false;
+        busy = false;
+        game.message = `${spot + 1}. yere ${formatCredits(game.spotBets[spot])} kredi koydun.`;
+        saveState();
+        render();
+        playSound("tap");
+        flyChip(source, spot, from);
+        return true;
+    }
+
+    function dropSpot(x, y) {
+        const button = document.elementFromPoint(x, y)?.closest(".blackjack-seat");
+        return button && elements.seats.contains(button) && !button.disabled ? Number(button.dataset.seat) - 1 : null;
+    }
+
+    function cancelChipDrag() {
+        if (!drag) return;
+        const current = drag;
+        drag = null;
+        if (current.frame) window.cancelAnimationFrame(current.frame);
+        current.ghost?.remove();
+        current.source.classList.remove("is-dragging");
+        seats.forEach(({ button }) => button.classList.remove("is-drag-over"));
+        if (current.source.hasPointerCapture?.(current.pointerId)) current.source.releasePointerCapture(current.pointerId);
+    }
+
+    function previewChipDrag() {
+        if (!drag?.ghost) return;
+        const spot = dropSpot(drag.x, drag.y);
+        seats.forEach(({ button }, index) => button.classList.toggle("is-drag-over", index === spot));
+    }
+
+    function scrollChipDrag() {
+        if (!drag?.ghost) return;
+        drag.frame = 0;
+        const edge = 65;
+        const movement = drag.y < edge ? -Math.min(15, (edge - drag.y) / 4)
+            : drag.y > window.innerHeight - edge ? Math.min(15, (drag.y - window.innerHeight + edge) / 4) : 0;
+        if (!movement) return;
+        const before = window.scrollY;
+        window.scrollBy({ top: movement, behavior: "instant" });
+        previewChipDrag();
+        if (window.scrollY !== before) drag.frame = window.requestAnimationFrame(scrollChipDrag);
+    }
+
+    function startChipDrag(event) {
+        const source = event.currentTarget;
+        if (busy || source.disabled || drag || event.isPrimary === false || event.button !== 0 || game.phase !== engine.PHASES.BETTING || !isTableActive()) return;
+        const box = source.getBoundingClientRect();
+        suppressChipClick = false;
+        drag = { source, pointerId: event.pointerId, pointerType: event.pointerType, startX: event.clientX, startY: event.clientY,
+            x: event.clientX, y: event.clientY, offsetX: event.clientX - box.left, offsetY: event.clientY - box.top, box, frame: 0, ghost: null };
+        source.setPointerCapture(event.pointerId);
+        audio.unlock();
+    }
+
+    function moveChipDrag(event) {
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        drag.x = event.clientX;
+        drag.y = event.clientY;
+        if (!drag.ghost) {
+            const dx = event.clientX - drag.startX, dy = event.clientY - drag.startY;
+            if (Math.hypot(dx, dy) < 7) return;
+            // Horizontal swipes on touch devices keep scrolling the chip tray naturally.
+            if (drag.pointerType === "touch" && Math.abs(dx) > Math.abs(dy) * 1.3) { cancelChipDrag(); return; }
+            drag.ghost = drag.source.cloneNode(true);
+            drag.ghost.removeAttribute("id");
+            drag.ghost.classList.add("blackjack-chip-ghost");
+            drag.ghost.setAttribute("aria-hidden", "true");
+            drag.ghost.tabIndex = -1;
+            Object.assign(drag.ghost.style, { position: "fixed", left: "0", top: "0", width: `${drag.box.width}px`, height: `${drag.box.height}px`, pointerEvents: "none", zIndex: "10001", margin: "0" });
+            document.body.append(drag.ghost);
+            drag.source.classList.add("is-dragging");
+        }
+        event.preventDefault();
+        drag.ghost.style.transform = `translate3d(${event.clientX - drag.offsetX}px,${event.clientY - drag.offsetY}px,0)`;
+        previewChipDrag();
+        if (!drag.frame) drag.frame = window.requestAnimationFrame(scrollChipDrag);
+    }
+
+    function finishChipDrag(event) {
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const current = drag;
+        const spot = dropSpot(event.clientX, event.clientY);
+        const from = current.ghost?.getBoundingClientRect();
+        suppressChipClick = Boolean(current.ghost);
+        cancelChipDrag();
+        if (from && spot !== null) placeBet(Number(current.source.dataset.blackjackChip), spot, current.source, from);
+    }
+
+    let lastActive = isTableActive();
+    function syncPresentationActivity(force = false) {
+        const active = isTableActive();
+        audio.setActive(active);
+        if (!force && active === lastActive) return;
+        lastActive = active;
+        actionGeneration += 1;
+        cancelPresentation();
+        busy = false;
+        view = createViewState();
+        render();
+        if (active) scheduleResume();
+    }
+
     function bindEvents() {
-        elements.chips.forEach((chip) => chip.addEventListener("click", handleChipClick));
+        elements.chips.forEach((chip) => {
+            chip.addEventListener("click", handleChipClick);
+            chip.style.touchAction = "pan-x";
+            chip.addEventListener("pointerdown", startChipDrag);
+            for (const name of ["pointercancel", "lostpointercapture"]) chip.addEventListener(name, (event) => {
+                if (drag?.pointerId === event.pointerId) cancelChipDrag();
+            });
+        });
+        document.addEventListener("pointermove", moveChipDrag, { passive: false });
+        document.addEventListener("pointerup", finishChipDrag);
         elements.clearBet.addEventListener("click", clearBet);
         elements.repeatBet.addEventListener("click", repeatBet);
         elements.deal.addEventListener("click", () => {
@@ -1015,11 +1197,36 @@
         elements.insuranceDecline.addEventListener("click", () => decideInsurance(false));
         elements.sound.addEventListener("click", () => {
             soundEnabled = !soundEnabled;
+            audio.unlock();
+            audio.setMuted(!soundEnabled);
             saveState();
-            render();
+            renderAudioControls();
             if (soundEnabled) playSound("click");
         });
+        speedInput.addEventListener("change", () => {
+            animationSpeed = speedInput.value === "fast" ? "fast" : "normal";
+            effects.setSpeed(animationSpeed === "fast" ? 1.8 : 1);
+            saveState();
+        });
+        ambienceButton.addEventListener("click", () => {
+            ambienceEnabled = !ambienceEnabled;
+            audio.unlock();
+            audio.setAmbience(ambienceEnabled);
+            renderAudioControls();
+            saveState();
+        });
         document.addEventListener("keydown", handleKeyboard);
+        document.addEventListener("visibilitychange", () => syncPresentationActivity());
+        new MutationObserver(() => syncPresentationActivity()).observe(panel, { attributes: true, attributeFilter: ["class"] });
+        window.addEventListener("resize", () => syncPresentationActivity(true));
+        window.addEventListener("pagehide", () => {
+            lastActive = false;
+            actionGeneration += 1;
+            cancelPresentation();
+            busy = false;
+            audio.setActive(false);
+        });
+        window.addEventListener("pageshow", () => syncPresentationActivity());
     }
 
     function handleKeyboard(event) {
@@ -1048,5 +1255,6 @@
     bindEvents();
     wallet.subscribe(syncWallet);
     render();
-    resumeSavedGame();
+    audio.setActive(isTableActive());
+    scheduleResume();
 })();

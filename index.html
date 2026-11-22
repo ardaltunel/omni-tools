@@ -78,7 +78,7 @@
     <link rel="stylesheet" href="tools/instagram-unfollower/style.css?v=7">
     <link rel="stylesheet" href="tools/nebuu/style.css?v=14">
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
-    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=57">
+    <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=58">
     <link rel="stylesheet" href="tools/shared/game-wallet.css?v=1">
     <link rel="stylesheet" href="tools/block-blast/style.css?v=1">
     <link rel="stylesheet" href="tools/roulette/style.css?v=7">
@@ -1001,6 +1001,8 @@
                             <p>Altı destelik shoe ile klasik 21 masası.</p>
                         </div>
                         <div class="blackjack-header-actions">
+                            <label class="blackjack-speed-control" for="blackjack-speed"><span>Animasyon</span><select id="blackjack-speed"><option value="normal">Doğal</option><option value="fast">Hızlı</option></select></label>
+                            <button id="blackjack-ambience" class="blackjack-text-button" type="button" aria-pressed="false" title="Hafif salon atmosferi">Ortam sesi</button>
                             <div class="blackjack-volume-control">
                             <button id="blackjack-sound" class="blackjack-icon-button" type="button"
                                 aria-label="Oyun seslerini kapat" aria-pressed="true" title="Ses">
@@ -1035,7 +1037,7 @@
                                             <span id="blackjack-balance-delta" class="blackjack-balance-delta" aria-live="polite" aria-atomic="true" hidden></span>
                                         </div>
                                         <div id="blackjack-shoe" class="blackjack-shoe" aria-label="Altı destelik kart shoe'u" title="6 deste shoe">
-                                            <img class="blackjack-shoe-machine" src="tools/blackjack/shoe.svg" alt="" draggable="false">
+                                            <img class="blackjack-shoe-machine" src="tools/blackjack/shoe.svg?v=2" alt="" draggable="false">
                                         </div>
                                     </div>
 
@@ -5945,7 +5947,10 @@ Disallow:</code></pre>
     <script src="tools/shared/game-wallet.js?v=1"></script>
     <script src="tools/shared/game-wallet-controls.js?v=1"></script>
     <script src="tools/blackjack/engine.js?v=8"></script>
-    <script src="tools/blackjack/app.js?v=28"></script>
+    <script src="tools/blackjack/cards.js?v=1"></script>
+    <script src="tools/blackjack/effects.js?v=1"></script>
+    <script src="tools/blackjack/audio.js?v=1"></script>
+    <script src="tools/blackjack/app.js?v=29"></script>
     <script src="tools/block-blast/core.js?v=1"></script>
     <script src="tools/block-blast/app.js?v=1"></script>
     <script src="tools/roulette/core.js?v=1"></script>
