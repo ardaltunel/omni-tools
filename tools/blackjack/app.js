@@ -122,16 +122,11 @@
     const game = walletBridge.game;
     let soundEnabled = saved.soundEnabled;
     let soundVolume = saved.soundVolume ?? 1;
-    let animationSpeed = saved.animationSpeed === "fast" ? "fast" : "normal";
-    let ambienceEnabled = saved.ambienceEnabled === true;
     const panel = document.getElementById("blackjack");
     const isTableActive = () => panel.classList.contains("active") && !document.hidden;
-    const effects = window.OmniBlackjackEffects.create({ document, host: window, reduceMotion: () => prefersReducedMotion.matches, isActive: isTableActive, speed: animationSpeed === "fast" ? 1.8 : 1 });
-    const audio = window.OmniBlackjackAudio.create({ volume: soundVolume, muted: !soundEnabled, ambience: ambienceEnabled, isActive: isTableActive });
+    const effects = window.OmniBlackjackEffects.create({ document, host: window, reduceMotion: () => prefersReducedMotion.matches, isActive: isTableActive });
+    const audio = window.OmniBlackjackAudio.create({ volume: soundVolume, muted: !soundEnabled, isActive: isTableActive });
     const localAnimations = new Set();
-    const speedInput = document.getElementById("blackjack-speed");
-    const ambienceButton = document.getElementById("blackjack-ambience");
-    speedInput.value = animationSpeed;
     const volumeInput = document.getElementById("blackjack-volume");
     const volumeOutput = document.getElementById("blackjack-volume-value");
     volumeInput.value = String(Math.round(soundVolume * 100));
@@ -175,8 +170,6 @@
                 stats: value.stats && typeof value.stats === "object" ? value.stats : {},
                 soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : true,
                 soundVolume: Number.isFinite(value.soundVolume) ? Math.max(0, Math.min(1, value.soundVolume)) : 1,
-                animationSpeed: value.animationSpeed === "fast" ? "fast" : "normal",
-                ambienceEnabled: value.ambienceEnabled === true,
                 game: value.game && typeof value.game === "object" ? value.game : null,
             };
         } catch {
@@ -192,8 +185,6 @@
             stats: state.stats,
             soundEnabled,
             soundVolume,
-            animationSpeed,
-            ambienceEnabled,
             game: engine.serializeState(state),
         };
     }
@@ -256,7 +247,7 @@
     }
 
     function delay(milliseconds) {
-        return new Promise((resolve) => window.setTimeout(resolve, prefersReducedMotion.matches || !isTableActive() ? 0 : milliseconds / (animationSpeed === "fast" ? 1.8 : 1)));
+        return new Promise((resolve) => window.setTimeout(resolve, prefersReducedMotion.matches || !isTableActive() ? 0 : milliseconds));
     }
 
     function cancelPresentation() {
@@ -279,7 +270,7 @@
         if (!node?.animate || prefersReducedMotion.matches || !isTableActive()) return;
         let animation;
         try {
-            animation = node.animate(frames, { duration: duration / (animationSpeed === "fast" ? 1.8 : 1), easing: "cubic-bezier(.2,.7,.2,1)", fill: "both" });
+            animation = node.animate(frames, { duration, easing: "cubic-bezier(.2,.7,.2,1)", fill: "both" });
             localAnimations.add(animation);
             await animation.finished;
         } catch { /* Interrupted presentation never changes the recorded hand. */ }
@@ -757,8 +748,6 @@
         elements.sound.setAttribute("aria-pressed", String(soundEnabled));
         elements.sound.setAttribute("aria-label", soundEnabled ? "Oyun seslerini kapat" : "Oyun seslerini aç");
         elements.sound.querySelector("span").textContent = soundEnabled ? "🔊" : "🔇";
-        ambienceButton.setAttribute("aria-pressed", String(ambienceEnabled));
-        ambienceButton.classList.toggle("is-active", ambienceEnabled);
     }
 
     function showBalanceDelta(delta) {
@@ -1202,18 +1191,6 @@
             saveState();
             renderAudioControls();
             if (soundEnabled) playSound("click");
-        });
-        speedInput.addEventListener("change", () => {
-            animationSpeed = speedInput.value === "fast" ? "fast" : "normal";
-            effects.setSpeed(animationSpeed === "fast" ? 1.8 : 1);
-            saveState();
-        });
-        ambienceButton.addEventListener("click", () => {
-            ambienceEnabled = !ambienceEnabled;
-            audio.unlock();
-            audio.setAmbience(ambienceEnabled);
-            renderAudioControls();
-            saveState();
         });
         document.addEventListener("keydown", handleKeyboard);
         document.addEventListener("visibilitychange", () => syncPresentationActivity());

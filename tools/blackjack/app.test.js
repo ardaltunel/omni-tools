@@ -521,7 +521,7 @@ test("yerel animasyon oluşturulamazsa kayıtlı Dur hamlesi krupiye sırasına 
     };
     const context = vm.createContext({
         engine, game: app.bridge.game, walletBridge: app.bridge, localAnimations,
-        prefersReducedMotion: { matches: false }, animationSpeed: "normal",
+        prefersReducedMotion: { matches: false },
         isTableActive: () => true, saveState() {}, render() {}, playSound() {},
         elements: { playerHands: { querySelectorAll: () => [node] } },
         runDealerTurn() { dealerTurns += 1; context.releaseBusy(); },

@@ -1634,10 +1634,6 @@
 .blackjack-card-flight .blackjack-card-inner { transition: none !important; }
 .blackjack-chip-flight > .blackjack-chip { box-sizing: border-box; cursor: inherit; opacity: 1; }
 
-.blackjack-speed-control { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: #a8b8ac; font-size: 10px; }
-.blackjack-speed-control select { max-width: 110px; min-height: 36px; padding: 5px 24px 5px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); color: #dedfd2; font: inherit; font-size: 11px; }
-#blackjack-ambience.is-active, #blackjack-ambience[aria-pressed="true"] { border-color: #9dbb995e; background: #527e5c22; color: #d5e4c5; }
-
 @container blackjack-felt (max-width: 560px) {
     .blackjack-dealer-area { margin-top: 10px; }
     .blackjack-dealer-cards { --blackjack-card-width: 58px; }
@@ -1649,13 +1645,9 @@
     .blackjack-header { flex-wrap: wrap; }
     .blackjack-felt { border-radius: 20px 20px 36px 36px; box-shadow: 0 6px 0 -2px #151510, 0 12px 20px #0004, inset 0 0 0 1px #d4b47988, inset 0 -18px 45px #001c16a0; }
     .blackjack-chip-row .blackjack-chip { flex-basis: 44px; width: 44px; height: 44px; }
-    .blackjack-speed-control select, #blackjack-ambience { min-height: 44px; }
-    #blackjack-ambience.blackjack-icon-button { width: 44px; height: 44px; }
 }
 @media (hover: none), (pointer: coarse) {
     .blackjack-chip:hover:not(:disabled) { transform: none; }
-    .blackjack-speed-control select, #blackjack-ambience { min-height: 44px; }
-    #blackjack-ambience.blackjack-icon-button { width: 44px; height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .blackjack-card-inner, .blackjack-card.is-hidden .blackjack-card-inner, .blackjack-chip { transition: none !important; }
