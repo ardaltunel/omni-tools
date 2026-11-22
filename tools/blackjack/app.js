@@ -1,9 +1,88 @@
+(function exposeBlackjackWallet(root, factory) {
+    "use strict";
+    const createBridge = factory();
+    if (typeof module === "object" && module.exports) module.exports = { createWalletBridge: createBridge };
+    else root.OmniBlackjackWalletBridge = createBridge;
+})(typeof globalThis === "undefined" ? window : globalThis, function blackjackWalletFactory() {
+    "use strict";
+    return function createWalletBridge(engine, wallet, legacy = {}, envelope = (game) => ({ game: engine.serializeState(game) })) {
+        let record = wallet.read("blackjack");
+        const initial = record.snapshot || legacy;
+        const game = engine.restoreState(initial.game) || engine.createState({ balance: initial.balance, lastBet: initial.lastBet, stats: initial.stats });
+        let pending = false;
+
+        function mirrorBalance() {
+            // The engine accepts quarter credits; any remaining cents stay in the shared wallet.
+            game.balance = Math.floor((record.balance * engine.MONEY_SCALE + 1e-8) * 2) / 2;
+            if (game.phase === engine.PHASES.BETTING && game.currentBet > game.balance) {
+                engine.clearBet(game);
+                game.message = "Ortak bakiyen değişti. Yeni bahislerini yerleştirebilirsin.";
+            }
+        }
+
+        function adopt(next) {
+            const changed = next.revision !== record.revision;
+            const balanceChanged = next.balance !== record.balance;
+            if (changed) {
+                const restored = engine.restoreState(next.snapshot?.game);
+                if (restored) {
+                    Object.keys(game).forEach((key) => { delete game[key]; });
+                    Object.assign(game, restored);
+                }
+            }
+            record = next;
+            mirrorBalance();
+            return { changed, balanceChanged };
+        }
+
+        mirrorBalance();
+        return Object.freeze({
+            game,
+            balance: () => record.balance,
+            isPending: () => pending,
+            sync() { return pending ? { changed: false, balanceChanged: false } : adopt(wallet.read("blackjack")); },
+            async act(update, required = 0) {
+                if (pending) return { ok: false, reason: "busy" };
+                const latest = wallet.read("blackjack");
+                if (latest.revision !== record.revision) {
+                    adopt(latest);
+                    return { ok: false, reason: "conflict" };
+                }
+                adopt(latest);
+                const candidate = engine.restoreState(engine.serializeState(game));
+                const before = candidate.balance;
+                const value = update(candidate);
+                if (!value) return { ok: false, reason: "invalid" };
+                const opening = typeof required === "function" ? required(game) : required;
+                pending = true;
+                let result;
+                try {
+                    result = await wallet.commit("blackjack", {
+                        revision: record.revision,
+                        delta: (candidate.balance - before) / engine.MONEY_SCALE,
+                        required: opening / engine.MONEY_SCALE,
+                        snapshot: envelope(candidate),
+                    });
+                } catch { result = { ok: false, reason: "unavailable" }; }
+                finally { pending = false; }
+                const current = wallet.read("blackjack");
+                adopt(current);
+                if (!result.ok || current.revision !== result.revision) return { ok: false, reason: result.reason || "conflict" };
+                return { ok: true, value };
+            },
+        });
+    };
+});
+
 (function initBlackjackApp() {
     "use strict";
 
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
     const engine = window.OmniBlackjackEngine;
+    const wallet = window.OmniGameWallet;
     const app = document.getElementById("blackjack-app");
-    if (!engine || !app) return;
+    if (!engine || !app || !wallet) return;
 
     const STORAGE_KEY = "omni-blackjack-v1";
     const MINIMUM_BET = 10 * engine.MONEY_SCALE;
@@ -39,11 +118,8 @@
     };
 
     const saved = loadSavedState();
-    const game = engine.restoreState(saved.game) || engine.createState({
-        balance: saved.balance,
-        lastBet: saved.lastBet,
-        stats: saved.stats,
-    });
+    const walletBridge = window.OmniBlackjackWalletBridge(engine, wallet, saved, createSavedEnvelope);
+    const game = walletBridge.game;
     let soundEnabled = saved.soundEnabled;
     let soundVolume = saved.soundVolume ?? 1;
     const volumeInput = document.getElementById("blackjack-volume");
@@ -54,6 +130,7 @@
     const volumeControl = volumeInput.closest(".blackjack-volume-control");
     volumeControl.addEventListener("pointerleave", (event) => { if (event.pointerType === "mouse" && volumeControl.contains(document.activeElement)) document.activeElement.blur(); });
     let busy = false;
+    let actionGeneration = 0;
     let selectedSpot = Math.max(0, game.spotBets.findIndex(Boolean));
     let view = createViewState();
     let shoeDealTimer = 0;
@@ -95,20 +172,59 @@
         }
     }
 
+    function createSavedEnvelope(state = game) {
+        return {
+            version: 2,
+            balance: state.balance,
+            lastBet: state.lastBet,
+            stats: state.stats,
+            soundEnabled,
+            soundVolume,
+            game: engine.serializeState(state),
+        };
+    }
+
     function saveState() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                version: 2,
-                balance: game.balance,
-                lastBet: game.lastBet,
-                stats: game.stats,
-                soundEnabled,
-                soundVolume,
-                game: engine.serializeState(game),
-            }));
+            // Preferences and a legacy backup never write the authoritative shared balance.
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(createSavedEnvelope()));
         } catch {
             // Private mode may block storage. The game remains fully playable.
         }
+    }
+
+    async function commitAction(update, required = 0) {
+        const token = actionGeneration;
+        const result = await walletBridge.act(update, required);
+        if (token !== actionGeneration) return null;
+        if (result.ok) {
+            saveState();
+            return result.value;
+        }
+        actionGeneration += 1;
+        busy = false;
+        view = createViewState();
+        if (result.reason === "funds") game.message = "Ortak bakiyen bu işlem için yeterli değil.";
+        else if (result.reason === "conflict") game.message = "Blackjack diğer sekmedeki kayıttan güncellendi.";
+        render();
+        if (result.reason === "conflict") {
+            const token = actionGeneration;
+            window.setTimeout(() => { if (token === actionGeneration && !busy) resumeSavedGame(); }, 0);
+        }
+        return null;
+    }
+
+    function syncWallet() {
+        if (walletBridge.isPending()) return;
+        const change = walletBridge.sync();
+        if (change.changed) {
+            actionGeneration += 1;
+            busy = false;
+            view = createViewState();
+            roundStartingBalance = getRoundStartingBalance();
+        }
+        if (change.changed || change.balanceChanged) render();
+        if (change.changed) resumeSavedGame();
     }
 
     function formatCredits(units) {
@@ -497,7 +613,7 @@
 
     function render() {
         app.dataset.phase = game.phase;
-        elements.balance.textContent = formatCredits(game.balance);
+        elements.balance.textContent = formatCredits(walletBridge.balance() * engine.MONEY_SCALE);
         const handsBySpot = Array.from({ length: engine.MAX_SPOTS }, () => []);
         game.playerHands.forEach((hand) => handsBySpot[hand.spotIndex].push(hand));
         renderSeats(handsBySpot);
@@ -614,23 +730,28 @@
     }
 
     async function completeRound() {
-        const result = engine.resolveRound(game);
+        const result = await commitAction((state) => engine.resolveRound(state));
+        if (!result) return;
         view.dealerVisible = game.dealerHand.length;
         view.lastDealtCardId = "";
         saveState();
         render();
-        showBalanceDelta(game.balance - roundStartingBalance);
+        const net = result.results.reduce((sum, hand) => sum + hand.payout, 0)
+            + (game.round?.insuranceWon ? game.insuranceBet * 3 : 0) - engine.totalBet(game);
+        showBalanceDelta(net);
         if (result?.results?.some((item) => item.outcome === "blackjack")) playSound("blackjack");
         else if (result?.results?.some((item) => ["win", "dealer-bust"].includes(item.outcome))) playSound("win");
         else if (result?.results?.every((item) => ["lose", "bust"].includes(item.outcome))) playSound("loss");
     }
 
     async function runDealerTurn() {
+        const token = actionGeneration;
         busy = true;
         render();
         await revealDealerCard();
-        const dealerCards = engine.dealerPlay(game);
-        saveState();
+        if (token !== actionGeneration) return;
+        const dealerCards = await commitAction((state) => state.phase === engine.PHASES.DEALER_TURN ? engine.dealerPlay(state) : null);
+        if (!dealerCards) return;
         view.dealerVisible = Math.min(2, game.dealerHand.length);
         render();
         for (const dealtCard of dealerCards) {
@@ -639,30 +760,34 @@
             render();
             playSound("deal");
             await delay(440);
+            if (token !== actionGeneration) return;
             view.lastDealtCardId = "";
         }
         await completeRound();
+        if (token !== actionGeneration) return;
         busy = false;
         render();
     }
 
     async function resolveNaturalRound() {
+        const token = actionGeneration;
         busy = true;
         await revealDealerCard();
+        if (token !== actionGeneration) return;
         await completeRound();
+        if (token !== actionGeneration) return;
         busy = false;
         render();
     }
 
     async function beginDeal() {
+        syncWallet();
         if (!canDeal()) return;
+        const token = actionGeneration;
         busy = true;
         roundStartingBalance = game.balance;
-        const deal = engine.beginRound(game);
-        if (!deal) {
-            busy = false;
-            return;
-        }
+        const deal = await commitAction((state) => engine.beginRound(state), (state) => state.currentBet);
+        if (!deal) return;
         saveState();
         view = createViewState();
         if (deal.reshuffled) {
@@ -672,6 +797,7 @@
             playSound("shuffle");
             render();
             await delay(360);
+            if (token !== actionGeneration) return;
         }
         view.dealerVisible = null;
         view.playerVisible.clear();
@@ -681,9 +807,10 @@
         render();
         playSound("deal");
         await delay(520 + (deal.sequence.length - 1) * spacing);
+        if (token !== actionGeneration) return;
         view.initialDeals.clear();
-        const decision = engine.afterInitialDeal(game);
-        saveState();
+        const decision = await commitAction((state) => engine.afterInitialDeal(state));
+        if (!decision) return;
         if (decision.type === "player-turn") {
             busy = false;
             render();
@@ -698,12 +825,9 @@
     async function decideInsurance(accept) {
         if (busy || game.phase !== engine.PHASES.INSURANCE) return;
         busy = true;
-        const decision = accept ? engine.takeInsurance(game) : engine.declineInsurance(game);
-        if (!decision) {
-            busy = false;
-            render();
-            return;
-        }
+        const decision = await commitAction((state) => accept ? engine.takeInsurance(state) : engine.declineInsurance(state),
+            (state) => accept ? Math.floor(state.currentBet / 2) : 0);
+        if (!decision) return;
         saveState();
         if (accept) playSound("chip");
         if (decision.type === "player-turn") {
@@ -717,17 +841,16 @@
 
     async function takeHit() {
         if (busy) return;
+        const token = actionGeneration;
         busy = true;
-        const result = engine.hit(game);
-        if (!result) {
-            busy = false;
-            return;
-        }
+        const result = await commitAction((state) => engine.hit(state));
+        if (!result) return;
         saveState();
         view.lastDealtCardId = result.card.id;
         render();
         playSound("deal");
         await delay(430);
+        if (token !== actionGeneration) return;
         view.lastDealtCardId = "";
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
         else {
@@ -739,11 +862,8 @@
     async function takeStand() {
         if (busy) return;
         busy = true;
-        const result = engine.stand(game);
-        if (!result) {
-            busy = false;
-            return;
-        }
+        const result = await commitAction((state) => engine.stand(state));
+        if (!result) return;
         saveState();
         render();
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
@@ -755,17 +875,16 @@
 
     async function takeDouble() {
         if (busy) return;
+        const token = actionGeneration;
         busy = true;
-        const result = engine.doubleDown(game);
-        if (!result) {
-            busy = false;
-            return;
-        }
+        const result = await commitAction((state) => engine.doubleDown(state), (state) => state.playerHands[state.activeHandIndex]?.bet || 0);
+        if (!result) return;
         saveState();
         view.lastDealtCardId = result.card.id;
         render();
         playSound("deal");
         await delay(430);
+        if (token !== actionGeneration) return;
         view.lastDealtCardId = "";
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
         else {
@@ -776,12 +895,10 @@
 
     async function takeSplit() {
         if (busy) return;
+        const token = actionGeneration;
         busy = true;
-        const result = engine.split(game);
-        if (!result) {
-            busy = false;
-            return;
-        }
+        const result = await commitAction((state) => engine.split(state), (state) => state.playerHands[state.activeHandIndex]?.bet || 0);
+        if (!result) return;
         saveState();
         const secondHand = game.playerHands[result.handIndex + 1];
         view.playerVisible.set(secondHand.id, 1);
@@ -789,11 +906,13 @@
         render();
         playSound("deal");
         await delay(360);
+        if (token !== actionGeneration) return;
         view.playerVisible.delete(secondHand.id);
         view.lastDealtCardId = result.cards[1].id;
         render();
         playSound("deal");
         await delay(360);
+        if (token !== actionGeneration) return;
         view.lastDealtCardId = "";
         if (game.phase === engine.PHASES.DEALER_TURN) await runDealerTurn();
         else {
@@ -802,10 +921,12 @@
         }
     }
 
-    function resetToBetting() {
-        if (busy || !engine.prepareNextRound(game)) return;
+    async function resetToBetting() {
+        if (busy) return;
+        busy = true;
+        if (!await commitAction((state) => engine.prepareNextRound(state))) return;
+        busy = false;
         view = createViewState();
-        replenishCreditsIfEmpty();
         saveState();
         render();
         seats[selectedSpot].button.focus();
@@ -815,8 +936,8 @@
         if (game.phase === engine.PHASES.DEALING) {
             busy = true;
             view.dealerVisible = game.dealerHand.length;
-            const decision = engine.afterInitialDeal(game);
-            saveState();
+            const decision = await commitAction((state) => engine.afterInitialDeal(state));
+            if (!decision) return;
             if (["player-turn", "insurance"].includes(decision.type)) {
                 busy = false;
                 render();
@@ -832,45 +953,50 @@
         }
 
         if (game.phase === engine.PHASES.RESOLVING) {
+            const token = actionGeneration;
             busy = true;
             await completeRound();
+            if (token !== actionGeneration) return;
             busy = false;
             render();
         }
     }
 
-    function handleChipClick(event) {
+    async function handleChipClick(event) {
         if (busy) return;
-        const credits = Number(event.currentTarget.dataset.blackjackChip);
-        if (!engine.addBet(game, credits * engine.MONEY_SCALE, selectedSpot)) return;
+        const source = event.currentTarget;
+        const credits = Number(source.dataset.blackjackChip);
+        busy = true;
+        if (!await commitAction((state) => engine.addBet(state, credits * engine.MONEY_SCALE, selectedSpot))) return;
+        busy = false;
         game.message = `${selectedSpot + 1}. yere ${formatCredits(game.spotBets[selectedSpot])} kredi koydun.`;
         saveState();
         render();
-        flyChip(event.currentTarget);
+        flyChip(source);
         playSound("chip");
     }
 
-    function clearBet() {
-        if (busy || !engine.clearBet(game, selectedSpot)) return;
+    async function clearBet() {
+        if (busy) return;
+        busy = true;
+        if (!await commitAction((state) => engine.clearBet(state, selectedSpot))) return;
+        busy = false;
         game.message = `${selectedSpot + 1}. yerin bahsi temizlendi.`;
         saveState();
         render();
         playSound("click");
     }
 
-    function repeatBet() {
-        if (busy || !engine.repeatBet(game)) return;
+    async function repeatBet() {
+        if (busy) return;
+        busy = true;
+        if (!await commitAction((state) => engine.repeatBet(state))) return;
+        busy = false;
         if (!game.spotBets[selectedSpot]) selectedSpot = game.spotBets.findIndex(Boolean);
         game.message = "Önceki turun başlangıç bahisleri geri kondu.";
         saveState();
         render();
         playSound("chip");
-    }
-
-    function replenishCreditsIfEmpty() {
-        if (!engine.replenishBalanceIfEmpty(game, MINIMUM_BET)) return false;
-        game.message = "Bakiyen tükendiği için 10.000 sanal kredi otomatik olarak yüklendi.";
-        return true;
     }
 
     function bindEvents() {
@@ -919,8 +1045,8 @@
         }
     }
 
-    if (replenishCreditsIfEmpty()) saveState();
     bindEvents();
+    wallet.subscribe(syncWallet);
     render();
     resumeSavedGame();
 })();

@@ -93,6 +93,12 @@ The project mainly focuses on:
 * Wordle
 * Wordle Bulucu
 
+Blackjack, Rulet ve Slot Oyunu aynı tarayıcıdaki ortak sanal cüzdanı kullanır.
+Eski oyun bakiyeleri ilk geçişte bir kez toplanır; sonraki bahisler ve kazançlar
+üç oyuna da yansır. Devam eden eller ve ücretsiz dönüşler korunur. Bakiye
+1 kredinin altındaysa ve bekleyen el/dönüş yoksa ortak cüzdana ücretsiz
+10.000 sanal kredi yüklenebilir. Gerçek para veya ödeme işlemi içermez.
+
 ---
 
 # 🎨 Design Approach

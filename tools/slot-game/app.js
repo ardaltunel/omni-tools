@@ -2,10 +2,16 @@
     "use strict";
 
     const engine = window.OmniSlotGameEngine;
+    const wallet = window.OmniGameWallet;
     const app = document.getElementById("slot-game-app");
-    if (!engine || !app) return;
+    if (!engine || !wallet || !app) return;
 
-    const STORAGE_KEY = "omni-slot-game-v1";
+    const WALLET_GAME_ID = "slot-game";
+    const initialWallet = wallet.read(WALLET_GAME_ID);
+    let walletRevision = initialWallet.revision;
+    let walletPending = false;
+    let pendingSettingsSave = false;
+    let roundSerial = 0;
     const elements = {
         autoButton: document.getElementById("slot-game-auto"),
         autoCount: document.getElementById("slot-game-auto-count"),
@@ -56,9 +62,9 @@
             [id, `<img src="tools/slot-game/art/${id}.svg" alt="" draggable="false" width="120" height="130">`])
     ));
 
-    const saved = loadSavedState();
+    const saved = loadSavedState(initialWallet.snapshot);
     const state = engine.createState({
-        balance: saved.balance,
+        balance: initialWallet.balance,
         bet: saved.bet,
         freeSpins: saved.freeSpins,
         freeMultiplier: saved.freeMultiplier,
@@ -93,7 +99,7 @@
     let buyModalOpen = false;
     let lastCompletedFreeMultiplier = 1;
 
-    function loadSavedState() {
+    function loadSavedState(snapshot) {
         const fallback = {
             balance: engine.STARTING_BALANCE,
             bet: 100,
@@ -105,7 +111,7 @@
             turboEnabled: false,
         };
         try {
-            const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+            const value = snapshot && typeof snapshot === "object" ? snapshot : {};
             const freeSpins = Number.isInteger(value.freeSpins) && value.freeSpins >= 0 ? value.freeSpins : 0;
             const storedMultiplier = Number.isInteger(value.freeMultiplier) && value.freeMultiplier >= 0
                 ? value.freeMultiplier
@@ -128,23 +134,101 @@
         }
     }
 
-    function saveState() {
-        try {
-            const persisted = durableRoundState || state;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                version: 2,
-                balance: persisted.balance,
-                bet: persisted.bet,
-                freeSpins: persisted.freeSpins,
-                freeMultiplier: persisted.freeMultiplier,
-                lastWin: persisted.lastWin,
-                soundEnabled,
-                soundVolume,
-                turboEnabled,
-            }));
-        } catch {
-            // Depolamanın kapalı olduğu tarayıcılarda oyun yine çalışmaya devam eder.
+    function savedEnvelope(persisted) {
+        return {
+            version: 2,
+            balance: persisted.balance,
+            bet: persisted.bet,
+            freeSpins: persisted.freeSpins,
+            freeMultiplier: persisted.freeMultiplier,
+            lastWin: persisted.lastWin,
+            soundEnabled,
+            soundVolume,
+            turboEnabled,
+        };
+    }
+
+    function adoptWallet(record) {
+        const restored = loadSavedState(record.snapshot);
+        roundSerial += 1;
+        window.clearTimeout(nextSpinTimer);
+        nextSpinTimer = 0;
+        autoRemaining = 0;
+        durableRoundState = null;
+        presentationBusy = false;
+        pendingSettingsSave = false;
+        Object.assign(state, engine.createState({
+            balance: record.balance, bet: restored.bet,
+            freeSpins: restored.freeSpins, freeMultiplier: restored.freeMultiplier,
+        }), { lastWin: restored.lastWin });
+        walletRevision = record.revision;
+        soundEnabled = restored.soundEnabled;
+        soundVolume = restored.soundVolume;
+        turboEnabled = restored.turboEnabled;
+        elements.machine.classList.remove("is-spinning", "is-hit");
+        elements.celebration.hidden = true;
+        elements.turbo.setAttribute("aria-pressed", String(turboEnabled));
+        elements.turbo.classList.toggle("is-active", turboEnabled);
+        elements.turbo.querySelector("small").textContent = turboEnabled ? "Açık" : "Kapalı";
+        updateSoundButton();
+        updateHud();
+    }
+
+    function syncWallet() {
+        if (walletPending) return false;
+        const record = wallet.read(WALLET_GAME_ID);
+        if (record.revision !== walletRevision) {
+            adoptWallet(record);
+            return true;
         }
+        state.balance = record.balance;
+        if (durableRoundState) durableRoundState.balance = record.balance;
+        return false;
+    }
+
+    function handleWalletChange() {
+        if (walletPending) return;
+        const changedGame = syncWallet();
+        updateHud();
+        if (changedGame) syncVisibility();
+    }
+
+    async function commitCheckpoint(checkpoint, delta, required = 0) {
+        if (walletPending) return { ok: false, reason: "busy" };
+        walletPending = true;
+        updateControls();
+        try {
+            const result = await wallet.commit(WALLET_GAME_ID, {
+                revision: walletRevision, delta: engine.roundMoney(delta), required,
+                snapshot: savedEnvelope(checkpoint),
+            });
+            if (result.ok) {
+                walletRevision = result.revision;
+                checkpoint.balance = result.balance;
+            } else adoptWallet(wallet.read(WALLET_GAME_ID));
+            return result;
+        } catch {
+            adoptWallet(wallet.read(WALLET_GAME_ID));
+            return { ok: false, reason: "storage" };
+        } finally {
+            walletPending = false;
+            syncWallet();
+            updateControls();
+        }
+    }
+
+    async function saveState() {
+        if (walletPending || presentationBusy || state.isSpinning) {
+            pendingSettingsSave = true;
+            return;
+        }
+        pendingSettingsSave = false;
+        await commitCheckpoint(state, 0);
+        if (pendingSettingsSave) saveState();
+    }
+
+    function flushSettingsSave() {
+        if (pendingSettingsSave) saveState();
     }
 
     function getAudioContext() {
@@ -298,6 +382,7 @@
     }
 
     function updateHud(summary = null) {
+        state.balance = wallet.read(WALLET_GAME_ID).balance;
         const bonusCost = engine.bonusBuyCost(state.bet);
         elements.balance.textContent = formatCredit(state.balance);
         elements.bet.textContent = formatCredit(state.bet);
@@ -325,11 +410,10 @@
                     : "Dönüş için hazır";
         }
         updateControls();
-        saveState();
     }
 
     function updateControls() {
-        const sequencePending = Boolean(nextSpinTimer) || presentationBusy;
+        const sequencePending = Boolean(nextSpinTimer) || presentationBusy || walletPending;
         const betLocked = state.isSpinning || state.freeSpins > 0 || autoRemaining > 0 || sequencePending || buyModalOpen;
         const autoCountLocked = state.isSpinning || autoRemaining > 0 || state.freeSpins > 0 || sequencePending || buyModalOpen;
         const bonusUnavailable = state.balance < engine.bonusBuyCost(state.bet);
@@ -409,6 +493,7 @@
     }
 
     function openBonusModal() {
+        if (syncWallet() || walletPending) return;
         if (!engine.canBuyBonus(state)) {
             setStatus("Ödül alınamıyor", `${formatCredit(engine.bonusBuyCost(state.bet))} sanal kredi gerekli.`);
             return;
@@ -448,8 +533,9 @@
     }
 
     async function purchaseBonus() {
-        if (!buyModalOpen || presentationBusy) return;
-        const purchase = engine.buyBonus(state);
+        if (!buyModalOpen || presentationBusy || walletPending || syncWallet()) return;
+        const checkpoint = structuredClone(state);
+        const purchase = engine.buyBonus(checkpoint);
         if (!purchase) {
             closeBonusModal(false);
             setStatus("Ödül alınamadı", "Sanal bakiyeni ve etkin oyun durumunu kontrol et.");
@@ -458,9 +544,18 @@
         }
 
         presentationBusy = true;
+        const serial = ++roundSerial;
+        const receipt = await commitCheckpoint(checkpoint, -purchase.cost, purchase.cost);
+        if (!receipt.ok || serial !== roundSerial) {
+            closeBonusModal(false);
+            presentationBusy = false;
+            setStatus("Ödül alınamadı", "Ortak bakiyeyi ve güncel oyun kaydını kontrol ederek tekrar dene.");
+            updateHud();
+            return;
+        }
+        Object.assign(state, checkpoint);
         closeBonusModal(false);
         stopAuto();
-        saveState();
         try {
             currentGrid = createBonusTriggerGrid();
             const incomingUids = currentGrid.flat().map((cell) => cell.uid);
@@ -474,20 +569,25 @@
             playSound("spin");
             updateHud();
             await wait(timing(800, 220));
+            if (serial !== roundSerial) return;
             elements.machine.classList.remove("is-spinning");
             elements.grid.querySelectorAll(".is-scatter").forEach((cell) => cell.classList.add("is-feature-trigger"));
             createBurst(30);
             await wait(timing(460, 100));
+            if (serial !== roundSerial) return;
             await showCelebration("ÖDÜL AÇILDI", `${purchase.freeSpins} ÜCRETSİZ DÖNÜŞ`, "free");
+            if (serial !== roundSerial) return;
             setPhase("Ücretsiz dönüşler açıldı");
             setStatus("Astral Geçit etkin", `Satın alınan ${purchase.freeSpins} ücretsiz dönüş otomatik olarak başlıyor.`);
         } catch (error) {
             console.error("Slot Game bonus presentation error:", error);
         } finally {
+            if (serial !== roundSerial) return;
             presentationBusy = false;
             elements.machine.classList.remove("is-spinning");
             elements.celebration.hidden = true;
             updateHud();
+            flushSettingsSave();
             scheduleNextSpin(timing(700, 160));
         }
     }
@@ -536,13 +636,14 @@
         }
     }
 
-    async function animateRound(result, context) {
+    async function animateRound(result, context, serial = roundSerial) {
         const allInitialUids = result.initialGrid.flat().map((cell) => cell.uid);
         elements.machine.classList.add("is-spinning");
         renderGrid(result.initialGrid, { incomingUids: allInitialUids });
         setPhase(context.mode === "free" ? "FREE SPIN" : "Dönüyor", true);
         setStatus(context.mode === "free" ? "Kasa yeniden açılıyor" : "Yörünge hızlanıyor", "Semboller kozmik kasaya düşüyor…");
         await wait(timing(800, 220));
+        if (serial !== roundSerial) return;
         elements.machine.classList.remove("is-spinning");
 
         let runningBaseWin = 0;
@@ -557,16 +658,20 @@
             elements.machine.classList.add("is-hit");
             createBurst(Math.min(26, 10 + step.removedPositions.length));
             await wait(timing(460, 100));
+            if (serial !== roundSerial) return;
             markExplodingCells(step.removedPositions);
             await wait(timing(300, 90));
+            if (serial !== roundSerial) return;
             elements.machine.classList.remove("is-hit");
             renderGrid(step.nextGrid, { incomingUids: step.incomingUids });
             await wait(timing(780, 220));
+            if (serial !== roundSerial) return;
         }
 
         if (!result.steps.length) {
             elements.cascadeCount.textContent = "Zincirleme düşüş 0";
             await wait(timing(260, 60));
+            if (serial !== roundSerial) return;
         }
         currentGrid = result.finalGrid;
         renderGrid(currentGrid);
@@ -574,7 +679,7 @@
         if (result.multiplierTotal > 0) await wait(timing(360, 80));
     }
 
-    async function showCelebration(label, value, tier = "big") {
+    async function showCelebration(label, value, tier = "big", serial = roundSerial) {
         elements.celebration.dataset.tier = tier;
         elements.celebrationLabel.textContent = label;
         elements.celebrationValue.textContent = value;
@@ -585,8 +690,10 @@
         playSound(tier === "free" ? "free" : tier);
         createBurst(tier === "mega" ? 34 : 24);
         await wait(timing(1050, 360));
+        if (serial !== roundSerial) return;
         elements.celebration.classList.remove("is-visible");
         await wait(timing(180, 30));
+        if (serial !== roundSerial) return;
         elements.celebration.hidden = true;
     }
 
@@ -597,7 +704,9 @@
         nextSpinTimer = window.setTimeout(() => {
             nextSpinTimer = 0;
             updateControls();
-            if (document.getElementById('slot-game').classList.contains('active') && !document.hidden) runSpin();
+            if (!document.getElementById('slot-game').classList.contains('active') || document.hidden) return;
+            if (walletPending) scheduleNextSpin(delay);
+            else runSpin();
         }, delay);
         updateControls();
     }
@@ -612,6 +721,7 @@
     }
 
     function syncVisibility() {
+        syncWallet();
         if (!document.getElementById('slot-game').classList.contains('active') || document.hidden) {
             autoRemaining = 0;
             window.clearTimeout(nextSpinTimer);
@@ -625,16 +735,11 @@
     document.addEventListener('visibilitychange', syncVisibility);
 
     async function runSpin() {
-        if (state.isSpinning || nextSpinTimer || presentationBusy || buyModalOpen) return;
+        if (state.isSpinning || nextSpinTimer || presentationBusy || walletPending || buyModalOpen || syncWallet()) return;
         const willUsePaidSpin = state.freeSpins === 0;
         let adjustedBet = null;
         if (willUsePaidSpin && state.balance < state.bet) {
             adjustedBet = engine.reduceBetToBalance(state);
-        }
-        const replenishedBeforeSpin = !adjustedBet && engine.replenishBalanceIfEmpty(state);
-        if (replenishedBeforeSpin) {
-            setPhase("Bakiye yenilendi");
-            setStatus("Otomatik kredi yüklendi", "Bakiyen 100 kredinin altına düştüğü için 10.000 sanal kredi otomatik olarak yüklendi.");
         }
         if (adjustedBet) {
             setPhase("Bahis otomatik ayarlandı");
@@ -651,32 +756,45 @@
         }
 
         presentationBusy = true;
-        durableRoundState = checkpoint;
+        const serial = ++roundSerial;
+        let roundCommitted = false;
         if (willUsePaidSpin && autoRemaining > 0) autoRemaining -= 1;
         if (context.mode === "paid") lastCompletedFreeMultiplier = 1;
-        playSound("spin");
-        elements.celebration.hidden = true;
-        elements.collected.querySelector("strong").textContent = context.mode === "free"
-            ? `x${Math.max(1, state.freeMultiplier)}`
-            : "x1";
-        elements.collected.classList.remove("is-powered");
-        elements.cascadeCount.textContent = "Zincirleme düşüş 0";
-        updateHud();
 
         try {
             const cellFactory = context.mode === "free" ? engine.createFreeSpinCell : engine.createRandomCell;
             const initialGrid = engine.createGrid(Math.random, cellFactory);
             const result = engine.resolveCascades(initialGrid, context.bet, Math.random, { cellFactory });
             durableRoundState = structuredClone(state);
-            engine.settleRound(durableRoundState, result, context);
-            saveState();
-            await animateRound(result, context);
-            const summary = engine.settleRound(state, result, context);
+            const summary = engine.settleRound(durableRoundState, result, context);
+            const cost = context.mode === "paid" ? context.bet : 0;
+            const receipt = await commitCheckpoint(durableRoundState, summary.totalWin - cost, cost);
+            if (!receipt.ok || serial !== roundSerial) {
+                presentationBusy = false;
+                durableRoundState = null;
+                stopAuto();
+                setPhase("Dönüş başlamadı");
+                setStatus("Oyun kaydı güncellendi", "Ortak bakiye veya bu oyunun kaydı değişti. Güncel durumdan tekrar döndürebilirsin.");
+                updateHud();
+                return;
+            }
+            roundCommitted = true;
+            playSound("spin");
+            elements.celebration.hidden = true;
+            elements.collected.querySelector("strong").textContent = context.mode === "free"
+                ? `x${Math.max(1, state.freeMultiplier)}` : "x1";
+            elements.collected.classList.remove("is-powered");
+            elements.cascadeCount.textContent = "Zincirleme düşüş 0";
+            updateHud();
+            await animateRound(result, context, serial);
+            if (serial !== roundSerial) return;
+            Object.assign(state, durableRoundState);
             durableRoundState = null;
             updateHud(summary);
 
             if (summary.awardedFreeSpins > 0) {
                 await showCelebration("ÜCRETSİZ DÖNÜŞLER", `${summary.awardedFreeSpins} DÖNÜŞ`, "free");
+                if (serial !== roundSerial) return;
             }
 
             const winRatio = summary.totalWin / context.bet;
@@ -690,6 +808,7 @@
                 playSound("miss");
             }
 
+            if (serial !== roundSerial) return;
             if (summary.awardedFreeSpins > 0) {
                 setPhase("Ücretsiz dönüşler açıldı");
                 setStatus("Kozmik geçit etkin", `${summary.scatterCount} geçit sembolü ${summary.awardedFreeSpins} ücretsiz dönüş kazandırdı.`);
@@ -708,27 +827,28 @@
                 setStatus("Zincirleme düşüş sınırı", "Uzun zincir güvenli şekilde tamamlandı ve kazancın hesabına eklendi.");
             }
 
-            if (engine.replenishBalanceIfEmpty(state)) {
-                setPhase("Bakiye yenilendi");
-                setStatus("Otomatik kredi yüklendi", "Bakiyen 100 kredinin altına düştüğü için 10.000 sanal kredi otomatik olarak yüklendi.");
-            }
         } catch (error) {
-            if (durableRoundState) Object.assign(state, durableRoundState);
+            if (serial !== roundSerial) return;
+            Object.assign(state, durableRoundState || (roundCommitted ? state : checkpoint));
             durableRoundState = null;
             state.isSpinning = false;
             stopAuto();
             elements.machine.classList.remove('is-spinning', 'is-hit');
             elements.celebration.hidden = true;
             setPhase("Oyun durdu");
-            setStatus("Dönüş tamamlanamadı", "Beklenmeyen bir sorun oluştu. Lütfen tekrar dene.");
+            setStatus(roundCommitted ? "Dönüş sonucu kaydedildi" : "Dönüş tamamlanamadı", roundCommitted
+                ? "Kazanç ve ücretsiz dönüşler ortak hesaba işlendi. Oyuna devam edebilirsin."
+                : "Beklenmeyen bir sorun oluştu. Lütfen tekrar dene.");
             console.error("Slot Game spin error:", error);
             presentationBusy = false;
             updateHud();
+            flushSettingsSave();
             return;
         }
 
         presentationBusy = false;
         updateHud();
+        flushSettingsSave();
         if (state.freeSpins > 0) {
             scheduleNextSpin(timing(850, 180));
         } else if (autoRemaining > 0) {
@@ -737,12 +857,13 @@
     }
 
     function changeBet(direction) {
-        if (presentationBusy || nextSpinTimer || autoRemaining > 0 || buyModalOpen) return;
+        if (presentationBusy || walletPending || nextSpinTimer || autoRemaining > 0 || buyModalOpen || syncWallet()) return;
         const currentIndex = engine.BET_OPTIONS.indexOf(state.bet);
         const nextIndex = Math.min(engine.BET_OPTIONS.length - 1, Math.max(0, currentIndex + direction));
         if (engine.setBet(state, engine.BET_OPTIONS[nextIndex])) {
             setStatus("Bahis güncellendi", `${formatCredit(state.bet)} sanal krediyle oynamaya hazırsın.`);
             updateHud();
+            saveState();
         }
     }
 
@@ -832,11 +953,8 @@
     elements.turbo.classList.toggle("is-active", turboEnabled);
     elements.turbo.querySelector("small").textContent = turboEnabled ? "Açık" : "Kapalı";
     updateSoundButton();
-    if (engine.replenishBalanceIfEmpty(state)) {
-        setPhase("Bakiye yenilendi");
-        setStatus("Otomatik kredi yüklendi", "Kayıtlı bakiyen 100 kredinin altında olduğu için 10.000 sanal kredi otomatik olarak yüklendi.");
-    }
     updateHud();
+    wallet.subscribe(handleWalletChange);
     window.addEventListener("pagehide", saveState);
     syncVisibility();
 })();

@@ -79,6 +79,7 @@
     <link rel="stylesheet" href="tools/nebuu/style.css?v=14">
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=57">
+    <link rel="stylesheet" href="tools/shared/game-wallet.css?v=1">
     <link rel="stylesheet" href="tools/block-blast/style.css?v=1">
     <link rel="stylesheet" href="tools/roulette/style.css?v=7">
     <link rel="stylesheet" href="tools/pisti/style.css?v=1">
@@ -916,7 +917,7 @@
                                     <div class="roulette-wallet">
                                         <div class="roulette-wallet-label">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8V6a2 2 0 0 0-2-2H6a3 3 0 0 0 0 6h14v8a2 2 0 0 1-2 2H6a3 3 0 0 1-3-3V7"/><path d="M20 12h-4a2 2 0 0 0 0 4h4M16 14h.01"/></svg>
-                                            <span>Sanal bakiye</span>
+                                            <span>Ortak cüzdan</span>
                                         </div>
                                         <div class="roulette-wallet-amount"><strong id="roulette-balance">10.000</strong><span>kredi</span></div>
                                     </div>
@@ -1018,7 +1019,7 @@
                                     <div class="blackjack-table-top">
                                         <div class="blackjack-bankroll" aria-label="Sanal kredi bilgisi">
                                             <div class="blackjack-bankroll-item">
-                                                <span>BAKİYE</span>
+                                                <span>ORTAK BAKİYE</span>
                                                 <strong id="blackjack-balance">10.000</strong>
                                             </div>
                                             <div class="blackjack-bankroll-divider" aria-hidden="true"></div>
@@ -1146,9 +1147,9 @@
                 <div id="slot-game-app" class="slot-game-app" data-phase="idle">
                     <div class="slot-game-hud" aria-label="Oyun bilgileri">
                         <div class="slot-game-stat">
-                            <span>Bakiye</span>
+                            <span>Ortak bakiye</span>
                             <strong id="slot-game-balance">10.000</strong>
-                            <small>Sanal kredi</small>
+                            <small>Blackjack · Rulet · Slot</small>
                         </div>
                         <div class="slot-game-stat is-win">
                             <span>Kazanç</span>
@@ -5941,21 +5942,23 @@ Disallow:</code></pre>
     <script src="tools/nebuu/words.js?v=1"></script>
     <script src="tools/nebuu/core.js?v=5"></script>
     <script src="tools/nebuu/app.js?v=13"></script>
+    <script src="tools/shared/game-wallet.js?v=1"></script>
+    <script src="tools/shared/game-wallet-controls.js?v=1"></script>
     <script src="tools/blackjack/engine.js?v=8"></script>
-    <script src="tools/blackjack/app.js?v=27"></script>
+    <script src="tools/blackjack/app.js?v=28"></script>
     <script src="tools/block-blast/core.js?v=1"></script>
     <script src="tools/block-blast/app.js?v=1"></script>
     <script src="tools/roulette/core.js?v=1"></script>
     <script src="tools/roulette/wheel.js?v=4"></script>
     <script src="tools/roulette/layout.js?v=1"></script>
     <script src="tools/roulette/audio.js?v=3"></script>
-    <script src="tools/roulette/app.js?v=7"></script>
+    <script src="tools/roulette/app.js?v=8"></script>
     <script src="tools/pisti/core.js?v=1"></script>
     <script src="tools/pisti/cards.js?v=1"></script>
     <script src="tools/pisti/audio.js?v=1"></script>
     <script src="tools/pisti/app.js?v=1"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
-    <script src="tools/slot-game/app.js?v=13"></script>
+    <script src="tools/slot-game/app.js?v=14"></script>
     <script src="tools/2048/script.js?v=1"></script>
     <script src="tools/wordle/script.js?v=8"></script>
     <script src="tools/wordle-finder/script.js?v=1"></script>

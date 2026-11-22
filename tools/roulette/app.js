@@ -3,7 +3,7 @@
 
     const panel = document.getElementById("roulette");
     if (!panel || !window.OmniRouletteCore || !window.OmniRouletteWheel
-        || !window.OmniRouletteLayout || !window.OmniRouletteAudio) return;
+        || !window.OmniRouletteLayout || !window.OmniRouletteAudio || !window.OmniGameWallet) return;
     if (panel.classList.contains("active")) {
         initialize(panel, window.OmniRouletteCore);
         return;
@@ -23,20 +23,24 @@
     const chips = get("chips");
     const wagers = get("wagers");
     const status = get("status");
-    const storageKey = "omni-roulette-v1";
+    const wallet = window.OmniGameWallet;
     const denominations = [1, 5, 25, 50, 100, 500, 1000, 5000, 10000];
     const layout = window.OmniRouletteLayout;
     const colors = { red: "Kırmızı", black: "Siyah", green: "Yeşil" };
     const format = new Intl.NumberFormat("tr-TR");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const saved = readSaved();
+    const initialWallet = wallet.read("roulette");
+    const saved = initialWallet.snapshot || {};
     const wheel = window.OmniRouletteWheel.create(get("wheel"), { onRelease: spin });
-    let state = core.restoreState(saved.game) || core.createState();
+    let walletBalance = initialWallet.balance;
+    let walletRevision = initialWallet.revision;
+    let walletBusy = false;
+    let walletOperation = Promise.resolve();
+    let state = alignBalance(core.restoreState(saved.game) || core.createState(), walletBalance);
     let selectedChip = denominations.includes(saved.chip) ? saved.chip : 25;
     let muted = saved.muted === true;
     let soundVolume = Number.isFinite(saved.volume) ? Math.max(0, Math.min(1, saved.volume)) : 0.45;
     const audio = window.OmniRouletteAudio.create({ volume: soundVolume, muted });
-    let storageWritable = true;
     let spinToken = 0;
     let drag = null;
     let dragScrollFrame = 0;
@@ -50,24 +54,39 @@
     const tableObserver = new ResizeObserver(applyTableLayout);
     tableObserver.observe(table);
 
-    function readSaved() {
-        try {
-            const value = JSON.parse(localStorage.getItem(storageKey));
-            return value && typeof value === "object" ? value : {};
-        } catch {
-            return {};
-        }
+    function alignBalance(game, balance) {
+        const available = Math.floor(balance);
+        const bets = !game.pending && core.totalBet(game) > available ? {} : game.bets;
+        const undoStack = game.undoStack.filter((entry) => Object.values(entry).reduce((sum, amount) => sum + amount, 0) <= available);
+        return { ...game, balance: available, bets, undoStack };
     }
 
-    function save() {
-        try {
-            localStorage.setItem(storageKey, JSON.stringify({
-                game: core.serializeState(state), chip: selectedChip, muted, volume: soundVolume,
-            }));
-        } catch {
-            storageWritable = false;
-            // Virtual credits remain usable within this session if storage is blocked.
-        }
+    function save(next = state, delta = 0, required = Math.max(0, -delta)) {
+        if (walletBusy) return Promise.resolve(false);
+        walletBusy = true;
+        const revision = walletRevision;
+        const snapshot = { game: core.serializeState(next), chip: selectedChip, muted, volume: soundVolume };
+        render();
+        walletOperation = wallet.commit("roulette", { revision, delta, required, snapshot }).then((result) => {
+            walletBusy = false;
+            walletBalance = result.balance;
+            walletRevision = result.revision;
+            if (!result.ok) {
+                adoptSavedGame(alignBalance(core.restoreState(result.snapshot?.game) || core.createState(), walletBalance), result.snapshot || {});
+                status.textContent = result.reason === "funds" ? "Ortak bakiyen bu bahis için yeterli değil." : "Oyun ortak cüzdandaki güncel kayıttan yenilendi.";
+                return false;
+            }
+            state = alignBalance(core.restoreState(result.snapshot.game), walletBalance);
+            render();
+            return !syncSavedGame();
+        }).catch(() => {
+            walletBusy = false;
+            syncSavedGame();
+            render();
+            status.textContent = "Ortak cüzdan güncellenemedi. Tekrar dene.";
+            return false;
+        });
+        return walletOperation;
     }
 
     function adoptSavedGame(restored, snapshot) {
@@ -76,6 +95,7 @@
         wheel.cancel();
         cancelDrag();
         state = restored;
+        selectedChip = denominations.includes(snapshot.chip) ? snapshot.chip : selectedChip;
         muted = snapshot.muted === true;
         soundVolume = Number.isFinite(snapshot.volume) ? Math.max(0, Math.min(1, snapshot.volume)) : soundVolume;
         audio.setMuted(muted);
@@ -89,12 +109,22 @@
     }
 
     function syncSavedGame() {
-        if (!storageWritable) return false;
-        const snapshot = readSaved();
-        const restored = core.restoreState(snapshot.game);
-        if (!restored || JSON.stringify(core.serializeState(restored)) === JSON.stringify(core.serializeState(state))) return false;
-        adoptSavedGame(restored, snapshot);
-        return true;
+        if (walletBusy) return false;
+        const current = wallet.read("roulette");
+        const changed = current.revision !== walletRevision;
+        const balanceChanged = current.balance !== walletBalance;
+        walletBalance = current.balance;
+        walletRevision = current.revision;
+        if (changed) {
+            adoptSavedGame(alignBalance(core.restoreState(current.snapshot?.game) || core.createState(), walletBalance), current.snapshot || {});
+            return true;
+        }
+        const normalized = alignBalance(state, walletBalance);
+        if (JSON.stringify(normalized) !== JSON.stringify(state)) {
+            state = normalized;
+            render();
+        } else if (balanceChanged) render();
+        return false;
     }
 
     function buildTable() {
@@ -164,10 +194,10 @@
     }
 
     function render() {
-        const spinning = state.phase === "spinning";
+        const spinning = state.phase === "spinning" || walletBusy;
         wheel.setInteractive(!spinning && panel.classList.contains("active") && !document.hidden);
         app.dataset.phase = state.phase;
-        get("balance").textContent = format.format(state.balance);
+        get("balance").textContent = format.format(walletBalance);
         const latest = state.history[0];
         const repeatedLayout = Object.keys(state.lastBets).length === Object.keys(state.bets).length
             && Object.entries(state.lastBets).every(([id, amount]) => state.bets[id] === amount);
@@ -177,7 +207,9 @@
         get("repeat").disabled = spinning || !Object.keys(state.lastBets).length
             || repeatedLayout || Object.values(state.lastBets).reduce((sum, amount) => sum + amount, 0) > state.balance;
         get("double").disabled = spinning || !core.totalBet(state) || core.totalBet(state) * 2 > state.balance;
-        get("refill").hidden = spinning || state.balance >= 1;
+        get("refill").hidden = spinning || !wallet.canRefill();
+        get("sound").disabled = walletBusy;
+        get("volume").disabled = walletBusy;
         updateSoundControls();
         chips.querySelectorAll(".roulette-chip").forEach((button) => {
             const amount = Number(button.dataset.rouletteChip);
@@ -302,16 +334,13 @@
     }
 
     function changeBet(update, message) {
-        if (syncSavedGame()) return false;
+        if (walletBusy || syncSavedGame()) return false;
         const next = update(state);
         if (!next) {
             status.textContent = "Bu bahis için yeterli sanal kredi yok.";
             return false;
         }
-        state = next;
-        save();
-        render();
-        status.textContent = message;
+        save(next).then((accepted) => { if (accepted) status.textContent = message; });
         return true;
     }
 
@@ -354,14 +383,13 @@
             // The generated result still stands if a graphics device stops rendering.
             wheel.showResult(number);
         }
+        await walletOperation;
         if (token !== spinToken || finished?.cancelled || state.pending?.id !== pendingId) return;
         audio.stopSpin();
         if (syncSavedGame()) return;
         const settlement = core.settleSpin(state);
         if (!settlement) return;
-        state = settlement.state;
-        save();
-        render();
+        if (!(await save(settlement.state, settlement.result.payout))) return;
         get("wheel").setAttribute("aria-label", `Rulet çarkı. Sonuç ${number}, ${colors[core.getColor(number)]}.`);
         const result = settlement.result;
         status.textContent = `Ödeme ${format.format(result.payout)} kredi. Net ${result.net >= 0 ? "+" : "−"}${format.format(Math.abs(result.net))}.`;
@@ -369,7 +397,7 @@
     }
 
     function spin() {
-        if (!panel.classList.contains("active") || document.hidden) return false;
+        if (walletBusy || !panel.classList.contains("active") || document.hidden) return false;
         audio.unlock();
         if (syncSavedGame()) return false;
         if (state.phase !== "betting") return false;
@@ -381,13 +409,14 @@
         try {
             const next = core.beginSpin(state);
             if (!next) return false;
-            state = next;
-            save();
-            animatePending();
-            const bounds = get("wheel").getBoundingClientRect();
-            if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
-                get("wheel").scrollIntoView({ behavior: motion.matches ? "auto" : "smooth", block: "center" });
-            }
+            save(next, -next.pending.stake, next.pending.stake).then((accepted) => {
+                if (!accepted) return;
+                animatePending();
+                const bounds = get("wheel").getBoundingClientRect();
+                if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
+                    get("wheel").scrollIntoView({ behavior: motion.matches ? "auto" : "smooth", block: "center" });
+                }
+            });
             return true;
         } catch {
             status.textContent = "Güvenli rastgele sayı üretimi kullanılamıyor. Güncel bir tarayıcıda tekrar dene.";
@@ -495,7 +524,7 @@
     chips.addEventListener("click", (event) => {
         const chip = event.target.closest(".roulette-chip");
         if (!chip || (event.detail > 0 && ignoreChipClick)) return;
-        if (syncSavedGame()) return;
+        if (walletBusy || syncSavedGame()) return;
         selectedChip = Number(chip.dataset.rouletteChip);
         render();
         save();
@@ -557,9 +586,18 @@
     get("clear").addEventListener("click", () => changeBet(core.clearBets, "Bahisler temizlendi."));
     get("repeat").addEventListener("click", () => changeBet(core.repeatBets, "Önceki turun bahisleri yerleştirildi."));
     get("double").addEventListener("click", () => changeBet(core.doubleBets, "Bahisler ikiye katlandı."));
-    get("refill").addEventListener("click", () => changeBet(core.replenishBalance, "10.000 sanal kredi yüklendi."));
+    get("refill").addEventListener("click", async () => {
+        if (walletBusy) return;
+        walletBusy = true;
+        render();
+        const result = await wallet.refill();
+        walletBusy = false;
+        syncSavedGame();
+        render();
+        status.textContent = result.ok ? "Ortak cüzdana 10.000 sanal kredi yüklendi." : "Ortak cüzdan şu anda yeniden doldurulamıyor.";
+    });
     get("sound").addEventListener("click", () => {
-        if (syncSavedGame()) return;
+        if (walletBusy || syncSavedGame()) return;
         audio.unlock();
         muted = !muted;
         audio.setMuted(muted);
@@ -568,6 +606,7 @@
         if (!muted) playSound("chip");
     });
     get("volume").addEventListener("input", (event) => {
+        if (walletBusy) return;
         const nextVolume = Math.max(0, Math.min(1, Number(event.currentTarget.value) / 100));
         syncSavedGame();
         audio.unlock();
@@ -582,12 +621,10 @@
     });
     window.addEventListener("blur", cancelDrag);
     window.addEventListener("pagehide", cancelDrag);
-    window.addEventListener("storage", (event) => {
-        if (event.key !== storageKey) return;
-        syncSavedGame();
-    });
+    wallet.subscribe(syncSavedGame);
     document.addEventListener("visibilitychange", () => {
-        wheel.setInteractive(!document.hidden && panel.classList.contains("active") && state.phase === "betting");
+        if (!document.hidden) syncSavedGame();
+        wheel.setInteractive(!walletBusy && !document.hidden && panel.classList.contains("active") && state.phase === "betting");
         if (document.hidden) {
             cancelDrag();
             audio.stopSpin();
@@ -595,7 +632,8 @@
         else if (panel.classList.contains("active") && state.phase === "spinning" && !motion.matches) audio.startSpin();
     });
     new MutationObserver(() => {
-        wheel.setInteractive(panel.classList.contains("active") && !document.hidden && state.phase === "betting");
+        if (panel.classList.contains("active")) syncSavedGame();
+        wheel.setInteractive(!walletBusy && panel.classList.contains("active") && !document.hidden && state.phase === "betting");
         if (!panel.classList.contains("active")) {
             cancelDrag();
             audio.stopSpin();

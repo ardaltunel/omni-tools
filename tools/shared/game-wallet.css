@@ -1,0 +1,6 @@
+.game-wallet-recovery { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 16px; padding: 12px 14px; border: 1px solid #b79c624d; border-radius: 10px; background: #b79c620b; }
+.game-wallet-recovery[hidden] { display: none; }
+.game-wallet-recovery p { flex: 1 1 210px; margin: 0; color: var(--muted, #b1bcb5); font-size: 12px; line-height: 1.5; }
+.game-wallet-recovery button { min-height: 44px; padding: 10px 15px; border: 1px solid #b49a64; border-radius: 8px; background: #3b3627; color: #f1dfb3; font: inherit; font-size: 12px; cursor: pointer; }
+.game-wallet-recovery button:disabled { opacity: .5; cursor: default; }
+.game-wallet-recovery button:focus-visible { outline: 2px solid #ddc18d; outline-offset: 3px; }

@@ -6,6 +6,8 @@ const test = require("node:test");
 const vm = require("node:vm");
 const core = require("./core.js");
 const layout = require("./layout.js");
+const walletModule = require("../shared/game-wallet.js");
+const flushWallet = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
 
 const appSource = fs.readFileSync(require.resolve("./app.js"), "utf8");
 
@@ -16,80 +18,6 @@ function readAppFunction(name) {
     const next = /\n    (?:async )?function [A-Za-z_$]/u.exec(appSource.slice(start + 1));
     assert.ok(next, `Missing boundary after application function ${name}`);
     return appSource.slice(start, start + 1 + next.index);
-}
-
-function createSettlementHarness(initial, { stored = initial, blockedWrites = false } = {}) {
-    let saved = JSON.stringify({ game: core.serializeState(stored), chip: 25, muted: true });
-    let writes = 0;
-    const spins = [];
-    let activeSpin = null;
-    const wheel = {
-        spin(number) {
-            return new Promise((resolve) => {
-                activeSpin = { number, resolve };
-                spins.push(activeSpin);
-            });
-        },
-        cancel() {
-            activeSpin?.resolve({ cancelled: true });
-            activeSpin = null;
-        },
-        showResult() { this.cancel(); },
-    };
-    const context = vm.createContext({
-        core,
-        initial,
-        storageKey: "omni-roulette-v1",
-        localStorage: {
-            getItem() { return saved; },
-            setItem(_key, value) {
-                if (blockedWrites) throw new Error("Storage quota exceeded");
-                saved = value;
-                writes += 1;
-            },
-        },
-        wheel,
-        audio: { startSpin() {}, stopSpin() {}, setVolume() {}, setMuted() {} },
-        panel: { classList: { contains: () => true } },
-        document: { hidden: false },
-        motion: { matches: false },
-        status: { textContent: "" },
-        colors: { red: "Kırmızı", black: "Siyah", green: "Yeşil" },
-        format: new Intl.NumberFormat("tr-TR"),
-        performance: { now: () => 0 },
-        render() {},
-        cancelDrag() {},
-        playSound() {},
-        get() { return { setAttribute() {} }; },
-    });
-    const functions = ["readSaved", "save", "adoptSavedGame", "syncSavedGame", "animatePending"]
-        .map(readAppFunction).join("\n");
-    // Exercise the production settlement and storage callbacks without canvas or DOM rendering.
-    vm.runInContext(`
-        let state = initial;
-        let selectedChip = 25;
-        let muted = true;
-        let soundVolume = 0.45;
-        let storageWritable = true;
-        let spinToken = 0;
-        let tickTime = 0;
-        ${functions}
-        this.animate = animatePending;
-        this.saveGame = save;
-        this.currentState = () => state;
-    `, context);
-    return {
-        spins,
-        animate: context.animate,
-        save: context.saveGame,
-        current: context.currentState,
-        stored: () => JSON.parse(saved).game,
-        writes: () => writes,
-        updateStored(game) {
-            saved = JSON.stringify({ game: core.serializeState(game), chip: 25, muted: true });
-        },
-        finish(index) { spins[index].resolve({ number: spins[index].number }); },
-    };
 }
 
 function createRenderHarness() {
@@ -142,12 +70,15 @@ function createRenderHarness() {
         format: new Intl.NumberFormat("tr-TR"),
         updateSoundControls() {},
         wheel: { setInteractive() {} },
+        wallet: { canRefill: () => false },
         panel: { classList: { contains: () => true } },
     });
     const functions = ["buildTable", "chipLabel", "buildChips", "render", "renderWagers", "renderHistory", "highlightBet"]
         .map(readAppFunction).join("\n");
     vm.runInContext(`
         let state = core.createState();
+        let walletBusy = false;
+        let walletBalance = state.balance;
         let selectedChip = 25;
         let muted = true;
         let focusedBet = "straight:0";
@@ -157,7 +88,7 @@ function createRenderHarness() {
         buildChips();
         this.renderGame = render;
         this.selectChip = (value) => { selectedChip = value; render(); };
-        this.setGame = (next) => { state = next; render(); };
+        this.setGame = (next) => { state = next; walletBalance = state.balance; render(); };
         this.currentState = () => state;
     `, context);
     return {
@@ -174,10 +105,14 @@ function draw(number) {
     return { getRandomValues(buffer) { buffer[0] = number; return buffer; } };
 }
 
-function createInteractionHarness(initial = core.createState(), { chip = 25 } = {}) {
-    let saved = JSON.stringify({ game: core.serializeState(initial), chip, muted: true, volume: 0.45 });
+function createInteractionHarness(initial = core.createState(), { chip = 25, sharedWallet = null, extraBalance = 0 } = {}) {
+    const values = new Map([["omni-roulette-v1", JSON.stringify({ game: core.serializeState(initial), chip, muted: true, volume: 0.45 })]]);
+    if (extraBalance) values.set("omni-slot-game-v1", JSON.stringify({ balance: extraBalance }));
+    const storage = { getItem: (key) => values.get(key) ?? null, setItem(key, value) { values.set(key, value); writes += 1; } };
+    const wallet = sharedWallet || walletModule.createWallet({ storage });
     let writes = 0;
     const spins = [];
+    const finishes = [];
     const audioVolumes = [];
     const interactiveStates = [];
     const documentListeners = new Map();
@@ -292,12 +227,13 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
     const context = vm.createContext({
         document,
         window: {
-            OmniRouletteCore: core,
+            OmniRouletteCore: { ...core, beginSpin: (game) => core.beginSpin(game, draw(7)) },
+            OmniGameWallet: wallet,
             OmniRouletteLayout: layout,
             OmniRouletteWheel: { create: (_canvas, options) => { wheelOptions = options; return {
                 cancel() {}, showResult() {},
                 setInteractive(value) { interactiveStates.push(value); },
-                spin(number) { spins.push(number); return new Promise(() => {}); },
+                spin(number) { spins.push(number); return new Promise((resolve) => finishes.push(resolve)); },
             }; } },
             OmniRouletteAudio: { create: () => audio },
             matchMedia: () => ({ matches: false }),
@@ -313,14 +249,15 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
             return id;
         },
         cancelAnimationFrame(id) { animationFrames.delete(id); },
-        localStorage: {
-            getItem: () => saved,
-            setItem(_key, value) { saved = value; writes += 1; },
-        },
+        localStorage: storage,
     });
     // Run the complete production initializer so these tests dispatch its actual listeners.
     vm.runInContext(appSource, context);
+    writes = 0;
     return {
+        wallet,
+        flush: flushWallet,
+        finishSpin: async (index = 0) => { finishes[index]({ number: spins[index] }); await flushWallet(); },
         get,
         spins,
         audioVolumes,
@@ -329,10 +266,13 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
         setHidden(value) { document.hidden = value; documentListeners.get("visibilitychange")(); },
         setActive(value) { panel.classList.toggle("active", value); panelMutation(); },
         pendingFrames: () => animationFrames.size,
-        snapshot: () => JSON.parse(saved),
+        snapshot: () => wallet.read("roulette").snapshot,
         writes: () => writes,
-        updateStored(game, volume = 0.12) {
-            saved = JSON.stringify({ game: core.serializeState(game), chip: 25, muted: true, volume });
+        async updateStored(game, volume = 0.12) {
+            const current = wallet.read("roulette");
+            await wallet.commit("roulette", { revision: current.revision, delta: game.balance - current.balance, snapshot: { game: core.serializeState(game), chip: 25, muted: true, volume } });
+            await flushWallet();
+            writes = 0;
         },
         chip: (amount) => get("chips").children.find((button) => Number(button.dataset.rouletteChip) === amount),
         bet: (id) => get("table").children.find((button) => button.dataset.betId === id),
@@ -346,7 +286,7 @@ function createInteractionHarness(initial = core.createState(), { chip = 25 } = 
     };
 }
 
-test("winner highlighting stays stable across chip selections, zero results and spinning", () => {
+test("winner highlighting stays stable across chip selections, zero results and spinning", async () => {
     const app = createRenderHarness();
     app.render();
     assert.equal(app.get("table").children.length, 157);
@@ -377,7 +317,7 @@ test("winner highlighting stays stable across chip selections, zero results and 
     assert.deepEqual(app.winners(), []);
 });
 
-test("son sonuç sabit alanda kalır, yalnızca önceki sonuçlar kaydırılır", () => {
+test("son sonuç sabit alanda kalır, yalnızca önceki sonuçlar kaydırılır", async () => {
     const app = createRenderHarness();
     app.render();
     assert.equal(app.get("history-row").hidden, true);
@@ -412,54 +352,16 @@ test("son sonuç sabit alanda kalır, yalnızca önceki sonuçlar kaydırılır"
     assert.equal(app.get("empty-history").hidden, false);
 });
 
-test("a stale wheel completion adopts a newer stored spin before its storage event arrives", async () => {
-    const first = core.beginSpin(core.addBet(core.createState(), "red", 25), draw(1));
-    const firstSettled = core.settleSpin(first).state;
-    const second = core.beginSpin(core.addBet(firstSettled, "black", 100), draw(2));
-    const app = createSettlementHarness(first);
-    const finishingFirst = app.animate();
-
-    app.updateStored(second);
-    app.finish(0);
-    await finishingFirst;
-
-    assert.deepEqual(app.current(), second);
-    assert.deepEqual(app.stored(), core.serializeState(second));
-    assert.equal(app.writes(), 0);
-    assert.deepEqual(app.spins.map(({ number }) => number), [1, 2]);
-
-    app.finish(1);
-    await new Promise((resolve) => setImmediate(resolve));
-    assert.deepEqual(app.current(), core.settleSpin(second).state);
-    assert.equal(app.writes(), 1);
-    assert.deepEqual(app.current().history.map(({ id }) => id), [2, 1]);
-});
-
-test("a blocked pending-spin save still settles the generated result within the session", async () => {
-    const betting = core.addBet(core.createState(), "red", 25);
-    const pending = core.beginSpin(betting, draw(1));
-    const app = createSettlementHarness(pending, { stored: betting, blockedWrites: true });
-    app.save();
-    const finishing = app.animate();
-    app.finish(0);
-    await finishing;
-
-    assert.deepEqual(app.current(), core.settleSpin(pending).state);
-    assert.equal(app.current().balance, 10025);
-    assert.equal(app.current().history.length, 1);
-    assert.equal(app.writes(), 0);
-    assert.deepEqual(app.stored(), core.serializeState(betting));
-});
-
 for (const pending of [false, true]) {
-    test(`ses seviyesi değişikliği diğer sekmedeki yeni ${pending ? "bekleyen turu" : "bahisleri"} korur`, () => {
+    test(`ses seviyesi değişikliği diğer sekmedeki yeni ${pending ? "bekleyen turu" : "bahisleri"} korur`, async () => {
         const app = createInteractionHarness();
         const bets = core.addBet(core.addBet(core.createState(), "red", 100), "straight:0", 50);
         const latest = pending ? core.beginSpin(bets, draw(17)) : bets;
         // The storage event has not arrived; the range input must synchronize the ledger itself.
-        app.updateStored(latest, 0.12);
+        await app.updateStored(latest, 0.12);
         app.get("volume").value = "83";
         app.get("volume").dispatch("input");
+    await app.flush();
 
         assert.deepEqual(app.snapshot().game, core.serializeState(latest));
         assert.equal(app.snapshot().volume, 0.83);
@@ -473,20 +375,24 @@ for (const pending of [false, true]) {
     });
 }
 
-test("50 ve 1000 kredilik çipler fare ve klavye ile doğrudan kanonik bahse eklenir", () => {
+test("50 ve 1000 kredilik çipler fare ve klavye ile doğrudan kanonik bahse eklenir", async () => {
     const app = createInteractionHarness();
     app.get("chips").dispatch("click", { target: app.chip(50), detail: 1 });
+    await app.flush();
     assert.equal(app.snapshot().chip, 50);
     assert.equal(app.chip(50).attributes["aria-pressed"], "true");
     // Pointer coordinates take precedence over the underlying straight-number button.
     app.get("table").dispatch("click", {
         target: app.bet("straight:1"), detail: 1, ...app.point("corner:1-2-4-5"),
     });
+    await app.flush();
     assert.deepEqual(app.snapshot().game.bets, { "corner:1-2-4-5": 50 });
     assert.equal(app.bet("corner:1-2-4-5").tabIndex, 0);
 
     app.get("chips").dispatch("click", { target: app.chip(1000), detail: 0 });
+    await app.flush();
     app.get("table").dispatch("click", { target: app.bet("split:0-2"), detail: 0 });
+    await app.flush();
     assert.equal(app.snapshot().chip, 1000);
     assert.equal(app.chip(1000).attributes["aria-pressed"], "true");
     assert.deepEqual(app.snapshot().game.bets, { "corner:1-2-4-5": 50, "split:0-2": 1000 });
@@ -495,17 +401,20 @@ test("50 ve 1000 kredilik çipler fare ve klavye ile doğrudan kanonik bahse ekl
     assert.equal(core.totalBet(core.restoreState(app.snapshot().game)), 1050);
 });
 
-test("fare ile köşeye sürüklenen çip tek bahis koyar ve son tıklama ikinci bahis koymaz", () => {
+test("fare ile köşeye sürüklenen çip tek bahis koyar ve son tıklama ikinci bahis koymaz", async () => {
     const app = createInteractionHarness();
     const chip = app.chip(1000);
     const point = app.point("corner:32-33-35-36");
     const pointer = { target: chip, pointerId: 7, pointerType: "mouse", isPrimary: true, button: 0 };
     app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 80, clientY: 550 });
+    await app.flush();
     assert.equal(chip.hasPointerCapture(7), true);
     app.get("chips").dispatch("pointermove", { ...pointer, ...point });
+    await app.flush();
     assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 1);
     assert.equal(app.bet("corner:32-33-35-36").classList.contains("is-target"), true);
     app.get("chips").dispatch("pointerup", { ...pointer, ...point });
+    await app.flush();
 
     assert.deepEqual(app.snapshot().game.bets, { "corner:32-33-35-36": 1000 });
     assert.equal(app.snapshot().chip, 1000);
@@ -515,46 +424,55 @@ test("fare ile köşeye sürüklenen çip tek bahis koyar ve son tıklama ikinci
     assert.equal(app.pendingFrames(), 0);
     const writes = app.writes();
     app.get("chips").dispatch("click", { target: chip, detail: 1 });
+    await app.flush();
     assert.equal(app.writes(), writes);
     assert.deepEqual(app.snapshot().game.bets, { "corner:32-33-35-36": 1000 });
 });
 
-test("kredisi yetmeyen sürükleme önceki çip seçimini ve sonraki bahis tutarını korur", () => {
+test("kredisi yetmeyen sürükleme önceki çip seçimini ve sonraki bahis tutarını korur", async () => {
     const app = createInteractionHarness(core.createState({ balance: 100 }));
     const chip = app.chip(1000);
     const point = app.point("corner:1-2-4-5");
     const pointer = { target: chip, pointerId: 9, pointerType: "mouse", isPrimary: true, button: 0 };
     app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 80, clientY: 550 });
+    await app.flush();
     app.get("chips").dispatch("pointermove", { ...pointer, ...point });
+    await app.flush();
     app.get("chips").dispatch("pointerup", { ...pointer, ...point });
+    await app.flush();
 
     assert.equal(app.chip(25).attributes["aria-pressed"], "true");
     assert.equal(app.chip(1000).attributes["aria-pressed"], "false");
     assert.equal(app.writes(), 0);
     app.get("table").dispatch("click", { target: app.bet("straight:17"), detail: 0 });
+    await app.flush();
     assert.deepEqual(app.snapshot().game.bets, { "straight:17": 25 });
     assert.equal(app.snapshot().chip, 25);
 });
 
-test("1K, 5K ve 10K çipleri tam kredi tutarlarıyla oynanır ve kayıttan geri gelir", () => {
+test("1K, 5K ve 10K çipleri tam kredi tutarlarıyla oynanır ve kayıttan geri gelir", async () => {
     const app = createInteractionHarness(core.createState(), { chip: 10000 });
     assert.equal(app.chip(10000).attributes["aria-pressed"], "true");
     assert.deepEqual(app.get("chips").children.map((button) => button.textContent),
         ["1", "5", "25", "50", "100", "500", "1K", "5K", "10K"]);
     for (const amount of [1000, 5000, 10000]) {
         app.get("clear").dispatch("click");
+    await app.flush();
         app.get("chips").dispatch("click", { target: app.chip(amount), detail: 0 });
+    await app.flush();
         app.get("table").dispatch("click", { target: app.bet("straight:0"), detail: 0 });
+    await app.flush();
         assert.deepEqual(app.snapshot().game.bets, { "straight:0": amount });
         assert.equal(app.snapshot().chip, amount);
         assert.equal(app.bet("straight:0").querySelector(".roulette-stake-marker").textContent, `${amount / 1000}K`);
     }
     app.get("table").dispatch("click", { target: app.bet("red"), detail: 0 });
+    await app.flush();
     assert.deepEqual(app.snapshot().game.bets, { "straight:0": 10000 });
     assert.equal(app.get("balance").textContent, "10.000");
 });
 
-test("çark etkileşimi gizli araçta ve bahisli dönüş sırasında kapatılır", () => {
+test("çark etkileşimi gizli araçta ve bahisli dönüş sırasında kapatılır", async () => {
     const app = createInteractionHarness();
     assert.equal(app.interactiveStates.at(-1), true);
     app.setHidden(true);
@@ -566,7 +484,9 @@ test("çark etkileşimi gizli araçta ve bahisli dönüş sırasında kapatılı
     app.setActive(true);
     assert.equal(app.interactiveStates.at(-1), true);
     app.get("table").dispatch("click", { target: app.bet("red"), detail: 0 });
+    await app.flush();
     app.get("spin").dispatch("click");
+    await app.flush();
     assert.equal(app.interactiveStates.at(-1), false);
     assert.equal(app.get("app").dataset.phase, "spinning");
     assert.ok(app.get("chips").children.every((button) => button.disabled));
@@ -575,13 +495,16 @@ test("çark etkileşimi gizli araçta ve bahisli dönüş sırasında kapatılı
     assert.equal(app.interactiveStates.at(-1), false);
 });
 
-test("çarkı bırakmak mevcut bahsi tek kez başlatır ve bakiyeyi bir kez düşer", () => {
+test("çarkı bırakmak mevcut bahsi tek kez başlatır ve bakiyeyi bir kez düşer", async () => {
     const app = createInteractionHarness();
     assert.equal(app.releaseWheel(), false);
+    await app.flush();
     assert.equal(app.spins.length, 0);
     assert.equal(app.writes(), 0);
     app.get("table").dispatch("click", { target: app.bet("corner:1-2-4-5"), detail: 0 });
+    await app.flush();
     assert.equal(app.releaseWheel(), true);
+    await app.flush();
     const pending = app.snapshot().game;
     assert.equal(pending.phase, "spinning");
     assert.equal(pending.balance, 9975);
@@ -590,18 +513,21 @@ test("çarkı bırakmak mevcut bahsi tek kez başlatır ve bakiyeyi bir kez dü�
     assert.equal(app.spins.length, 1);
     const writes = app.writes();
     assert.equal(app.releaseWheel(), false);
+    await app.flush();
     assert.equal(app.spins.length, 1);
     assert.equal(app.writes(), writes);
     assert.deepEqual(app.snapshot().game, pending);
 });
 
-test("sürüklenen çip boyutunu, rengini ve tutulan noktayı koruyarak anında fareyi izler", () => {
+test("sürüklenen çip boyutunu, rengini ve tutulan noktayı koruyarak anında fareyi izler", async () => {
     const app = createInteractionHarness();
     const chip = app.chip(5000);
     chip.getBoundingClientRect = () => ({ left: 120, top: 650, width: 44, height: 44 });
     const pointer = { target: chip, pointerId: 17, pointerType: "mouse", isPrimary: true, button: 0 };
     app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 130, clientY: 660 });
+    await app.flush();
     app.get("chips").dispatch("pointermove", { ...pointer, clientX: 300, clientY: 400 });
+    await app.flush();
     const ghost = app.get("body").querySelector(".roulette-chip-ghost");
     assert.ok(ghost, "the live chip is outside layout/query containers");
     assert.equal(app.get("app").querySelectorAll(".roulette-chip-ghost").length, 0);
@@ -610,17 +536,130 @@ test("sürüklenen çip boyutunu, rengini ve tutulan noktayı koruyarak anında 
     assert.equal(ghost.style.height, "44px");
     assert.equal(ghost.style.transform, "translate3d(290px, 390px, 0)");
     app.get("chips").dispatch("pointermove", { ...pointer, clientX: 310, clientY: 415 });
+    await app.flush();
     assert.equal(ghost.style.transform, "translate3d(300px, 405px, 0)");
     app.get("chips").dispatch("pointercancel", pointer);
+    await app.flush();
     assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 0);
     assert.equal(chip.hasPointerCapture(17), false);
     assert.equal(app.pendingFrames(), 0);
     assert.equal(app.writes(), 0);
     app.get("chips").dispatch("pointerdown", { ...pointer, clientX: 130, clientY: 660 });
+    await app.flush();
     app.get("chips").dispatch("pointermove", { ...pointer, clientX: 300, clientY: 400 });
+    await app.flush();
     app.setHidden(true);
     assert.equal(app.get("body").querySelectorAll(".roulette-chip-ghost").length, 0);
     assert.equal(chip.hasPointerCapture(17), false);
     assert.equal(app.pendingFrames(), 0);
     assert.equal(app.writes(), 0);
+});
+
+async function spendElsewhere(wallet, delta) {
+    const current = wallet.read("blackjack");
+    const result = await wallet.commit("blackjack", {
+        revision: current.revision, delta,
+        snapshot: { game: { phase: "BETTING", balance: 0 } },
+    });
+    assert.equal(result.ok, true);
+    await flushWallet();
+}
+
+test("ortak cüzdan kesirli krediyi korur; bahis ve ödeme ayrı ayrı yalnızca bir kez işlenir", async () => {
+    const app = createInteractionHarness(core.createState(), { extraBalance: 0.5 });
+    app.get("chips").dispatch("click", { target: app.chip(1000), detail: 0 });
+    await app.flush();
+    app.get("table").dispatch("click", { target: app.bet("straight:7"), detail: 0 });
+    await app.flush();
+    assert.equal(app.wallet.read("roulette").balance, 10000.5);
+    assert.equal(app.releaseWheel(), true);
+    assert.equal(app.releaseWheel(), false, "a pending wallet commit locks a second release");
+    assert.equal(app.spins.length, 0, "animation waits for the durable debit and outcome");
+    await app.flush();
+    assert.equal(app.wallet.read("roulette").balance, 9000.5);
+    assert.equal(app.snapshot().game.pending.number, 7);
+    assert.equal(app.spins.length, 1);
+    await spendElsewhere(app.wallet, -500);
+    assert.equal(app.get("balance").textContent, "8.500,5");
+    await app.finishSpin();
+    assert.equal(app.wallet.read("roulette").balance, 44500.5);
+    assert.equal(app.snapshot().game.pending, null);
+    assert.equal(app.snapshot().game.history.length, 1);
+    const revision = app.wallet.read("roulette").revision;
+    await app.finishSpin();
+    assert.equal(app.wallet.read("roulette").revision, revision);
+    assert.equal(app.wallet.read("roulette").balance, 44500.5);
+});
+
+test("bekleyen tur yeniden yüklenir ve iki sekmenin bitişi ortak ödülü iki kez vermez", async () => {
+    const first = createInteractionHarness();
+    first.get("table").dispatch("click", { target: first.bet("straight:7"), detail: 0 });
+    await first.flush();
+    assert.equal(first.releaseWheel(), true);
+    await first.flush();
+    const pending = first.snapshot().game;
+    const revision = first.wallet.read("roulette").revision;
+    const reloaded = createInteractionHarness(core.createState(), { sharedWallet: first.wallet });
+    assert.deepEqual(reloaded.snapshot().game, pending);
+    assert.deepEqual(reloaded.spins, [7]);
+    assert.equal(first.wallet.read("roulette").balance, 9975);
+    await Promise.all([first.finishSpin(), reloaded.finishSpin()]);
+    assert.equal(first.wallet.read("roulette").balance, 10875);
+    assert.equal(first.wallet.read("roulette").revision, revision + 1);
+    assert.equal(first.snapshot().game.history.length, 1);
+    assert.equal(first.snapshot().game.history[0].number, 7);
+    assert.equal(first.snapshot().game.pending, null);
+});
+
+test("başka oyun önce harcarsa yetersiz tur atomik reddedilir ve animasyon başlamaz", async () => {
+    const app = createInteractionHarness(core.createState({ balance: 1000 }), { chip: 1000 });
+    app.get("table").dispatch("click", { target: app.bet("straight:7"), detail: 0 });
+    await app.flush();
+    const other = app.wallet.read("blackjack");
+    const competing = app.wallet.commit("blackjack", {
+        revision: other.revision, delta: -900,
+        snapshot: { game: { phase: "BETTING", balance: 0 } },
+    });
+    assert.equal(app.releaseWheel(), true);
+    await competing;
+    await app.flush();
+    assert.equal(app.wallet.read("roulette").balance, 100);
+    assert.equal(app.snapshot().game.pending, null);
+    assert.equal(app.spins.length, 0);
+    assert.equal(app.get("spin").disabled, true);
+    assert.equal(app.bet("straight:7").querySelector(".roulette-stake-marker").hidden, true);
+});
+
+test("aynı tam sayıdaki kesir değişimi ve pasif araç tercihleri ortak parayı geri yazmaz", async () => {
+    const app = createInteractionHarness(core.createState({ balance: 100 }), { extraBalance: 0.25 });
+    assert.equal(app.get("balance").textContent, "100,25");
+    const revision = app.wallet.read("roulette").revision;
+    app.setActive(false);
+    await spendElsewhere(app.wallet, 0.5);
+    assert.equal(app.get("balance").textContent, "100,75");
+    assert.equal(app.wallet.read("roulette").revision, revision, "external balance display does not save the inactive game");
+    app.setActive(true);
+    app.get("volume").value = "38";
+    app.get("volume").dispatch("input");
+    await app.flush();
+    assert.equal(app.wallet.read("roulette").balance, 100.75);
+    assert.equal(app.snapshot().game.balance, 100);
+    assert.equal(app.snapshot().volume, 0.38);
+});
+
+test("dış harcama karşılanamayan bahisleri ve eski geri alma tutarlarını temizler", async () => {
+    const app = createInteractionHarness(core.createState({ balance: 100 }));
+    for (let index = 0; index < 2; index += 1) {
+        app.get("table").dispatch("click", { target: app.bet("red"), detail: 0 });
+        await app.flush();
+    }
+    await spendElsewhere(app.wallet, -90);
+    assert.equal(app.get("spin").disabled, true);
+    assert.equal(app.bet("red").querySelector(".roulette-stake-marker").hidden, true);
+    await spendElsewhere(app.wallet, 90);
+    app.get("undo").dispatch("click");
+    await app.flush();
+    assert.deepEqual(app.snapshot().game.bets, {});
+    assert.ok(core.restoreState(app.snapshot().game));
+    assert.equal(app.wallet.read("roulette").balance, 100);
 });
