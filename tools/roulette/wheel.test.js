@@ -71,6 +71,7 @@ function mockCanvas() {
     const documentListeners = new Map();
     const motionListeners = new Map();
     const captured = new Set();
+    const focusStates = [];
     const motion = {
         matches: false,
         addEventListener(name, handler) { motionListeners.set(name, handler); },
@@ -120,13 +121,13 @@ function mockCanvas() {
             captured.delete(id);
             canvasListeners.get("lostpointercapture")?.({ pointerId: id });
         },
-        focus() {},
+        focus() { focusStates.push(canvas.dataset.pointerFocus); },
     };
     function dispatch(name, event = {}) {
         canvasListeners.get(name)?.({ preventDefault() {}, ...event });
     }
     return {
-        canvas, frames, listeners, attributes, observers, captured, canvasListeners, documentListeners, motionListeners,
+        canvas, frames, listeners, attributes, observers, captured, focusStates, canvasListeners, documentListeners, motionListeners,
         dispatch,
         pointer(name, angle, options = {}) {
             if (options.time !== undefined) time = options.time;
@@ -194,6 +195,42 @@ test("cancellation, replacement spin and destruction release animation and resiz
     assert.equal(mock.observers[0].disconnected, true);
     assert.equal(mock.listeners.size, 0);
     await assert.rejects(renderer.spin(0));
+});
+
+test("işaretçi odağı klavye halkasını gizler, Tab ve diğer tuşlar veya bulanıklık klavye odağını geri getirir", () => {
+    const mock = mockCanvas();
+    const renderer = wheel.create(mock.canvas);
+    assert.equal(mock.canvas.dataset.pointerFocus, undefined);
+    mock.pointer("pointerdown", 0);
+    assert.equal(mock.canvas.dataset.pointerFocus, "true");
+    assert.deepEqual(mock.focusStates, ["true"]);
+    mock.pointer("pointerup", 0);
+    assert.equal(mock.canvas.dataset.pointerFocus, "true");
+    mock.dispatch("keydown", { key: "Tab" });
+    assert.equal(mock.canvas.dataset.pointerFocus, undefined);
+
+    mock.pointer("pointerdown", 0);
+    mock.pointer("pointerup", 0);
+    mock.dispatch("blur");
+    assert.equal(mock.canvas.dataset.pointerFocus, undefined);
+    mock.pointer("pointerdown", 0);
+    mock.pointer("pointerup", 0);
+    mock.dispatch("keydown", { key: "ArrowRight" });
+    assert.equal(mock.canvas.dataset.pointerFocus, undefined);
+    assert.equal(mock.canvas.dataset.interaction, "coasting");
+
+    renderer.setInteractive(false);
+    mock.pointer("pointerdown", 0);
+    assert.equal(mock.canvas.dataset.pointerFocus, "true");
+    mock.dispatch("keydown", { key: "Shift" });
+    assert.equal(mock.canvas.dataset.pointerFocus, undefined);
+    // Even a click in a canvas corner receives native focus, despite being outside the rotor.
+    mock.pointer("pointerdown", 0, { radius: 1.2 });
+    assert.equal(mock.canvas.dataset.pointerFocus, "true");
+    renderer.destroy();
+    assert.equal(mock.canvas.dataset.pointerFocus, undefined);
+    assert.equal(mock.canvasListeners.has("blur"), false);
+    assert.equal(mock.canvasListeners.size, 0);
 });
 
 test("ters yöndeki 37 dönüş de doğru cebe iner ve yakalama anında kesintisizdir", () => {

@@ -86,10 +86,10 @@
 
 .roulette-wheel-panel { min-width: 0; text-align: center; }
 .roulette-wheel-stage { position: relative; width: 100%; margin: -6px auto -8px; }
-.roulette-wheel-canvas { display: block; width: 100%; height: auto; aspect-ratio: 1.125; border-radius: 18px; cursor: grab; touch-action: none; user-select: none; }
+.roulette-wheel-canvas { display: block; width: 100%; height: auto; aspect-ratio: 1.125; border-radius: 18px; outline: none; cursor: grab; touch-action: none; user-select: none; }
 .roulette-wheel-canvas[data-interaction="dragging"] { cursor: grabbing; }
 .roulette-wheel-canvas[data-interactive="false"] { cursor: default; }
-.roulette-wheel-canvas:focus-visible { border-radius: 50%; outline: 2px solid var(--roulette-gold); outline-offset: -8px; }
+.roulette-wheel-canvas:focus-visible:not([data-pointer-focus="true"]) { border-radius: 50%; outline: 2px solid var(--roulette-gold); outline-offset: -8px; }
 .roulette-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
 .roulette-status { display: grid; align-items: center; min-height: 2.8em; margin: 0 0 10px; color: #d5dfd8; font-size: 12px; line-height: 1.4; }
@@ -104,14 +104,18 @@
 .roulette-history-heading h3 { margin: 0; font-size: 12px; }
 .roulette-history-heading > span { color: #98a89e; font-size: 10px; white-space: nowrap; }
 .roulette-history-heading > span span { margin-left: 4px; color: var(--roulette-gold); }
+.roulette-history-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 10px; min-width: 0; }
+.roulette-history-row[data-has-previous="false"] { grid-template-columns: 64px; gap: 0; }
 .roulette-history { display: flex; align-items: center; gap: 9px; max-width: 100%; min-width: 0; margin: 0; padding: 7px 2px 9px; overflow-x: auto; overscroll-behavior-x: contain; list-style: none; scrollbar-width: thin; scrollbar-color: #78674770 transparent; }
 .roulette-history:focus-visible { outline: 2px solid var(--roulette-gold); outline-offset: 3px; border-radius: 6px; }
-.roulette-history li { --history-pocket: #202c27; display: grid; flex: 0 0 38px; grid-template-rows: 11px 48px; justify-items: center; align-items: center; gap: 5px; color: #fff4df; font-variant-numeric: tabular-nums; }
-.roulette-history [data-color="red"] { --history-pocket: #a32c3b; }
-.roulette-history [data-color="green"] { --history-pocket: #237052; }
+.roulette-history li,.roulette-history-newest { --history-pocket: #202c27; display: grid; grid-template-rows: 11px 48px; justify-items: center; align-items: center; gap: 5px; color: #fff4df; font-variant-numeric: tabular-nums; }
+.roulette-history li { flex: 0 0 38px; }
+.roulette-history-row [data-color="red"] { --history-pocket: #a32c3b; }
+.roulette-history-row [data-color="green"] { --history-pocket: #237052; }
 .roulette-history-number { display: grid; grid-row: 2; place-items: center; width: 36px; height: 36px; box-sizing: border-box; border: 1px solid #ffffff25; border-radius: 50%; background: linear-gradient(145deg, #ffffff0f, #00000018), var(--history-pocket); box-shadow: inset 0 1px #ffffff12, inset 0 -2px #0003, 0 3px 5px #0002; font-size: 13px; font-weight: 650; }
-.roulette-history li:first-child { position: sticky; left: 0; z-index: 1; flex-basis: 64px; box-sizing: border-box; padding-right: 13px; margin-right: 2px; border-right: 1px solid #dfc28d26; background: #1b2721; box-shadow: 7px 0 9px #1b2721e6; }
-.roulette-history li:first-child .roulette-history-number { width: 48px; height: 48px; border-color: #e5c68a; box-shadow: inset 0 0 0 3px #0002, 0 0 0 2px #dfc28d16, 0 4px 9px #0003; font-size: 20px; font-weight: 700; }
+.roulette-history-newest { box-sizing: border-box; min-width: 0; padding: 7px 13px 9px 2px; border-right: 1px solid #dfc28d26; }
+.roulette-history-row[data-has-previous="false"] .roulette-history-newest { border-right-color: transparent; }
+.roulette-history-newest .roulette-history-number { width: 48px; height: 48px; border-color: #e5c68a; box-shadow: inset 0 0 0 3px #0002, 0 0 0 2px #dfc28d16, 0 4px 9px #0003; font-size: 20px; font-weight: 700; }
 .roulette-history-latest { grid-row: 1; color: #e5c68a; font-size: 8px; font-weight: 700; letter-spacing: 0.14em; }
 .roulette-history-section .roulette-empty { padding: 12px 0 13px; }
 .roulette-empty { margin: 0; color: var(--roulette-muted); font-size: 12px; line-height: 1.5; }

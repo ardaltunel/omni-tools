@@ -377,6 +377,41 @@ test("winner highlighting stays stable across chip selections, zero results and 
     assert.deepEqual(app.winners(), []);
 });
 
+test("son sonuç sabit alanda kalır, yalnızca önceki sonuçlar kaydırılır", () => {
+    const app = createRenderHarness();
+    app.render();
+    assert.equal(app.get("history-row").hidden, true);
+    assert.equal(app.get("empty-history").hidden, false);
+    let game = core.settleSpin(core.beginSpin(core.addBet(core.createState(), "red", 1), draw(0))).state;
+    app.setGame(game);
+    assert.equal(app.get("history-row").hidden, false);
+    assert.equal(app.get("history").hidden, true);
+    assert.equal(app.get("history-newest").dataset.color, "green");
+    assert.equal(app.get("history-newest").querySelector(".roulette-history-number").textContent, 0);
+    assert.equal(app.get("empty-history").hidden, true);
+    for (let number = 1; number < 20; number += 1) {
+        game = core.settleSpin(core.beginSpin(core.addBet(game, "red", 1), draw(number))).state;
+    }
+    app.setGame(game);
+    assert.equal(app.get("history-newest").querySelector(".roulette-history-number").textContent, 19);
+    assert.equal(app.get("history").children.length, 19);
+    assert.equal(app.get("history").children[0].querySelector(".roulette-history-number").textContent, 18);
+    assert.equal(app.get("history").querySelectorAll(".roulette-history-latest").length, 0);
+    assert.equal(app.get("history").hidden, false);
+    app.get("history").scrollLeft = 140;
+    app.selectChip(50);
+    assert.equal(app.get("history").scrollLeft, 140);
+    game = core.settleSpin(core.beginSpin(core.addBet(game, "red", 1), draw(20))).state;
+    app.setGame(game);
+    assert.equal(app.get("history").scrollLeft, 0);
+    assert.equal(app.get("history-newest").querySelector(".roulette-history-number").textContent, 20);
+    assert.equal(app.get("history").children[0].querySelector(".roulette-history-number").textContent, 19);
+    app.setGame(core.createState());
+    assert.equal(app.get("history-row").hidden, true);
+    assert.equal(app.get("history-newest").children.length, 0);
+    assert.equal(app.get("empty-history").hidden, false);
+});
+
 test("a stale wheel completion adopts a newer stored spin before its storage event arrives", async () => {
     const first = core.beginSpin(core.addBet(core.createState(), "red", 25), draw(1));
     const firstSettled = core.settleSpin(first).state;

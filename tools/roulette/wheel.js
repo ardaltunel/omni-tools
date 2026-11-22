@@ -297,6 +297,8 @@
         }
 
         function pointerDown(event) {
+            // Native pointer focus must not display the keyboard-only focus indicator.
+            canvas.dataset.pointerFocus = "true";
             if (!canInteract() || drag || event.isPrimary === false || event.button !== 0) return;
             const point = pointerPosition(event);
             if (!point || point.distance > 1) return;
@@ -383,7 +385,12 @@
             if (event.pointerId === drag?.id) cancelManual();
         }
 
+        function clearPointerFocus() {
+            delete canvas.dataset.pointerFocus;
+        }
+
         function keyDown(event) {
+            clearPointerFocus();
             if (!canInteract() || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
             event.preventDefault();
             cancelManual();
@@ -540,7 +547,7 @@
         view.addEventListener("blur", cancelManual);
         document.addEventListener("visibilitychange", visibilityChange);
         const pointerListeners = { pointerdown: pointerDown, pointermove: pointerMove, pointerup: pointerUp,
-            pointercancel: pointerCancel, lostpointercapture: pointerCancel, keydown: keyDown };
+            pointercancel: pointerCancel, lostpointercapture: pointerCancel, keydown: keyDown, blur: clearPointerFocus };
         Object.entries(pointerListeners).forEach(([name, listener]) => canvas.addEventListener(name, listener));
         motion?.addEventListener?.("change", motionChange);
         updateInteraction();
@@ -556,6 +563,7 @@
             destroy() {
                 cancel();
                 disposed = true;
+                clearPointerFocus();
                 updateInteraction();
                 observer?.disconnect();
                 view.removeEventListener("resize", resize);

@@ -80,7 +80,7 @@
     <link rel="stylesheet" href="tools/farkli-rengi-bul/style.css?v=10">
     <link rel="stylesheet" href="tools/blackjack/blackjack.css?v=57">
     <link rel="stylesheet" href="tools/block-blast/style.css?v=1">
-    <link rel="stylesheet" href="tools/roulette/style.css?v=5">
+    <link rel="stylesheet" href="tools/roulette/style.css?v=6">
     <link rel="stylesheet" href="tools/slot-game/style.css?v=21">
     <link rel="stylesheet" href="tools/qr-code-scanner/style.css?v=9">
     <link rel="stylesheet" href="tools/mikrofon-testi/style.css?v=8">
@@ -881,7 +881,11 @@
                                     <h3 id="roulette-history-title">Son sayılar</h3>
                                     <span>Yeniden eskiye <span aria-hidden="true">→</span></span>
                                 </div>
-                                <ol id="roulette-history" class="roulette-history" tabindex="0" aria-label="Geçmiş sonuçlar, en yeni sonuç solda" hidden></ol><p id="roulette-empty-history" class="roulette-empty">Henüz bir tur oynanmadı.</p>
+                                <div id="roulette-history-row" class="roulette-history-row" hidden>
+                                    <div id="roulette-history-newest" class="roulette-history-newest" role="group" aria-label="Son sonuç"></div>
+                                    <ol id="roulette-history" class="roulette-history" tabindex="0" aria-label="Önceki sonuçlar, yeniden eskiye" hidden></ol>
+                                </div>
+                                <p id="roulette-empty-history" class="roulette-empty">Henüz bir tur oynanmadı.</p>
                             </section>
                         </div>
 
@@ -5942,10 +5946,10 @@ Disallow:</code></pre>
     <script src="tools/block-blast/core.js?v=1"></script>
     <script src="tools/block-blast/app.js?v=1"></script>
     <script src="tools/roulette/core.js?v=1"></script>
-    <script src="tools/roulette/wheel.js?v=3"></script>
+    <script src="tools/roulette/wheel.js?v=4"></script>
     <script src="tools/roulette/layout.js?v=1"></script>
     <script src="tools/roulette/audio.js?v=3"></script>
-    <script src="tools/roulette/app.js?v=6"></script>
+    <script src="tools/roulette/app.js?v=7"></script>
     <script src="tools/slot-game/engine.js?v=6"></script>
     <script src="tools/slot-game/app.js?v=13"></script>
     <script src="tools/2048/script.js?v=1"></script>

@@ -247,32 +247,44 @@
     }
 
     function renderHistory() {
-        const entries = state.history.map((entry, index) => {
+        const latest = state.history[0];
+        const newest = get("history-newest");
+        newest.replaceChildren();
+        if (latest) {
+            const label = document.createElement("span");
+            const number = document.createElement("span");
+            label.className = "roulette-history-latest";
+            label.textContent = "SON";
+            label.setAttribute("aria-hidden", "true");
+            number.className = "roulette-history-number";
+            number.textContent = latest.number;
+            number.setAttribute("aria-hidden", "true");
+            newest.dataset.color = latest.color;
+            newest.title = `${latest.number} · ${colors[latest.color]} · Ödeme ${format.format(latest.payout)} kredi`;
+            newest.setAttribute("aria-label", `Son sonuç. ${newest.title}`);
+            newest.append(label, number);
+        }
+        const entries = state.history.slice(1).map((entry) => {
             const item = document.createElement("li");
             const number = document.createElement("span");
             item.dataset.color = entry.color;
             number.className = "roulette-history-number";
             number.textContent = entry.number;
             number.setAttribute("aria-hidden", "true");
-            if (index === 0) {
-                const label = document.createElement("span");
-                label.className = "roulette-history-latest";
-                label.textContent = "SON";
-                label.setAttribute("aria-hidden", "true");
-                item.append(label);
-            }
             item.append(number);
             item.title = `${entry.number} · ${colors[entry.color]} · Ödeme ${format.format(entry.payout)} kredi`;
-            item.setAttribute("aria-label", `${index === 0 ? "Son sonuç. " : ""}${item.title}`);
+            item.setAttribute("aria-label", item.title);
             return item;
         });
         const history = get("history");
-        const newest = String(state.history[0]?.id || "");
+        const newestId = String(latest?.id || "");
         history.replaceChildren(...entries);
         history.hidden = entries.length === 0;
-        if (history.dataset.newest !== newest) history.scrollLeft = 0;
-        history.dataset.newest = newest;
-        get("empty-history").hidden = entries.length > 0;
+        if (history.dataset.newest !== newestId) history.scrollLeft = 0;
+        history.dataset.newest = newestId;
+        get("history-row").hidden = !latest;
+        get("history-row").dataset.hasPrevious = String(entries.length > 0);
+        get("empty-history").hidden = Boolean(latest);
     }
 
     function highlightBet(id) {
