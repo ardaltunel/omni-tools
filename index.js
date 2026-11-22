@@ -657,6 +657,11 @@ function updatePageMetadata(tool) {
             description: "Blokları 8×8 tahtaya yerleştir, dolu satır ve sütunları temizleyerek rekorunu yükselt.",
             keywords: "block blast, blockblast, blok bulmaca, blok yerleştirme, 8x8 blok oyunu, puzzle",
         },
+        roulette: {
+            title: "Rulet | Omni Tools",
+            description: "Tek sıfırlı Avrupa ruletinde sanal çiplerini yerleştir, çarkı döndür ve sonucu takip et.",
+            keywords: "rulet, roulette, avrupa ruleti, tek sıfır, sanal çip, rulet çarkı, masa oyunu",
+        },
         "farkli-rengi-bul": {
             title: "Farklı Rengi Bul | Omni Tools",
             description: "Renk algını test et ve giderek birbirine yaklaşan renkler arasındaki farklı kareyi bul.",
