@@ -264,7 +264,7 @@ test("difficulty and public team ownership change strategy without exposing a pa
     state = core.playCard(state, 0, "clubs-10");
     state = core.playCard(state, 1, "hearts-A");
     state = core.playCard(state, 2, "hearts-K");
-    assert.equal(core.chooseMove(state, 3, "medium"), "clubs-J");
+    assert.notEqual(core.chooseMove(state, 3, "medium"), "clubs-J", "the normal strategy saves a Jack on a small low-value pile");
     assert.equal(core.chooseMove(state, 3, "hard"), "clubs-J");
     assert.notEqual(core.chooseMove(state, 3, "easy"), "clubs-J");
 
@@ -277,7 +277,7 @@ test("difficulty and public team ownership change strategy without exposing a pa
     assert.notEqual(core.chooseMove(partnerCollected, 3, "hard"), "clubs-J", "reserve a Jack for a larger pile after the partner collected");
 });
 
-test("hard AI uses public information only when hidden opponents and stock are permuted", () => {
+test("normal and legacy hard AI use public information only when hidden hands and stock are permuted", () => {
     for (const mode of ["duel", "teams"]) {
         let state = core.createGame({ mode, difficulty: "hard" }, cryptoSeed(991));
         for (let move = 0; move < 20; move += 1) {
@@ -289,9 +289,66 @@ test("hard AI uses public information only when hidden opponents and stock are p
             });
             other.deck = hidden;
             assert.deepEqual(core.getPlayerView(other, seat), core.getPlayerView(state, seat));
-            assert.equal(core.chooseMove(other, seat, "hard"), core.chooseMove(state, seat, "hard"));
-            state = core.playCard(state, seat, core.chooseMove(state, seat, "hard"));
+            for (const difficulty of ["medium", "hard"]) assert.equal(core.chooseMove(other, seat, difficulty), core.chooseMove(state, seat, difficulty));
+            state = core.playCard(state, seat, core.chooseMove(state, seat, "medium"));
         }
+    }
+});
+
+test("normal AI remembers recent ranks but does not count forgotten captured cards", () => {
+    let state = initial({ hands: {
+        0: ["clubs-A", "clubs-5"],
+        1: ["hearts-4", "hearts-5", "diamonds-5", "spades-J"],
+    } });
+    state = core.playCard(state, 0, "clubs-A");
+    state = core.playCard(state, 1, "diamonds-5");
+    state = core.playCard(state, 0, "clubs-5");
+    assert.equal(state.table.length, 0);
+    assert.deepEqual(state.recentCardIds, ["clubs-A", "diamonds-5", "clubs-5"]);
+    assert.equal(core.chooseMove(state, 1, "medium"), "hearts-5", "two recently played fives make the remaining five a modestly safer lead");
+
+    const forgottenSave = core.serializeState(state);
+    delete forgottenSave.recentCardIds;
+    const forgotten = core.restoreState(forgottenSave);
+    assert.ok(forgotten);
+    assert.deepEqual(forgotten.recentCardIds, []);
+    assert.ok(forgotten.publicCardIds.includes("diamonds-5"), "the full public record still contains the forgotten cards");
+    assert.equal(core.chooseMove(forgotten, 1, "medium"), "hearts-4", "the normal strategy ignores the older full capture record");
+    assert.deepEqual(forgotten.scores, state.scores);
+    assert.deepEqual(forgotten.hands, state.hands);
+    assert.equal(forgotten.currentSeat, state.currentSeat);
+});
+
+test("normal AI takes valuable captures with a Jack and keeps point cards on an empty table", () => {
+    let state = initial({ table: ["clubs-3", "diamonds-4", "spades-K", "hearts-A"], hands: {
+        0: ["clubs-A", "clubs-J", "hearts-4", "clubs-2"],
+        1: ["diamonds-10", "diamonds-A", "spades-J", "spades-4"],
+    } });
+    state = core.playCard(state, 0, "clubs-A");
+    assert.equal(core.chooseMove(state, 1, "medium"), "spades-4");
+    state = core.playCard(state, 1, "diamonds-10");
+    assert.equal(core.chooseMove(state, 0, "medium"), "clubs-J", "three-point diamond ten is worth collecting");
+});
+
+test("recent memory is bounded to ten played cards, survives JSON saves and resets each round", () => {
+    let state = core.createGame({ mode: "teams", target: 100000 }, cryptoSeed(81));
+    const played = [];
+    while (state.phase === "playing") {
+        const seat = state.currentSeat;
+        const cardId = core.chooseMove(state, seat, "medium");
+        played.push(cardId);
+        state = core.playCard(state, seat, cardId);
+        assert.deepEqual(state.recentCardIds, played.slice(-10));
+        assert.ok(state.initialHiddenIds.every((id) => !state.recentCardIds.includes(id)));
+        state = roundTrip(state);
+    }
+    assert.equal(core.RECENT_MEMORY_LIMIT, 10);
+    const next = core.nextRound(state, cryptoSeed(82));
+    assert.deepEqual(next.recentCardIds, []);
+
+    const saved = core.serializeState(state);
+    for (const invalid of [null, state.initialHiddenIds, [...state.recentCardIds, "clubs-A"], [state.recentCardIds[0], state.recentCardIds[0]]]) {
+        assert.equal(core.restoreState({ ...saved, recentCardIds: invalid }), null);
     }
 });
 
@@ -332,7 +389,7 @@ test("240 complete seeded rounds conserve 52 cards, restore every move and score
             let state = core.createGame({ mode, target: 100000 }, cryptoSeed(seed));
             for (let move = 0; move < 48; move += 1) {
                 const start = performance.now();
-                const selected = core.chooseMove(state, state.currentSeat, ["easy", "medium", "hard"][move % 3]);
+                const selected = core.chooseMove(state, state.currentSeat, "medium");
                 maximumChoiceMs = Math.max(maximumChoiceMs, performance.now() - start);
                 state = core.playCard(state, state.currentSeat, selected);
                 assert.ok(state);

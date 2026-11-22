@@ -666,7 +666,7 @@ function updatePageMetadata(tool) {
         },
         pisti: {
             title: "Pişti | Omni Tools",
-            description: "Klasik Türk Pişti oyununu iki kişi veya eşli dört kişi oyna. Üç zorluk seviyesi, stratejik rakipler ve akıcı kart animasyonları.",
+            description: "Klasik Türk Pişti oyununu iki kişi veya eşli dört kişi oyna. Kartları takip eden doğal rakipler, büyük kartlar ve akıcı animasyonlar.",
             keywords: "pişti, pisti, pişpirik, Türk kart oyunu, eşli pişti, 2 kişilik pişti, 4 kişilik pişti, iskambil, yapay zekâ",
         },
         "farkli-rengi-bul": {

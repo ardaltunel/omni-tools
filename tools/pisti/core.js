@@ -10,6 +10,7 @@
     const RANKS = Object.freeze(["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]);
     const MODES = Object.freeze(["duel", "teams"]);
     const DIFFICULTIES = Object.freeze(["easy", "medium", "hard"]);
+    const RECENT_MEMORY_LIMIT = 10;
     const CARDS = Object.freeze(SUITS.flatMap((suit) => RANKS.map((rank) => Object.freeze({ id: `${suit}-${rank}`, suit, rank }))));
     const CARDS_BY_ID = new Map(CARDS.map((card) => [card.id, card]));
 
@@ -75,7 +76,7 @@
             captures: Array.from({ length: count }, () => []),
             pisti: [{ normal: 0, jack: 0 }, { normal: 0, jack: 0 }],
             scores: options.scores.slice(), roundStartingScores: options.scores.slice(),
-            lastCapturer: null, publicCardIds: [], seenCardIds: [[], []],
+            lastCapturer: null, publicCardIds: [], seenCardIds: [[], []], recentCardIds: [],
             lastMove: null, roundSummary: null,
         };
         dealBatch(state);
@@ -167,6 +168,7 @@
             seat, card, capturedCards, capturedCount: capturedCards.length, pisti: result.pisti,
             dealt: false, finalPlay, collectedLeftovers: [], leftoversCount: 0, leftoversSeat: null,
         };
+        next.recentCardIds = [...(state.recentCardIds || []), card.id].slice(-RECENT_MEMORY_LIMIT);
         refreshKnowledge(next);
         if (next.moveNumber === 48) finishRound(next);
         else {
@@ -207,6 +209,7 @@
             table: state.table.map((card) => known.has(card.id) ? card : null), hiddenTableCount: state.hiddenTableCount,
             captures: state.captures.map(visible), capturedCounts: state.captures.map((cards) => cards.length),
             pisti: state.pisti.map((count) => ({ ...count })), publicCardIds: state.publicCardIds.slice(), knownCardIds,
+            recentCardIds: (state.recentCardIds || []).slice(),
             lastCapturer: state.lastCapturer, lastMove, roundSummary: getRoundSummary(state),
         };
     }
@@ -229,8 +232,19 @@
         const pisti = view.table.length === 1 ? result.pisti : null;
         if (pisti) return (pisti === "jack" ? 20 : 10) * 100;
         const pilePoints = view.table.reduce((sum, entry) => sum + (entry ? cardPoints(entry) : 0.25), 0);
-        if (!hard) return captures ? 20 + pilePoints * 5 + view.table.length - (card.rank === "J" ? 2 : 0) : -cardPoints(card) - (card.rank === "J" ? 5 : 0);
         const sameTeamLastCapture = view.mode === "teams" && view.lastCapturer !== null && view.lastCapturer % 2 === view.seat % 2;
+        if (!hard) {
+            if (captures) {
+                const smallPile = view.table.length < 3 && pilePoints < 2;
+                const jackCost = card.rank === "J" ? 8 + (smallPile ? 20 : 0) + (smallPile && sameTeamLastCapture ? 4 : 0) : 0;
+                return 18 + pilePoints * 5 + view.table.length * 0.8 - jackCost;
+            }
+            const remembered = new Set([...view.recentCardIds, ...view.hand.map((entry) => entry.id)]);
+            const knownRankCount = [...remembered].filter((id) => CARDS_BY_ID.get(id).rank === card.rank).length;
+            const unrememberedCopies = Math.max(0, 4 - knownRankCount);
+            const risk = unrememberedCopies * (view.table.length === 0 ? 0.8 : 0.12);
+            return -risk - cardPoints(card) * 3 - (card.rank === "J" ? 12 : 0);
+        }
         if (captures) {
             const jackCost = card.rank === "J" ? 15 + (sameTeamLastCapture && view.table.length < 3 ? 12 : 0) : 0;
             return 8 + pilePoints * 7 + view.table.length * 0.9 - jackCost;
@@ -267,6 +281,7 @@
             hiddenTableCount: state.hiddenTableCount, initialHiddenIds: state.initialHiddenIds.slice(),
             pisti: state.pisti.map((count) => ({ ...count })), scores: state.scores.slice(), roundStartingScores: state.roundStartingScores.slice(),
             lastCapturer: state.lastCapturer, publicCardIds: state.publicCardIds.slice(), seenCardIds: state.seenCardIds.map((cards) => cards.slice()),
+            recentCardIds: (state.recentCardIds || []).slice(),
             lastMove: state.lastMove ? { ...state.lastMove, card: state.lastMove.card.id, capturedCards: ids(state.lastMove.capturedCards), collectedLeftovers: ids(state.lastMove.collectedLeftovers) } : null,
             roundSummary: state.roundSummary ? JSON.parse(JSON.stringify(state.roundSummary)) : null,
         };
@@ -324,6 +339,11 @@
         const state = { ...value, deck, hands, table, captures, initialHiddenIds: value.initialHiddenIds.slice(), pisti: value.pisti.map((entry) => ({ normal: entry.normal, jack: entry.jack })), scores: value.scores.slice(), roundStartingScores: value.roundStartingScores.slice() };
         delete state.version;
         refreshKnowledge(state);
+        const recent = value.recentCardIds === undefined ? [] : value.recentCardIds;
+        if (!Array.isArray(recent) || recent.length > RECENT_MEMORY_LIMIT || recent.length > value.moveNumber
+            || new Set(recent).size !== recent.length
+            || !Array.from(recent).every((id) => state.publicCardIds.includes(id))) return null;
+        state.recentCardIds = recent.slice();
         if (!Array.isArray(value.publicCardIds) || !sameIds(value.publicCardIds, state.publicCardIds)
             || !Array.isArray(value.seenCardIds) || value.seenCardIds.length !== 2
             || Array.from(value.seenCardIds).some((cards, team) => !Array.isArray(cards) || !sameIds(cards, state.seenCardIds[team]))) return null;
@@ -340,6 +360,7 @@
                 || ![null, "normal", "jack"].includes(move.pisti) || move.finalPlay !== ended
                 || move.dealt !== (!ended && batchMoves === 0) || (move.leftoversSeat !== null && !validSeat(move.leftoversSeat))
                 || (!ended && (leftovers.length || move.leftoversSeat !== null))) return null;
+            if (recent.length && recent[recent.length - 1] !== card.id) return null;
             if (capturedCards.length) {
                 const before = capturedCards.slice(0, -1);
                 const expected = captureKind(before, card, ended);
@@ -375,7 +396,7 @@
     function sameValues(first, second) { return first.every((value, index) => value === second[index]); }
 
     return Object.freeze({
-        SUITS, RANKS, MODES, DIFFICULTIES, createDeck, shuffleDeck, secureRandomInt, cardPoints,
+        SUITS, RANKS, MODES, DIFFICULTIES, RECENT_MEMORY_LIMIT, createDeck, shuffleDeck, secureRandomInt, cardPoints,
         createGame, playCard, nextRound, getRoundSummary, getPlayerView, chooseMove, serializeState, restoreState,
     });
 });

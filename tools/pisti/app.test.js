@@ -33,6 +33,8 @@ function harness({ initial, controlledAnimations = false, brokenAnimations = fal
     const animations = [];
     const renders = [];
     const endings = [];
+    const choiceDifficulties = [];
+    const preferenceCalls = [];
     let writes = 0;
     let choices = 0;
     let cancellations = 0;
@@ -47,7 +49,7 @@ function harness({ initial, controlledAnimations = false, brokenAnimations = fal
             ...core,
             createGame: (settings) => core.createGame(settings, random),
             nextRound: (state) => core.nextRound(state, random),
-            chooseMove(...args) { choices += 1; return core.chooseMove(...args); },
+            chooseMove(...args) { choices += 1; choiceDifficulties.push(args[2]); return core.chooseMove(...args); },
         },
         clock,
         storage,
@@ -72,9 +74,10 @@ function harness({ initial, controlledAnimations = false, brokenAnimations = fal
         },
         cancelAnimations() { cancellations += 1; },
         onRoundEnd(game) { endings.push(game); },
+        onPreferences(preferences) { preferenceCalls.push(preferences); },
     });
     return {
-        controller, clock, storage, animations, renders, endings,
+        controller, clock, storage, animations, renders, endings, choiceDifficulties, preferenceCalls,
         writes: () => writes,
         choices: () => choices,
         cancellations: () => cancellations,
@@ -220,7 +223,14 @@ for (const mode of ["duel", "teams"]) {
         assert.equal(app.controller.getState().moveNumber, 0);
         assert.deepEqual(app.controller.getState().scores, ended.scores);
         assert.equal(app.controller.getState().hands.every((hand) => hand.length === 4), true);
+        assert.equal(app.controller.getState().difficulty, "medium");
+        assert.ok(app.choiceDifficulties.length > 0);
+        assert.ok(app.choiceDifficulties.every((difficulty) => difficulty === "medium"));
         assert.ok(core.restoreState(JSON.parse(app.storage.value).game));
+        assert.equal(JSON.parse(app.storage.value).game.difficulty, "medium");
+        app.clock.next();
+        await settle();
+        assert.equal(app.choiceDifficulties.at(-1), "medium");
         app.controller.destroy();
     });
 }
@@ -264,5 +274,82 @@ test("kaydedilmiş maç sonucu tekrar puanlanmaz ve yeni maç ses tercihini koru
     assert.equal(app.controller.getState().currentSeat, 0);
     assert.deepEqual(app.controller.getPreferences(), { muted: true, volume: 0.1 });
     assert.ok(core.restoreState(JSON.parse(app.storage.value).game));
+    app.controller.destroy();
+});
+
+for (const difficulty of ["easy", "hard"]) {
+    test(`eski ${difficulty} kaydı kartlar, puanlar ve sıra korunarak orta seviyeye taşınır`, () => {
+        const random = seededCrypto(19);
+        let progress = core.createGame({ mode: "teams", difficulty, target: 151 }, random);
+        while (progress.phase === "playing") {
+            progress = core.playCard(progress, progress.currentSeat, core.chooseMove(progress, progress.currentSeat));
+        }
+        assert.equal(progress.phase, "round-over");
+        progress = core.nextRound(progress, random);
+        progress = core.playCard(progress, progress.currentSeat, core.chooseMove(progress, progress.currentSeat));
+        const original = core.serializeState(progress);
+        assert.ok(original.scores.some((score) => score > 0));
+        assert.ok(original.hands.some((hand) => hand.length !== 4));
+        const expected = { ...original, difficulty: "medium" };
+        const app = harness({ initial: progress });
+        app.controller.start();
+
+        assert.deepEqual(core.serializeState(app.controller.getState()), expected);
+        assert.deepEqual(JSON.parse(app.storage.value).game, expected);
+        assert.equal(app.writes(), 1);
+        assert.equal(app.choices(), 0);
+        assert.equal(app.clock.tasks.size, 1);
+        assert.ok(core.restoreState(JSON.parse(app.storage.value).game));
+        app.controller.destroy();
+    });
+}
+
+test("yeni oyundaki kolay veya zor isteği modu ve hedefi koruyarak her zaman orta seviyeyi kullanır", async () => {
+    const app = harness();
+    app.controller.start();
+    await settle();
+    for (const [difficulty, mode, target] of [["hard", "teams", 51], ["easy", "duel", 101]]) {
+        assert.equal(app.controller.newGame({ difficulty, mode, target }), true);
+        await settle();
+        const state = app.controller.getState();
+        assert.equal(state.difficulty, "medium");
+        assert.equal(state.mode, mode);
+        assert.equal(state.target, target);
+        assert.deepEqual(state.scores, [0, 0]);
+        assert.equal(JSON.parse(app.storage.value).game.difficulty, "medium");
+        assert.equal(app.controller.play(state.hands[0][0].id), true);
+        await settle();
+        app.clock.next();
+        await settle();
+        assert.equal(app.choiceDifficulties.at(-1), "medium");
+    }
+    assert.deepEqual(app.choiceDifficulties, ["medium", "medium"]);
+    app.controller.destroy();
+});
+
+test("dağıtım sırasında ses değişikliği kartları yeniden çizmez ve bitişte güncel tercihler görünür", async () => {
+    const app = harness({ controlledAnimations: true });
+    app.controller.start();
+    const renderCount = app.renders.length;
+    const cancellationCount = app.cancellations();
+    const snapshot = core.serializeState(app.controller.getState());
+    const cardId = app.controller.getView().hand[0].id;
+    app.controller.setPreferences({ muted: true, volume: 0.65 });
+
+    assert.equal(app.renders.length, renderCount);
+    assert.equal(app.cancellations(), cancellationCount);
+    assert.equal(app.controller.isBusy(), true);
+    assert.equal(app.controller.play(cardId), false);
+    assert.equal(app.clock.tasks.size, 0);
+    assert.deepEqual(app.preferenceCalls, [{ muted: true, volume: 0.65 }]);
+    assert.deepEqual(JSON.parse(app.storage.value).game, snapshot);
+    assert.equal(JSON.parse(app.storage.value).muted, true);
+    assert.equal(JSON.parse(app.storage.value).volume, 0.65);
+
+    app.finish();
+    await settle();
+    assert.equal(app.controller.isBusy(), false);
+    assert.deepEqual(app.renders.at(-1).ui.preferences, { muted: true, volume: 0.65 });
+    assert.equal(app.controller.play(cardId), true);
     app.controller.destroy();
 });

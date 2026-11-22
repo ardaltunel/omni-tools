@@ -49,7 +49,7 @@ The project mainly focuses on:
 * Blackjack
 * Block Blast
 * Rulet
-* Pişti — iki kişilik ve eşli dört kişilik, üç yapay zekâ zorluğu
+* Pişti — iki kişilik ve eşli dört kişilik, kartları takip eden doğal rakipler
 * Slot Oyunu
 * Nebuu
 * Satranç

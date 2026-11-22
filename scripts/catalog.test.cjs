@@ -69,9 +69,9 @@ test("only catalog literals execute and malformed source or duplicate IDs fail",
 
 test("critical local bootstrap and direct selection precede remote dependencies", () => {
     const footer = html.slice(html.indexOf("// Select real tool content"));
-    assert.ok(footer.indexOf('src="index.js?v=home8"') < footer.indexOf('id="qr-code-library"'));
+    assert.ok(footer.indexOf('src="index.js?v=home9"') < footer.indexOf('id="qr-code-library"'));
     assert.ok(footer.indexOf('src="tools/ambient-display/app.js') < footer.indexOf('id="qr-code-library"'));
-    assert.match(html, /rel="preload" as="script" href="index.js\?v=home8" fetchpriority="high"/);
+    assert.match(html, /rel="preload" as="script" href="index.js\?v=home9" fetchpriority="high"/);
     assert.match(html, /id="qr-code-library"[^>]* async>/);
     assert.match(html, /window\.coi = \{ quiet: true, doReload: \(\) => \{\} \}/);
     assert.ok(source.lastIndexOf("initializeToolRouting();") > source.lastIndexOf("prepareTypingTest(true);"));

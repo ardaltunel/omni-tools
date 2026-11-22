@@ -12,7 +12,13 @@
 
 ## Gizli bilgi ve kayıt
 
-Başlangıçtaki üç kapalı kartı yalnızca ilk toplamayı yapan taraf öğrenir. Yapay zekâ kendi elini, görülen kartları ve kendi tarafının öğrendiği kartları kullanır; rakip elleri veya desteyi okuyarak karar vermez. El ve maç puanları tek kez işlenir; oyun bu durumdan geri yüklenir.
+Başlangıçtaki üç kapalı kartı yalnızca ilk toplamayı yapan taraf öğrenir. El ve maç puanları tek kez işlenir; oyun bu durumdan geri yüklenir.
+
+## Rakibin oyun tarzı
+
+Rakipler tek bir orta seviyede oynar. Açık Pişti ve aynı rütbeyle toplama fırsatlarını değerlendirir, puanlı kartların bulunduğu ortayı önemser ve Vale'yi küçük, düşük değerli yığınlarda korumaya çalışır. Eşli oyunda ortağının son toplamasını da hesaba katar.
+
+Kart takibi kendi eli, masanın mevcut görünümü ve en son oynanan en fazla 10 açık kartla sınırlıdır. Bu yakın geçmiş, boş masaya hangi kartı bırakacağını hafifçe etkiler. Eski toplanmış kartların tamamını saymaz; rakibinin veya ortağının elini ve kalan desteyi karar için kullanmaz. Yeni elde yakın geçmiş sıfırlanır. Eski kayıtlarda bu alan yoksa oyun korunur ve yakın geçmiş boş başlar.
 
 ## Kaynaklar ve varyant
 

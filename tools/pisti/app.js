@@ -10,6 +10,7 @@
     "use strict";
 
     const STORAGE_KEY = "omni-pisti-v1";
+    const AI_DIFFICULTY = "medium";
 
     function createController(options) {
         const { core } = options;
@@ -20,7 +21,9 @@
         if (!saved || typeof saved !== "object") saved = {};
         let state = core.restoreState(saved.game);
         const restored = Boolean(state);
-        if (!state) state = core.createGame({ mode: "duel", difficulty: "medium", target: 151 });
+        const normalizeDifficulty = restored && state.difficulty !== AI_DIFFICULTY;
+        if (normalizeDifficulty) state = { ...state, difficulty: AI_DIFFICULTY };
+        if (!state) state = core.createGame({ mode: "duel", difficulty: AI_DIFFICULTY, target: 151 });
         let preferences = {
             muted: saved.muted === true,
             volume: Number.isFinite(saved.volume) ? Math.max(0, Math.min(1, saved.volume)) : 0.25,
@@ -75,7 +78,7 @@
                 if (timer !== handle) return;
                 timer = null;
                 if (!isLive() || busy || generation !== token || state !== expected || state.phase !== "playing" || state.currentSeat === 0) return;
-                const cardId = core.chooseMove(state, state.currentSeat, state.difficulty);
+                const cardId = core.chooseMove(state, state.currentSeat, AI_DIFFICULTY);
                 if (cardId) commit(core.playCard(state, state.currentSeat, cardId));
             }, options.aiDelay ?? 540);
             timer = handle;
@@ -121,6 +124,7 @@
                     save();
                     present(null, null, true);
                 } else {
+                    if (normalizeDifficulty) save();
                     render();
                     notifyTerminal();
                     scheduleAI();
@@ -132,7 +136,7 @@
             },
             newGame(settings) {
                 if (disposed) return false;
-                const next = core.createGame(settings);
+                const next = core.createGame({ ...settings, difficulty: AI_DIFFICULTY });
                 stopWork();
                 terminalKey = null;
                 state = next;
@@ -172,7 +176,7 @@
                 };
                 save();
                 options.onPreferences?.({ ...preferences });
-                render();
+                if (!busy) render();
             },
             getState: () => state,
             getView: safeView,
@@ -193,14 +197,17 @@
                 <header class="pisti-topbar">
                     <div class="pisti-heading"><span class="pisti-eyebrow">KLASİK KART OYUNU</span><h2 id="pisti-title">Pişti</h2></div>
                     <div class="pisti-toolbar">
-                        <button id="pisti-help" type="button" class="pisti-icon-button" aria-label="Pişti kuralları ve puanlama">Kurallar</button>
-                        <button id="pisti-sound" type="button" class="pisti-icon-button" aria-pressed="true">Ses açık</button>
-                        <label class="pisti-volume-control">Ses <input id="pisti-volume" type="range" min="0" max="100" value="25" aria-label="Oyun sesi seviyesi"><output id="pisti-volume-value">%25</output></label>
+                        <div class="pisti-volume-control">
+                            <button id="pisti-sound" type="button" class="pisti-icon-button" aria-pressed="true" aria-label="Oyun seslerini kapat" title="Ses"><span aria-hidden="true">🔊</span></button>
+                            <div class="pisti-volume-popover">
+                                <label for="pisti-volume">Ses seviyesi <output id="pisti-volume-value" for="pisti-volume">%25</output></label>
+                                <input id="pisti-volume" type="range" min="0" max="100" step="1" value="25" aria-label="Oyun sesi seviyesi">
+                            </div>
+                        </div>
                     </div>
                 </header>
                 <div class="pisti-settings">
                     <label>Oyun <select id="pisti-mode"><option value="duel">İki Kişi</option><option value="teams">Eşli Dört Kişi</option></select></label>
-                    <label>Rakip <select id="pisti-difficulty"><option value="easy">Kolay</option><option value="medium" selected>Orta</option><option value="hard">Zor</option></select></label>
                     <label>Hedef <select id="pisti-target"><option value="51">51 puan</option><option value="101">101 puan</option><option value="151" selected>151 puan</option></select></label>
                     <button id="pisti-new-game" type="button" class="pisti-primary-button">Yeni Oyun</button>
                 </div>
@@ -216,7 +223,6 @@
                 <div class="pisti-action-row"><p id="pisti-status" role="status" aria-live="polite"></p><span class="pisti-key-hint">1–4 ile kart oyna</span><button id="pisti-next-round" type="button" class="pisti-primary-button" hidden>Sonraki El</button></div>
             </div>
             <dialog id="pisti-dialog" class="pisti-dialog" aria-labelledby="pisti-result-title"><h3 id="pisti-result-title"></h3><p id="pisti-result-description"></p><div id="pisti-round-scores" class="pisti-round-scores"></div><div class="pisti-dialog-actions"><button id="pisti-close-result" type="button">Masaya Dön</button><button id="pisti-continue" type="button" class="pisti-primary-button">Sonraki El</button></div></dialog>
-            <dialog id="pisti-help-dialog" class="pisti-dialog pisti-help-dialog" aria-labelledby="pisti-help-title"><h3 id="pisti-help-title">Kısaca Pişti</h3><ul class="pisti-rules-list"><li>Üsttekiyle aynı değerde bir kart veya vale oynayıp ortayı topla.</li><li>Ortada tek kart varken eşini atmak pişti: 10 puan. Tek valeye vale: 20 puan. Vale ile başka tek kartı almak pişti sayılmaz.</li><li>Her as ve vale 1, sinek ikilisi 2, karo onlusu 3 puandır. En çok kartı toplayan takım 3 puan alır; eşitlikte verilmez.</li><li>Elin son oynanan kartında pişti bonusu verilmez. Ortada kalan kartlar son toplayana gider.</li><li>Eşli oyunda karşındaki oyuncu takım arkadaşındır. İlk üç kapalı kartı yalnızca onları alan takım görebilir.</li></ul><button id="pisti-close-help" type="button" class="pisti-primary-button">Anladım</button></dialog>
             <dialog id="pisti-captures-dialog" class="pisti-dialog" aria-labelledby="pisti-captures-title"><h3 id="pisti-captures-title">Kazandığınız Kartlar</h3><p>Takımınızın bildiği toplanmış kartlar.</p><div id="pisti-captured-grid" class="pisti-captured-grid"></div><button id="pisti-close-captures" type="button" class="pisti-primary-button">Masaya Dön</button></dialog>`;
         const get = (name) => document.getElementById(`pisti-${name}`);
         const seats = [...app.querySelectorAll(".pisti-seat")];
@@ -234,7 +240,7 @@
         const names = (game) => game.mode === "teams" ? ["Sen", "Rakip 1", "Eşin", "Rakip 2"] : ["Sen", "Rakip"];
         const teams = (game) => game.mode === "teams" ? ["Sen & Eşin", "Rakip Takım"] : ["Sen", "Rakip"];
         const teamOf = (seat, game) => game.mode === "teams" ? seat % 2 : seat;
-        const live = () => panel.classList.contains("active") && !document.hidden && !get("help-dialog").open && !get("captures-dialog").open;
+        const live = () => panel.classList.contains("active") && !document.hidden && !get("captures-dialog").open;
 
         function element(tag, className, text) {
             const node = document.createElement(tag);
@@ -244,6 +250,15 @@
         }
 
         function sound(kind) { if (live()) audio?.play(kind); }
+
+        function renderPreferences(preferences) {
+            get("sound").firstElementChild.textContent = preferences.muted ? "🔇" : "🔊";
+            get("sound").setAttribute("aria-pressed", String(!preferences.muted));
+            get("sound").setAttribute("aria-label", preferences.muted ? "Oyun seslerini aç" : "Oyun seslerini kapat");
+            get("sound").title = preferences.muted ? "Sesi aç" : "Sesi kapat";
+            get("volume").value = String(Math.round(preferences.volume * 100));
+            get("volume-value").textContent = `%${get("volume").value}`;
+        }
 
         function render(game, ui) {
             const playing = game.phase === "playing";
@@ -311,10 +326,7 @@
             get("deck").classList.toggle("is-empty", !game.deckCount);
             get("next-round").hidden = playing;
             get("next-round").textContent = game.phase === "match-over" ? "Yeni Maç" : "Sonraki El";
-            get("sound").textContent = ui.preferences.muted ? "Ses kapalı" : "Ses açık";
-            get("sound").setAttribute("aria-pressed", String(!ui.preferences.muted));
-            get("volume").value = String(Math.round(ui.preferences.volume * 100));
-            get("volume-value").textContent = `%${get("volume").value}`;
+            renderPreferences(ui.preferences);
             if (!playing) get("status").textContent = game.phase === "match-over" ? "Maç tamamlandı. Puanları inceleyip yeni bir maç başlatabilirsin." : "El tamamlandı. Sonraki ele geçebilirsin.";
             else if (ui.busy) get("status").textContent = game.lastMove ? `${names(game)[game.lastMove.seat]} kartını oynuyor…` : "Kartlar dağıtılıyor…";
             else get("status").textContent = game.currentSeat === 0 ? "Sıra sende. Bir kart seç." : `${names(game)[game.currentSeat]} düşünüyor…`;
@@ -457,7 +469,7 @@
             storage: { getItem: (key) => view.localStorage.getItem(key), setItem: (key, value) => view.localStorage.setItem(key, value) },
             clock: { setTimeout: (callback, delay) => view.setTimeout(callback, delay), clearTimeout: (handle) => view.clearTimeout(handle) },
             render, prepare, animate, cancelAnimations, onRoundEnd: showRoundEnd,
-            onPreferences(preferences) { audio?.setMuted(preferences.muted); audio?.setVolume(preferences.volume); },
+            onPreferences(preferences) { audio?.setMuted(preferences.muted); audio?.setVolume(preferences.volume); renderPreferences(preferences); },
         }); } catch {
             get("status").textContent = "Güvenli kart karıştırma başlatılamadı. Güncel bir tarayıcıda tekrar dene.";
             get("new-game").disabled = true;
@@ -466,17 +478,16 @@
         audio = view.OmniPistiAudio?.create(controller.getPreferences());
         const initial = controller.getView();
         get("mode").value = initial.mode;
-        get("difficulty").value = initial.difficulty;
         get("target").value = String(initial.target);
 
         function syncActivity() {
-            if (!panel.classList.contains("active")) for (const id of ["dialog", "help-dialog", "captures-dialog"]) if (get(id).open) get(id).close();
+            if (!panel.classList.contains("active")) for (const id of ["dialog", "captures-dialog"]) if (get(id).open) get(id).close();
             controller.setActive(live());
         }
 
         function continueGame() {
             get("dialog").close();
-            if (controller.getState().phase === "match-over") controller.newGame({ mode: get("mode").value, difficulty: get("difficulty").value, target: Number(get("target").value) });
+            if (controller.getState().phase === "match-over") controller.newGame({ mode: get("mode").value, target: Number(get("target").value) });
             else controller.nextRound();
         }
 
@@ -496,13 +507,15 @@
         });
         get("new-game").addEventListener("click", () => {
             audio?.unlock();
-            for (const id of ["dialog", "help-dialog", "captures-dialog"]) if (get(id).open) get(id).close();
-            controller.newGame({ mode: get("mode").value, difficulty: get("difficulty").value, target: Number(get("target").value) });
+            for (const id of ["dialog", "captures-dialog"]) if (get(id).open) get(id).close();
+            controller.newGame({ mode: get("mode").value, target: Number(get("target").value) });
         });
         get("sound").addEventListener("click", () => { audio?.unlock(); controller.setPreferences({ muted: !controller.getPreferences().muted }); });
         get("volume").addEventListener("input", (event) => { audio?.unlock(); controller.setPreferences({ volume: Number(event.currentTarget.value) / 100 }); });
-        get("help").addEventListener("click", () => { showDialog(get("help-dialog")); syncActivity(); });
-        get("close-help").addEventListener("click", () => get("help-dialog").close());
+        const volumeControl = get("sound").closest(".pisti-volume-control");
+        volumeControl.addEventListener("pointerleave", (event) => {
+            if (event.pointerType === "mouse" && volumeControl.contains(document.activeElement)) document.activeElement.blur();
+        });
         get("close-captures").addEventListener("click", () => get("captures-dialog").close());
         get("close-result").addEventListener("click", () => get("dialog").close());
         get("continue").addEventListener("click", continueGame);
@@ -516,13 +529,13 @@
             showDialog(get("captures-dialog"));
             syncActivity();
         });
-        for (const id of ["dialog", "help-dialog", "captures-dialog"]) get(id).addEventListener("close", () => {
+        for (const id of ["dialog", "captures-dialog"]) get(id).addEventListener("close", () => {
             syncActivity();
             const previous = dialogFocus.get(get(id));
             if (panel.classList.contains("active")) {
                 const fallback = previous?.classList?.contains("pisti-captured-button")
                     ? app.querySelector(".pisti-captured-button")
-                    : [...get("human-hand").children].find((button) => !button.disabled) || (!get("next-round").hidden ? get("next-round") : get("help"));
+                    : [...get("human-hand").children].find((button) => !button.disabled) || (!get("next-round").hidden ? get("next-round") : get("new-game"));
                 const target = previous?.isConnected && !previous.disabled ? previous : fallback;
                 target?.focus({ preventScroll: true });
             }
