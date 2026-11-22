@@ -14,7 +14,7 @@ const source = fs.readFileSync(path.join(root, "index.js"), "utf8");
 const result = catalog.generateCatalog(html, source);
 
 test("committed first paint contains every canonical tool and category", () => {
-    assert.equal(result.tools.length, 60);
+    assert.equal(result.tools.length, 61);
     assert.equal(result.categories.length, 8);
     assert.equal((html.match(/class="app-home-card"/g) || []).length, result.tools.length);
     assert.equal((html.match(/class="app-home-category-section"/g) || []).length, result.categories.length);
@@ -69,9 +69,9 @@ test("only catalog literals execute and malformed source or duplicate IDs fail",
 
 test("critical local bootstrap and direct selection precede remote dependencies", () => {
     const footer = html.slice(html.indexOf("// Select real tool content"));
-    assert.ok(footer.indexOf('src="index.js?v=home7"') < footer.indexOf('id="qr-code-library"'));
+    assert.ok(footer.indexOf('src="index.js?v=home8"') < footer.indexOf('id="qr-code-library"'));
     assert.ok(footer.indexOf('src="tools/ambient-display/app.js') < footer.indexOf('id="qr-code-library"'));
-    assert.match(html, /rel="preload" as="script" href="index.js\?v=home7" fetchpriority="high"/);
+    assert.match(html, /rel="preload" as="script" href="index.js\?v=home8" fetchpriority="high"/);
     assert.match(html, /id="qr-code-library"[^>]* async>/);
     assert.match(html, /window\.coi = \{ quiet: true, doReload: \(\) => \{\} \}/);
     assert.ok(source.lastIndexOf("initializeToolRouting();") > source.lastIndexOf("prepareTypingTest(true);"));
@@ -101,6 +101,9 @@ test("head route selection avoids a catalog flash for query, path, file and lega
         ["https://owner.github.io/omni-tools/block-blast", "https://owner.github.io/omni-tools/", "block-blast"],
         ["https://owner.github.io/omni-tools/rulet", "https://owner.github.io/omni-tools/", "roulette"],
         ["https://owner.github.io/omni-tools/roulette", "https://owner.github.io/omni-tools/", "roulette"],
+        ["https://owner.github.io/omni-tools/pisti", "https://owner.github.io/omni-tools/", "pisti"],
+        ["https://example.test/?tool=pishti", undefined, "pisti"],
+        ["https://example.test/?tool=pispirik", undefined, "pisti"],
     ]) {
         const document = select(url, base);
         assert.equal(document.documentElement.dataset.initialTool, expected);

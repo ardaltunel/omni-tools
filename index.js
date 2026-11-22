@@ -21,6 +21,8 @@ const legacyToolRoutes = Object.freeze({
     milyoner: "milyoner-bilgi-yarismasi",
     weather: "weather-app",
     "deal-game": "var-misin-yok-musun",
+    pishti: "pisti",
+    pispirik: "pisti",
 });
 const preferredToolRoutes = Object.freeze(Object.fromEntries(
     Array.from(navItems, (item) => [
@@ -661,6 +663,11 @@ function updatePageMetadata(tool) {
             title: "Rulet | Omni Tools",
             description: "Tek sıfırlı Avrupa ruletinde sanal çiplerini yerleştir, çarkı döndür ve sonucu takip et.",
             keywords: "rulet, roulette, avrupa ruleti, tek sıfır, sanal çip, rulet çarkı, masa oyunu",
+        },
+        pisti: {
+            title: "Pişti | Omni Tools",
+            description: "Klasik Türk Pişti oyununu iki kişi veya eşli dört kişi oyna. Üç zorluk seviyesi, stratejik rakipler ve akıcı kart animasyonları.",
+            keywords: "pişti, pisti, pişpirik, Türk kart oyunu, eşli pişti, 2 kişilik pişti, 4 kişilik pişti, iskambil, yapay zekâ",
         },
         "farkli-rengi-bul": {
             title: "Farklı Rengi Bul | Omni Tools",
