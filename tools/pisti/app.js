@@ -192,6 +192,8 @@
         const app = document.getElementById("pisti-app");
         if (!app || app.dataset.ready === "true") return;
         app.dataset.ready = "true";
+        const personIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20v-1.5a6.5 6.5 0 0 1 13 0V20"/></svg>';
+        const teamIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1M16 5.5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4.6V20"/></svg>';
         app.innerHTML = `
             <div class="pisti-shell">
                 <header class="pisti-topbar">
@@ -207,11 +209,18 @@
                     </div>
                 </header>
                 <div class="pisti-settings">
-                    <label>Oyun <select id="pisti-mode"><option value="duel">İki Kişi</option><option value="teams">Eşli Dört Kişi</option></select></label>
-                    <label>Hedef <select id="pisti-target"><option value="51">51 puan</option><option value="101">101 puan</option><option value="151" selected>151 puan</option></select></label>
-                    <button id="pisti-new-game" type="button" class="pisti-primary-button">Yeni Oyun</button>
+                    <fieldset class="pisti-setting-group"><legend>Oyun türü</legend><div class="pisti-setting-options">
+                        <label class="pisti-option" for="pisti-mode-duel"><input id="pisti-mode-duel" name="pisti-mode" type="radio" value="duel" checked><span class="pisti-option-icon" aria-hidden="true">${personIcon}</span><span class="pisti-option-copy"><span>İki Kişi</span><small>Bire bir</small></span></label>
+                        <label class="pisti-option" for="pisti-mode-teams"><input id="pisti-mode-teams" name="pisti-mode" type="radio" value="teams"><span class="pisti-option-icon" aria-hidden="true">${teamIcon}</span><span class="pisti-option-copy"><span>Eşli Oyun</span><small>2’ye 2</small></span></label>
+                    </div></fieldset>
+                    <fieldset class="pisti-setting-group is-target"><legend>Hedef puan</legend><div class="pisti-setting-options">
+                        <label class="pisti-option" for="pisti-target-51"><input id="pisti-target-51" name="pisti-target" type="radio" value="51"><span class="pisti-option-copy"><span>51</span><small>puan</small></span></label>
+                        <label class="pisti-option" for="pisti-target-101"><input id="pisti-target-101" name="pisti-target" type="radio" value="101"><span class="pisti-option-copy"><span>101</span><small>puan</small></span></label>
+                        <label class="pisti-option" for="pisti-target-151"><input id="pisti-target-151" name="pisti-target" type="radio" value="151" checked><span class="pisti-option-copy"><span>151</span><small>puan</small></span></label>
+                    </div></fieldset>
+                    <button id="pisti-new-game" type="button" class="pisti-primary-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 7v5h-5M4.4 9a8 8 0 0 1 13.2-3L20 9M4 17v-5h5m10.6 3A8 8 0 0 1 6.4 18L4 15"/></svg><span>Yeni Oyun</span></button>
                 </div>
-                <div class="pisti-scoreboard" aria-label="Maç puanları"><div class="pisti-team-score" data-team="0"></div><div class="pisti-match-progress"><span id="pisti-round"></span><small id="pisti-target-label"></small></div><div class="pisti-team-score" data-team="1"></div></div>
+                <div class="pisti-scoreboard" aria-label="Maç puanları"><div class="pisti-team-score" data-team="0"></div><div class="pisti-match-progress"><small class="pisti-match-label">Maç</small><span id="pisti-round"></span><small id="pisti-target-label"></small></div><div class="pisti-team-score" data-team="1"></div></div>
                 <div class="pisti-table" id="pisti-table" data-players="2">
                     <div class="pisti-seat" data-seat="0"><div class="pisti-seat-meta"></div><div id="pisti-human-hand" class="pisti-human-hand" aria-label="Elindeki kartlar"></div></div>
                     <div class="pisti-seat" data-seat="1"><div class="pisti-seat-meta"></div><div class="pisti-opponent-hand" aria-hidden="true"></div></div>
@@ -249,6 +258,26 @@
             return node;
         }
 
+        function avatar(className, teams = false) {
+            const node = element("span", className);
+            node.setAttribute("aria-hidden", "true");
+            node.innerHTML = teams ? teamIcon : personIcon;
+            return node;
+        }
+
+        function stat(value, label, className = "pisti-stat") {
+            const node = element("span", className);
+            node.append(element("b", "", format.format(value)), element("span", "", label));
+            return node;
+        }
+
+        function readNewGameSettings() {
+            return {
+                mode: app.querySelector('input[name="pisti-mode"]:checked')?.value || "duel",
+                target: Number(app.querySelector('input[name="pisti-target"]:checked')?.value || 151),
+            };
+        }
+
         function sound(kind) { if (live()) audio?.play(kind); }
 
         function renderPreferences(preferences) {
@@ -277,8 +306,11 @@
                 const pisti = game.pisti[team].normal + game.pisti[team].jack;
                 node.classList.toggle("is-leading", game.scores[team] > game.scores[1 - team]);
                 const total = element("strong", "pisti-team-total", format.format(game.scores[team]));
-                const detail = element("small", "pisti-team-detail", `${count} kart · ${pisti} pişti`);
-                node.replaceChildren(element("span", "pisti-team-name", teamNames[team]), total, detail);
+                total.setAttribute("aria-label", `${teamNames[team]}: ${format.format(game.scores[team])} puan`);
+                const detail = element("div", "pisti-team-detail");
+                detail.title = "Bu elde toplanan kartlar ve yapılan piştiler";
+                detail.append(stat(count, "kart"), stat(pisti, "pişti"));
+                node.replaceChildren(avatar("pisti-team-avatar", game.mode === "teams"), element("span", "pisti-team-name", teamNames[team]), total, detail);
                 if (renderedScores && game.scores[team] > renderedScores[team]) counterPop(total);
                 if (renderedCounts && count > renderedCounts.reduce((sum, value, seat) => sum + (teamOf(seat, game) === team ? value : 0), 0)) counterPop(detail);
             });
@@ -291,15 +323,21 @@
                 seat.dataset.team = String(teamOf(index, game));
                 const meta = seat.querySelector(".pisti-seat-meta");
                 const name = element("span", "pisti-seat-name", names(game)[index]);
-                if (game.dealer === index) name.append(element("small", "pisti-dealer-marker", "D"));
-                const count = element(teamOf(index, game) === 0 ? "button" : "span", "pisti-captured", `${game.capturedCounts[index]} kart`);
+                if (game.dealer === index) {
+                    const marker = element("small", "pisti-dealer-marker", "D");
+                    marker.title = "Kartları dağıtan oyuncu";
+                    marker.setAttribute("aria-label", "Dağıtan");
+                    name.append(marker);
+                }
+                const count = element(teamOf(index, game) === 0 ? "button" : "span", "pisti-captured");
+                count.append(element("b", "", format.format(game.capturedCounts[index])), element("span", "", "kart"));
                 if (count.tagName === "BUTTON") {
                     count.type = "button";
                     count.classList.add("pisti-captured-button");
                     count.dataset.captures = "true";
-                    count.setAttribute("aria-label", "Takımınızın kazandığı kartları gör");
+                    count.setAttribute("aria-label", `${names(game)[index]}: ${game.capturedCounts[index]} kart topladı. Takımınızın kazandığı kartları gör`);
                 }
-                meta.replaceChildren(name, count);
+                meta.replaceChildren(avatar("pisti-seat-avatar"), name, count);
                 if (renderedCounts && game.capturedCounts[index] > (renderedCounts[index] || 0)) counterPop(count);
                 if (index > 0) {
                     seat.querySelector(".pisti-opponent-hand").replaceChildren(...Array.from({ length: game.handCounts[index] }, () => cards.create(null, { faceDown: true, small: true })));
@@ -477,8 +515,8 @@
         }
         audio = view.OmniPistiAudio?.create(controller.getPreferences());
         const initial = controller.getView();
-        get("mode").value = initial.mode;
-        get("target").value = String(initial.target);
+        (get(`mode-${initial.mode}`) || get("mode-duel")).checked = true;
+        (get(`target-${initial.target}`) || get("target-151")).checked = true;
 
         function syncActivity() {
             if (!panel.classList.contains("active")) for (const id of ["dialog", "captures-dialog"]) if (get(id).open) get(id).close();
@@ -487,7 +525,7 @@
 
         function continueGame() {
             get("dialog").close();
-            if (controller.getState().phase === "match-over") controller.newGame({ mode: get("mode").value, target: Number(get("target").value) });
+            if (controller.getState().phase === "match-over") controller.newGame(readNewGameSettings());
             else controller.nextRound();
         }
 
@@ -508,7 +546,7 @@
         get("new-game").addEventListener("click", () => {
             audio?.unlock();
             for (const id of ["dialog", "captures-dialog"]) if (get(id).open) get(id).close();
-            controller.newGame({ mode: get("mode").value, target: Number(get("target").value) });
+            controller.newGame(readNewGameSettings());
         });
         get("sound").addEventListener("click", () => { audio?.unlock(); controller.setPreferences({ muted: !controller.getPreferences().muted }); });
         get("volume").addEventListener("input", (event) => { audio?.unlock(); controller.setPreferences({ volume: Number(event.currentTarget.value) / 100 }); });

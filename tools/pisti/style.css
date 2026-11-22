@@ -32,24 +32,45 @@
 .pisti-volume-popover label { order: 2; flex: 0 0 32px; margin: 0; font-size: 0; font-weight: 500; }
 #pisti-volume { flex: 1; width: 110px; min-width: 0; min-height: 36px; margin: 0; accent-color: var(--accent); cursor: pointer; }
 #pisti-volume-value { color: var(--accent); font-size: 11px; font-variant-numeric: tabular-nums; }
-.pisti-settings { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin-bottom: 16px; }
-.pisti-settings label { display: grid; flex: 1 1 130px; gap: 6px; min-width: 0; color: var(--pisti-muted); font-size: 11px; }
-.pisti-settings select { min-width: 0; width: 100%; min-height: 42px; padding: 9px 28px 9px 11px; border: 1px solid #405348; border-radius: 9px; background: #1c2b24; color: #eee9d8; font-size: 12px; }
-.pisti-settings > button { flex: 0 0 auto; }
+.pisti-settings { display: grid; grid-template-columns: minmax(240px, 1.5fr) minmax(210px, 1fr) auto; align-items: end; gap: 16px; margin-bottom: 18px; padding: 15px; border: 1px solid #43504780; border-radius: 14px; background: linear-gradient(135deg, #202a25, #19231f); box-shadow: inset 0 1px #ffffff04; }
+.pisti-setting-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.pisti-setting-group legend { margin: 0 0 8px; padding: 0; color: #b5bea9; font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.pisti-setting-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; min-width: 0; }
+.pisti-setting-group.is-target .pisti-setting-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pisti-option { position: relative; display: flex; align-items: center; gap: 9px; min-width: 0; min-height: 60px; padding: 10px; border: 1px solid #3b4c40; border-radius: 9px; background: #151f1b; color: #b7c3b7; cursor: pointer; touch-action: manipulation; transition: background-color 150ms, border-color 150ms; }
+.pisti-option input { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.pisti-option:hover:not(:has(input:disabled)) { border-color: #879579; background: #21352a; }
+.pisti-option:has(input:checked) { border-color: #91a980; background: linear-gradient(135deg, #294736, #1c3529); box-shadow: inset 0 1px #f2de9a10; }
+.pisti-option:has(input:focus-visible) { outline: 2px solid #ead09b; outline-offset: 3px; }
+.pisti-option:has(input:disabled) { opacity: .5; cursor: default; }
+.pisti-option-icon { display: grid; flex: 0 0 28px; place-items: center; width: 28px; height: 30px; border: 1px solid #a5bda225; border-radius: 8px; background: #a8bf9c09; color: #9faf9c; }
+.pisti-option-icon svg { width: 17px; height: 17px; }
+.pisti-option:has(input:checked) .pisti-option-icon { border-color: #d8c58a50; background: #d4c28d12; color: #dfcf9d; }
+.pisti-option-copy { display: grid; gap: 4px; min-width: 0; line-height: 1.2; }
+.pisti-option-copy > span { color: #e0e7d9; font-size: 12px; font-weight: 600; }
+.pisti-option-copy small { color: #91a78f; font-size: 9px; font-weight: 400; }
+.pisti-option:has(input:checked) .pisti-option-copy small { color: #b6c9a9; }
+.pisti-setting-group.is-target .pisti-option { justify-content: center; padding-inline: 5px; }
+.pisti-setting-group.is-target .pisti-option-copy { justify-items: center; gap: 3px; }
+.pisti-setting-group.is-target .pisti-option-copy > span { color: #e7d7ae; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+#pisti-new-game { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 60px; padding-inline: 18px; border-radius: 10px; white-space: nowrap; }
+#pisti-new-game svg { flex: 0 0 17px; width: 17px; height: 17px; }
 
 .pisti-scoreboard { display: grid; grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr); gap: 12px; margin-bottom: 20px; }
-.pisti-team-score { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 10px; min-width: 0; padding: 13px 16px; overflow: hidden; border: 1px solid #354f42; border-radius: 12px; background: linear-gradient(120deg, #20362b, #17271f); }
-.pisti-team-score[data-team="1"] { background: linear-gradient(120deg, #2e2d23, #20271f); }
-.pisti-team-score.is-leading { border-color: #b7a36a88; box-shadow: inset 0 1px #dfc18d0a; }
-.pisti-team-score > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
-.pisti-team-score strong { color: #ead4a5; font-size: 25px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; }
-.pisti-team-score span { color: #cad5c9; font-size: 12px; }
-.pisti-team-score small { display: block; margin-top: 5px; color: #97ad9d; font-size: 10px; line-height: 1.4; }
-.pisti-team-name { grid-column: 1; grid-row: 1; }
-.pisti-team-total { grid-column: 2; grid-row: 1 / 3; }
-.pisti-team-detail { grid-column: 1; grid-row: 2; }
+.pisti-team-score { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; min-width: 0; padding: 15px 16px; overflow: hidden; border: 1px solid #405246; border-radius: 14px; background: linear-gradient(120deg, #23352b, #1a2821); box-shadow: inset 0 1px #ffffff05; }
+.pisti-team-score[data-team="1"] { border-color: #544e3e; background: linear-gradient(120deg, #302f25, #222820); }
+.pisti-team-score.is-leading { border-color: #b7a36a99; box-shadow: inset 0 1px #dfc18d10; }
+.pisti-team-avatar { display: grid; grid-column: 1; grid-row: 1 / 3; place-items: center; width: 34px; height: 36px; border: 1px solid #8eb39b45; border-radius: 10px; background: #8eb39b0d; color: #bed5be; }
+.pisti-team-avatar svg { width: 20px; height: 20px; }
+.pisti-team-score[data-team="1"] .pisti-team-avatar { border-color: #c1a87345; background: #c1a8730d; color: #d4c08e; }
+.pisti-team-name { grid-column: 2; grid-row: 1; min-width: 0; color: #e0e7d8; font-size: 12px; font-weight: 600; line-height: 1.3; }
+.pisti-team-score .pisti-team-total { grid-column: 3; grid-row: 1 / 3; color: #eeddb7; font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.pisti-team-detail { display: flex; grid-column: 2; grid-row: 2; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; margin: 0; }
+.pisti-stat { display: inline-flex; align-items: baseline; gap: 4px; color: #8fa58f; font-size: 9px; line-height: 1.3; white-space: nowrap; }
+.pisti-stat b { color: #cad6ba; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .pisti-match-progress { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; }
 .pisti-match-progress small { color: #9aaa92; font-size: 10px; white-space: nowrap; }
+.pisti-match-progress > small:not([id]) { color: #b6a77d; font-size: 8px; font-weight: 600; letter-spacing: .16em; }
 .pisti-match-info { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--pisti-muted); font-size: 11px; }
 #pisti-round { color: #c8b88e; font-variant-numeric: tabular-nums; }
 #pisti-turn-label { color: #e3d5b7; }
@@ -73,14 +94,22 @@
 .pisti-table[data-players="2"] .pisti-seat[data-seat="1"], .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] { top: 22px; left: 50%; width: min(45%, 280px); transform: translateX(-50%); }
 .pisti-table[data-players="4"] .pisti-seat[data-seat="1"] { top: 44%; right: 16px; width: 115px; transform: translateY(-50%); }
 .pisti-table[data-players="4"] .pisti-seat[data-seat="3"] { top: 44%; left: 16px; width: 115px; transform: translateY(-50%); }
-.pisti-seat-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; max-width: 100%; padding: 7px 11px; border: 1px solid #728c6b40; border-radius: 9px; background: #0a2c24cc; box-shadow: 0 2px 7px #051b1740; transition: border-color 160ms, background-color 160ms; }
-.pisti-seat-name { color: #ececda; font-size: 12px; font-weight: 600; }
+.pisti-seat-meta { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 8px; max-width: 100%; padding: 7px 11px; border: 1px solid #728c6b40; border-radius: 24px; background: linear-gradient(130deg, #153c2f, #0a2b22); box-shadow: 0 2px 7px #051b1740, inset 0 1px #ffffff04; transition: border-color 160ms, background-color 160ms; }
+.pisti-seat-avatar { display: grid; flex: 0 0 22px; place-items: center; width: 22px; height: 22px; border: 1px solid #b5c59d4d; border-radius: 50%; background: #9eb89512; color: #cadbbd; }
+.pisti-seat-avatar svg { width: 13px; height: 13px; }
+.pisti-seat-name { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: #ececda; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .pisti-seat-score { color: #d5bf8a; font-size: 11px; font-variant-numeric: tabular-nums; }
-.pisti-captured { color: #a9b9a3; font-size: 10px; font-variant-numeric: tabular-nums; }
+.pisti-captured { display: inline-flex; align-items: center; justify-content: center; gap: 4px; color: #a9b9a3; font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pisti-captured b { color: #e2c994; font-size: 12px; font-weight: 600; }
+.pisti-captured > span { color: #94ad93; font-size: 9px; }
 .pisti-shell button.pisti-captured-button { min-height: 27px; padding: 3px 5px; border: 0; background: #d8c18a0a; color: #bdceb3; font-size: 10px; font-weight: 400; }
-.pisti-dealer-marker { display: inline-grid; place-items: center; width: 14px; height: 14px; margin-left: 5px; border: 1px solid #b9aa7a77; border-radius: 50%; color: #d3c38e; font-size: 8px; font-weight: 400; }
+.pisti-dealer-marker { display: inline-grid; place-items: center; width: 14px; height: 14px; margin-left: 0; border: 1px solid #b9aa7a77; border-radius: 50%; color: #d3c38e; font-size: 8px; font-weight: 400; }
 .pisti-seat.is-active .pisti-seat-meta { border-color: #e5c88f; background: #254d38; box-shadow: 0 0 0 3px #dec48b0d, 0 3px 12px #051b1744; }
-.pisti-seat.is-human .pisti-seat-name::before { content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 6px; border-radius: 50%; background: #a5d1a1; vertical-align: 2px; }
+.pisti-seat.is-human .pisti-seat-name::before { content: none; }
+.pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-seat-avatar { display: none; }
+.pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-seat-meta { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 3px; }
+.pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-seat-name { grid-row: 1; }
+.pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-captured { grid-row: 2; }
 .pisti-seat.is-partner .pisti-seat-name { color: #b8dbd6; }
 .pisti-opponent-hand { display: flex; align-items: center; justify-content: center; min-height: 85px; padding-inline: 12px; }
 .pisti-opponent-hand .pisti-card, .pisti-opponent-hand .pisti-card.is-small { width: 54px; margin-inline: -11px; box-shadow: 1px 2px 5px #0004; }
@@ -146,6 +175,11 @@
 .pisti-dialog button { min-height: 44px; padding: 10px 16px; border: 1px solid #7b8060; border-radius: 8px; background: #294431; color: #eee6cd; font: inherit; font-size: 12px; cursor: pointer; }
 .pisti-dialog button:focus-visible { outline: 2px solid #f2d59c; outline-offset: 3px; }
 
+@container pisti (max-width: 650px) {
+    .pisti-settings { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px; }
+    #pisti-new-game { grid-column: 1 / -1; justify-self: end; min-width: 140px; min-height: 48px; }
+}
+
 @container pisti (max-width: 700px) {
     .pisti-table { min-height: 610px; border-width: 10px; border-radius: 38% / 18%; }
     .pisti-table[data-players="4"] { min-height: 630px; }
@@ -163,22 +197,37 @@
     .pisti-topbar { align-items: start; gap: 12px; }
     .pisti-topbar h2 { font-size: 25px; }
     .pisti-toolbar { gap: 6px; }
-    .pisti-settings { gap: 8px; }
-    .pisti-settings label { flex-basis: calc(50% - 8px); }
-    .pisti-settings > button { flex: 1 1 100%; }
+    .pisti-settings { grid-template-columns: minmax(0, 1fr) 78px; gap: 14px 8px; padding: 12px 8px; }
+    .pisti-setting-group { grid-column: 1 / -1; }
+    .pisti-setting-group.is-target { grid-column: 1; }
+    .pisti-setting-group.is-target .pisti-setting-options { gap: 5px; }
+    .pisti-setting-group.is-target .pisti-option { min-height: 54px; padding-inline: 3px; }
+    .pisti-setting-group.is-target .pisti-option-copy > span { font-size: 18px; }
+    .pisti-option { gap: 7px; padding: 9px; }
+    .pisti-option-copy > span { font-size: 11px; }
+    #pisti-new-game { grid-column: 2; justify-self: stretch; gap: 4px; min-width: 0; min-height: 54px; padding-inline: 4px; font-size: 11px; }
+    #pisti-new-game svg { flex-basis: 14px; width: 14px; height: 14px; }
     .pisti-scoreboard { grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); gap: 8px; margin-bottom: 16px; }
-    .pisti-team-score { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 2px; padding: 10px 6px; text-align: center; }
-    .pisti-team-name { grid-column: 1; grid-row: 1; }
-    .pisti-team-total { grid-column: 1; grid-row: 2; }
-    .pisti-team-detail { grid-column: 1; grid-row: 3; }
-    .pisti-team-score strong { font-size: 22px; }
-    .pisti-team-score span { font-size: 11px; }
+    .pisti-team-score { grid-template-columns: 22px minmax(0, 1fr); gap: 7px 6px; padding: 10px 8px; }
+    .pisti-team-avatar { grid-column: 1; grid-row: 1; width: 22px; height: 24px; border-radius: 7px; }
+    .pisti-team-avatar svg { width: 14px; height: 14px; }
+    .pisti-team-name { grid-column: 2; grid-row: 1; font-size: 10px; line-height: 1.2; }
+    .pisti-team-score .pisti-team-total { grid-column: 1 / -1; grid-row: 2; font-size: 29px; text-align: center; }
+    .pisti-team-detail { grid-column: 1 / -1; grid-row: 3; justify-content: center; gap: 4px 8px; }
+    .pisti-stat { gap: 3px; font-size: 8px; }
+    .pisti-stat b { font-size: 10px; }
     .pisti-table { min-height: 570px; margin-inline: 4px; border-width: 8px; border-radius: 36px; }
     .pisti-table[data-players="4"] { min-height: 610px; }
     .pisti-table::before { inset: 10px; border-radius: 23px; }
     .pisti-seat[data-seat="0"] { bottom: 13px; width: calc(100% - 18px); gap: 10px; }
     .pisti-table[data-players="2"] .pisti-seat[data-seat="1"], .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] { top: 18px; width: 70%; }
     .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-opponent-hand { order: -1; }
+    .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-seat-avatar { display: none; }
+    .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-seat-meta { gap: 4px; padding: 5px 4px; }
+    .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-seat-name { gap: 3px; font-size: 10px; }
+    .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-captured { gap: 3px; padding-inline: 4px; }
+    .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-captured b { font-size: 11px; }
+    .pisti-table[data-players="4"] .pisti-seat[data-seat="2"] .pisti-captured > span { font-size: 8px; }
     .pisti-seat-name { font-size: 11px; }
     .pisti-seat-score, .pisti-captured { font-size: 10px; }
     .pisti-hand-card { width: clamp(70px, 23cqw, 76px); }
@@ -193,7 +242,11 @@
     .pisti-table[data-players="4"] .pisti-seat[data-seat="1"] { right: 5px; }
     .pisti-table[data-players="4"] .pisti-seat[data-seat="3"] { left: 5px; }
     .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-seat-meta { gap: 3px; padding: 5px 4px; }
-    .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-seat-name { font-size: 10px; }
+    .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-seat-name { gap: 3px; font-size: 9.5px; }
+    .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-dealer-marker { width: 10px; height: 10px; font-size: 6.5px; }
+    .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-captured { gap: 3px; font-size: 10px; }
+    .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-captured b { font-size: 10px; }
+    .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-captured > span { font-size: 8px; }
     .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-opponent-hand { min-height: 51px; padding-inline: 0; }
     .pisti-table[data-players="4"] :is(.pisti-seat[data-seat="1"], .pisti-seat[data-seat="3"]) .pisti-opponent-hand .pisti-card { width: 34px; margin-inline: -9px; }
     .pisti-table[data-players="4"] #pisti-deck { flex-basis: 38px; width: 38px; height: 53.2px; }
