@@ -19,9 +19,10 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
         return {
             value,
             targets: [],
+            ramps: [],
             cancelScheduledValues() {},
             setValueAtTime(next) { this.value = next; },
-            linearRampToValueAtTime(next) { this.value = next; },
+            linearRampToValueAtTime(next, time) { this.value = next; this.ramps.push({ value: next, time }); },
             setTargetAtTime(next) { this.targets.push(next); },
         };
     }
@@ -100,14 +101,14 @@ function createHarness({ deferred = false, failedFile = "", resumeBlocked = fals
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 test("audio recordings ship with valid audio headers and explicit CC0 provenance", () => {
-    for (const file of ["chip-lay-1.mp3", "chips-collide-1.mp3", "chips-stack-3.mp3", "roulette-roll.mp3"]) {
+    for (const file of ["chip-lay-1.mp3", "chips-collide-1.mp3", "chips-stack-3.mp3", "roulette-ball-soft.mp3"]) {
         const bytes = fs.readFileSync(path.join(__dirname, "audio", file));
         assert.ok(bytes.toString("ascii", 0, 3) === "ID3" || (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0));
         assert.ok(bytes.length > 1000);
     }
     const attribution = fs.readFileSync(path.join(__dirname, "audio", "ATTRIBUTION.md"), "utf8");
     assert.match(attribution, /CC0 1\.0/);
-    assert.match(attribution, /freesound\.org\/people\/KaleidacousticsAudio\/sounds\/629002/);
+    assert.match(attribution, /freesound\.org\/people\/f_ilippo\/sounds\/59194/);
     assert.match(attribution, /Kenney/);
 });
 
@@ -249,6 +250,38 @@ test("a spin is one timed recording that skips elapsed audio after loading or un
     audio.destroy();
 });
 
+test("the wheel stays below a quarter of the chip level and fades down before landing", async () => {
+    const harness = createHarness();
+    const audio = harness.create({ volume: 1 });
+    await audio.play("chip");
+    const context = harness.contexts[0];
+    const chipLevel = context.gains[1].gain.ramps[0].value;
+    assert.equal(chipLevel, 0.9, "chip feedback retains its existing level");
+    audio.startSpin();
+    audio.startSpin();
+    await flush();
+    assert.equal(context.sources.length, 2, "repeated spin notifications do not stack voices");
+    const envelope = context.gains[2].gain.ramps;
+    assert.ok(envelope[0].value <= chipLevel / 4, "wheel level must stay subordinate to short chip feedback");
+    assert.ok(envelope[0].time >= 0.25, "rolling starts with a gentle attack");
+    assert.ok(envelope[1].value < envelope[0].value);
+    assert.equal(envelope[2].value, 0);
+    assert.ok(envelope[2].time - envelope[1].time >= 0.35);
+    assert.equal(envelope[2].time, 6.8);
+    audio.stopSpin();
+    harness.advanceTime(3400);
+    audio.setMuted(true);
+    audio.startSpin();
+    await flush();
+    harness.advanceTime(3400);
+    audio.setMuted(false);
+    await flush();
+    const lateEnvelope = context.gains[3].gain.ramps;
+    assert.ok(lateEnvelope[0].value < envelope[0].value, "unmuting late does not restart at full rolling level");
+    assert.equal(lateEnvelope[2].time, 3.4);
+    audio.destroy();
+});
+
 test("an expired spin cannot start a full recording when a download finally completes", async () => {
     const harness = createHarness({ deferred: true });
     const audio = harness.create();
@@ -293,6 +326,6 @@ test("a hidden or stopped spin cannot release queued ticks or restart on unmute"
     audio.setMuted(true);
     audio.setMuted(false);
     await flush();
-    assert.equal(harness.contexts[0].sources.length, 1, "unmute reuses the current loop");
+    assert.equal(harness.contexts[0].sources.length, 1, "unmute reuses the current recording");
     audio.destroy();
 });

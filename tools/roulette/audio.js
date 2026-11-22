@@ -13,7 +13,7 @@
         chip: "chip-lay-1.mp3",
         collision: "chips-collide-1.mp3",
         stack: "chips-stack-3.mp3",
-        spin: "roulette-roll.mp3",
+        spin: "roulette-ball-soft.mp3",
     };
     const EFFECTS = {
         chip: { sample: "chip", gain: 0.9 },
@@ -120,7 +120,7 @@
             }
         }
 
-        function makeVoice(sample, gain, { offset = 0, playbackRate = 1, fadeIn = 0.006 } = {}) {
+        function makeVoice(sample, gain, { offset = 0, playbackRate = 1, fadeIn = 0.006, fadeOut = 0, tailGain = gain } = {}) {
             if (destroyed || muted || volume === 0 || !buffers.has(sample) || context.state !== "running") return null;
             try {
                 const source = context.createBufferSource();
@@ -128,8 +128,15 @@
                 source.buffer = buffers.get(sample);
                 source.loop = false;
                 source.playbackRate.value = playbackRate;
+                const remaining = (source.buffer.duration - offset) / playbackRate;
+                const attack = Math.min(fadeIn, remaining / 3);
                 envelope.gain.setValueAtTime(0, context.currentTime);
-                envelope.gain.linearRampToValueAtTime(gain, context.currentTime + fadeIn);
+                envelope.gain.linearRampToValueAtTime(gain, context.currentTime + attack);
+                if (fadeOut > 0) {
+                    const end = context.currentTime + remaining;
+                    envelope.gain.linearRampToValueAtTime(tailGain, end - Math.min(fadeOut, remaining / 3));
+                    envelope.gain.linearRampToValueAtTime(0, end);
+                }
                 source.connect(envelope).connect(filter);
                 const voice = { source, envelope };
                 source.onended = () => {
@@ -170,8 +177,10 @@
             const buffer = buffers.get("spin");
             if (!buffer || elapsed >= spinDuration) return;
             const playbackRate = buffer.duration / spinDuration;
-            spinVoice = makeVoice("spin", 0.75, {
-                offset: Math.max(0, elapsed * playbackRate), playbackRate, fadeIn: 0.12,
+            const progress = Math.max(0, elapsed / spinDuration);
+            spinVoice = makeVoice("spin", 0.22 - 0.12 * progress, {
+                offset: Math.max(0, elapsed * playbackRate), playbackRate,
+                fadeIn: 0.3, fadeOut: 0.4, tailGain: 0.1,
             });
         }
 
